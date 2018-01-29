@@ -392,6 +392,10 @@ public:
         {
           collectInbound(); 
         }
+        else
+        {
+          std::cout << "Amount of connections has reached its limit["<< connections << ", "<< mMaxConnections << std::endl;
+        }
         int ret=pollForEvents();
 
         if(ret>0)
