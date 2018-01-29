@@ -2,6 +2,6 @@ lapps.log
 dist/
 test/
 build/
-netbeans/private/
 nbproject/private/
+private
 private.xml
