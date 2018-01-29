@@ -174,29 +174,50 @@ template <bool TLSEnable=false> class WebSocket
   }
   ~WebSocket()
   {
-    if(mState==MESSAGING)
+    switch(mState)
     {
-      if(mSocketSPtr->isValid())
-      {
-        this->closeSocket(WebSocketProtocol::SHUTDOWN);
-        mSocketSPtr.get()->close();
-        if(TLSEnable)
+      case MESSAGING:
+        if((mSocketSPtr->isValid()))
         {
-          tls_close(TLSSocket);
-          tls_free(TLSSocket);
+          this->closeSocket(WebSocketProtocol::SHUTDOWN);
+          if(TLSEnable)
+          {
+            tls_close(TLSSocket);
+            tls_free(TLSSocket);
+          }
+          mSocketSPtr.get()->close();
         }
+        break;
+      case CLOSED:
+        if((mSocketSPtr->isValid()))
+        {
+          if(TLSEnable)
+          {
+            tls_close(TLSSocket);
+            tls_free(TLSSocket);
+          }
+          mSocketSPtr.get()->close();
+        }
+        break;
+      case HANDSHAKE:
         mState=CLOSED;
-        return;
-      }
-    }
-    if((mState==CLOSED) && mSocketSPtr->isValid())
-    {
-      if(TLSEnable)
-      {
-         tls_close(TLSSocket);
-         tls_free(TLSSocket);
-      }
-      mSocketSPtr.get()->close();
+        if((mSocketSPtr->isValid()))
+        {
+          mSocketSPtr.get()->close();
+        }
+        break;
+      case SSL_HANDSHAKE:
+        mState=CLOSED;
+        if((mSocketSPtr->isValid()))
+        {
+          if(TLSEnable)
+          {
+            tls_close(TLSSocket);
+            tls_free(TLSSocket);
+          }
+          mSocketSPtr.get()->close();
+        }
+        break;
     }
   }
   WebSocket(const WebSocket&) = delete;
