@@ -30,12 +30,30 @@
 
 // libressl
 #include <tls.h>
+// libcrypt
+#include <openssl/crypto.h>
 
 // LAppS
 #include <Config.h>
 
 // ITCLib/ITCFramework
 #include <Singleton.h>
+
+typedef void (*locking_function)(int mode, int n, const char *file,	int line);
+
+void openssl_crypt_locking_function_callback(int mode, int n, const char* file, const int line)
+{
+  static std::vector<std::mutex> locks(CRYPTO_num_locks());
+  if(n>=static_cast<int>(locks.size()))
+  {
+    abort();
+  }
+  
+  if(mode & CRYPTO_LOCK)
+    locks[n].lock();
+  else
+    locks[n].unlock();
+}
 
 
 namespace TLS
@@ -62,6 +80,8 @@ namespace TLS
       bool tlsEnabled=LAppSConfig::getInstance()->getWSConfig()["tls"];
       if(tlsEnabled)
       {
+        CRYPTO_set_locking_callback(openssl_crypt_locking_function_callback);
+        CRYPTO_set_id_callback(pthread_self);
         if(tls_init())
         {
           throw std::system_error(errno,std::system_category(),"TLS: can not initialize. This worker will not start");

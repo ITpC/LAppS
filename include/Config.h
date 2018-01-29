@@ -53,7 +53,7 @@ namespace LAppS
           {"minThreadsReady", 2}
         }
       },
-      {"listeners",1},
+      {"listeners",3},
       {"workers",{ {"workers",3}, {"maxConnections", 100 }}},
       {"ip","0.0.0.0"},
       {"port",5083},
