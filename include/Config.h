@@ -56,8 +56,8 @@ namespace LAppS
       {"listeners",1},
       {"workers",{ {"workers",3}, {"maxConnections", 100 }}},
       {"ip","0.0.0.0"},
-      {"port",5080},
-      {"tls",false},
+      {"port",5083},
+      {"tls",true},
       {"tls_server",{ {"ca","/etc/ssl/cert.pem"},{"cert", "./ssl/cert.pem"}, {"key","./ssl/key.pem" } }}
     }),
     lapps_config({
