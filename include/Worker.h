@@ -37,31 +37,33 @@
 #include <mutex>
 #include <stdexcept>
 #include <string>
+#include <set>
 
 // ITC headers
 #include <sys/synclock.h>
 #include <sys/Nanosleep.h>
 #include <TCPListener.h>
 
-// Local headers
-#include <ePoll.h>
-#include <WebSocket.h>
-#include <HTTPRequestParser.h>
-#include <InboundConnectionsPool.h>
 
 // crypto++
 #include <cryptopp/sha.h>
 #include <cryptopp/filters.h>
 #include <cryptopp/base64.h>
-#include <set>
+
 
 #include <tls.h>
 
+// LAppS headers
+#include <TLSServerContext.h>
+#include <ePoll.h>
+#include <WebSocket.h>
+#include <HTTPRequestParser.h>
+#include <InboundConnectionsPool.h>
 
 /**
  * \@brief To be used as a CancelableThread only
  **/
-template <bool TLSEnable=false> class ConnectionsWorker : public itc::abstract::IRunnable
+template <bool TLSEnable=false> class WSWorker : public itc::abstract::IRunnable
 {
 private:
  ePoll<> mEPoll;
@@ -75,75 +77,13 @@ private:
  itc::sys::Nap mSleep;
  CryptoPP::SHA1 sha1;
  std::vector<uint8_t> inbuffer;
- tls_config* TLSConfig;
- tls*        TLSContext;
 
 public:
-  ConnectionsWorker(const size_t maxConnections, const WeakInboundConnectionsSPtr& ic)
+  WSWorker(const size_t maxConnections, const WeakInboundConnectionsSPtr& ic)
   : itc::abstract::IRunnable(), mEPoll(),doRun(true),canStop(false),
     mInbound(ic.lock()), events(maxConnections),mMaxConnections(maxConnections),
     inbuffer(8192)
   {
-    bool tlsEnabled=LAppSConfig::getInstance()->getWSConfig()["tls"];
-    if(tlsEnabled)
-    {
-      if(tls_init())
-      {
-        throw std::system_error(errno,std::system_category(),"TLS: can not initialize. This worker will not start");
-      }
-      
-      if(!(TLSConfig=tls_config_new()))
-      {
-        throw std::system_error(errno,std::system_category(),"TLS: can not configure. This worker will not start");
-      }
-      
-      if(!(TLSContext=tls_server()))
-      {
-        throw std::system_error(errno,std::system_category(),"TLS: can not create server context. This worker will not start");
-      }
-      
-      uint32_t protocols=0;
-      
-      if(tls_config_parse_protocols(&protocols, "secure"))
-      {
-        throw std::system_error(errno,std::system_category(),"TLS: can not parse 'secure' protocols. This worker will not start");
-      }
-      if(tls_config_set_protocols(TLSConfig, protocols))
-      {
-        throw std::system_error(errno,std::system_category(),"TLS: can't set protocols. This worker will not start");
-      }
-      if(tls_config_set_ciphers(TLSConfig,"secure"))
-      {
-        throw std::system_error(errno,std::system_category(),"TLS: can't set secure ciphers. This worker will not start");
-      }
-      if(tls_config_set_ecdhecurves(TLSConfig,"default"))
-      {
-        throw std::system_error(errno,std::system_category(),"TLS: can't set default ecdhcurves. This worker will not start");
-      }
-      
-      tls_config_prefer_ciphers_server(TLSConfig);
-      
-      
-      std::string certificate_key_file=LAppSConfig::getInstance()->getWSConfig()["tls_server"]["key"];
-      
-      if(tls_config_set_key_file(TLSConfig,certificate_key_file.c_str()))
-      {
-        throw std::system_error(errno,std::system_category(),"TLS: can't load certificate key file (PEM). This worker will not start");
-      }
-      
-      std::string certificate_file=LAppSConfig::getInstance()->getWSConfig()["tls_server"]["cert"];
-      
-      if(tls_config_set_cert_file(TLSConfig,certificate_file.c_str()))
-      {
-        throw std::system_error(errno,std::system_category(),"TLS: can't load certificate file (PEM). This worker will not start");
-      }
-      
-      if(tls_configure(TLSContext, TLSConfig))
-      {
-        throw std::system_error(errno,std::system_category(),"TLS: Context configuration has been failed (PEM). This worker will not start");
-      }
-      
-    }
     header.resize(8192,0);
   }
   
@@ -245,7 +185,7 @@ private:
         int sockfd=tmp.get()->getfd();
         mConnections.emplace(
           sockfd,std::make_shared<WebSocket<TLSEnable>>(
-            tmp,TLSContext
+            tmp,TLS::SharedServerContext::getInstance()->getContext()
           )
         );
         mEPoll.add(sockfd);
@@ -306,7 +246,7 @@ private:
          int sockfd=tmp.get()->getfd();
          mConnections.emplace(
           sockfd,std::make_shared<WebSocket<TLSEnable>>(
-            tmp,TLSContext
+            tmp,TLS::SharedServerContext::getInstance()->getContext()
           )
          );
          mEPoll.add(sockfd);
@@ -513,26 +453,18 @@ public:
       sched_yield();
     
     mConnections.clear();
-    
-    if(TLSEnable)
-    {
-      // using these two commented calls, producing SIGABRT ...
-      // tls_close(TLSContext);
-      // tls_free(TLSContext);
-      tls_config_free(TLSConfig);
-    }
   }
   void onCancel()
   {
     this->shutdown();
   }
-  ~ConnectionsWorker()
+  ~WSWorker()
   {
     this->shutdown();
   }
 };
-typedef ConnectionsWorker<true> TLSWorker;
-typedef ConnectionsWorker<false> nonTLSWorker;
+typedef WSWorker<true> TLSWorker;
+typedef WSWorker<false> nonTLSWorker;
 typedef itc::sys::CancelableThread<TLSWorker> TLSWorkerThread;
 typedef std::shared_ptr<TLSWorkerThread> TLSWorkerThreadSPtr;
 typedef itc::sys::CancelableThread<nonTLSWorker> WorkerThread;
