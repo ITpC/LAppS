@@ -3,4 +3,5 @@ dist/
 test/
 build/
 netbeans/private/
+nbproject/private/
 private.xml
