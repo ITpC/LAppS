@@ -238,7 +238,7 @@ template <bool TLSEnable=false> class WebSocket
         if(onMessage(streamProcessor.getMessage())&&(state.cursor!=input_size))
         {
           cursor=state.cursor;
-          // my first goto since 1991, without a butt heart on my side
+          // my first goto since 1991, without a buttheart on my side
           // thanks Spectre and Meltdown. [Paranoia rulez]
           goto again; 
         }
@@ -258,7 +258,7 @@ template <bool TLSEnable=false> class WebSocket
         if(streamProcessor.isValidUtf8(ref.message->data(),ref.message->size()))
         {
           WebSocketProtocol::ServerMessage tmp(outBuffer,WebSocketProtocol::TEXT,ref.message);
-          int ret=this->send(outBuffer);
+          int ret=this->send(outBuffer); // TODO: handle the return code
           if(ret == -1) return false;
           else return true;
         }

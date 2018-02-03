@@ -26,7 +26,6 @@
                    displayName="Source Files"
                    projectFiles="true">
       <itemPath>src/getLog.cpp</itemPath>
-      <itemPath>src/lookupAppError.cpp</itemPath>
       <itemPath>src/main.cpp</itemPath>
     </logicalFolder>
     <logicalFolder name="TestFiles"
@@ -57,11 +56,11 @@
         <ccTool>
           <standard>11</standard>
           <incDir>
+            <pElem>../libressl/include</pElem>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
             <pElem>include</pElem>
-            <pElem>../libressl/include</pElem>
           </incDir>
           <commandLine>-pipe -Wall -pthread -D_REENTRANT -D_THREAD_SAFE -O3 -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -msse2avx -ftree-vectorize -funroll-loops -DBZ_NO_STDIO -DLOG_DEBUG -DMAX_BUFF_SIZE=256 -DTSAFE_LOG=1 -DLOG_FILE=\"lapps.log\" -DAPP_NAME=\"LAppS\"</commandLine>
         </ccTool>
@@ -259,6 +258,18 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -295,8 +306,6 @@
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/getLog.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="src/lookupAppError.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="src/main.cpp" ex="false" tool="1" flavor2="0">
       </item>
@@ -348,8 +357,6 @@
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/getLog.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="src/lookupAppError.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="src/main.cpp" ex="false" tool="1" flavor2="0">
       </item>
