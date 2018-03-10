@@ -43,8 +43,8 @@ OBJECTFILES= \
 CFLAGS=
 
 # CC Compiler Flags
-CCFLAGS=-pipe -Wall -pthread -D_REENTRANT -D_THREAD_SAFE -O3 -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -msse2avx -ftree-vectorize -funroll-loops -DBZ_NO_STDIO -DLOG_DEBUG -DMAX_BUFF_SIZE=256 -DTSAFE_LOG=1 -DLOG_FILE=\"lapps.log\" -DAPP_NAME=\"LAppS\"
-CXXFLAGS=-pipe -Wall -pthread -D_REENTRANT -D_THREAD_SAFE -O3 -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -msse2avx -ftree-vectorize -funroll-loops -DBZ_NO_STDIO -DLOG_DEBUG -DMAX_BUFF_SIZE=256 -DTSAFE_LOG=1 -DLOG_FILE=\"lapps.log\" -DAPP_NAME=\"LAppS\"
+CCFLAGS=-pipe -Wall -pthread -D_REENTRANT -D_THREAD_SAFE -O3 -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -msse2avx -ftree-vectorize -funroll-loops -DBZ_NO_STDIO -DLOG_DEBUG -DMAX_BUFF_SIZE=256 -DTSAFE_LOG=1 -DLOG_FILE=\"lapps.log\" -DAPP_NAME=\"LAppS\" -DLAPPS_TLS_ENABLE=1
+CXXFLAGS=-pipe -Wall -pthread -D_REENTRANT -D_THREAD_SAFE -O3 -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -msse2avx -ftree-vectorize -funroll-loops -DBZ_NO_STDIO -DLOG_DEBUG -DMAX_BUFF_SIZE=256 -DTSAFE_LOG=1 -DLOG_FILE=\"lapps.log\" -DAPP_NAME=\"LAppS\" -DLAPPS_TLS_ENABLE=1
 
 # Fortran Compiler Flags
 FFLAGS=
@@ -67,17 +67,17 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps: ../utils/dist/Debug/GNU-Linux/
 
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
-	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps ${OBJECTFILES} ${LDLIBSOPTIONS} -lcryptopp -ltls -lcrypto
+	g++ -pipe -Wall -pthread -D_REENTRANT -D_THREAD_SAFE -O3 -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -msse2avx -ftree-vectorize -funroll-loops -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps ${OBJECTFILES} ${LDLIBSOPTIONS} -lcryptopp -ltls -lcrypto
 
 ${OBJECTDIR}/src/getLog.o: src/getLog.cpp nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.cc) -g -I../libressl/include -I../ITCFramework/include -I../ITCLib/include -I../utils/include -Iinclude -std=c++14 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/getLog.o src/getLog.cpp
+	$(COMPILE.cc) -g -I../libressl/include -I../ITCFramework/include -I../ITCLib/include -I../utils/include -Iinclude -Iinclude/modules -std=c++14 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/getLog.o src/getLog.cpp
 
 ${OBJECTDIR}/src/main.o: src/main.cpp nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.cc) -g -I../libressl/include -I../ITCFramework/include -I../ITCLib/include -I../utils/include -Iinclude -std=c++14 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/main.o src/main.cpp
+	$(COMPILE.cc) -g -I../libressl/include -I../ITCFramework/include -I../ITCLib/include -I../utils/include -Iinclude -Iinclude/modules -std=c++14 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/main.o src/main.cpp
 
 # Subprojects
 .build-subprojects:

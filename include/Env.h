@@ -62,7 +62,7 @@ namespace environment
     }
     const std::string& operator[](const std::string& var)
     {
-      static std::string empty_string("");
+      static const std::string empty_string("");
       auto it=config.find(var);
       if(it!=config.end())
       {

@@ -84,58 +84,58 @@ namespace TLS
         CRYPTO_set_id_callback(pthread_self);
         if(tls_init())
         {
-          throw std::system_error(errno,std::system_category(),"TLS: can not initialize. This worker will not start");
+          throw std::system_error(errno,std::system_category(),"TLS initialization has failed");
         }
 
         if(!(TLSConfig=tls_config_new()))
         {
-          throw std::system_error(errno,std::system_category(),"TLS: can not configure. This worker will not start");
+          throw std::system_error(errno,std::system_category(),"TLS new configuration can not be instantiated.");
         }
 
         if(!(TLSContext=tls_server()))
         {
-          throw std::system_error(errno,std::system_category(),"TLS: can not create server context. This worker will not start");
+          throw std::system_error(errno,std::system_category(),"TLS creating server context has failed.");
         }
 
         uint32_t protocols=0;
 
         if(tls_config_parse_protocols(&protocols, "secure"))
         {
-          throw std::system_error(errno,std::system_category(),"TLS: can not parse 'secure' protocols. This worker will not start");
+          throw std::system_error(errno,std::system_category(),"TLS 'secure' protocols parsing has failed.");
         }
         if(tls_config_set_protocols(TLSConfig, protocols))
         {
-          throw std::system_error(errno,std::system_category(),"TLS: can't set protocols. This worker will not start");
+          throw std::system_error(errno,std::system_category(),"TLS: can't set protocols.");
         }
         if(tls_config_set_ciphers(TLSConfig,"secure"))
         {
-          throw std::system_error(errno,std::system_category(),"TLS: can't set secure ciphers. This worker will not start");
+          throw std::system_error(errno,std::system_category(),"TLS: can't set secure ciphers.");
         }
         if(tls_config_set_ecdhecurves(TLSConfig,"default"))
         {
-          throw std::system_error(errno,std::system_category(),"TLS: can't set default ecdhcurves. This worker will not start");
+          throw std::system_error(errno,std::system_category(),"TLS: can't set default ecdhcurves.");
         }
 
         tls_config_prefer_ciphers_server(TLSConfig);
 
 
-        std::string certificate_key_file=LAppSConfig::getInstance()->getWSConfig()["tls_server"]["key"];
+        std::string certificate_key_file=LAppSConfig::getInstance()->getWSConfig()["tls_certificates"]["key"];
 
         if(tls_config_set_key_file(TLSConfig,certificate_key_file.c_str()))
         {
-          throw std::system_error(errno,std::system_category(),"TLS: can't load certificate key file (PEM). This worker will not start");
+          throw std::system_error(errno,std::system_category(),"TLS: can't load certificate key file (PEM).");
         }
 
-        std::string certificate_file=LAppSConfig::getInstance()->getWSConfig()["tls_server"]["cert"];
+        std::string certificate_file=LAppSConfig::getInstance()->getWSConfig()["tls_certificates"]["cert"];
 
         if(tls_config_set_cert_file(TLSConfig,certificate_file.c_str()))
         {
-          throw std::system_error(errno,std::system_category(),"TLS: can't load certificate file (PEM). This worker will not start");
+          throw std::system_error(errno,std::system_category(),"TLS: can't load certificate file (PEM).");
         }
 
         if(tls_configure(TLSContext, TLSConfig))
         {
-          throw std::system_error(errno,std::system_category(),"TLS: Context configuration has been failed (PEM). This worker will not start");
+          throw std::system_error(errno,std::system_category(),"TLS: Context configuration has failed (PEM).");
         } 
       }
     }
@@ -145,7 +145,7 @@ namespace TLS
       return TLSContext;
     }
   };
-  typedef std::shared_ptr<ServerContext> ServerContextSPtr;
+  //typedef std::shared_ptr<ServerContext> ServerContextSPtr;
   typedef itc::Singleton<ServerContext>  SharedServerContext;
 }
 
