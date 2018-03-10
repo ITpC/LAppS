@@ -45,20 +45,12 @@ namespace LAppS
    Config() : 
     mEnv(), 
     ws_config({
-      {
-        "thread_pool",{
-          {"maxThreads", 4},
-          {"overcommitThreads",2},
-          {"purgeTimeout", 10000},
-          {"minThreadsReady", 2}
-        }
-      },
       {"listeners",3},
-      {"workers",{ {"workers",3}, {"maxConnections", 100 }}},
       {"ip","0.0.0.0"},
       {"port",5083},
       {"tls",true},
-      {"tls_server",{ {"ca","/etc/ssl/cert.pem"},{"cert", "./ssl/cert.pem"}, {"key","./ssl/key.pem" } }}
+      // {"tls_certificates",{ {"ca","/etc/ssl/cert.pem"},{"cert", "/apps/${APPNAME}/etc/ssl/cert.pem"}, {"key","/apps/${APPNAME}/etc/ssl/key.pem" } }}
+      {"tls_certificates",{ {"ca","/etc/ssl/cert.pem"},{"cert", "./ssl/cert.pem"}, {"key","./ssl/key.pem" } }}
     }),
     lapps_config({
       {
@@ -74,11 +66,29 @@ namespace LAppS
         "directories",
         {
           {"applications","apps"},
+          {"app_conf_dir","etc"},
           {"tmp","tmp"},
           {"workdir","workdir"}
+        },
+      },
+      {
+        "services", 
+        {
+          {{"echo", {
+            {"autostart", false},
+            {"request_target", "/echo"},
+            {"protocol", "raw"},
+            {"workers",{ {"workers",3}, {"max_connections", 100 }}}
+          }}},
+          {{"console", {
+            {"internal", false},
+            {"request_target","/console"},
+            {"protocol", "LAppS"},
+            {"workers",{ {"workers",1}, {"max_connections", 100 }}}
+          }}}
         }
-      }
-    }){
+       }
+      }){
      std::ifstream ws_config_file(mEnv["LAPPS_CONF_DIR"]+"/"+mEnv["WS_CONFIG"], std::ifstream::binary);
      if(ws_config_file)
      {

@@ -28,47 +28,39 @@
 #include <abstract/IView.h>
 #include <mutex>
 
-class InboundConnections : public itc::abstract::IView<itc::CSocketSPtr>
+#include <Shaker.h>
+#include <InSockQueuesRegistry.h>
+
+typedef itc::abstract::IView<itc::CSocketSPtr> SocketsView;
+
+template <bool TLSEnable=false, bool StatsEnable=false> 
+class InboundConnections : public SocketsView
 {
 private:
-  itc::tsbqueue<itc::CSocketSPtr> mInbound;
+  typedef std::shared_ptr<InSockQueuesRegistry<TLSEnable,StatsEnable>> ISQRegistry;
+  typedef WebSocket<TLSEnable,StatsEnable> WSType;
+  typedef std::shared_ptr<WSType>          WSSPtr;
+  
+  Shaker<TLSEnable,StatsEnable> mShaker;
+  
 public:
- 
- void onUpdate(const itc::abstract::IView<itc::CSocketSPtr>::value_type& indata)
+ explicit InboundConnections(const ISQRegistry& isqr) 
+ :  SocketsView(),mShaker(isqr)
  {
-   mInbound.send(indata);
+ }
+ 
+ InboundConnections(const InboundConnections&)=delete;
+ InboundConnections(InboundConnections&)=delete;
+ 
+ void onUpdate(const SocketsView::value_type& indata)
+ {
+   mShaker.shakeTheHand(indata);
  }
 
- const bool empty()
- {
-   return mInbound.empty();
- }
- 
- const bool size(int& value)
- {
-   return mInbound.size(value);
- }
- 
- void recv(itc::abstract::IView<itc::CSocketSPtr>::value_type& sock)
- {
-   mInbound.recv(sock);
- }
- const bool tryRecv(itc::abstract::IView<itc::CSocketSPtr>::value_type& sock,const ::timespec& timeout)
- {
-   return mInbound.tryRecv(sock,timeout);
- }
- void destroy()
- {
-   mInbound.destroy();
- }
  virtual ~InboundConnections()
  {
-   destroy();
  }
 };
-
-typedef std::shared_ptr<InboundConnections> InboundConnectionsSPtr;
-typedef std::weak_ptr<InboundConnections> WeakInboundConnectionsSPtr;
 
 #endif /* __INBOUNDCONNECTIONSPOOL_H__ */
 

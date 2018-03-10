@@ -42,19 +42,28 @@
 // LibreSSL
 #include <tls.h>
 
-template <bool TLSEnable=false> class WebSocket
+#include <WSConnectionStats.h>
+
+
+template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
 {
  public:
-  enum State { HANDSHAKE, SSL_HANDSHAKE, MESSAGING, CLOSED };
+  enum State { HANDSHAKE, MESSAGING, CLOSED };
+  enum Mode { RAW, LAPPS };
  private:
   State mState;
   itc::CSocketSPtr mSocketSPtr;
-  std::map<std::string,std::string> mHTTPHeaders;
   WSStreamParser streamProcessor;
   std::vector<uint8_t> outBuffer;
   
   struct tls* TLSContext;
   struct tls* TLSSocket;
+  
+  WSConnectionStats mStats;
+  
+  
+  itc::utils::Bool2Type<TLSEnable>   enableTLS;
+  itc::utils::Bool2Type<StatsEnable> enableStatsUpdate;
   
   void init(const itc::utils::Bool2Type<true> tls_is_enabled)
   {
@@ -62,30 +71,12 @@ template <bool TLSEnable=false> class WebSocket
     {
       throw std::system_error(errno,std::system_category(),"TLS: can't accept socket");
     }
-    mState=SSL_HANDSHAKE;
   }
   
   void init(const itc::utils::Bool2Type<false> tls_is_not_enabled)
   {
-    mState=HANDSHAKE;
   }
   
-  void setState(const State state, itc::utils::Bool2Type<false> fictive)
-  {
-    if((state > mState)&&(state != SSL_HANDSHAKE))
-      mState=state;
-    else throw std::logic_error(
-        "Connection::setState(), - new state is out of order"
-    );
-  }
-  void setState(const State state, itc::utils::Bool2Type<true> fictive)
-  {
-    if((state > mState)&&(state != HANDSHAKE))
-      mState=state;
-    else throw std::logic_error(
-        "Connection::setState(), - new state is out of order"
-    );
-  }
   int recv(std::vector<uint8_t>& buff, const int flags,const itc::utils::Bool2Type<false> fictive)
   {
     return mSocketSPtr.get()->recv((void*)(buff.data()),buff.size(),flags);
@@ -165,12 +156,34 @@ template <bool TLSEnable=false> class WebSocket
   {
     return mSocketSPtr->isValid();
   }
+  void setState(const State state)
+  {
+    if((state > mState)&&(state != HANDSHAKE))
+      mState=state;
+    else throw std::logic_error(
+        "Connection::setState(), - new state is out of order"
+    );
+  }
   WebSocket()=delete;
   
   WebSocket(const itc::CSocketSPtr& socksptr,tls* tls_context=nullptr)
-  : mState(CLOSED),mSocketSPtr(socksptr),streamProcessor(),TLSContext(tls_context)
+  : mState(HANDSHAKE),mSocketSPtr(socksptr),streamProcessor(),TLSContext(tls_context),
+    mStats{0,0,0,0,0,0},enableTLS(),enableStatsUpdate()
   {
-    init(itc::utils::Bool2Type<TLSEnable>());
+    init(enableTLS);
+  }
+  void getPeerIP(uint32_t& peeraddr)
+  {
+    mSocketSPtr->getpeeraddr(peeraddr);
+  }
+  
+  void getPeerIP(std::string& peeraddr)
+  {
+    mSocketSPtr->getpeeraddr(peeraddr);
+  }
+  const WSConnectionStats& getStats() const
+  {
+    return mStats;
   }
   ~WebSocket()
   {
@@ -203,13 +216,6 @@ template <bool TLSEnable=false> class WebSocket
         mState=CLOSED;
         if((mSocketSPtr->isValid()))
         {
-          mSocketSPtr.get()->close();
-        }
-        break;
-      case SSL_HANDSHAKE:
-        mState=CLOSED;
-        if((mSocketSPtr->isValid()))
-        {
           if(TLSEnable)
           {
             tls_close(TLSSocket);
@@ -238,8 +244,6 @@ template <bool TLSEnable=false> class WebSocket
         if(onMessage(streamProcessor.getMessage())&&(state.cursor!=input_size))
         {
           cursor=state.cursor;
-          // my first goto since 1991, without a buttheart on my side
-          // thanks Spectre and Meltdown. [Paranoia rulez]
           goto again; 
         }
         return;
@@ -248,9 +252,36 @@ template <bool TLSEnable=false> class WebSocket
         return;
     }
   }
+  
+  void updateInStats(const size_t sz, const itc::utils::Bool2Type<true> fictive)
+  {
+    // reset stats to avoid size_t overflow
+    
+    if(mStats.mInMessageCount+1 == 0xFFFFFFFFFFFFFFFFULL)
+    {
+      mStats.mInMessageCount=1;
+      mStats.mInCMASize=0;
+    }
+    
+    
+    if(sz>mStats.mInMessageMaxSize)
+      mStats.mInMessageMaxSize=sz;
+    
+    
+    
+    ++mStats.mInMessageCount;
+    mStats.mInCMASize=(sz+(mStats.mInMessageCount-1)*mStats.mInCMASize)/(mStats.mInMessageCount);
+  }
+  
+  void updateInStats(const size_t sz, const itc::utils::Bool2Type<false> fictive)
+  {
+  }
   // echo 
   bool onMessage(const WSEvent& ref)
   {
+    
+    updateInStats(ref.message->size(),enableStatsUpdate);
+    
     switch(ref.type)
     {
       case WebSocketProtocol::TEXT:
@@ -258,7 +289,7 @@ template <bool TLSEnable=false> class WebSocket
         if(streamProcessor.isValidUtf8(ref.message->data(),ref.message->size()))
         {
           WebSocketProtocol::ServerMessage tmp(outBuffer,WebSocketProtocol::TEXT,ref.message);
-          int ret=this->send(outBuffer); // TODO: handle the return code
+          int ret=this->send(outBuffer);
           if(ret == -1) return false;
           else return true;
         }
@@ -272,7 +303,7 @@ template <bool TLSEnable=false> class WebSocket
       case WebSocketProtocol::BINARY:
       {
         WebSocketProtocol::ServerMessage(outBuffer,WebSocketProtocol::BINARY,ref.message);
-        int ret=this->send(outBuffer); // TODO: handle the return code
+        int ret=this->send(outBuffer);
         if(ret == -1) return false;
         else return true;
       }
@@ -378,7 +409,8 @@ RFC 6455                 The WebSocket Protocol            December 2011
     int ret=this->send(outBuffer);
     if(ret == -1) 
       return false;
-    else return true;
+    else
+      return true;
   }
   
   const State getState() const
@@ -389,35 +421,48 @@ RFC 6455                 The WebSocket Protocol            December 2011
   {
     return mSocketSPtr.get()->getfd();
   }
-  
-  void setState(const State state)
-  {
-    const static itc::utils::Bool2Type<TLSEnable> is_tls_enabled;
-    setState(state,is_tls_enabled);
-  }
-  
+    
   int recv(std::vector<uint8_t>& buff,const int flags=0)
   {
-    const static itc::utils::Bool2Type<TLSEnable> selector;
-    return this->recv(buff,flags,selector);
+    return this->recv(buff,flags,enableTLS);
+  }
+  
+  void updateOutStats(const size_t& buff_size,const itc::utils::Bool2Type<true> fictive)
+  {
+    if(buff_size>mStats.mOutMessageMaxSize)
+      mStats.mOutMessageMaxSize=buff_size;
+    
+    if(mStats.mOutMessageCount+1 == 0xFFFFFFFFFFFFFFFFULL)
+    {
+      mStats.mOutMessageCount=1;
+      mStats.mOutCMASize=0;
+    }
+    ++mStats.mOutMessageCount;
+    mStats.mOutCMASize=(buff_size+(mStats.mOutMessageCount-1)*mStats.mOutCMASize)/(mStats.mOutMessageCount);
+  }
+  
+  void updateOutStats(const size_t& buff_size,const itc::utils::Bool2Type<false> fictive)
+  {
+    
   }
   
   int send(const std::vector<uint8_t>& buff)
   {
-    const static itc::utils::Bool2Type<TLSEnable> selector;
-    return this->send(buff,selector);
+    int ret=this->send(buff,enableTLS);
+    
+    updateOutStats(buff.size(),enableStatsUpdate);
+    
+    return ret;
   }
   
   int send(const std::string& buff)
   {
-    const static itc::utils::Bool2Type<TLSEnable> selector;
-    return this->send(buff,selector);
-  }
-  
-  void emplace_header(const std::string& key,const std::string& value)
-  {
-    mHTTPHeaders.emplace(key,value);
-  }
+    int ret=this->send(buff,enableTLS);
+    
+    updateOutStats(buff.size(),enableStatsUpdate);
+    
+    return ret;
+  } 
 };
 
 #endif /* __WEBSOCKET_H__ */

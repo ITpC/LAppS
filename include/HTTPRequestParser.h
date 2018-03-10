@@ -30,7 +30,10 @@
 #include <iostream>
 
 
-
+/**
+ * @brief limited HTTP request parser for WS GET requests
+ * and handshake only. 
+ **/
 class HTTPRequestParser
 {
 private:
@@ -40,7 +43,7 @@ private:
  std::map<std::string,std::string> mHeaders;
  
  // beware nullptr and short strings, they are not checked here
- bool isCRLF(const char* str)
+ bool isCRLF(const char* str) const
  {
    if((str[0] == '\x0d') && (str[1] == '\x0a')) 
      return true;
@@ -123,7 +126,7 @@ private:
        case 'S': // Sec-WebSocket-*
          cursor+=getKVPair(&headers[cursor],limit-cursor,"Sec-WebSocket",13);
        break;
-       default: // ignoring useless header 
+       default: // ignoring useless header parts
          while((cursor+1 < limit) && (!isCRLF(&headers[cursor])))
            ++cursor;
          // Skip CRLF
@@ -160,50 +163,12 @@ private:
 
    stop=i;
  }
- void parse(const std::string& ref)
+ 
+public:
+ 
+ HTTPRequestParser()
+ :  mMinSize(168)
  {
-   size_t cursor=0;
-   
-   // RFC 7230 – Section 3
-   
-   // shortcut: minimal length
-   throwOnMinSizeViolation(ref);
-   
-   // CRLF at start?
-   if(isCRLF(ref.data())) 
-   {
-     // is it a get request - ignoring all other requests
-     if((ref.data()[2] == 'G') && ((ref.data()[3]) == 'E') && ((ref.data()[4]) == 'T'))
-     {
-       // one space only as per 
-       if(ref.data()[5] == ' ')
-       {
-         // target
-         for(size_t i=6;(i<ref.size()&&(ref.data()[i]!=' '));++i)
-         {
-           RequestTarget+=ref.data()[i];
-           cursor=i;
-         }
-         
-         cursor+=2;
-         
-         mMinSize+=(RequestTarget.size()-1);
-         
-         throwOnMinSizeViolation(ref);
-         
-         for(
-           size_t i=cursor;
-           (i<ref.size()&&(!isCRLF(&(ref.data()[i]))));
-           ++i
-         ){
-           HTTPVersion+=ref.data()[i];
-         }
-         cursor+=HTTPVersion.size()+2;
-
-         collectHeaders(&ref.data()[cursor],ref.size()-cursor);
-       } else throwMalformedHTTPRequest();
-     } else throwMalformedHTTPRequest();
-   } else throwMalformedHTTPRequest();
  }
  void parse(const std::vector<uint8_t>& ref)
  {
@@ -222,7 +187,7 @@ private:
    // is it a get request - ignoring all other requests
    if((ref.data()[cursor] == 'G') && ((ref.data()[cursor+1]) == 'E') && ((ref.data()[cursor+2]) == 'T'))
    {
-     // one space only as per 
+     // one space only as per RFC
      if(ref.data()[cursor+3] == ' ')
      {
        // target
@@ -252,19 +217,6 @@ private:
      } else throwMalformedHTTPRequest("No space after MODE[GET]");
    } else throwMalformedHTTPRequest("Only GET requests are accepted");
  }
-public:
- 
- HTTPRequestParser(const std::string& ref)
- :  mMinSize(168)
- {
-   parse(ref);
- }
- 
- HTTPRequestParser(const std::vector<uint8_t>& ref)
- :  mMinSize(168)
- {
-   parse(ref);
- }
  
  const std::string& operator[](const std::string& key)
  {
@@ -273,6 +225,18 @@ public:
    if(it!=mHeaders.end())
      return it->second;
    return empty;
+ }
+ const std::string& getRequestTarget() const
+ {
+   return RequestTarget;
+ }
+ void clear()
+ {
+   mHeaders.clear();
+   RequestTarget.clear();
+   HTTPVersion.clear();
+   mHeaders.clear();
+   mMinSize=168;
  }
 };
 

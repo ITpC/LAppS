@@ -29,8 +29,22 @@ int main(int argc, char** argv)
 {
   
   itc::getLog()->debug(__FILE__,__LINE__,"Starting LAppS");
+
+#ifdef LAPPS_TLS_ENABLE
+  #ifdef STATS_ENABLE
+      wsServer<true,true> server;
+  #else
+      wsServer<true,false> server;
+  #endif
+#else
+  #ifdef STATS_ENABLE
+      wsServer<false,true> server;
+  #else
+      wsServer<false,false> server;
+  #endif
+#endif
+ 
   
-  wsServer server;
   server.run();
   itc::getLog()->debug(__FILE__,__LINE__,"LAppS is down");
   return 0;
