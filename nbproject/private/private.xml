@@ -12,12 +12,10 @@
         <group>
             <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/src/main.cpp</file>
             <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/Config.h</file>
-            <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/InboundConnectionsPool.h</file>
+            <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/InboundConnectionsAdapter.h</file>
             <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/wsServer.h</file>
-            <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/HTTPRequestParser.h</file>
             <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/Shaker.h</file>
             <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/WebSocket.h</file>
-            <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/TLSServerContext.h</file>
             <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/Application.h</file>
             <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/WSWorker.h</file>
         </group>

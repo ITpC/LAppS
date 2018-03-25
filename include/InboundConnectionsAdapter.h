@@ -16,13 +16,13 @@
  *  You should have received a copy of the GNU General Public License
  *  along with LAppS.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  $Id: InboundConnectionsPool.h January 19, 2018 3:48 PM $
+ *  $Id: InboundConnectionsAdapter.h January 19, 2018 3:48 PM $
  * 
  **/
 
 
-#ifndef __INBOUNDCONNECTIONSPOOL_H__
-#  define __INBOUNDCONNECTIONSPOOL_H__
+#ifndef __INBOUNDCONNECTIONSADAPTER_H__
+#  define __INBOUNDCONNECTIONSADAPTER_H__
 
 #include <tsbqueue.h>
 #include <abstract/IView.h>
@@ -30,37 +30,45 @@
 
 #include <Shaker.h>
 #include <InSockQueuesRegistry.h>
+#include <abstract/Application.h>
+#include <ThreadPoolManager.h>
+#include <Singleton.h>
 
 typedef itc::abstract::IView<itc::CSocketSPtr> SocketsView;
 
 template <bool TLSEnable=false, bool StatsEnable=false> 
-class InboundConnections : public SocketsView
+class InboundConnectionsAdapter : public SocketsView
 {
 private:
-  typedef std::shared_ptr<InSockQueuesRegistry<TLSEnable,StatsEnable>> ISQRegistry;
-  typedef WebSocket<TLSEnable,StatsEnable> WSType;
-  typedef std::shared_ptr<WSType>          WSSPtr;
+  typedef InSockQueuesRegistry<TLSEnable,StatsEnable> ISQRegistryDetail;
+  typedef std::shared_ptr<ISQRegistryDetail>          ISQRegistry;
+  typedef WebSocket<TLSEnable,StatsEnable>            WSType;
+  typedef std::shared_ptr<WSType>                     WSSPtr;
+  typedef itc::Singleton<itc::ThreadPoolManager>      ThreadPoolManager;
   
-  Shaker<TLSEnable,StatsEnable> mShaker;
+  
+  ISQRegistry mISQR;
   
 public:
- explicit InboundConnections(const ISQRegistry& isqr) 
- :  SocketsView(),mShaker(isqr)
+ explicit InboundConnectionsAdapter(const ISQRegistry& isqr) 
+ :  SocketsView(),mISQR(isqr)
  {
  }
  
- InboundConnections(const InboundConnections&)=delete;
- InboundConnections(InboundConnections&)=delete;
+ InboundConnectionsAdapter(const InboundConnectionsAdapter&)=delete;
+ InboundConnectionsAdapter(InboundConnectionsAdapter&)=delete;
  
  void onUpdate(const SocketsView::value_type& indata)
  {
-   mShaker.shakeTheHand(indata);
+    ThreadPoolManager::getInstance()->enqueueRunnable(
+      std::make_shared<Shaker<TLSEnable,StatsEnable>>(mISQR,indata)
+    );    
  }
 
- virtual ~InboundConnections()
+ virtual ~InboundConnectionsAdapter()
  {
  }
 };
 
-#endif /* __INBOUNDCONNECTIONSPOOL_H__ */
+#endif /* __INBOUNDCONNECTIONSADAPTER_H__ */
 

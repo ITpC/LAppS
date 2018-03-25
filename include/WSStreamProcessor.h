@@ -30,6 +30,7 @@
 #include <stack>
 
 #include <WSProtocol.h>
+#include <WSEvent.h>
 
 
 namespace WSStreamProcessing
@@ -60,17 +61,6 @@ namespace WSStreamProcessing
     }
   };
 }
-
-typedef std::vector<uint8_t> MSGBufferType;
-typedef std::shared_ptr<MSGBufferType> MSGBufferTypeSPtr;
-
-struct WSEvent
-{
-  WebSocketProtocol::OpCode type;
-  MSGBufferTypeSPtr message;
-};
-
-
 
 class WSStreamParser
 {

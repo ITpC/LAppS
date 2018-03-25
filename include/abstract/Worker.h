@@ -27,8 +27,11 @@
 #include <string>
 #include <memory>
 #include <abstract/Runnable.h>
-#include <InboundConnectionsPool.h>
+#include <InboundConnectionsAdapter.h>
+#include <WebSocket.h>
 #include <WorkerStats.h>
+#include <abstract/Application.h>
+#include <WSEvent.h>
 
 namespace abstract
 {
@@ -56,12 +59,19 @@ namespace abstract
     {
       mMaxConnections=maxconn;
     }
+    
+    const uint8_t getID() const
+    {
+      return ID;
+    }
+    
     Worker(const Worker&)=delete;
     Worker(Worker&)=delete;
     virtual const WorkerStats& getStats() const=0;
     virtual void updateStats()=0;
     virtual void deleteConnection(const int32_t)=0;
     virtual const std::string& getRequestTarget() const=0;
+    virtual void submitResponse(const TaggedEvent&)=0;
     virtual void cleanClosed()=0;
     virtual ~Worker()=default;
   };

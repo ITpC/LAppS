@@ -54,9 +54,10 @@
 #include <TLSServerContext.h>
 #include <ePoll.h>
 #include <WebSocket.h>
-#include <InboundConnectionsPool.h>
+#include <InboundConnectionsAdapter.h>
 #include <abstract/Worker.h>
 #include <abstract/Runnable.h>
+#include <abstract/Application.h>
 #include <WorkerStats.h>
 #include <Val2Type.h>
 #include <tsbqueue.h>
@@ -71,57 +72,62 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WSWorker
 {
 public:
  typedef WebSocket<TLSEnable,StatsEnable> WSType;
- typedef typename WSType::Mode            WSMode;
- typedef std::shared_ptr<WSType>          WSSPtr;
+  typedef std::shared_ptr<WSType>          WSSPtr;
  typedef std::shared_ptr<itc::tsbqueue<WSSPtr>> InboundConnectionsQueue;
 private:
- 
- InboundConnectionsQueue mInbound;
- ePoll<> mEPoll;
- std::atomic<bool> doRun;
- std::atomic<bool> canStop;
- std::map<int,WSSPtr> mConnections;
- std::vector<epoll_event> events;
- std::queue<WSEvent> outEvents;
- 
- itc::sys::Nap mSleep;
- 
- std::vector<uint8_t> inbuffer;
- mutable std::mutex mStatsMutex;
-
  itc::utils::Bool2Type<TLSEnable> enableTLS;
  itc::utils::Bool2Type<StatsEnable> enableStatsUpdate;
+ mutable std::mutex mStatsMutex;
+ mutable std::mutex mOutQMutex;
+ 
+ std::atomic<bool> doRun;
+ std::atomic<bool> canStop;
+ 
+ std::vector<epoll_event> events;
+ ePoll<> mEPoll;
+ 
+ std::map<int,WSSPtr> mConnections;
+
+ InboundConnectionsQueue mInbound;
+ 
+ std::vector<uint8_t> inbuffer;
+ std::queue<TaggedEvent> mOutEvents;
+ 
  
 public:
   WSWorker(
     const uint8_t id, const size_t maxConnections, 
-    const WSMode md, const InboundConnectionsQueue& ic,
-    const std::string& path )
-  : abstract::Worker(id,maxConnections,path),mInbound(ic), mEPoll(),
-    doRun(true), canStop(false), events(maxConnections),inbuffer(8192)
+    const InboundConnectionsQueue& ic, const std::string& path
+  ) : abstract::Worker(id,maxConnections,path), enableTLS(), enableStatsUpdate(),
+    mStatsMutex(),  doRun(true), canStop(false), events(maxConnections),
+    mEPoll(), mInbound(ic), inbuffer(8192)
   {
+  }
+  void submitResponse(const TaggedEvent& event)
+  {
+    SyncLock sync(mOutQMutex);
+    mOutEvents.push(event);
   }
   const std::string& getRequestTarget() const
   {
     return mRequestTarget;
   }
   
-bool error_bits(const uint32_t events)
- {
+  bool error_bits(const uint32_t events)
+  {
    return (events & (EPOLLRDHUP|EPOLLERR|EPOLLHUP));
- }
- 
- bool in_bit(const uint32_t events)
- {
+  }
+
+  bool in_bit(const uint32_t events)
+  {
    return (events & EPOLLIN);
- }
- 
- bool out_bit(const uint32_t events)
- {
+  }
+
+  bool out_bit(const uint32_t events)
+  {
    return (events & EPOLLOUT);
- }
- 
- 
+  }
+  
   void waitForInbound()
   {
     if(!doRun.load()) return;
@@ -132,7 +138,8 @@ bool error_bits(const uint32_t events)
 
       if(tmp->isValid())
       {
-        int sockfd=tmp->getFileDescriptor();;
+        int sockfd=tmp->getFileDescriptor();
+        tmp->setWorkerId(this->getID());
         mConnections.emplace(sockfd,tmp);
         mEPoll.add(sockfd);
       }
@@ -160,6 +167,7 @@ bool error_bits(const uint32_t events)
        if(mInbound->tryRecv(tmp,ts))
        {
          int sockfd=tmp->getFileDescriptor();
+         tmp->setWorkerId(this->getID());
          mConnections.emplace(sockfd,tmp);
          mEPoll.add(sockfd);
        }
@@ -200,7 +208,7 @@ bool error_bits(const uint32_t events)
     }
   }
 
-  void onMessaging(WSSPtr& current)
+  void handleIO(WSSPtr& current)
   {
     int received=current->recv(inbuffer,MSG_NOSIGNAL);
     switch(received)
@@ -346,7 +354,7 @@ public:
               switch(current->getState())
               {
                 case WSType::MESSAGING: 
-                  onMessaging(current);
+                  handleIO(current);
                   if(current->getState()!=WSType::CLOSED)
                   {
                     mEPoll.mod(events[i].data.fd);

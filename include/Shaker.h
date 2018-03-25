@@ -38,27 +38,82 @@
 #include <InSockQueuesRegistry.h>
 #include <TLSServerContext.h>
 #include <Val2Type.h>
+#include <ePoll.h>
+#include <Config.h>
+#include <ApplicationRegistry.h>
 
 /**
  * @brief WS handshake
  **/
-template <bool TLSEnable=false, bool StatsEnable=false> class Shaker
+template <bool TLSEnable=false, bool StatsEnable=false> 
+class Shaker : public itc::abstract::IRunnable
 {
 public:
   typedef std::shared_ptr<InSockQueuesRegistry<TLSEnable,StatsEnable>> ISQRegistry;
   typedef WebSocket<TLSEnable,StatsEnable> WSType;
   typedef std::shared_ptr<WSType>          WSSPtr;
   
-  Shaker(const ISQRegistry& isqr)
-  : mISQR(isqr), mHTTPRParser(), headerBuffer(8192,0),
-    enableTLS(),enableStatsUpdate()
+  Shaker(const ISQRegistry& isqr,const itc::CSocketSPtr& socksptr)
+  : enableTLS(),enableStatsUpdate(),mSocketSPtr(socksptr),nlt(5000),
+    mISQR(isqr), mHTTPRParser(), headerBuffer(1024,0)
   {
-    std::cout << "Shaker tls enabled: " << TLSEnable << std::endl;
   }
-  
-  const bool shakeTheHand(const itc::CSocketSPtr& inbound)
+  void onCancel()
   {
-    WSSPtr current=mkWebSocket(inbound,enableTLS);
+    
+  }
+  void shutdown()
+  {
+    
+  }
+  void execute()
+  {
+    // TODO: add a config view with fast access and without json.
+    nlt=LAppSConfig::getInstance()->getWSConfig()["network_latency_tolerance"];
+    std::string peer_addr;
+    mSocketSPtr->getpeeraddr(peer_addr);
+    
+    // prevent connections exhaustion DDoS
+    // the handshake must be available immediately after connection is 
+    // established. 
+    // TODO: need to add a network latency tolerance into configuration. 
+    // for some connections with high latency this might be a an overkill 
+    try
+    {
+      mPoll.add(mSocketSPtr->getfd());
+      int ret=mPoll.poll(events,nlt);
+      
+      if(ret == 0) // timed out, no IO within required threshold.
+      {
+        itc::getLog()->info(
+          __FILE__,__LINE__,
+          "No handshake request was sent from the peer %s within required threshold. Disconnecting and removing connection",
+          peer_addr.c_str()
+        );
+        return;
+      }
+        
+      if(error_bits(events[0].data.fd))
+      {
+        itc::getLog()->info(
+          __FILE__,__LINE__,
+          "Communication error before handshake on socket %d from peer %s",
+          mSocketSPtr->getfd(),peer_addr.c_str()
+        );
+        return;
+      }
+    }
+    catch(const std::system_error& e)
+    {
+      itc::getLog()->error(
+        __FILE__,__LINE__,
+        "Exception on connection polling before handshake: %s",
+        e.what()
+      );
+      return;
+    }
+    
+    WSSPtr current=mkWebSocket(mSocketSPtr,enableTLS);
     std::vector<uint8_t> response;
     
     mHTTPRParser.clear();
@@ -72,26 +127,42 @@ public:
 
       if(parseHeader())
       {
-       try{
-         auto queue=mISQR->find(mHTTPRParser.getRequestTarget());
-         prepareOKResponse(response);
-         int sent=current->send(response);
+       try
+       {
+          auto queue=mISQR->find(mHTTPRParser.getRequestTarget());
+          current->setApplication(
+            ApplicationRegistry::getInstance(
+            )->findByTarget(mHTTPRParser.getRequestTarget())
+          );
+          
+          try
+          {
+            prepareOKResponse(response);
+            int sent=current->send(response);
 
-         if(sent != static_cast<int>(response.size()))
-         {
-           itc::getLog()->debug(
-            __FILE__,
-            __LINE__,
-            "Removing connection on communication errors"
-           );
-           return false;
-         }
-         else
-         {
-           current->setState(WSType::MESSAGING);
-           queue->send(current);
-           return true;
-         }
+            if(sent != static_cast<int>(response.size()))
+            {
+              std::string pipaddr;
+              current->getPeerIP(pipaddr);
+              itc::getLog()->error(
+               __FILE__,
+               __LINE__,
+               "Communication error on connection from peer [%s]. Removing connection",
+                pipaddr.c_str()
+              );
+              return;
+            }
+            queue->send(current);
+          }
+          catch (const std::exception& e)
+          {
+            std::string pipaddr;
+            current->getPeerIP(pipaddr);
+            itc::getLog()->error(
+              __FILE__,__LINE__,
+              "Runtime error [%s]: %s",pipaddr.c_str(),e.what()
+            );
+          }
        }catch(const std::system_error& e)
        {
          std::string pipaddr;
@@ -102,24 +173,28 @@ public:
           "No such queue or target: %s, closing connection from %s",
           mHTTPRParser.getRequestTarget().c_str(),pipaddr.c_str()
          );
-         return false;
+         return;
        }
       }else{
        static const std::string  forbidden("HTTP/1.1 403 Forbidden");
        current->send(forbidden);
        // ignore the send result.
-       return false;
+       return;
       }
     }
-    return false;
+    return;
   }
 private:
+  itc::utils::Bool2Type<TLSEnable> enableTLS;
+  itc::utils::Bool2Type<StatsEnable> enableStatsUpdate;
+  itc::CSocketSPtr          mSocketSPtr;
+  int                       nlt;
+  ePoll<>                   mPoll;
   ISQRegistry               mISQR;
   HTTPRequestParser         mHTTPRParser;
   CryptoPP::SHA1            sha1;
+  std::vector<epoll_event>  events;
   std::vector<uint8_t>      headerBuffer;
-  itc::utils::Bool2Type<TLSEnable> enableTLS;
-  itc::utils::Bool2Type<StatsEnable> enableStatsUpdate;
   
   const std::shared_ptr<WSType> mkWebSocket(const itc::CSocketSPtr& inbound,const itc::utils::Bool2Type<false> tls_is_disabled)
   {
@@ -158,6 +233,15 @@ private:
     response[response.size()-3]=10;
     response[response.size()-2]=13;
     response[response.size()-1]=10;
+  }
+  bool error_bits(const uint32_t events)
+  {
+   return (events & (EPOLLRDHUP|EPOLLERR|EPOLLHUP));
+  }
+
+  bool in_bit(const uint32_t events)
+  {
+   return (events & EPOLLIN);
   }
   const bool parseHeader()
   {

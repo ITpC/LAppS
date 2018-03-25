@@ -27,59 +27,102 @@
 #include <string>
 #include <fstream>
 #include <memory>
+#include <exception>
 
-#include <ThreadPoolManager.h>
+#include <abstract/Runnable.h>
+#include <WSStreamProcessor.h>
+#include <sys/synclock.h>
+#include <WebSocket.h>
+#include <abstract/Application.h>
+#include <ApplicationContext.h>
 
 #include <ext/json.hpp>
+
+extern "C" {
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
+#include <stdexcept>
+}
+
 
 using json = nlohmann::json;
 
 namespace LAppS
 {
-  class Application
+  
+  template <bool TLSEnable, bool StatsEnable, ApplicationProtocol Tproto> 
+  class Application : public ::abstract::Application
   {
   private:
-   typedef itc::sys::CancelableThread<itc::ThreadPoolManager> TPManager;
+    std::atomic<bool> mMayRun;
+    std::mutex mMutex;
     std::string mName;
-    std::string mWSPath;
-    std::string mConfFile;
-    json        mAppConfig;
-    std::shared_ptr<TPManager>  mTPMan;
+    std::string mTarget;
+    ApplicationContext<TLSEnable,StatsEnable,Tproto> mAppContext;
+    itc::tsbqueue<TaggedEvent> mEvents;
     
-  public:
-    explicit Application(
-      const std::string& appName,
-      const std::string& appWSPath,
-      const std::string& conf_file
-    ) : mName(appName),mWSPath(appWSPath),mConfFile(conf_file)
+    
+ public:
+    
+    const std::string& getName() const
     {
-      std::ifstream configStream(mConfFile, std::ifstream::binary);
-      if(configStream)
+      return mName;
+    }
+    const std::string& getTarget() const
+    {
+      return mTarget;
+    }
+    constexpr ApplicationProtocol getProtocol() const
+    {
+      return Tproto;
+    }
+    
+    void onCancel()
+    {
+
+    }
+    void shutdown()
+    {
+
+    }
+    
+    explicit Application(const std::string& appName,const std::string& target)
+    : mName(appName), mTarget(target),mAppContext(appName)
+    {
+    }
+    
+    void enqueue(const TaggedEvent& event)
+    {
+      mEvents.send(event);
+    }
+    
+    void execute()
+    {
+      while(mMayRun)
       {
-        configStream >> mAppConfig;
-        configStream.close();
-        
-        auto it=mAppConfig.find("TPMan");
-        if(it==mAppConfig.end()) // set defailts;
+        SyncLock sync(mMutex);
+        TaggedEvent te;
+        try
         {
-          mAppConfig["TPMan"]["maxThreads"]=2;
-          mAppConfig["TPMan"]["overcommitThreads"]=2;
-          mAppConfig["TPMan"]["purgeTimeout"]=10000;
-          mAppConfig["TPMan"]["minThreadsReady"]=1;
+          mEvents.recv(te);
+          mAppContext.onMessage(te.wid,te.sockfd,te.event);
         }
-        mTPMan=std::make_shared<TPManager>(
-          std::make_shared<itc::ThreadPoolManager>(
-            mAppConfig["TPMan"]["maxThreads"],
-            mAppConfig["TPMan"]["overcommitThreads"],
-            mAppConfig["TPMan"]["purgeTimeout"],
-            mAppConfig["TPMan"]["minThreadsReady"]
-          )
-        );
+        catch(std::exception& e)
+        {
+          itc::getLog()->info(__FILE__,__LINE__,"Queue goes down, stopping the application");
+          mAppContext.shutdown();
+          mMayRun=false;
+        }
       }
     }
+    
     Application()=delete;
     Application(const Application&)=delete;
     Application(Application&)=delete;
+    ~Application()
+    {
+    }
     
   };
 }

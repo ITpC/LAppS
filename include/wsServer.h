@@ -48,11 +48,15 @@
 // This app headers
 
 #include <Config.h>
-#include <InboundConnectionsPool.h>
+#include <InboundConnectionsAdapter.h>
 #include <abstract/Worker.h>
+#include <abstract/Application.h>
+#include <ApplicationRegistry.h>
+#include <Application.h>
 #include <WSWorker.h>
 #include <InSockQueuesRegistry.h>
 #include <TLSServerContext.h>
+
 
 // libressl
 #include <tls.h>
@@ -64,14 +68,16 @@ class wsServer
 {
 private:
   typedef WSWorker<TLSEnable,StatsEnable>             WorkerType;
-  typedef typename WorkerType::WSMode                 WSMode;
   typedef InSockQueuesRegistry<TLSEnable,StatsEnable> ISQRType;
   typedef std::shared_ptr<ISQRType>                   ISQRegistry;
-  typedef InboundConnections<TLSEnable,StatsEnable>   ICType;
+  typedef InboundConnectionsAdapter<TLSEnable,StatsEnable>   ICType;
   typedef std::shared_ptr<ICType>                     ICTypeSPtr;
+  typedef LAppS::Application<TLSEnable,StatsEnable,ApplicationProtocol::LAPPS> LAppLAPPS;
+  typedef LAppS::Application<TLSEnable,StatsEnable,ApplicationProtocol::RAW> LAppRAW;
   
   itc::utils::Bool2Type<TLSEnable>    enableTLS;
   itc::utils::Bool2Type<StatsEnable>  enableStatsUpdate;
+  
   WorkerStats                         mAllStats;
   
   std::vector<ICTypeSPtr>             mShakers;
@@ -86,14 +92,16 @@ private:
     {
       size_t      workers=0;
       size_t      max_connections=0;
-      WSMode      aWSMode;
       
       auto it=LAppSConfig::getInstance()->getLAppSConfig().find("services");
       if(it!=LAppSConfig::getInstance()->getLAppSConfig().end())
       {
         for(size_t i=0;i<it.value().size();++i)
         {
+          
           auto service=it.value()[i].begin();
+          std::string service_name=service.key();
+          
           for(;service != it.value()[i].end();++service)
           {
             std::string proto;
@@ -143,8 +151,7 @@ private:
               workers=1;
               max_connections=100;
             }
-
-
+            
             if((!path.empty())&&(!proto.empty()))
             {
               std::regex request_target("^[/][[:alpha:][:digit:]_-]*([/]?[[:alpha:][:digit:]_-]+)*$");
@@ -152,18 +159,23 @@ private:
               if(std::regex_match(path,request_target))
               {
                 if(proto.empty())
-                  throw std::system_error(EINVAL,std::system_category(), "Application protocol is empty in configuration of the service "+service.key());
+                  throw std::system_error(EINVAL,std::system_category(), "Application protocol is empty in configuration of the service "+service_name);
                 if(proto == "raw")
                 {
-                    aWSMode=WSMode::RAW;
-                }else if(proto == "LAppS")
-                {
-                    aWSMode=WSMode::LAPPS;
-                }else{
-                    throw std::system_error(EINVAL,std::system_category(), "Incorrect protocol is specified for target "+path+" in service "+service.key()+". There are only 2 protocols are available: raw, LAppS");
+                  
+                  ApplicationRegistry::getInstance()->regApp(
+                    std::make_shared<LAppRAW>(service_name,path)
+                  );
                 }
-
-
+                else if(proto == "LAppS")
+                {
+                  ApplicationRegistry::getInstance()->regApp(
+                    std::make_shared<LAppLAPPS>(service_name,path)
+                  );
+                }else{
+                    throw std::system_error(EINVAL,std::system_category(), "Incorrect protocol is specified for target "+path+" in service "+service_name+". Only two protocols are supported: raw, LAppS");
+                }
+                
                 mISQR->create(path);
 
                 for(size_t i=0;i<workers;++i)
@@ -171,19 +183,17 @@ private:
                   mWorkers.push_back(
                     std::make_shared<WorkerThread>(
                       std::make_shared<WorkerType>(
-                        static_cast<const uint8_t>(i),max_connections,aWSMode,
+                        static_cast<const uint8_t>(i),max_connections,
                         mISQR->find(path), path
                       )
                     )
                   );
                 }
               } else throw std::system_error(EINVAL,std::system_category(), "Incorrect request target: "+path+" in configuration of service "+service.key());
-            }
-            
+            } else throw std::system_error(EINVAL,std::system_category(), "Undefined request_target or protocol keyword which are both mandatory");
           }
         }
       }
-      
       
       size_t max_listeners=LAppSConfig::getInstance()->getWSConfig()["listeners"];
       
@@ -200,11 +210,9 @@ private:
         ));
       }
       
-      
-      
     }catch(const std::exception& e)
     {
-      itc::getLog()->fatal(__FILE__,__LINE__,"Configuration error %s. Abort.",e.what());
+      itc::getLog()->fatal(__FILE__,__LINE__,"Caught an exception: %s. Abort.",e.what());
       itc::getLog()->flush();
       exit(1);
     }
@@ -252,7 +260,7 @@ public:
   }
   
   wsServer()
-  : enableTLS(), enableStatsUpdate(), mAllStats{0,0,0,0,0,0,0}, 
+  : enableTLS(), enableStatsUpdate(), mAllStats{0,0,0,0,0,0,0},
     mISQR(std::make_shared<ISQRType>())
   {
      itc::getLog()->debug(__FILE__,__LINE__,"Starting WS Server");
@@ -294,6 +302,8 @@ public:
         itc::getLog()->flush();
         mISQR->clear();
         itc::getLog()->flush();
+        // call shutdown ?
+        exit(0);
         break;
       }
       else
