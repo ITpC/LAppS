@@ -96,23 +96,23 @@ public:
    * \@return 0 on timeout, -1 on EINTR and throws system_error(errno),
    * or amount of events otherwise.
    **/
-  int poll(std::vector<epoll_event>& out)
+  int poll(std::vector<epoll_event>& out, const int timeout=1)
   {
     //out.resize(maxevents);
     int ret=0;
     while(1)
     {
-      ret=epoll_wait(mPollFD,out.data(),out.size(),1);
+      ret=epoll_wait(mPollFD,out.data(),out.size(),timeout);
       if((ret == -1) && (errno != EINTR))
       {
-        //out.resize(0);
         throw std::system_error(
           errno,std::system_category(),std::string("In ePoll::poll(): ")
         );
       }
       else{
-        //out.resize(ret);
-        return ret;
+        if(ret >= 0)
+          return ret;
+        // else EINTR, repeat epoll_wait.
       }
     }
   }

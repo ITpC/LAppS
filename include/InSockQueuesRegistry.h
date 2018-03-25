@@ -37,7 +37,6 @@ template <bool TLSEnable=false, bool StatsEnable=false> class InSockQueuesRegist
 {
 public:
  typedef WebSocket<TLSEnable,StatsEnable> WSType;
- typedef typename WSType::Mode            WSMode;
  typedef std::shared_ptr<WSType>          WSSPtr;
  
  typedef itc::tsbqueue<WSSPtr> SocketsQueue;

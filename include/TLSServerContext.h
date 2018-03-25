@@ -145,7 +145,6 @@ namespace TLS
       return TLSContext;
     }
   };
-  //typedef std::shared_ptr<ServerContext> ServerContextSPtr;
   typedef itc::Singleton<ServerContext>  SharedServerContext;
 }
 

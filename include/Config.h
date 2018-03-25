@@ -50,18 +50,24 @@ namespace LAppS
       {"port",5083},
       {"tls",true},
       // {"tls_certificates",{ {"ca","/etc/ssl/cert.pem"},{"cert", "/apps/${APPNAME}/etc/ssl/cert.pem"}, {"key","/apps/${APPNAME}/etc/ssl/key.pem" } }}
-      {"tls_certificates",{ {"ca","/etc/ssl/cert.pem"},{"cert", "./ssl/cert.pem"}, {"key","./ssl/key.pem" } }}
+      {"tls_certificates",{ {"ca","/etc/ssl/cert.pem"},{"cert", "./ssl/cert.pem"}, {"key","./ssl/key.pem" } }},
+      {"auto_fragment",true}, // Not yet implemented
+      {"max_inbound_message_size",300000}, // 300 000 bytes. Not yet implemented.
+      {"save_large_messages_as_files",true},  // Not yet implemented.
+      {"network_latency_tolerance",10}, /** in ms. 
+                                         * This parameter affects handshake. 
+                                         * Connection will be removed if peer 
+                                         * does not send a handshake request 
+                                         * within this threshold.
+                                         * Consider to increase amount of listeners
+                                         * with increasing this number.
+                                         **/
+      {"thread_pool",{ 
+        {"max_threads", 2}, {"overcommit_threads",1},
+        {"purge_timeout", 10000},{"min_threads_ready", 1}
+      }}
     }),
     lapps_config({
-      {
-        "thread_pool",
-        {
-          {"maxThreads", 20},
-          {"overcommitThreads",2},
-          {"purgeTimeout", 10000},
-          {"minThreadsReady", 3}
-        }
-      },
       {
         "directories",
         {
@@ -72,35 +78,35 @@ namespace LAppS
         },
       },
       {
-        "services", 
-        {
-          {{"echo", {
-            {"autostart", false},
+        "services", {{
+          {"echo", {
+            {"internal", false},
             {"request_target", "/echo"},
             {"protocol", "raw"},
-            {"workers",{ {"workers",3}, {"max_connections", 100 }}}
+            {"workers",{ {"workers",3}, {"max_connections", 100 }}},
+            {"instances", 3}
           }}},
           {{"console", {
             {"internal", false},
             {"request_target","/console"},
             {"protocol", "LAppS"},
-            {"workers",{ {"workers",1}, {"max_connections", 100 }}}
+            {"workers",{ {"workers",1}, {"max_connections", 100 }}},
+            {"instances", 1},
           }}}
         }
-       }
-      }){
-     std::ifstream ws_config_file(mEnv["LAPPS_CONF_DIR"]+"/"+mEnv["WS_CONFIG"], std::ifstream::binary);
-     if(ws_config_file)
-     {
-       ws_config_file >> ws_config;
-       ws_config_file.close();
-     }
-     std::ifstream lapps_config_file(mEnv["LAPPS_CONF_DIR"]+"/"+mEnv["LAPPS_CONFIG"], std::ifstream::binary);
-     if(lapps_config_file)
-     {
-       lapps_config_file >> lapps_config;
-       lapps_config_file.close();
-     }
+      }}){
+        std::ifstream ws_config_file(mEnv["LAPPS_CONF_DIR"]+"/"+mEnv["WS_CONFIG"], std::ifstream::binary);
+        if(ws_config_file)
+        {
+          ws_config_file >> ws_config;
+          ws_config_file.close();
+        }
+        std::ifstream lapps_config_file(mEnv["LAPPS_CONF_DIR"]+"/"+mEnv["LAPPS_CONFIG"], std::ifstream::binary);
+        if(lapps_config_file)
+        {
+          lapps_config_file >> lapps_config;
+          lapps_config_file.close();
+        }
    }
    const json& getWSConfig() const
    {

@@ -34,9 +34,10 @@
 #include <TCPListener.h>
 #include <Val2Type.h>
 
+#include <WSEvent.h>
+#include <abstract/Application.h>
 #include <WSStreamProcessor.h>
 #include <WSServerMessage.h>
-
 #include <Config.h>
 
 // LibreSSL
@@ -49,21 +50,27 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
 {
  public:
   enum State { HANDSHAKE, MESSAGING, CLOSED };
-  enum Mode { RAW, LAPPS };
+  
  private:
   State mState;
   itc::CSocketSPtr mSocketSPtr;
   WSStreamParser streamProcessor;
-  std::vector<uint8_t> outBuffer;
   
   struct tls* TLSContext;
   struct tls* TLSSocket;
   
-  WSConnectionStats mStats;
+  ApplicationSPtr  mApplication;
   
+  uint8_t          mWorkerId;
+  
+  WSConnectionStats mStats;
   
   itc::utils::Bool2Type<TLSEnable>   enableTLS;
   itc::utils::Bool2Type<StatsEnable> enableStatsUpdate;
+  
+  
+  
+  std::vector<uint8_t> outBuffer;
   
   void init(const itc::utils::Bool2Type<true> tls_is_enabled)
   {
@@ -152,6 +159,16 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   }
   
  public:
+  void setApplication(const ApplicationSPtr ptr)
+  {
+    mApplication=ptr;
+  }
+  
+  void setWorkerId(const uint8_t id)
+  {
+    mWorkerId=id;
+  }
+  
   bool isValid()
   {
     return mSocketSPtr->isValid();
@@ -279,6 +296,10 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   // echo 
   bool onMessage(const WSEvent& ref)
   {
+    if(mApplication.get() == nullptr)
+    {
+      throw std::system_error(EINVAL, std::system_category(), "No backend application available yet");
+    }
     
     updateInStats(ref.message->size(),enableStatsUpdate);
     
@@ -288,10 +309,16 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
       {
         if(streamProcessor.isValidUtf8(ref.message->data(),ref.message->size()))
         {
+          mApplication->enqueue({mWorkerId,this->getFileDescriptor(),ref});
+          return true;
+          /**
+           
           WebSocketProtocol::ServerMessage tmp(outBuffer,WebSocketProtocol::TEXT,ref.message);
+          
           int ret=this->send(outBuffer);
           if(ret == -1) return false;
           else return true;
+          **/
         }
         else 
         {
@@ -302,10 +329,14 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
       break;
       case WebSocketProtocol::BINARY:
       {
+        mApplication->enqueue({mWorkerId,this->getFileDescriptor(),ref});
+        /**
         WebSocketProtocol::ServerMessage(outBuffer,WebSocketProtocol::BINARY,ref.message);
         int ret=this->send(outBuffer);
         if(ret == -1) return false;
         else return true;
+        **/
+        return true;
       }
       break;
       case WebSocketProtocol::CLOSE:
@@ -317,7 +348,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
         break;
       case WebSocketProtocol::PONG: 
         // RFC 6455: A response to an unsolicited Pong frame is not expected.
-        // This server does not requires PING-PONG at all, so all PONGs are
+        // This server does not requires in PONG at all, so all PONGs are
         // ignored.
         return true;
         break;
