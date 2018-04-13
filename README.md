@@ -27,14 +27,15 @@ Here are some performance results (dev instance with Intel(R) Core(TM) i7-7700 C
 
 
 # TODO
-## docker dev build
-## docker run build
+## Docker dev build
+## Docker run build
 ## LAppS protocol implementation
 ## Lua applications documentation
 ## WebSocket extensions
-## decoupled apps (aka internal apps)
+## Decoupled apps (aka internal apps)
 ## PostgreSQL connection pool
 ## ... lot of other things
+## Performance optimizations
 
 
 [Autobahn TestSuite Results. No extensions are implemented yet](http://htmlpreview.github.io/?https://github.com/ITpC/LAppS/blob/master/autobahn-testsuite-results/index.html)
