@@ -87,7 +87,7 @@ namespace LAppS
       {
         if(it->second.size() > 0)
         {
-          const ApplicationThreadSPtr& app=it->second.front(); // round-robin access to instances
+          ApplicationThreadSPtr app=it->second.front(); // round-robin access to instances
           it->second.pop();
           it->second.push(app);
           return app->getRunnable();
@@ -108,7 +108,7 @@ namespace LAppS
         {
           if(it->second.size() > 0)
           {
-            const ApplicationThreadSPtr& app=it->second.front(); // round-robin access to instances
+            ApplicationThreadSPtr app=it->second.front(); // round-robin access to instances
             it->second.pop();
             it->second.push(app);
             return app->getRunnable();

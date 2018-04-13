@@ -48,14 +48,12 @@
 // This app headers
 
 #include <Config.h>
-#include <InboundConnectionsAdapter.h>
+#include <TLSServerContext.h>
 #include <abstract/Worker.h>
 #include <abstract/Application.h>
 #include <ApplicationRegistry.h>
 #include <Application.h>
-#include <WSWorker.h>
-#include <InSockQueuesRegistry.h>
-#include <TLSServerContext.h>
+#include <IOWorker.h>
 
 
 // libressl
@@ -67,23 +65,21 @@ template <bool TLSEnable=false, bool StatsEnable=false>
 class wsServer
 {
 private:
-  typedef WSWorker<TLSEnable,StatsEnable>             WorkerType;
-  typedef InSockQueuesRegistry<TLSEnable,StatsEnable> ISQRType;
-  typedef std::shared_ptr<ISQRType>                   ISQRegistry;
-  typedef InboundConnectionsAdapter<TLSEnable,StatsEnable>   ICType;
-  typedef std::shared_ptr<ICType>                     ICTypeSPtr;
+  typedef LAppS::IOWorker<TLSEnable,StatsEnable>                    WorkerType;
+  typedef itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>      WorkersPool;
+  
+  
   typedef LAppS::Application<TLSEnable,StatsEnable,ApplicationProtocol::LAPPS> LAppLAPPS;
   typedef LAppS::Application<TLSEnable,StatsEnable,ApplicationProtocol::RAW> LAppRAW;
+  
   
   itc::utils::Bool2Type<TLSEnable>    enableTLS;
   itc::utils::Bool2Type<StatsEnable>  enableStatsUpdate;
   
   WorkerStats                         mAllStats;
-  
-  std::vector<ICTypeSPtr>             mShakers;
-  std::vector<WorkerThreadSPtr>       mWorkers;
+    
   std::vector<TCPListenerThreadSPtr>  mListenersPool;
-  ISQRegistry                         mISQR;
+  
   
   
   void prepareServices()
@@ -105,7 +101,7 @@ private:
           for(;service != it.value()[i].end();++service)
           {
             std::string proto;
-            std::string path;
+            std::string app_target;
             
             auto found=service.value().find("protocol");
             if(found != service.value().end())
@@ -119,11 +115,11 @@ private:
             found=service.value().find("request_target");
             if(found != service.value().end())
             {
-              path=found.value();
+              app_target=found.value();
             }
             else
             {
-              path.clear();
+              app_target.clear();
             }
 
             found=service.value().find("workers");
@@ -152,44 +148,54 @@ private:
               max_connections=100;
             }
             
-            if((!path.empty())&&(!proto.empty()))
+            if((!app_target.empty())&&(!proto.empty()))
             {
               std::regex request_target("^[/][[:alpha:][:digit:]_-]*([/]?[[:alpha:][:digit:]_-]+)*$");
 
-              if(std::regex_match(path,request_target))
+              if(std::regex_match(app_target,request_target))
               {
                 if(proto.empty())
                   throw std::system_error(EINVAL,std::system_category(), "Application protocol is empty in configuration of the service "+service_name);
                 if(proto == "raw")
                 {
+                  size_t instances=1;
                   
-                  ApplicationRegistry::getInstance()->regApp(
-                    std::make_shared<LAppRAW>(service_name,path)
-                  );
+                  found=service.value().find("instances");
+                  if(found != service.value().end())
+                  {
+                    instances=found.value();
+                  }
+                  for(size_t i=0;i<instances;++i)
+                  {
+                    ApplicationRegistry::getInstance()->regApp(
+                      std::make_shared<LAppRAW>(service_name,app_target)
+                    );
+                  }
                 }
                 else if(proto == "LAppS")
                 {
-                  ApplicationRegistry::getInstance()->regApp(
-                    std::make_shared<LAppLAPPS>(service_name,path)
-                  );
+                  size_t instances=1;
+                  
+                  found=service.value().find("instances");
+                  if(found != service.value().end())
+                  {
+                    instances=found.value();
+                  }
+                  for(size_t i=0;i<instances;++i)
+                  {
+                    ApplicationRegistry::getInstance()->regApp(
+                      std::make_shared<LAppLAPPS>(service_name,app_target)
+                    );
+                  }
                 }else{
-                    throw std::system_error(EINVAL,std::system_category(), "Incorrect protocol is specified for target "+path+" in service "+service_name+". Only two protocols are supported: raw, LAppS");
+                    throw std::system_error(EINVAL,std::system_category(), "Incorrect protocol is specified for target "+app_target+" in service "+service_name+". Only two protocols are supported: raw, LAppS");
                 }
-                
-                mISQR->create(path);
 
                 for(size_t i=0;i<workers;++i)
                 {
-                  mWorkers.push_back(
-                    std::make_shared<WorkerThread>(
-                      std::make_shared<WorkerType>(
-                        static_cast<const uint8_t>(i),max_connections,
-                        mISQR->find(path), path
-                      )
-                    )
-                  );
+                  WorkersPool::getInstance()->spawn(max_connections);
                 }
-              } else throw std::system_error(EINVAL,std::system_category(), "Incorrect request target: "+path+" in configuration of service "+service.key());
+              } else throw std::system_error(EINVAL,std::system_category(), "Incorrect request target: "+app_target+" in configuration of service "+service.key());
             } else throw std::system_error(EINVAL,std::system_category(), "Undefined request_target or protocol keyword which are both mandatory");
           }
         }
@@ -199,13 +205,14 @@ private:
       
       for(size_t i=0;i<max_listeners;++i)
       {
-        auto shaker=std::make_shared<ICType>(mISQR);
-        mShakers.push_back(shaker);
+        
+        itc::getLog()->trace(__FILE__,__LINE__,"wsServer creating a listener %u",i);
+        
         mListenersPool.push_back(std::make_shared<TCPListenerThread>(
-          std::make_shared<itc::TCPListener>(
+          std::make_shared<::itc::TCPListener>(
             LAppSConfig::getInstance()->getWSConfig()["ip"],
             LAppSConfig::getInstance()->getWSConfig()["port"],
-            shaker
+            WorkersPool::getInstance()->next()
           )
         ));
       }
@@ -227,31 +234,7 @@ public:
   }
   const WorkerStats& collectStats(const itc::utils::Bool2Type<true> stats_collection_is_enabled)
   {
-    
-    for(auto it=mWorkers.begin();it!=mWorkers.end();++it)
-    {
-      auto stats=it->get()->getRunnable()->getStats();
-      mAllStats.mConnections+=stats.mConnections;
-      mAllStats.mInMessageCount+=stats.mInMessageCount;
-      mAllStats.mOutMessageCount+=stats.mOutMessageCount;
-      
-      
-      if(mAllStats.mInMessageMaxSize<stats.mInMessageMaxSize)
-      {
-        mAllStats.mInMessageMaxSize=stats.mInMessageMaxSize;
-      }
-      if(mAllStats.mOutMessageMaxSize<stats.mOutMessageMaxSize)
-      {
-        mAllStats.mOutMessageMaxSize=stats.mOutMessageMaxSize;
-      }
-      mAllStats.mOutCMASize+=stats.mOutCMASize;
-      mAllStats.mInCMASize+=stats.mInCMASize;
-      
-      
-    }
-    mAllStats.mOutCMASize/=mWorkers.size();
-    mAllStats.mInCMASize/=mWorkers.size();
-    return mAllStats;
+    return WorkersPool::getInstance()->getStats();
   }
   
   const WorkerStats& collectStats()
@@ -260,8 +243,7 @@ public:
   }
   
   wsServer()
-  : enableTLS(), enableStatsUpdate(), mAllStats{0,0,0,0,0,0,0},
-    mISQR(std::make_shared<ISQRType>())
+  : enableTLS(), enableStatsUpdate(), mAllStats{0,0,0,0,0,0,0}
   {
      itc::getLog()->debug(__FILE__,__LINE__,"Starting WS Server");
      
@@ -300,10 +282,7 @@ public:
       {
         itc::getLog()->debug(__FILE__,__LINE__,"Shutdown is initiated by signal %d, - server is going down",signo);
         itc::getLog()->flush();
-        mISQR->clear();
-        itc::getLog()->flush();
         // call shutdown ?
-        exit(0);
         break;
       }
       else

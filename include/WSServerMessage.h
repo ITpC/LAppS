@@ -44,14 +44,19 @@ namespace WebSocketProtocol
       size_t offset=out.size();
       out.resize(offset+src->size());
       memcpy(out.data()+offset,src->data(),src->size());
-      /*
-      std::cout << "Total server message size (with header)" << out.size() << std::endl;
-      std::cout << "Message bytes: ";
-      for(auto i=0;i<out.size();++i)
-      {
-        std::cout << (int)(out[i]) << " ";
-      }
-      std::cout << std::endl;*/
+    }
+    ServerMessage(
+      std::vector<uint8_t>& out, 
+      const WebSocketProtocol::OpCode oc,
+      const char* src,
+      const size_t len
+    ){
+      out.clear();
+      out.push_back(128|oc);
+      WS::putLength(len,out);
+      size_t offset=out.size();
+      out.resize(offset+len);
+      memcpy(out.data()+offset,src,len);
     }
   };
   

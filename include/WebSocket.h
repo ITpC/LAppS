@@ -69,8 +69,10 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   itc::utils::Bool2Type<StatsEnable> enableStatsUpdate;
   
   
-  
   std::vector<uint8_t> outBuffer;
+  
+  std::queue<TaggedEvent> mOutMessages;
+  
   
   void init(const itc::utils::Bool2Type<true> tls_is_enabled)
   {
@@ -105,11 +107,20 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
     return ret;
   }
     
-  int send(const std::vector<uint8_t>& buff,const itc::utils::Bool2Type<false> fictive)
+  int send(const std::vector<uint8_t>& buff,const itc::utils::Bool2Type<false> noTLS)
   {
-    return mSocketSPtr.get()->write(buff.data(),buff.size());
+    if(mSocketSPtr)
+    {
+      auto ret=mSocketSPtr->write(buff.data(),buff.size());
+      return ret;
+    }
+    else
+    {
+      itc::getLog()->error(__FILE__,__LINE__,"Socket Shared pointer is invalid");
+      return -1;
+    }
   }
-  int send(const std::vector<uint8_t>& buff,const itc::utils::Bool2Type<true> fictive)
+  int send(const std::vector<uint8_t>& buff,const itc::utils::Bool2Type<true> withTLS)
   {
     int ret=0;
     size_t offset=0;
@@ -118,18 +129,17 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
       ret=tls_write(TLSSocket,buff.data()+offset,buff.size()-offset);
       
       if(ret == -1)
-        break;
+      {
+        itc::getLog()->error(__FILE__,__LINE__,"Error on reading from TLS socket: %s",tls_error(TLSSocket));
+        return ret;
+      }
       
       if((ret != TLS_WANT_POLLIN)&&(ret != TLS_WANT_POLLOUT))
         offset+=ret;
       
     }while(offset!=buff.size());
     
-    if(ret == -1)
-    {
-      itc::getLog()->error(__FILE__,__LINE__,"Error on reading from TLS socket: %s",tls_error(TLSSocket));
-    }
-    return ret;
+    return offset;
   }
   int send(const std::string& buff,const itc::utils::Bool2Type<false> fictive)
   {
@@ -159,6 +169,45 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   }
   
  public:
+  /**
+   * @brief all out messages must be already prepared WebSocket messages
+   **/
+  void enqueueOutMessage(const TaggedEvent& e)
+  {
+    mOutMessages.push(e);
+  }
+  /**
+   * @brief sending next prepared outstanding WebSocket message
+   **/
+  const bool sendNext()
+  {
+    if(mState != MESSAGING)
+      return false;
+    
+    if(mOutMessages.empty())
+      return true;
+    else
+    {
+      auto out=mOutMessages.front();
+      mOutMessages.pop();
+      int ret=this->send(*out.event.message);
+      if(ret == -1)
+      {
+        itc::getLog()->error(__FILE__,__LINE__,"Communication error on WebSocket::sendNext(). Closing this connection.");
+        this->setState(CLOSED);
+        return false;
+      }else{
+        if(static_cast<size_t>(ret) != out.event.message->size())
+        {
+          itc::getLog()->error(__FILE__,__LINE__,"Incomplete message send on WebSocket::sendNext(). Should never happen. Closing this connection.");
+          closeSocket(WebSocketProtocol::PROTOCOL_VIOLATION);
+          return false;
+        }
+        return true;
+      }
+    }
+  }
+  
   void setApplication(const ApplicationSPtr ptr)
   {
     mApplication=ptr;
@@ -183,7 +232,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   }
   WebSocket()=delete;
   
-  WebSocket(const itc::CSocketSPtr& socksptr,tls* tls_context=nullptr)
+  explicit WebSocket(const itc::CSocketSPtr socksptr,tls* tls_context=nullptr)
   : mState(HANDSHAKE),mSocketSPtr(socksptr),streamProcessor(),TLSContext(tls_context),
     mStats{0,0,0,0,0,0},enableTLS(),enableStatsUpdate()
   {
@@ -216,6 +265,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
             tls_free(TLSSocket);
           }
           mSocketSPtr.get()->close();
+          setState(CLOSED);
         }
         break;
       case CLOSED:
@@ -248,7 +298,11 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   
   void processInput(const std::vector<uint8_t>& input,const size_t input_size)
   {
-    if(mState!=MESSAGING) return;
+    if(mState!=MESSAGING)
+    {
+      return;
+    }
+    //sendNext();
     size_t cursor=0;
     again:
     auto state=streamProcessor.parse(input.data(),input_size,cursor,mSocketSPtr->getfd());
@@ -300,7 +354,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
     {
       throw std::system_error(EINVAL, std::system_category(), "No backend application available yet");
     }
-    
+        
     updateInStats(ref.message->size(),enableStatsUpdate);
     
     switch(ref.type)
@@ -311,14 +365,14 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
         {
           mApplication->enqueue({mWorkerId,this->getFileDescriptor(),ref});
           return true;
-          /**
-           
+          
+          /*
           WebSocketProtocol::ServerMessage tmp(outBuffer,WebSocketProtocol::TEXT,ref.message);
           
           int ret=this->send(outBuffer);
           if(ret == -1) return false;
           else return true;
-          **/
+          */
         }
         else 
         {
@@ -329,14 +383,16 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
       break;
       case WebSocketProtocol::BINARY:
       {
+        
         mApplication->enqueue({mWorkerId,this->getFileDescriptor(),ref});
-        /**
+        return true;
+        
+        /*
         WebSocketProtocol::ServerMessage(outBuffer,WebSocketProtocol::BINARY,ref.message);
         int ret=this->send(outBuffer);
         if(ret == -1) return false;
         else return true;
-        **/
-        return true;
+        */
       }
       break;
       case WebSocketProtocol::CLOSE:

@@ -43,8 +43,8 @@ OBJECTFILES= \
 CFLAGS=
 
 # CC Compiler Flags
-CCFLAGS=-pipe -Wall -pthread -D_REENTRANT -D_THREAD_SAFE -O3 -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -msse2avx -ftree-vectorize -funroll-loops -DBZ_NO_STDIO -DLOG_DEBUG -DMAX_BUFF_SIZE=256 -DTSAFE_LOG=1 -DLOG_FILE=\"lapps.log\" -DAPP_NAME=\"LAppS\" -DLAPPS_TLS_ENABLE=1
-CXXFLAGS=-pipe -Wall -pthread -D_REENTRANT -D_THREAD_SAFE -O3 -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -msse2avx -ftree-vectorize -funroll-loops -DBZ_NO_STDIO -DLOG_DEBUG -DMAX_BUFF_SIZE=256 -DTSAFE_LOG=1 -DLOG_FILE=\"lapps.log\" -DAPP_NAME=\"LAppS\" -DLAPPS_TLS_ENABLE=1
+CCFLAGS=-pipe -Wall -pthread -D_REENTRANT -D_THREAD_SAFE -O2 -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -ftree-vectorize -funroll-loops -DBZ_NO_STDIO -DMAX_BUFF_SIZE=256 -DTSAFE_LOG=1 -DLOG_FILE=\"lapps.log\" -DAPP_NAME=\"LAppS\" -DLOG_ERROR -DLAPPS_TLS_ENABLE
+CXXFLAGS=-pipe -Wall -pthread -D_REENTRANT -D_THREAD_SAFE -O2 -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -ftree-vectorize -funroll-loops -DBZ_NO_STDIO -DMAX_BUFF_SIZE=256 -DTSAFE_LOG=1 -DLOG_FILE=\"lapps.log\" -DAPP_NAME=\"LAppS\" -DLOG_ERROR -DLAPPS_TLS_ENABLE
 
 # Fortran Compiler Flags
 FFLAGS=
@@ -67,7 +67,7 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps: ../utils/dist/Debug/GNU-Linux/
 
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
-	g++ -pipe -Wall -pthread -D_REENTRANT -D_THREAD_SAFE -O3 -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -msse2avx -ftree-vectorize -funroll-loops -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps ${OBJECTFILES} ${LDLIBSOPTIONS} -lcryptopp -ltls -lcrypto -lluajit-5.1
+	g++ -pipe -Wall -pthread -D_REENTRANT -D_THREAD_SAFE -O3 -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -msse2avx -ftree-vectorize -funroll-loops -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps ${OBJECTFILES} ${LDLIBSOPTIONS} -lcryptopp -ltls -lcrypto -lluajit-5.1 -s
 
 ${OBJECTDIR}/src/getLog.o: src/getLog.cpp nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/src

@@ -42,7 +42,7 @@ namespace abstract
     Application(Application&)=delete;
     
     virtual void enqueue(const TaggedEvent&)=0;
-    virtual ::abstract::Application::Protocol getProtocol() const=0;
+    virtual const ::abstract::Application::Protocol getProtocol() const=0;
     virtual const std::string& getName() const=0;
     virtual const std::string& getTarget() const=0;
     virtual ~Application()=default;
@@ -52,7 +52,7 @@ namespace abstract
 typedef std::shared_ptr<abstract::Application>            ApplicationSPtr;
 typedef itc::sys::CancelableThread<abstract::Application> ApplicationThread;
 typedef std::shared_ptr<ApplicationThread>                ApplicationThreadSPtr;
-typedef abstract::Application::Protocol                   ApplicationProtocol;
+typedef ::abstract::Application::Protocol                 ApplicationProtocol;
 
 
 #endif /* __ABSTRACT_APPLICATION_H__ */
