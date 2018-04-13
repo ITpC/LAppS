@@ -13,6 +13,7 @@ Here are some performance results (dev instance with Intel(R) Core(TM) i7-7700 C
 <th>Server</th>
 <th>Average echo round-trips per second per client </th>
 <th>Average echo rps served per second by server </th>
+<th>Comments</th>
 </tr>
 <tr>
 <td>LAppS(lua echo app)</td><td>953.395</td><td>78846.7</td><td>(raw protocol - full round-trip over luajit stack: message is copied to lua string, after response it is copied to send buffer)</td>
