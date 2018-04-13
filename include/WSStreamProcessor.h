@@ -69,7 +69,6 @@ private:
 /**===========================================================**/
  
   WSStreamProcessing::State state;
-  bool isContinuationFrame;
   WebSocketProtocol::OpCode currentOpCode;
   WSStreamProcessing::Frame frame;
   
@@ -109,7 +108,7 @@ private:
   
  public:  
   explicit WSStreamParser() : state(WSStreamProcessing::INIT), 
-    isContinuationFrame(false), currentOpCode(WebSocketProtocol::CFRSV5), 
+    currentOpCode(WebSocketProtocol::CFRSV5), 
     frame(WSStreamProcessing::SINGLE_FRAME), headerBytesReady(0), 
     sizeBytesReady(0), maskBytesReady(0), headerBytes{0}, optionalSizeBytes{0}, 
     cursor(0), messageSize(0), PLReadyBytes(0), opcodes(), 

@@ -35,6 +35,10 @@
 #include <WebSocket.h>
 #include <abstract/Application.h>
 #include <ApplicationContext.h>
+#include <tsbqueue.h>
+
+#include <WSWorkersPool.h>
+#include <Singleton.h>
 
 #include <ext/json.hpp>
 
@@ -73,7 +77,7 @@ namespace LAppS
     {
       return mTarget;
     }
-    constexpr ApplicationProtocol getProtocol() const
+    const ApplicationProtocol getProtocol() const
     {
       return Tproto;
     }
@@ -88,31 +92,36 @@ namespace LAppS
     }
     
     explicit Application(const std::string& appName,const std::string& target)
-    : mName(appName), mTarget(target),mAppContext(appName)
+    : mMayRun(true),mMutex(),mName(appName), mTarget(target),mAppContext(appName)
     {
+     
     }
     
     void enqueue(const TaggedEvent& event)
     {
-      mEvents.send(event);
+      try {
+        mEvents.send(event);
+      } catch (const std::exception& e)
+      {
+        itc::getLog()->error(__FILE__,__LINE__,"Can't enqueue request to application %s, exception: %s",mName.c_str(),e.what());
+      }
     }
     
     void execute()
     {
       while(mMayRun)
-      {
-        SyncLock sync(mMutex);
-        TaggedEvent te;
+      { 
         try
         {
-          mEvents.recv(te);
-          mAppContext.onMessage(te.wid,te.sockfd,te.event);
-        }
-        catch(std::exception& e)
+          auto te=mEvents.recv();
+          auto tmsg=mAppContext.onMessage(te.wid,te.sockfd,te.event);
+          itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>::getInstance()->get(tmsg.wid)->getRunnable()->submitResponse(tmsg);
+        }catch(std::exception& e)
         {
-          itc::getLog()->info(__FILE__,__LINE__,"Queue goes down, stopping the application");
-          mAppContext.shutdown();
           mMayRun=false;
+          itc::getLog()->error(__FILE__,__LINE__,"exception in Application::execute(): %s",e.what());
+          itc::getLog()->info(__FILE__,__LINE__,"Application going down (it seems that server shutting down too)");
+          itc::getLog()->flush();
         }
       }
     }

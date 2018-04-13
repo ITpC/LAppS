@@ -28,6 +28,7 @@
 #include <stdexcept>
 #include <map>
 #include <iostream>
+#include <vector>
 
 
 /**
@@ -103,7 +104,7 @@ private:
   }
  
  // collect minimum required headers for WebSockets, ignore the rest
- void collectHeaders(const char* headers,const size_t limit)
+ size_t collectHeaders(const char* headers,const size_t limit)
  {
    size_t cursor=0;
    while(cursor < limit && headers[cursor])
@@ -135,6 +136,7 @@ private:
          break;
      }
    }
+   return cursor;
  }
  size_t getKey(const char* header, const size_t limit)
  {
@@ -170,7 +172,7 @@ public:
  :  mMinSize(168)
  {
  }
- void parse(const std::vector<uint8_t>& ref)
+ void parse(const std::vector<uint8_t>& ref, const size_t bufflen)
  {
    size_t cursor=0;
    
@@ -179,19 +181,19 @@ public:
    // shortcut: minimal length
    throwOnMinSizeViolation(ref);
    
-   // CRLF at start? Ignoring standard if there is no CRLF at start 
+   // CRLF at start? Ignoring RFC 7230 if there is no CRLF at start.
    // (uWebSockets sends malformed requests)
    if(isCRLF((const char*)(ref.data()))) cursor+=2;
    
    
-   // is it a get request - ignoring all other requests
+   // is it a get request? - ignoring all other requests
    if((ref.data()[cursor] == 'G') && ((ref.data()[cursor+1]) == 'E') && ((ref.data()[cursor+2]) == 'T'))
    {
      // one space only as per RFC
      if(ref.data()[cursor+3] == ' ')
      {
        // target
-       for(size_t i=cursor+4;(i<ref.size()&&(ref.data()[i]!=' '));++i)
+       for(size_t i=cursor+4;(i<bufflen&&(ref.data()[i]!=' '));++i)
        {
          RequestTarget+=ref.data()[i];
          cursor=i;
@@ -205,14 +207,14 @@ public:
 
        for(
          size_t i=cursor;
-         (i<ref.size()&&(!isCRLF((const char*)(&(ref.data()[i])))));
+         ((i<bufflen)&&(!isCRLF((const char*)(&(ref.data()[i])))));
          ++i
        ){
          HTTPVersion+=ref.data()[i];
        }
        cursor+=HTTPVersion.size()+2;
 
-       collectHeaders((const char*)(&ref.data()[cursor]),ref.size()-cursor);
+       cursor+=collectHeaders((const char*)(&ref.data()[cursor]),bufflen-cursor);
 
      } else throwMalformedHTTPRequest("No space after MODE[GET]");
    } else throwMalformedHTTPRequest("Only GET requests are accepted");

@@ -56,8 +56,6 @@ namespace LAppS
 
     void callAppOnMessage()
     {
-      lua_getfield (mLState, LUA_GLOBALSINDEX, mName.c_str());
-      lua_pushstring (mLState, "onMessage");
       int ret = lua_pcall (mLState, 1, 1, 0);
       if(ret != 0)
       {
@@ -156,6 +154,7 @@ namespace LAppS
     
     void startApp()
     {
+      itc::getLog()->trace(__FILE__,__LINE__,"-> ApplicationContext::startApp()");
       lua_getglobal(mLState, mName.c_str());
       lua_getfield(mLState, -1, "onStart");
       int ret = lua_pcall (mLState, 0, 0, 0);
@@ -173,27 +172,47 @@ namespace LAppS
             break;
         }
       }
+      itc::getLog()->trace(__FILE__,__LINE__,"<- ApplicationContext::startApp()");
     }
     
   
     const TaggedEvent onMessage(const uint8_t workerID, const int32_t socketfd, const WSEvent& event, const itc::utils::Int2Type<ApplicationProtocol::RAW>& protocol_is_raw)
     {
+      itc::getLog()->trace(__FILE__,__LINE__,"Application %s -> ApplicationContext::onMessage(PROTO::RAW)",mName.c_str());
+      
+      lua_getfield(mLState, LUA_GLOBALSINDEX, mName.c_str());
+      lua_getfield(mLState,-1,"onMessage");
+      
       lua_pushlstring(mLState,(const char*)(event.message->data()),event.message->size());
+      
       callAppOnMessage(); // expecting only one result
       
       uint32_t argc=lua_gettop(mLState);
+      /*
       if(argc != 1)
       {
         throw std::system_error(EINVAL,std::system_category(),mName+"::onMessage() returned "+std::to_string(argc)+",but only one result was expected");
       }
+      */
+      
       size_t len;
-      const char *str=lua_tolstring(mLState,-1,&len);
-      auto ret=std::make_shared<MSGBufferType>(len);
-      memcpy(ret->data(),str,len);
-      return {workerID,socketfd,{event.type,ret}};
+      
+      const char *str=lua_tolstring(mLState,argc,&len);
+      
+      auto out=std::make_shared<MSGBufferType>(len);
+      
+      
+      WebSocketProtocol::ServerMessage(*out,event.type,str,len);
+      while(int stackdepth=lua_gettop(mLState))
+      {
+        lua_pop(mLState,1);
+      }
+      itc::getLog()->trace(__FILE__,__LINE__,"Application %s <- ApplicationContext::onMessage(PROTO::RAW)",mName.c_str());
+      return {workerID,socketfd,{event.type,out}};
     }
     const TaggedEvent onMessage(const uint8_t workerID, const int32_t socketfd, const WSEvent& event, const itc::utils::Int2Type<ApplicationProtocol::LAPPS>& protocol_is_lapps)
     {
+      itc::getLog()->trace(__FILE__,__LINE__,"Application %s -> ApplicationContext::onMessage(PROTO::LAPPS)",mName.c_str());
       auto retval=std::make_shared<MSGBufferType>(0);
       
       if(event.type != WebSocketProtocol::OpCode::BINARY)
@@ -201,6 +220,9 @@ namespace LAppS
             
       try
       {
+        lua_getfield(mLState, LUA_GLOBALSINDEX, mName.c_str());
+        lua_getfield(mLState,-1,"onMessage");
+        
         auto udjsptr=static_cast<UDJSPTR**>(lua_newuserdata(mLState,sizeof(UDJSPTR*)));
         // allocate UDJSPTR and store its address to allocated block
         (*udjsptr)=new UDJSPTR(SHARED_PTR,new JSPTR());
@@ -215,6 +237,7 @@ namespace LAppS
         
         callAppOnMessage(); // expecting userdata object (1 value only);
         uint32_t argc=lua_gettop(mLState);
+        
         if(argc > 1)
         {
           throw std::system_error(EINVAL,std::system_category(),mName+"::onMessage() returned "+std::to_string(argc)+",but zero or one result were expected");
@@ -251,6 +274,7 @@ namespace LAppS
         itc::getLog()->error(__FILE__,__LINE__,"Exception on client's message CBOR parsing, socket will be closed for the protocol violation");
         throw std::system_error(EINVAL,std::system_category(),"Protocol violation, LAppS accepts only valid CBOR encoded messages");
       }
+      itc::getLog()->trace(__FILE__,__LINE__,"Application %s <- ApplicationContext::onMessage(PROTO::LAPPS)",mName.c_str());
       return {workerID,socketfd,{event.type,retval}};
     }
 public:
@@ -258,7 +282,7 @@ public:
     ApplicationContext(ApplicationContext&)=delete;
     
     explicit ApplicationContext(const std::string& appname)
-    : mName(appname), mLState(luaL_newstate()) /**,mParent(parent)**/
+    : mMutex(), mName(appname), mLState(luaL_newstate()) /**,mParent(parent)**/
     {
       /**
       if(mParent == nullptr)
@@ -272,17 +296,25 @@ public:
       
       if(require(mName))
       {
-        itc::getLog()->info("Lua module %s is registered",mName.c_str());
+        itc::getLog()->info(__FILE__,__LINE__,"Lua module %s is registered",mName.c_str());
         if(isAppModuleValid(mName))
         {
-          itc::getLog()->info("Lua module %s is a valid application (e.a. provides required methods, though there is no warranty it works properly)",mName.c_str());
+          itc::getLog()->info(
+            __FILE__,__LINE__,
+            "Lua module %s is a valid application (e.a. provides required methods, though there is no warranty it works properly)",mName.c_str()
+          );
           try {
-            startApp();
+            this->startApp();
           }catch(const std::exception& e)
           {
-            itc::getLog()->error(__FILE__,__LINE__,"Unable to start application %s, because of an exception: ",mName.c_str(),e.what());
+            itc::getLog()->error(__FILE__,__LINE__,"Unable to start application %s, because of an exception: %s",mName.c_str(),e.what());
             throw;
           }
+        }
+        else
+        {
+          itc::getLog()->error(__FILE__,__LINE__,"Lua module %s is not a valid LAppS application",mName.c_str());
+          throw std::logic_error("Invalid application "+mName);
         }
       }
     }

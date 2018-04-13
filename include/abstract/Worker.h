@@ -27,24 +27,24 @@
 #include <string>
 #include <memory>
 #include <abstract/Runnable.h>
-#include <InboundConnectionsAdapter.h>
 #include <WebSocket.h>
 #include <WorkerStats.h>
 #include <abstract/Application.h>
 #include <WSEvent.h>
+#include <EventBus.h>
+#include <ePollController.h>
 
 namespace abstract
 {
-  class Worker : public itc::abstract::IRunnable
+  class Worker : public ::itc::abstract::IRunnable, public ::itc::TCPListener::ViewType
   {
    protected:
     const uint8_t ID;
     size_t mMaxConnections;
-    std::string mRequestTarget;
     WorkerStats mStats;
    public:
-    explicit Worker(const uint8_t id, const size_t maxConnections, const std::string& path)
-    :  itc::abstract::IRunnable(), ID(id),mMaxConnections(maxConnections),mRequestTarget(path),
+    explicit Worker(const uint8_t id, const size_t maxConnections)
+    :  itc::abstract::IRunnable(), ID(id),mMaxConnections(maxConnections),
        mStats{0,0,0,0,0,0,0}
     {
       sigset_t sigset;
@@ -64,15 +64,15 @@ namespace abstract
     {
       return ID;
     }
-    
+    Worker()=delete;
     Worker(const Worker&)=delete;
     Worker(Worker&)=delete;
     virtual const WorkerStats& getStats() const=0;
     virtual void updateStats()=0;
     virtual void deleteConnection(const int32_t)=0;
-    virtual const std::string& getRequestTarget() const=0;
     virtual void submitResponse(const TaggedEvent&)=0;
-    virtual void cleanClosed()=0;
+    virtual void newConnection(const itc::CSocketSPtr&)=0;
+    virtual void setEPollController(const LAppS::ePollControllerSPtrType&)=0;
     virtual ~Worker()=default;
   };
 }

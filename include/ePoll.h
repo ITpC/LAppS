@@ -33,6 +33,7 @@
 // 
 // 
 #define ePollINDefaultOps EPOLLIN|EPOLLRDHUP|EPOLLPRI|EPOLLONESHOT
+
 #define ePollINEdge ePollINDefaultOps|EPOLLET|EPOLLEXCLUSIVE
 
 /**
@@ -44,9 +45,8 @@ template <uint32_t ops=ePollINDefaultOps> class ePoll
 {
 private:
   int mPollFD;
-  uint32_t maxevents;
 public:
-  ePoll():mPollFD(epoll_create1(O_CLOEXEC)),maxevents(0)
+  ePoll():mPollFD(epoll_create1(O_CLOEXEC))
   {
     if(mPollFD == -1)
       throw std::system_error(errno,std::system_category(),std::string("In ePoll() constructor: "));
@@ -58,7 +58,11 @@ public:
     ev.data.fd=fd;
     if(epoll_ctl(mPollFD,EPOLL_CTL_ADD,fd,&ev)==-1)
       throw std::system_error(errno,std::system_category(),std::string("In ePoll::add(): "));
-    ++maxevents;
+  }
+  
+  ~ePoll()
+  {
+    close(mPollFD);
   }
   
   void mod(const int fd)
@@ -72,7 +76,6 @@ public:
       if(errno != ENOENT)
         throw std::system_error(errno,std::system_category(),std::string("In ePoll::mod(): "));
     }
-    else ++maxevents;
   }
   // no maxevents decrement here, because of EPOLLONESHOT and del() only called 
   // after poll()
@@ -84,7 +87,6 @@ public:
     
     if(epoll_ctl(mPollFD,EPOLL_CTL_DEL,fd,&ev)==-1)
       throw std::system_error(errno,std::system_category(),std::string("In ePoll::del(): "));
-    --maxevents;
   }
   /**
    * \@brief epoll_wait wrapper. Use it within try{}catch(){}. This method
@@ -98,7 +100,6 @@ public:
    **/
   int poll(std::vector<epoll_event>& out, const int timeout=1)
   {
-    //out.resize(maxevents);
     int ret=0;
     while(1)
     {
@@ -115,10 +116,6 @@ public:
         // else EINTR, repeat epoll_wait.
       }
     }
-  }
-  const uint32_t getMaxEvents() const
-  {
-    return maxevents;
   }
 };
 

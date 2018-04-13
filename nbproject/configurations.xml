@@ -20,10 +20,10 @@
       <itemPath>include/ApplicationRegistry.h</itemPath>
       <itemPath>include/Config.h</itemPath>
       <itemPath>include/Env.h</itemPath>
+      <itemPath>include/EventBus.h</itemPath>
       <itemPath>include/HTTPRequestParser.h</itemPath>
-      <itemPath>include/InSockQueuesRegistry.h</itemPath>
-      <itemPath>include/InboundConnectionsAdapter.h</itemPath>
-      <itemPath>include/Shaker.h</itemPath>
+      <itemPath>include/IOWorker.h</itemPath>
+      <itemPath>include/Shakespeer.h</itemPath>
       <itemPath>include/TLSServerContext.h</itemPath>
       <itemPath>include/TaggedEvent.h</itemPath>
       <itemPath>include/WSConnectionStats.h</itemPath>
@@ -31,10 +31,11 @@
       <itemPath>include/WSProtocol.h</itemPath>
       <itemPath>include/WSServerMessage.h</itemPath>
       <itemPath>include/WSStreamProcessor.h</itemPath>
-      <itemPath>include/WSWorker.h</itemPath>
+      <itemPath>include/WSWorkersPool.h</itemPath>
       <itemPath>include/WebSocket.h</itemPath>
       <itemPath>include/WorkerStats.h</itemPath>
       <itemPath>include/ePoll.h</itemPath>
+      <itemPath>include/ePollController.h</itemPath>
       <itemPath>include/wsServer.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
@@ -84,7 +85,7 @@
             <pElem>include</pElem>
             <pElem>include/modules</pElem>
           </incDir>
-          <commandLine>-pipe -Wall -pthread -D_REENTRANT -D_THREAD_SAFE -O3 -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -msse2avx -ftree-vectorize -funroll-loops -DBZ_NO_STDIO -DLOG_DEBUG -DMAX_BUFF_SIZE=256 -DTSAFE_LOG=1 -DLOG_FILE=\"lapps.log\" -DAPP_NAME=\"LAppS\" -DLAPPS_TLS_ENABLE=1</commandLine>
+          <commandLine>-pipe -Wall -pthread -D_REENTRANT -D_THREAD_SAFE -O2 -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -ftree-vectorize -funroll-loops -DBZ_NO_STDIO -DMAX_BUFF_SIZE=256 -DTSAFE_LOG=1 -DLOG_FILE=\"lapps.log\" -DAPP_NAME=\"LAppS\" -DLOG_ERROR -DLAPPS_TLS_ENABLE</commandLine>
         </ccTool>
         <linkerTool>
           <linkerAddLib>
@@ -129,7 +130,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -ltls -lcrypto -lluajit-5.1</commandLine>
+          <commandLine>-lcryptopp -ltls -lcrypto -lluajit-5.1 -s</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -353,6 +354,42 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -374,16 +411,13 @@
       </item>
       <item path="include/Env.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/EventBus.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/HTTPRequestParser.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="include/InSockQueuesRegistry.h" ex="false" tool="3" flavor2="0">
+      <item path="include/IOWorker.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="include/InboundConnectionsAdapter.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="include/Shaker.h" ex="false" tool="3" flavor2="0">
+      <item path="include/Shakespeer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/TLSServerContext.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -399,7 +433,7 @@
       </item>
       <item path="include/WSStreamProcessor.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="include/WSWorker.h" ex="false" tool="3" flavor2="0">
+      <item path="include/WSWorkersPool.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WebSocket.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -410,6 +444,8 @@
       <item path="include/abstract/Worker.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ePoll.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ePollController.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ext/json.hpp" ex="false" tool="3" flavor2="0">
       </item>
@@ -456,16 +492,13 @@
       </item>
       <item path="include/Env.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/EventBus.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/HTTPRequestParser.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="include/InSockQueuesRegistry.h" ex="false" tool="3" flavor2="0">
+      <item path="include/IOWorker.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="include/InboundConnectionsAdapter.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="include/Shaker.h" ex="false" tool="3" flavor2="0">
+      <item path="include/Shakespeer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/TLSServerContext.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -481,7 +514,7 @@
       </item>
       <item path="include/WSStreamProcessor.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="include/WSWorker.h" ex="false" tool="3" flavor2="0">
+      <item path="include/WSWorkersPool.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WebSocket.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -492,6 +525,8 @@
       <item path="include/abstract/Worker.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ePoll.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ePollController.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ext/json.hpp" ex="false" tool="3" flavor2="0">
       </item>

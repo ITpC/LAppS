@@ -48,13 +48,17 @@ namespace LAppS
       {"listeners",3},
       {"ip","0.0.0.0"},
       {"port",5083},
+#ifdef LAPPS_TLS_ENABLE
       {"tls",true},
+#else      
+      {"tls",false},
+#endif
       // {"tls_certificates",{ {"ca","/etc/ssl/cert.pem"},{"cert", "/apps/${APPNAME}/etc/ssl/cert.pem"}, {"key","/apps/${APPNAME}/etc/ssl/key.pem" } }}
       {"tls_certificates",{ {"ca","/etc/ssl/cert.pem"},{"cert", "./ssl/cert.pem"}, {"key","./ssl/key.pem" } }},
       {"auto_fragment",true}, // Not yet implemented
       {"max_inbound_message_size",300000}, // 300 000 bytes. Not yet implemented.
       {"save_large_messages_as_files",true},  // Not yet implemented.
-      {"network_latency_tolerance",10}, /** in ms. 
+      {"network_latency_tolerance",100}, /** in ms. 
                                          * This parameter affects handshake. 
                                          * Connection will be removed if peer 
                                          * does not send a handshake request 
@@ -85,14 +89,14 @@ namespace LAppS
             {"protocol", "raw"},
             {"workers",{ {"workers",3}, {"max_connections", 100 }}},
             {"instances", 3}
-          }}},
+          }}}/*,
           {{"console", {
             {"internal", false},
             {"request_target","/console"},
             {"protocol", "LAppS"},
             {"workers",{ {"workers",1}, {"max_connections", 100 }}},
             {"instances", 1},
-          }}}
+          }}}*/
         }
       }}){
         std::ifstream ws_config_file(mEnv["LAPPS_CONF_DIR"]+"/"+mEnv["WS_CONFIG"], std::ifstream::binary);
