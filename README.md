@@ -25,14 +25,14 @@ This will create base image for your experimentation/development. Check it with 
 
 Download the [Dockerfile.lapps-build](https://github.com/ITpC/LAppS/blob/master/dockerfiles/Dockerfile.lapps-build) file now and place it again `somewhere'. Assuming it is the same directory as the last time run the command:
 
-*docker build -t lapps:build-$(date +%s) -f Dockerfile.lapps-build  .*
+*docker build -t lapps:build -f Dockerfile.lapps-build  .*
 
-Which will build the LAppS and create docker image with name lapps and tag build-some-number (timestamp in seconds). 
+Which will build the LAppS and create docker image with name lapps and tag build. 
 
 One more step before we run it. Lets install LAppS somewhere:
 
 
-*docker run -it --name myldev -h ldev -v /opt/lapps-builds/latest:/opt/lapps lapps:build  make install-examples clone-luajit clone-libressl*
+*docker run -it --rm --name myldev -h ldev -v /opt/lapps-builds/latest:/opt/lapps lapps:build  make install-examples clone-luajit clone-libressl*
 
 
 This command will install LAppS, related luajit-2.0.5 and libressl files as well an example app into /opt/lapps-build/latest/
