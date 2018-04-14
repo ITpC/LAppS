@@ -85,6 +85,7 @@
             <pElem>include</pElem>
             <pElem>include/modules</pElem>
             <pElem>/usr/local/include</pElem>
+            <pElem>/usr/local/include/luajit-2.0</pElem>
           </incDir>
           <commandLine>-pipe -Wall -pthread -D_REENTRANT -D_THREAD_SAFE -O2 -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -ftree-vectorize -funroll-loops -DBZ_NO_STDIO -DMAX_BUFF_SIZE=256 -DTSAFE_LOG=1 -DLOG_FILE=\"lapps.log\" -DAPP_NAME=\"LAppS\" -DLOG_ERROR -DLAPPS_TLS_ENABLE</commandLine>
         </ccTool>
