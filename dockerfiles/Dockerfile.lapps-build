@@ -1,0 +1,22 @@
+FROM lapps:luadev
+
+WORKDIR ${WORKSPACE}/ITCLib
+
+RUN git pull
+
+WORKDIR ${WORKSPACE}/ITCFramework
+
+RUN git pull
+
+WORKDIR ${WORKSPACE}/utils
+
+RUN git pull
+
+WORKDIR ${WORKSPACE}/LAppS
+
+RUN git pull
+
+RUN make clean
+
+RUN make 
+
