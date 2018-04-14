@@ -90,6 +90,7 @@
         </ccTool>
         <linkerTool>
           <linkerAddLib>
+            <pElem>/usr/local/lib</pElem>
             <pElem>../libressl/lib</pElem>
           </linkerAddLib>
           <commandlineTool>g++ -pipe -Wall -pthread -D_REENTRANT -D_THREAD_SAFE -O3 -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -msse2avx -ftree-vectorize -funroll-loops</commandlineTool>
