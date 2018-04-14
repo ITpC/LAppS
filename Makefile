@@ -99,7 +99,15 @@ build-tests: .build-tests-post
 .build-tests-post: .build-tests-impl
 # Add your post 'build-tests' code here...
 
+install: build
+	mkdir -p /opt/lapps/{bin,conf,ssl,lib,apps}
+	install -m 0755 ${CND_ARTIFACT_PATH_${CONF}} /opt/lapps/bin
 
+install-examples: install 
+	mkdir -p /opt/lapps/apps/echo/ssl/
+	install -m 0644 ${CND_BASEDIR}/examples/echo/ssl/* /opt/lapps/apps/echo/ssl/
+	install -m 0644 ${CND_BASEDIR}/examples/echo/echo.lua /opt/lapps/apps/echo/
+	
 # run tests
 test: .test-post
 
