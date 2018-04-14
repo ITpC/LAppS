@@ -107,7 +107,14 @@ install-examples: install
 	mkdir -p /opt/lapps/apps/echo/ssl/
 	install -m 0644 ${CND_BASEDIR}/examples/echo/ssl/* /opt/lapps/apps/echo/ssl/
 	install -m 0644 ${CND_BASEDIR}/examples/echo/echo.lua /opt/lapps/apps/echo/
-	
+
+clone-luajit:
+	cp -RpP /usr/local/{include,lib,bin,man,share} /opt/lapps/
+
+clone-libressl:
+	cp -RpP ${CND_BASEDIR}/../libressl/{bin,etc,include,lib,share} /opt/lapps/
+
+
 # run tests
 test: .test-post
 
