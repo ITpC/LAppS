@@ -89,8 +89,6 @@ Here are some performance results (dev instance with Intel(R) Core(TM) i7-7700 C
 
 
 # TODO
-## Docker dev build
-## Docker run build
 ## LAppS protocol implementation
 ## Lua applications documentation
 ## WebSocket extensions
