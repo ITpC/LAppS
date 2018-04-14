@@ -48,6 +48,7 @@ namespace LAppS
       {"listeners",3},
       {"ip","0.0.0.0"},
       {"port",5083},
+      {"workers",{ {"workers",3}, {"max_connections", 100 }}},
 #ifdef LAPPS_TLS_ENABLE
       {"tls",true},
 #else      
@@ -87,7 +88,6 @@ namespace LAppS
             {"internal", false},
             {"request_target", "/echo"},
             {"protocol", "raw"},
-            {"workers",{ {"workers",3}, {"max_connections", 100 }}},
             {"instances", 3}
           }}}/*,
           {{"console", {

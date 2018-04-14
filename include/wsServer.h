@@ -86,9 +86,6 @@ private:
   {
     try
     {
-      size_t      workers=0;
-      size_t      max_connections=0;
-      
       auto it=LAppSConfig::getInstance()->getLAppSConfig().find("services");
       if(it!=LAppSConfig::getInstance()->getLAppSConfig().end())
       {
@@ -122,32 +119,6 @@ private:
               app_target.clear();
             }
 
-            found=service.value().find("workers");
-            if(found != service.value().end())
-            {
-              workers=found.value()["workers"];
-              
-              if(workers>255)
-              {
-                throw std::system_error(EINVAL,std::system_category(),"Configuration of service "+service.key()+" error: workers > 255. Max Workers hard limit is 255");
-              }
-              
-              auto max_connections_found=found.value().find("max_connections");
-              
-              if(max_connections_found != found.value().end())
-              {
-                max_connections=max_connections_found.value();
-              }
-              else
-              {
-                max_connections=100;
-              }
-            }
-            else {
-              workers=1;
-              max_connections=100;
-            }
-            
             if((!app_target.empty())&&(!proto.empty()))
             {
               std::regex request_target("^[/][[:alpha:][:digit:]_-]*([/]?[[:alpha:][:digit:]_-]+)*$");
@@ -189,11 +160,6 @@ private:
                   }
                 }else{
                     throw std::system_error(EINVAL,std::system_category(), "Incorrect protocol is specified for target "+app_target+" in service "+service_name+". Only two protocols are supported: raw, LAppS");
-                }
-
-                for(size_t i=0;i<workers;++i)
-                {
-                  WorkersPool::getInstance()->spawn(max_connections);
                 }
               } else throw std::system_error(EINVAL,std::system_category(), "Incorrect request target: "+app_target+" in configuration of service "+service.key());
             } else throw std::system_error(EINVAL,std::system_category(), "Undefined request_target or protocol keyword which are both mandatory");
@@ -245,26 +211,47 @@ public:
   wsServer()
   : enableTLS(), enableStatsUpdate(), mAllStats{0,0,0,0,0,0,0}
   {
-     itc::getLog()->debug(__FILE__,__LINE__,"Starting WS Server");
-     
-     const bool is_tls_enabled=LAppSConfig::getInstance()->getWSConfig()["tls"];
+      itc::getLog()->debug(__FILE__,__LINE__,"Starting WS Server");
 
-     if(TLSEnable&&(!is_tls_enabled))
-     {
-       throw std::system_error(EINVAL,std::system_category(),"WS Server is build TLS support, tls option MUST BE enabled in config to start LAppS");
-     }
-     
-     if(is_tls_enabled&&(!TLSEnable))
-      throw std::system_error(EINVAL,std::system_category(),"WS Server is build without TLS support, disable tls option in config to start LAppS (insecure)");
-     else if(is_tls_enabled)
-     {
-       auto tls_server_context=TLS::SharedServerContext::getInstance()->getContext();
-       if(tls_server_context == nullptr)
-       {
-         throw std::logic_error("Can't continue, TLS Server Context is NULL");
-       }
-     }
-     prepareServices();
+      const bool is_tls_enabled=LAppSConfig::getInstance()->getWSConfig()["tls"];
+
+      if(TLSEnable&&(!is_tls_enabled))
+      {
+        throw std::system_error(EINVAL,std::system_category(),"WS Server is build TLS support, tls option MUST BE enabled in config to start LAppS");
+      }
+
+      if(is_tls_enabled&&(!TLSEnable))
+       throw std::system_error(EINVAL,std::system_category(),"WS Server is build without TLS support, disable tls option in config to start LAppS (insecure)");
+      else if(is_tls_enabled)
+      {
+        auto tls_server_context=TLS::SharedServerContext::getInstance()->getContext();
+        if(tls_server_context == nullptr)
+        {
+          throw std::logic_error("Can't continue, TLS Server Context is NULL");
+        }
+      }
+      
+      auto found=LAppSConfig::getInstance()->getWSConfig().find("workers");
+      size_t max_connections=1000;
+      size_t workers=1;
+      
+      if(found != LAppSConfig::getInstance()->getWSConfig().end())
+      {
+        auto workers=found.value()["workers"];
+
+        auto max_connections_found=found.value().find("max_connections");
+
+        if(max_connections_found != found.value().end())
+        {
+          max_connections=max_connections_found.value();
+        }
+      }
+      
+      for(size_t i=0;i<workers;++i)
+      {
+        WorkersPool::getInstance()->spawn(max_connections);
+      }
+      prepareServices();
   };
 
   void run()

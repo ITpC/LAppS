@@ -39,11 +39,11 @@ namespace abstract
   class Worker : public ::itc::abstract::IRunnable, public ::itc::TCPListener::ViewType
   {
    protected:
-    const uint8_t ID;
+    const size_t ID;
     size_t mMaxConnections;
     WorkerStats mStats;
    public:
-    explicit Worker(const uint8_t id, const size_t maxConnections)
+    explicit Worker(const size_t id, const size_t maxConnections)
     :  itc::abstract::IRunnable(), ID(id),mMaxConnections(maxConnections),
        mStats{0,0,0,0,0,0,0}
     {

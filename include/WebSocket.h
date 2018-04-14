@@ -61,7 +61,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   
   ApplicationSPtr  mApplication;
   
-  uint8_t          mWorkerId;
+  size_t          mWorkerId;
   
   WSConnectionStats mStats;
   
@@ -213,7 +213,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
     mApplication=ptr;
   }
   
-  void setWorkerId(const uint8_t id)
+  void setWorkerId(const size_t id)
   {
     mWorkerId=id;
   }
