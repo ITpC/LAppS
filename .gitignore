@@ -2,6 +2,8 @@ lapps.log
 dist/
 test/
 build/
-nbproject/private/
 private
 private.xml
+nbproject/private
+nbproject/private/
+nbproject/private/private.xml
