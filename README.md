@@ -5,6 +5,7 @@ This is an attempt to provide very easy to use Lua Application Server working ov
 It is in an alpha stage right now. As of today (13 April 2018) first lua application is running under LAppS. The WebSocket implementation is not yet 100% strict, though it is complient with RFC 6455 (see autobahn testsuite results in the link bellow). No WebSockets extensions are supported yet.
 
 #How to build and run the LAppS
+
 ##Prerequisites
 
 1. Docker installed
