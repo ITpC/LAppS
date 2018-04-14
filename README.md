@@ -13,7 +13,7 @@ It is in an alpha stage right now. As of today (13 April 2018) first lua applica
 ## Build steps
 
 First we need a base docker image. This step is done only once and after you've got the base image lapps:luadev, you will not require to do this step anymore.
-Download Dockerfile and place it somewhere. Change the directory to that *`somewhere'*. And then run the command:
+Download [Dockerfile](https://github.com/ITpC/LAppS/blob/master/dockerfiles/Dockerfile) and place it somewhere. Change the directory to that *`somewhere'*. And then run the command:
 
 
 *docker build -t lapps:luadev .*
@@ -22,7 +22,7 @@ Download Dockerfile and place it somewhere. Change the directory to that *`somew
 This will create base image for your experimentation/development. Check it with **docker image ls** and you will see your base image with name *lapps* and tag *luadev* listed between the images.
 
 
-Download the Dockerfile.lapps-build file now and place it again `somewhere'. Assuming it is the same directory as the last time run the command:
+Download the [Dockerfile.lapps-build](https://github.com/ITpC/LAppS/blob/master/dockerfiles/Dockerfile.lapps-build) file now and place it again `somewhere'. Assuming it is the same directory as the last time run the command:
 
 *docker build -t lapps:build-$(date +%s) -f Dockerfile.lapps-build  .*
 
@@ -39,7 +39,7 @@ This command will install LAppS, related luajit-2.0.5 and libressl files as well
 
 ##Running the LAppS
 
-Lets make a separate clean container without anything we do not need. Download the Dockerfile.lapps-runenv file and run following command:
+Lets make a separate clean container without anything we do not need. Download the [Dockerfile.lapps-runenv](https://github.com/ITpC/LAppS/blob/master/dockerfiles/Dockerfile.lapps-runenv) file and run following command:
 
 *docker build -t lapps:runenv -f Dockerfile.lapps-runenv .*
 
