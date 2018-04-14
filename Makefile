@@ -100,15 +100,16 @@ build-tests: .build-tests-post
 # Add your post 'build-tests' code here...
 
 install: build
+	mkdir -p /opt/lapps/etc
+	mkdir -p /opt/lapps/conf/ssl
 	mkdir -p /opt/lapps/bin
-	mkdir -p /opt/lapps/conf
-	mkdir -p /opt/lapps/ssl
 	mkdir -p /opt/lapps/lib
 	mkdir -p /opt/lapps/apps
+	mkdir -p /opt/lapps/share
+	
 	install -m 0755 ${CND_ARTIFACT_PATH_${CONF}} /opt/lapps/bin
 
 install-examples: install 
-	mkdir -p /opt/lapps/conf/ssl
 	mkdir -p /opt/lapps/apps/echo
 	install -m 0644 ${CND_BASEDIR}/examples/echo/ssl/* /opt/lapps/conf/ssl/
 	install -m 0644 ${CND_BASEDIR}/examples/echo/echo.lua /opt/lapps/apps/echo/
