@@ -41,7 +41,7 @@ namespace LAppS
       typedef WebSocket<TLSEnable,StatsEnable> WSType;
       typedef std::shared_ptr<WSType>          WSSPtr;
      
-    explicit IOWorker(const uint8_t id, const size_t maxConnections)
+    explicit IOWorker(const size_t id, const size_t maxConnections)
     : Worker(id,maxConnections), mMayRun(true),mCanStop(false),
       mConnectionsMutex(), mInboundMutex(), mOutMutex(),
       mShakespeer(),

@@ -26,8 +26,8 @@
 
 struct TaggedEvent
 {
-  uint8_t wid;
-  int  sockfd;
+  size_t  wid;
+  int     sockfd;
   WSEvent event;
 };
 
