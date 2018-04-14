@@ -28,7 +28,11 @@
 #include <string>
 #include <WSProtocol.h>
 
-
+/**
+ * Fast and bad implementation of server side messages.
+ * To be optimized later. TODO: create header in a separate buffer, then
+ * send the buffer and afterwards the payload. 
+ **/
 namespace WebSocketProtocol
 {
   struct ServerMessage
