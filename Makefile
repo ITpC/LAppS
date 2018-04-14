@@ -115,7 +115,6 @@ clone-luajit:
 	cp -RpP /usr/local/share/* /opt/lapps/share/
 
 clone-libressl:
-	cp -RpP ${CND_BASEDIR}/../libressl/{bin,etc,include,lib,share} /opt/lapps/
 	cp -RpP ${CND_BASEDIR}/../libressl/etc/* /opt/lapps/etc/
 	cp -RpP ${CND_BASEDIR}/../libressl/lib/* /opt/lapps/lib/
 	cp -RpP ${CND_BASEDIR}/../libressl/share/* /opt/lapps/share/
