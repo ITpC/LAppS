@@ -224,7 +224,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   }
   void setState(const State state)
   {
-    if((state > mState)&&(state != HANDSHAKE))
+    if(((state > mState)&&(state != HANDSHAKE))||(state == mState))
       mState=state;
     else throw std::logic_error(
         "Connection::setState(), - new state is out of order"
