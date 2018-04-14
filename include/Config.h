@@ -53,12 +53,12 @@ namespace LAppS
 #else      
       {"tls",false},
 #endif
-      // {"tls_certificates",{ {"ca","/etc/ssl/cert.pem"},{"cert", "/apps/${APPNAME}/etc/ssl/cert.pem"}, {"key","/apps/${APPNAME}/etc/ssl/key.pem" } }}
-      {"tls_certificates",{ {"ca","/etc/ssl/cert.pem"},{"cert", "./ssl/cert.pem"}, {"key","./ssl/key.pem" } }},
+      {"tls_certificates",{ {"ca","/opt/lapps/etc/ssl/cert.pem"},{"cert", "/opt/lapps/conf/ssl/cert.pem"}, {"key","/opt/lapps/conf/ssl/key.pem" } }},
+      // {"tls_certificates",{ {"ca","/etc/ssl/cert.pem"},{"cert", "./ssl/cert.pem"}, {"key","./ssl/key.pem" } }},
       {"auto_fragment",true}, // Not yet implemented
-      {"max_inbound_message_size",300000}, // 300 000 bytes. Not yet implemented.
+      {"max_inbound_message_size",300000}, // 300 000 bytes. Not yet implemented.No message limit so far.
       {"save_large_messages_as_files",true},  // Not yet implemented.
-      {"network_latency_tolerance",100}, /** in ms. 
+      {"network_latency_tolerance",100}, /** in ms. <- ineffective right now.
                                          * This parameter affects handshake. 
                                          * Connection will be removed if peer 
                                          * does not send a handshake request 

@@ -104,15 +104,21 @@ install: build
 	install -m 0755 ${CND_ARTIFACT_PATH_${CONF}} /opt/lapps/bin
 
 install-examples: install 
-	mkdir -p /opt/lapps/apps/echo/ssl/
-	install -m 0644 ${CND_BASEDIR}/examples/echo/ssl/* /opt/lapps/apps/echo/ssl/
+	mkdir -p /opt/lapps/conf/ssl
+	mkdir -p /opt/lapps/apps/echo
+	install -m 0644 ${CND_BASEDIR}/examples/echo/ssl/* /opt/lapps/conf/ssl/
 	install -m 0644 ${CND_BASEDIR}/examples/echo/echo.lua /opt/lapps/apps/echo/
 
 clone-luajit:
-	cp -RpP /usr/local/{include,lib,bin,man,share} /opt/lapps/
+	cp -RpP /usr/local/lib/* /opt/lapps/lib/
+	cp -RpP /usr/local/man/* /opt/lapps/man/
+	cp -RpP /usr/local/share/* /opt/lapps/share/
 
 clone-libressl:
 	cp -RpP ${CND_BASEDIR}/../libressl/{bin,etc,include,lib,share} /opt/lapps/
+	cp -RpP ${CND_BASEDIR}/../libressl/etc/* /opt/lapps/etc/
+	cp -RpP ${CND_BASEDIR}/../libressl/lib/* /opt/lapps/lib/
+	cp -RpP ${CND_BASEDIR}/../libressl/share/* /opt/lapps/share/
 
 
 # run tests
