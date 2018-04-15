@@ -176,7 +176,7 @@ namespace LAppS
     }
     
   
-    const TaggedEvent onMessage(const uint8_t workerID, const int32_t socketfd, const WSEvent& event, const itc::utils::Int2Type<ApplicationProtocol::RAW>& protocol_is_raw)
+    const TaggedEvent onMessage(const size_t workerID, const int32_t socketfd, const WSEvent& event, const itc::utils::Int2Type<ApplicationProtocol::RAW>& protocol_is_raw)
     {
       itc::getLog()->trace(__FILE__,__LINE__,"Application %s -> ApplicationContext::onMessage(PROTO::RAW)",mName.c_str());
       
@@ -210,7 +210,7 @@ namespace LAppS
       itc::getLog()->trace(__FILE__,__LINE__,"Application %s <- ApplicationContext::onMessage(PROTO::RAW)",mName.c_str());
       return {workerID,socketfd,{event.type,out}};
     }
-    const TaggedEvent onMessage(const uint8_t workerID, const int32_t socketfd, const WSEvent& event, const itc::utils::Int2Type<ApplicationProtocol::LAPPS>& protocol_is_lapps)
+    const TaggedEvent onMessage(const size_t workerID, const int32_t socketfd, const WSEvent& event, const itc::utils::Int2Type<ApplicationProtocol::LAPPS>& protocol_is_lapps)
     {
       itc::getLog()->trace(__FILE__,__LINE__,"Application %s -> ApplicationContext::onMessage(PROTO::LAPPS)",mName.c_str());
       auto retval=std::make_shared<MSGBufferType>(0);
@@ -335,7 +335,7 @@ public:
         this->shutdown();
       }
     }
-    const TaggedEvent onMessage(const uint8_t workerID, const int32_t socketfd, const WSEvent& event)
+    const TaggedEvent onMessage(const size_t workerID, const int32_t socketfd, const WSEvent& event)
     {
       return onMessage(workerID,socketfd,event,mProtocol);
     }

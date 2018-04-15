@@ -25,6 +25,7 @@
 #  define __EVENTBUS_H__
 
 #include <queue>
+#include <list>
 #include <mutex>
 #include <functional>
 
@@ -65,7 +66,7 @@ namespace LAppS
       void push(const Event& e)
       {
         SyncLock sync(mMutex);
-        mEvents.emplace(e);
+        mEvents.push(e);
         if(!mSem.post())
           throw std::system_error(errno,std::system_category(),"Can't increment semaphore, system is going down or semaphore error");
       }

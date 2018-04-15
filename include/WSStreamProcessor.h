@@ -31,7 +31,12 @@
 
 #include <WSProtocol.h>
 #include <WSEvent.h>
+#include <queue>
 
+/**
+ * replace message and messageFrames allocation with the ring-buffer acquire of
+ * next available or new message/frame-buffer.
+ **/
 
 namespace WSStreamProcessing
 {
@@ -91,6 +96,8 @@ private:
   
   uint8_t MASK[4];
   
+  
+  
 /**===========================================================**/
   
   const bool isFIN() const
@@ -112,13 +119,16 @@ private:
     frame(WSStreamProcessing::SINGLE_FRAME), headerBytesReady(0), 
     sizeBytesReady(0), maskBytesReady(0), headerBytes{0}, optionalSizeBytes{0}, 
     cursor(0), messageSize(0), PLReadyBytes(0), opcodes(), 
-    message(std::make_shared<std::vector<uint8_t>>()), 
+    message(std::make_shared<std::vector<uint8_t>>()),
     messageFrames(std::make_shared<std::vector<uint8_t>>()),MASK{0}
   {
+    message->reserve(512);
+    messageFrames->reserve(512);
   }
   
   WSStreamParser(const WSStreamParser&)=delete;
   WSStreamParser(WSStreamParser&)=delete;
+  
   
   const WSStreamProcessing::Result parse(const uint8_t* stream,const size_t limit, const size_t offset=0, const int fd=0)
   {
@@ -512,12 +522,14 @@ private:
       {
         MSGBufferTypeSPtr tmp(message);
         message=std::make_shared<std::vector<uint8_t>>();
+        message->reserve(512);
         return { currentOpCode, tmp };
       }
       else
       {
         MSGBufferTypeSPtr tmp(messageFrames);
         messageFrames=std::make_shared<std::vector<uint8_t>>();
+        messageFrames->reserve(512);
         return {currentOpCode, tmp};
       }
     }
