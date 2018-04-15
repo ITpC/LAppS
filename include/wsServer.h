@@ -256,7 +256,7 @@ public:
 
   void run()
   {
-    
+    /*
     sigset_t sigset;
     int signo;
     sigemptyset(&sigset);
@@ -277,6 +277,11 @@ public:
         throw std::system_error(errno, std::system_category(),"wsServer::run() failed on sigwait()");
       }
     }
+    */
+    
+    int c=getchar();
+    itc::getLog()->flush();
+    std::cout << c <<std::endl;
   }
   ~wsServer()
   {
