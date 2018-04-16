@@ -104,8 +104,8 @@
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>LAPPS_TLS_ENABLE</Elem>
-            <Elem>LOG_ERROR</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
+            <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=256</Elem>
             <Elem>TSAFE_LOG=1</Elem>
           </preprocessorList>
@@ -192,6 +192,12 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
