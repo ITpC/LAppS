@@ -65,6 +65,16 @@ namespace LAppS
     IOWorker(const IOWorker&)=delete;
     IOWorker(IOWorker&)=delete;
     
+    void onBatchUpdate(const std::vector<LAppS::EBUS::Event>& events)
+    {
+      mEvents.bachLock();
+      for(auto i : events)
+      {
+        mEvents.unsecureBatchPush(i);
+      }
+      mEvents.batchUnLock();
+    }
+    
     void onUpdate(const LAppS::EBUS::Event& event)
     {
       mEvents.push(event);
