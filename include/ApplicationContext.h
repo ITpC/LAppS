@@ -54,6 +54,13 @@ namespace LAppS
     lua_State* mLState;
     abstract::Application* mParent;
 
+    void cleanLuaStack()
+    {
+      while(int stackdepth=lua_gettop(mLState))
+      {
+        lua_pop(mLState,1);
+      }
+    }
     void callAppOnMessage()
     {
       int ret = lua_pcall (mLState, 1, 1, 0);
@@ -92,6 +99,7 @@ namespace LAppS
         }
       }
       lua_setfield(mLState, LUA_GLOBALSINDEX, module_name.c_str());
+      cleanLuaStack();
       return true;
     }
     
@@ -129,6 +137,7 @@ namespace LAppS
         lua_pop(mLState,1);
         return false;
       }
+      cleanLuaStack();
       return true;
     }
     void shutdownApp()
@@ -172,6 +181,7 @@ namespace LAppS
             break;
         }
       }
+      cleanLuaStack();
       itc::getLog()->trace(__FILE__,__LINE__,"<- ApplicationContext::startApp()");
     }
     
@@ -196,17 +206,11 @@ namespace LAppS
       */
       
       size_t len;
-      
       const char *str=lua_tolstring(mLState,argc,&len);
-      
       auto out=std::make_shared<MSGBufferType>(len);
       
-      
       WebSocketProtocol::ServerMessage(*out,event.type,str,len);
-      while(int stackdepth=lua_gettop(mLState))
-      {
-        lua_pop(mLState,1);
-      }
+      cleanLuaStack();
       itc::getLog()->trace(__FILE__,__LINE__,"Application %s <- ApplicationContext::onMessage(PROTO::RAW)",mName.c_str());
       return {workerID,socketfd,{event.type,out}};
     }
