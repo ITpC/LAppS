@@ -53,15 +53,29 @@ namespace LAppS
     class EventBus
     {
      private:
-      std::mutex                 mMutex;
-      itc::sys::Semaphore        mSem;
-      //std::priority_queue<Event> mEvents;
-      std::queue<Event> mEvents;
+      std::mutex  mMutex;
+      itc::sys::Semaphore   mSem;
+      std::queue<Event>     mEvents;
      public:
       
       explicit EventBus():mMutex(),mSem(0),mEvents(){}
       EventBus(const EventBus&)=delete;
       EventBus(EventBus&)=delete;
+      
+      void bachLock()
+      {
+        mMutex.lock();
+      }
+      void batchUnLock()
+      {
+        mMutex.unlock();
+      }
+      void unsecureBatchPush(const Event& e)
+      {
+        mEvents.push(e);
+        if(!mSem.post())
+          throw std::system_error(errno,std::system_category(),"Can't increment semaphore, system is going down or semaphore error");
+      }
       
       void push(const Event& e)
       {
