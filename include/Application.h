@@ -39,6 +39,7 @@
 
 #include <WSWorkersPool.h>
 #include <Singleton.h>
+#include <abstract/Worker.h>
 
 #include <ext/json.hpp>
 
@@ -59,13 +60,14 @@ namespace LAppS
   class Application : public ::abstract::Application
   {
   private:
+    typedef std::shared_ptr<::abstract::Worker> WorkerSPtrType;
     std::atomic<bool> mMayRun;
     std::mutex mMutex;
     std::string mName;
     std::string mTarget;
     ApplicationContext<TLSEnable,StatsEnable,Tproto> mAppContext;
     itc::tsbqueue<TaggedEvent> mEvents;
-    
+    std::vector<WorkerSPtrType> mWorkers;
     
  public:
     
@@ -94,7 +96,29 @@ namespace LAppS
     explicit Application(const std::string& appName,const std::string& target)
     : mMayRun(true),mMutex(),mName(appName), mTarget(target),mAppContext(appName)
     {
-     
+      itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>::getInstance()->getWorkers(mWorkers);
+    }
+    
+    auto getWorker(const size_t wid)
+    {
+      if( wid<mWorkers.size() ) 
+      {
+        return mWorkers[wid];
+      }
+      else
+      { // Attempt to refresh local workers;
+        mWorkers.clear();
+        itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>::getInstance()->getWorkers(mWorkers);
+        if( wid < mWorkers.size())
+        {
+          return mWorkers[wid];
+        }
+        else
+        {
+          itc::getLog()->error(__FILE__,__LINE__,"No worker with ID %d is found",wid);
+          throw std::system_error(EINVAL,std::system_category(),"No requested worker is found. The system is probably going down");
+        }
+      }
     }
     
     void enqueue(const TaggedEvent& event)
@@ -115,7 +139,7 @@ namespace LAppS
         {
           auto te=mEvents.recv();
           auto tmsg=mAppContext.onMessage(te.wid,te.sockfd,te.event);
-          itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>::getInstance()->get(tmsg.wid)->getRunnable()->submitResponse(tmsg);
+          getWorker(tmsg.wid)->submitResponse(tmsg);
         }catch(std::exception& e)
         {
           mMayRun=false;
