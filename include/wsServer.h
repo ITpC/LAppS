@@ -285,7 +285,8 @@ public:
   }
   ~wsServer()
   {
-    itc::getLog()->debug(__FILE__,__LINE__,"wsServer is down");
+    itc::getLog()->info(__FILE__,__LINE__,"wsServer is down");
+    itc::getLog()->flush();
   }
 };
 
