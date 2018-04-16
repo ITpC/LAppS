@@ -35,6 +35,15 @@
  **/
 namespace WebSocketProtocol
 {
+  struct MakeMessageHeader
+  {
+    MakeMessageHeader(std::vector<uint8_t>& out, const WebSocketProtocol::OpCode oc, const char* src, const size_t size)
+    {
+      out.clear();
+      out.push_back(128|oc);
+      WS::putLength(size,out);
+    }
+  };
   struct ServerMessage
   {
     ServerMessage(
