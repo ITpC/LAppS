@@ -76,6 +76,16 @@ namespace LAppS
       }
     }
     
+    void pushEvent(const std::vector<LAppS::EBUS::Event>& events)
+    {
+      if(!this->notify(events,mView))
+      {
+        itc::getLog()->info(__FILE__,__LINE__,"ePollController::execute(), - a recipient view is not available anymore, going down too.");
+        mMayRun.store(false);
+        mCanStop.store(true);
+      }
+    }
+    
    public:
     
     
@@ -119,17 +129,20 @@ namespace LAppS
           auto events=mEPoll.poll(mEvents,10);
           if(events > 0)
           {
+            std::vector<LAppS::EBUS::Event> outEvents(static_cast<size_t>(events));
+            
             for(size_t i=0;i<static_cast<size_t>(events);++i)
             {
               if(error_bit(mEvents[i].events))
               {
-                pushEvent(LAppS::EBUS::ERROR,mEvents[i].data.fd);
+                outEvents.push_back({LAppS::EBUS::ERROR,mEvents[i].data.fd});
               }
               else if(in_bit(mEvents[i].events))
               {
-                pushEvent(LAppS::EBUS::IN,mEvents[i].data.fd);
+                outEvents.push_back({LAppS::EBUS::IN,mEvents[i].data.fd});
               }
             }
+            pushEvent(outEvents);
           } // ignoring -1 as it is only appears on EINTR
         }catch(const std::exception& e)
         {
