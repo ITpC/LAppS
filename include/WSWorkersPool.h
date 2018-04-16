@@ -33,7 +33,7 @@
 template <bool TLSEnable=false, bool StatsEnable=false> class WSWorkersPool
 {
  private:
-  std::mutex                    mMutex;
+  mutable std::mutex            mMutex;
   std::vector<WorkerThreadSPtr> mWorkers;
   size_t                        mCursor;
  public:
@@ -110,6 +110,14 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WSWorkersPool
       return mWorkers[wid];
     }
     throw std::system_error(EINVAL,std::system_category(), "There is no worker with ID "+std::to_string(wid));
+  }
+  void  getWorkers(std::vector<std::shared_ptr<::abstract::Worker>>& out) const
+  {
+    SyncLock sync(mMutex);
+    for(auto i: mWorkers)
+    {
+      out.push_back(i->getRunnable());
+    }
   }
   ~WSWorkersPool()
   {
