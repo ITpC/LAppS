@@ -37,12 +37,15 @@ namespace WebSocketProtocol
 {
   struct MakeMessageHeader
   {
-    MakeMessageHeader(std::vector<uint8_t>& out, const WebSocketProtocol::OpCode oc, const char* src, const size_t size)
+    explicit MakeMessageHeader(std::vector<uint8_t>& out, const WebSocketProtocol::OpCode oc, const size_t size)
     {
       out.clear();
       out.push_back(128|oc);
       WS::putLength(size,out);
     }
+    MakeMessageHeader(const MakeMessageHeader&)=delete;
+    MakeMessageHeader(MakeMessageHeader&)=delete;
+    MakeMessageHeader()=delete;
   };
   struct ServerMessage
   {
@@ -70,6 +73,18 @@ namespace WebSocketProtocol
       size_t offset=out.size();
       out.resize(offset+len);
       memcpy(out.data()+offset,src,len);
+    }
+    ServerMessage(
+      std::vector<uint8_t>& out, 
+      const WebSocketProtocol::OpCode oc,
+      const std::vector<uint8_t>& src
+    ){
+      out.clear();
+      out.push_back(128|oc);
+      WS::putLength(src.size(),out);
+      size_t offset=out.size();
+      out.resize(offset+src.size());
+      memcpy(out.data()+offset,src.data(),src.size());
     }
   };
   
