@@ -24,10 +24,17 @@
 #ifndef __ABSTRACT_APPLICATION_H__
 #  define __ABSTRACT_APPLICATION_H__
 
+#include <memory>
+#include <vector>
+
+#include <abstract/Worker.h>
 #include <abstract/Runnable.h>
+
 #include <WSProtocol.h>
 #include <WSEvent.h>
 #include <TaggedEvent.h>
+
+
 
 
 namespace abstract
