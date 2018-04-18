@@ -94,7 +94,7 @@ namespace LAppS
     }
     
     explicit Application(const std::string& appName,const std::string& target)
-    : mMayRun(true),mMutex(),mName(appName), mTarget(target),mAppContext(appName)
+    : mMayRun(true),mMutex(),mName(appName), mTarget(target),mAppContext(appName,this)
     {
       itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>::getInstance()->getWorkers(mWorkers);
     }
@@ -138,13 +138,17 @@ namespace LAppS
         try
         {
           auto te=mEvents.recv();
-          auto tmsg=mAppContext.onMessage(te.wid,te.sockfd,te.event);
-          getWorker(tmsg.wid)->submitResponse(tmsg);
+          const bool exec_result=mAppContext.onMessage(te.wid,te.sockfd,te.event);
+          if(!exec_result)
+          {
+            getWorker(te.wid)->submitError(te.sockfd);
+          }
+          //getWorker(tmsg.wid)->submitResponse(tmsg);
         }catch(std::exception& e)
         {
           mMayRun=false;
           itc::getLog()->error(__FILE__,__LINE__,"exception in Application::execute(): %s",e.what());
-          itc::getLog()->info(__FILE__,__LINE__,"Application going down (it seems that server shutting down too)");
+          itc::getLog()->info(__FILE__,__LINE__,"Application going down due to unhandled errors");
           itc::getLog()->flush();
         }
       }
