@@ -158,6 +158,31 @@ namespace LAppS
     {
       mEPoll=ref;
     }
+    
+    void submitResponses(const std::vector<TaggedEvent>& event_batch)
+    {
+      SyncLock sync(mConnectionsMutex);
+      for( auto event : event_batch)
+      {
+        auto it=mConnections.find(event.sockfd);
+        if(it!=mConnections.end())
+        {
+          auto current=it->second;
+          if(current)
+          {
+            if((current->getState() == WSType::MESSAGING)&&(current->isValid()))
+            {
+              current->enqueueOutMessage(event);
+              mEvents.push({LAppS::EBUS::OUT,event.sockfd});
+            }
+            else
+            {
+              mConnections.erase(it);
+            }
+          }
+        } 
+      }
+    }
     void submitResponse(const TaggedEvent& event)
     {
       SyncLock sync(mConnectionsMutex);
@@ -178,6 +203,11 @@ namespace LAppS
           }
         }
       }
+    }
+    
+    void submitError(const int& fd)
+    {
+      mEvents.push({LAppS::EBUS::ERROR,fd});
     }
     
     private:
