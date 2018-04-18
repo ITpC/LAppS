@@ -67,20 +67,25 @@ OON MAY NOT appear on the CCH.
   The Request is expressed as a single JSON Object with the following members:
 
   *lapps*
+
     A String specifying the version of the LAppS protocol. MUST be exactly "1".
   
   *method*
-    A String containing the name of the method to be invoked. Method names that 
+
+    A String containing the name of the method to be invoked. Method names MAY NOT
+    contain a period character (U+002E or ASCII 46).  Method names those 
 begin with underscore (`_', ASCII 95) are reserved for internal methods and 
 extensions and MUST NOT be used for anything else.
 
   *params*
+
     An Array that holds the parameter values to be used during the invocation of 
 the method. This member MAY be omitted. Each element of this Array will become
 the function argument in the preserved order. Therefore `params' must be an Array
 containing the values in the Server expected order.
 
   *cid*
+
     A Number. This member MAY NOT be used for CCH communications. This member
 MAY be used for Client Notifications. Client Notifications MAY NOT be answered
 by the Server. The Server and Client MUST agree on specific channels for Client
@@ -91,32 +96,39 @@ specification does not define any specifics for Client's Notifications.
   The Response is expressed as a single JSON Object, with the following members:
 
   *status*
+
     A Number MUST be 1 or 0, defining success or error of the remote method 
 invocation respectively. This member is MANDATORY.
 
   *error*
+
     An Object specifying the error code and the error message. This Object 
 appears in Response only when the status is 0 (error).
 
   *error.code*
+
     A Number of the error code (MAY NOT BE null or empty). The error codes from 
 and including -32768 to -32000 are reserved for pre-defined errors and exactly
 the same as specified in [JSON-RPC v2.0 Specification](http://www.jsonrpc.org/specification)
 
   *error.message*
+
     A String describing the error (MAY NOT be null, MAY BE an empty string).
 
   *error.data*
+
     A Primitive or Structured value that contains additional information about 
 the error. This may be omitted. The value of this member is defined by the 
 Server (e.g. detailed error information, nested errors etc.).
 
   *result*
+
     An Array with results of the remote method invocation. This Object appears 
-in Response only when status is 1 (success). This member MAY be empty. This 
-member MAY NOT be null.
+in Response only when status is 1 (success) and cid is CCH (equals 0). This member MAY
+be empty. This member MAY NOT be null.
 
   *cid*
+
     A Number representing communication channel. MUST BE exactly 0 for CCH. This
 member is MANDATORY for any type of Response including OON.
 
@@ -126,9 +138,11 @@ member is MANDATORY for any type of Response including OON.
 members:
 
   *cid*
+
     A Number representing communication channel.
 
   *message*
+
     An Array defined by the Server.
 
 
