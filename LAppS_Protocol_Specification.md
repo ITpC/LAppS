@@ -68,7 +68,7 @@ OON MAY NOT appear on the CCH.
 
   *lapps*
 
-    A Number specifying the version of the LAppS protocol. MUST be exactly "1".
+    A Number specifying the version of the LAppS protocol. MUST be equal to 1.
   
   *method*
 
@@ -81,7 +81,7 @@ OON MAY NOT appear on the CCH.
 
     An Array that holds the parameter values to be used during the invocation of the
     method. This member MAY be omitted. Each element of this Array will become the
-    function argument in the preserved order. Therefore `params' must be an Array
+    method's argument in the preserved order. Therefore `params' must be an Array
     containing the values in the Server expected order.
 
   *cid*
