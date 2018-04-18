@@ -211,7 +211,7 @@ public:
   wsServer()
   : enableTLS(), enableStatsUpdate(), mAllStats{0,0,0,0,0,0,0}
   {
-      itc::getLog()->debug(__FILE__,__LINE__,"Starting WS Server");
+      itc::getLog()->info(__FILE__,__LINE__,"Starting WS Server");
 
       const bool is_tls_enabled=LAppSConfig::getInstance()->getWSConfig()["tls"];
 
