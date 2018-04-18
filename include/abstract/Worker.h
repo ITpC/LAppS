@@ -71,14 +71,17 @@ namespace abstract
     virtual void updateStats()=0;
     virtual void deleteConnection(const int32_t)=0;
     virtual void submitResponse(const TaggedEvent&)=0;
+    virtual void submitResponses(const std::vector<TaggedEvent>&)=0;
+    virtual void submitError(const int&)=0;
     virtual void newConnection(const itc::CSocketSPtr&)=0;
     virtual void setEPollController(const LAppS::ePollControllerSPtrType&)=0;
     virtual ~Worker()=default;
   };
 }
 
-typedef std::shared_ptr<abstract::Worker> WorkerSPtr;
+typedef typename std::shared_ptr<abstract::Worker> WorkerSPtr;
 typedef std::weak_ptr<abstract::Worker> WorkerWPtr;
+typedef typename std::vector<WorkerSPtr> WorkersVector;
 
 #endif /* __WORKER_H__ */
 
