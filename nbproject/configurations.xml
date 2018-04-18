@@ -14,6 +14,7 @@
       <logicalFolder name="f1" displayName="modules" projectFiles="true">
         <itemPath>include/modules/UserDataAdapter.h</itemPath>
         <itemPath>include/modules/nljson.h</itemPath>
+        <itemPath>include/modules/wsSend.h</itemPath>
       </logicalFolder>
       <itemPath>include/Application.h</itemPath>
       <itemPath>include/ApplicationContext.h</itemPath>
@@ -432,6 +433,12 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -494,6 +501,8 @@
       <item path="include/modules/UserDataAdapter.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/modules/nljson.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/modules/wsSend.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -575,6 +584,8 @@
       <item path="include/modules/UserDataAdapter.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/modules/nljson.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/modules/wsSend.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
