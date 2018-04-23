@@ -203,6 +203,11 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
           closeSocket(WebSocketProtocol::PROTOCOL_VIOLATION);
           return false;
         }
+        if((*out.event.message)[0] == (128|8)) // close
+        {
+          this->setState(CLOSED);
+          return false;
+        }
         return true;
       }
     }
@@ -264,6 +269,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
             tls_close(TLSSocket);
             tls_free(TLSSocket);
           }
+          mApplication->enqueueDisconnect(mWorkerId,this->getFileDescriptor());
           mSocketSPtr.get()->close();
           setState(CLOSED);
         }
@@ -276,6 +282,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
             tls_close(TLSSocket);
             tls_free(TLSSocket);
           }
+          mApplication->enqueueDisconnect(mWorkerId,this->getFileDescriptor());
           mSocketSPtr.get()->close();
         }
         break;

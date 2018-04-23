@@ -60,7 +60,8 @@ static inline json& ud2json(void* ptr)
 static inline auto checktype_nljson(lua_State *L,const int lvl)
 {
     auto udptr=luaL_checkudata(L, lvl, "nljson");
-    if(!udptr) 
+    if(!udptr)
+    {
       throw std::system_error(
         EINVAL,
         std::system_category(),
@@ -68,6 +69,7 @@ static inline auto checktype_nljson(lua_State *L,const int lvl)
           std::to_string(lvl)+
           " is not of an nljson type"
       );
+    }
     return udptr;
 }
 
@@ -260,10 +262,103 @@ extern "C" {
     }
     return 0;
   }
+  
+  LUA_API int empty(lua_State *L)
+  {
+    auto argc=lua_gettop(L);
+    if(argc != 1)
+    {
+      throw std::system_error(EINVAL, std::system_category(), "nljson:empty() method must be used with nljson object/array, with no additional arguments");
+    }
+    
+    auto ptr=checktype_nljson(L,1); // Userdata<T>**
 
+    json& jsref=ud2json(ptr);
+    if(jsref.is_array()||jsref.is_object())
+    {
+      lua_pushboolean(L,jsref.empty());
+      return 1;
+    }
+    lua_pushboolean(L,false);
+    return 1;
+  }
+  
+  LUA_API int get_typename(lua_State *L)
+  {
+    auto argc=lua_gettop(L);
+    
+    if(argc != 1)
+    {
+      throw std::system_error(EINVAL, std::system_category(), "nljson.typename(nljson__userdata) method must be used with userdata of type nljson only");
+    }
+    try{
+      auto ptr=checktype_nljson(L,1); // Userdata<T>**
+
+      json& jsref=ud2json(ptr);
+      lua_pushstring(L,jsref.type_name());
+      return 1;
+    }catch(const std::exception& e)
+    {
+      itc::getLog()->error(
+        __FILE__,__LINE__,
+        "Caught an exception in lua[nljson.typename()]: %s",e.what()
+      );
+      throw e;
+    }
+    lua_pushnil(L);
+    return 1;
+  }
+  
+  LUA_API int erase(lua_State *L)
+  {
+    size_t argc=lua_gettop(L);
+    if(argc!=2)
+    {
+      lua_pushboolean(L,false);
+      return 1;
+    }
+    auto ptr=checktype_nljson(L,1);
+    auto key_type=lua_type(L,2);
+    json& jsref=ud2json(ptr);
+    switch(key_type)
+    {
+      case LUA_TNUMBER:
+        if(jsref.is_array())
+        {
+          size_t idx=lua_tointeger(L,2);
+          jsref.erase(idx);
+          lua_pushboolean(L,true);
+          return 1;
+        }
+        lua_pushboolean(L,false);
+        return 1;
+        break;
+      case LUA_TSTRING:
+        if(jsref.is_object())
+        {
+          const std::string key(lua_tostring(L,2));
+          auto it=jsref.find(key);
+          if(it!=jsref.end())
+          {
+            jsref.erase(it);
+            lua_pushboolean(L,true);
+            return 1;
+          }
+          lua_pushboolean(L,false);
+          return 1;
+        }
+        lua_pushboolean(L,false);
+        return 1;
+        break;
+      default:
+        lua_pushboolean(L,false);
+        return 1;
+    }
+  }
   LUA_API int decode(lua_State *L)
   {
      unsigned int argc = lua_gettop(L);
+     
      if(argc == 1)
      {
         if(lua_isstring(L,argc))
@@ -281,6 +376,7 @@ extern "C" {
             lua_setmetatable(L, -2);
           } catch (const std::exception& e)
           {
+            itc::getLog()->error(__FILE__,__LINE__,"Exception in nljson::decode(): %s",e.what());
             throw std::runtime_error(std::string("Exception caught in nljson::decode() [json parsing]: ")+e.what());
           }
         }
@@ -658,7 +754,8 @@ extern "C" {
     lua_setmetatable(L, -2);
     return 1;
   }
-
+  
+  
   LUA_API int setval(lua_State *L)
   {
     unsigned int argc = lua_gettop(L);
@@ -757,6 +854,9 @@ extern "C" {
       {"foreach",foreach},
       {"traverse",tree_traversal},
       {"encode_pretty", encode_pretty },
+      {"erase",erase},
+      {"empty",empty},
+      {"typename",get_typename},
       {nullptr,nullptr}
     };
     static const struct luaL_reg members[] = {

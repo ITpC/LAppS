@@ -83,13 +83,20 @@ namespace LAppS
         },
       },
       {
-        "services", {{
-          {"echo", {
+        "services", {
+          {{"echo", {
             {"internal", false},
             {"request_target", "/echo"},
             {"protocol", "raw"},
             {"instances", 3}
-          }}}/*,
+          }}},
+          {{"echo_lapps", {
+            {"internal", false},
+            {"request_target", "/echo_lapps"},
+            {"protocol", "LAppS"},
+            {"instances", 3}
+          }}}
+          /**
           {{"console", {
             {"internal", false},
             {"request_target","/console"},

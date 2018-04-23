@@ -90,10 +90,12 @@ Here are some performance results (dev instance with Intel(R) Core(TM) i7-7700 C
 
 
 # TODO
-## LAppS protocol implementation
+## ~~LAppS protocol implementation~~
 ## Lua applications documentation
-## WebSocket extensions
+## Dynamic deployer
+## LAppS configuration guide
 ## Decoupled apps (aka internal apps)
+## WebSocket extensions
 ## PostgreSQL connection pool
 ## ... lot of other things
 ## Performance optimizations

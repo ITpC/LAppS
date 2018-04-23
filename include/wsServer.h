@@ -281,7 +281,6 @@ public:
     
     int c=getchar();
     itc::getLog()->flush();
-    std::cout << c <<std::endl;
   }
   ~wsServer()
   {

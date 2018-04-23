@@ -130,7 +130,15 @@ namespace LAppS
         itc::getLog()->error(__FILE__,__LINE__,"Can't enqueue request to application %s, exception: %s",mName.c_str(),e.what());
       }
     }
-    
+    void enqueueDisconnect(const size_t wid, const int32_t sockfd)
+    {
+      try {
+        mAppContext.onDisconnect(wid,sockfd);
+      } catch (const std::exception& e)
+      {
+        itc::getLog()->error(__FILE__,__LINE__,"Can't enqueue request to application %s, exception: %s",mName.c_str(),e.what());
+      }
+    }
     void execute()
     {
       while(mMayRun)
@@ -143,7 +151,6 @@ namespace LAppS
           {
             getWorker(te.wid)->submitError(te.sockfd);
           }
-          //getWorker(tmsg.wid)->submitResponse(tmsg);
         }catch(std::exception& e)
         {
           mMayRun=false;
