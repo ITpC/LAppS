@@ -61,6 +61,23 @@ namespace LAppS
     lua_State* mLState;
     abstract::Application* mParent;
 
+    void checkForLuaErrors(const int ret, const char* method)
+    {
+      if(ret != 0)
+      {
+        switch(ret)
+        {
+          case LUA_ERRRUN:
+            throw std::runtime_error(std::string("Lua runtime error on calling method "+mName+"::"+method+"(): ")+std::string(lua_tostring(mLState,lua_gettop(mLState))));
+            break;
+          case LUA_ERRMEM:
+            throw std::system_error(ENOMEM,std::system_category(),"Not enough memory to call method "+mName+"::"+method+"()"+std::string(lua_tostring(mLState,lua_gettop(mLState))));
+          case LUA_ERRERR:
+            throw std::logic_error("Error in lua error handler on calling method "+mName+"::"+method+"()"+std::string(lua_tostring(mLState,lua_gettop(mLState))));
+            break;
+        }
+      }
+    }
     void cleanLuaStack()
     {
       while(int stackdepth=lua_gettop(mLState))
@@ -72,21 +89,9 @@ namespace LAppS
     void callAppOnMessage()
     {
       int ret = lua_pcall (mLState, 3, 1, 0);
-      if(ret != 0)
-      {
-        switch(ret)
-        {
-          case LUA_ERRRUN:
-            throw std::runtime_error("Lua runtime error on calling method "+mName+"::onMessage()");
-            break;
-          case LUA_ERRMEM:
-            throw std::system_error(ENOMEM,std::system_category(),"Not enough memory to call method "+mName+"::onMessage()");
-          case LUA_ERRERR:
-            throw std::logic_error("Error in lua error handler on calling method "+mName+"::onMessage()");
-            break;
-        }
-      }
+      checkForLuaErrors(ret,"onMessage");
     }
+    
     const bool require(const std::string& module_name)
     {
       lua_getfield (mLState, LUA_GLOBALSINDEX, "require");
@@ -97,12 +102,12 @@ namespace LAppS
         switch(ret)
         {
           case LUA_ERRRUN:
-            throw std::runtime_error("Lua runtime error on loading module "+module_name);
+            throw std::runtime_error("Lua runtime error on loading module "+module_name+": "+std::string(lua_tostring(mLState,lua_gettop(mLState))));
             break;
           case LUA_ERRMEM:
-            throw std::system_error(ENOMEM,std::system_category(),"Not enough memory to load module "+module_name);
+            throw std::system_error(ENOMEM,std::system_category(),"Not enough memory to load module "+module_name+": "+std::string(lua_tostring(mLState,lua_gettop(mLState))));
           case LUA_ERRERR:
-            throw std::logic_error("Error in lua error handler on loading module "+module_name);
+            throw std::logic_error("Error in lua error handler on loading module "+module_name+": "+std::string(lua_tostring(mLState,lua_gettop(mLState))));
             break;
         }
       }
@@ -136,7 +141,17 @@ namespace LAppS
         return false;
       }
       
-      lua_getfield(mLState, -1, "onShutdown");
+      lua_getfield(mLState, -1, "onMessage");
+      ret=lua_isfunction(mLState,-1);
+      if(ret){
+        lua_pop(mLState,1);
+      }
+      else{
+        lua_pop(mLState,1);
+        return false;
+      }
+      
+      lua_getfield(mLState, -1, "onDisconnect");
       ret=lua_isfunction(mLState,-1);
       if(ret){
         lua_pop(mLState,1);
@@ -159,12 +174,12 @@ namespace LAppS
         switch(ret)
         {
           case LUA_ERRRUN:
-            throw std::runtime_error("Lua runtime error on calling "+mName+".onShutdown()");
+            throw std::runtime_error("Lua runtime error on calling "+mName+".onShutdown(): "+std::string(lua_tostring(mLState,lua_gettop(mLState))));
             break;
           case LUA_ERRMEM:
-            throw std::system_error(ENOMEM,std::system_category(),"Not enough memory to call "+mName+".onShutdown()");
+            throw std::system_error(ENOMEM,std::system_category(),"Not enough memory to call "+mName+".onShutdown(): "+std::string(lua_tostring(mLState,lua_gettop(mLState))));
           case LUA_ERRERR:
-            throw std::logic_error("Error in lua error handler on calling "+mName+".onShutdown()");
+            throw std::logic_error("Error in lua error handler on calling "+mName+".onShutdown(): "+std::string(lua_tostring(mLState,lua_gettop(mLState))));
             break;
         }
       }
@@ -180,12 +195,12 @@ namespace LAppS
         switch(ret)
         {
           case LUA_ERRRUN:
-            throw std::runtime_error("Lua runtime error on calling "+mName+".onStart()");
+            throw std::runtime_error("Lua runtime error on calling "+mName+".onStart(): "+std::string(lua_tostring(mLState,lua_gettop(mLState))));
             break;
           case LUA_ERRMEM:
-            throw std::system_error(ENOMEM,std::system_category(),"Not enough memory to call "+mName+".onStart()");
+            throw std::system_error(ENOMEM,std::system_category(),"Not enough memory to call "+mName+".onStart(): "+std::string(lua_tostring(mLState,lua_gettop(mLState))));
           case LUA_ERRERR:
-            throw std::logic_error("Error in lua error handler on calling "+mName+".onStart()");
+            throw std::logic_error("Error in lua error handler on calling "+mName+".onStart(): "+std::string(lua_tostring(mLState,lua_gettop(mLState))));
             break;
         }
       }
@@ -266,7 +281,7 @@ namespace LAppS
       {
         throw std::system_error(
           EINVAL,std::system_category(),
-          mName+"::onMessage() is returned "+std::to_string(argc)+
+          mName+"::onMessage() is returned "+std::to_string(argc-1)+
           " values, but only one boolean value is expected"
         );
       }
@@ -322,7 +337,7 @@ namespace LAppS
 
       uint32_t argc=lua_gettop(mLState);
 
-      if(argc != 1)
+      if(argc != 2)
       {
         throw std::system_error(
           EINVAL,std::system_category(),
@@ -331,9 +346,9 @@ namespace LAppS
         );
       }
 
-      if(lua_isboolean(mLState,-1))
+      if(lua_isboolean(mLState,argc))
       {
-        return lua_toboolean(mLState,-1);
+        return lua_toboolean(mLState,argc);
       }
       return false;
     }
@@ -408,9 +423,23 @@ public:
     }
     const bool onMessage(const size_t workerID, const int32_t socketfd, const WSEvent& event)
     {
+      SyncLock sync(mMutex);
       if(workersCache.empty())
         itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>::getInstance()->getWorkers(workersCache);
       return onMessage(workerID,socketfd,event,mProtocol);
+    }
+    void onDisconnect(const size_t workerID, const int32_t sockfd)
+    {
+      SyncLock sync(mMutex);
+      
+      cleanLuaStack();
+      
+      lua_getfield(mLState, LUA_GLOBALSINDEX, mName.c_str());
+      lua_getfield(mLState,-1,"onDisconnect");
+      lua_pushinteger(mLState,(workerID<<32)|sockfd);
+      
+      int ret = lua_pcall (mLState, 1, 0, 0);
+      checkForLuaErrors(ret,"onDisconnect");
     }
   };
 }

@@ -12,15 +12,14 @@
         <group>
             <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/src/main.cpp</file>
             <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/Config.h</file>
-            <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/WSWorkersPool.h</file>
             <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/IOWorker.h</file>
-            <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/WSStreamProcessor.h</file>
             <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/wsServer.h</file>
-            <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/EventBus.h</file>
+            <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/modules/wsSend.h</file>
             <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/WebSocket.h</file>
             <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/ApplicationContext.h</file>
-            <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/ePollController.h</file>
+            <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/WSServerMessage.h</file>
             <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/Application.h</file>
+            <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/modules/nljson.h</file>
         </group>
     </open-files>
 </project-private>

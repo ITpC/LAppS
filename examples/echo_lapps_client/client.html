@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+  </head>
+  <body> 
+    <link rel="stylesheet" href="http://cdn.webix.com/edge/webix.css" type="text/css">
+    <script src="http://cdn.webix.com/edge/webix.js" type="text/javascript"></script>
+    <script src="cbor.js" type="text/javascript"></script>
+
+    <div id="chart" style="width:100%;height:300px;margin:3px"></div>
+
+    <script>
+      function now()
+      {
+        return Math.floor(Date.now() / 1000);
+      }
+      window["teststart"]=now();
+      window["testend"]=now();
+      window["secs_since_start"]=0;
+      window["roundtrips"]=0;
+
+      console.log("timestamp: "+now());
+
+      var dataset = [
+        { id:1, rps:0, second:0 }
+      ]
+
+        webix.ui({
+          id:"barChart",
+          container:"chart",
+          view:"chart",
+          type:"bar",
+          value:"#rps#",
+          label:"#rps#",
+          radius:0,
+          gradient:"rising",
+          barWidth:40,
+          tooltip:{
+              template:"#rps#"
+          },
+          xAxis:{
+              title:"Ticking RPS",
+              template:"#second#",
+              lines: false
+          },
+          padding:{
+              left:10,
+              right:10,
+              top:50
+          },
+          data: dataset
+        });
+
+        var login = {
+          lapps : 1,
+          method: "login",
+          params: [
+            {
+              user : "admin",
+              password : "admin"
+            }
+          ]
+        };
+
+        var echo= {
+          lapps : 1,
+          method: "echo",
+          params: [
+            { authkey : 0 },
+            [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25]
+          ]
+        };
+
+        var websocket = new WebSocket("ws://192.168.13.13:5083/echo_lapps");
+        websocket.binaryType = "arraybuffer";
+
+        websocket.onmessage = function(event)
+        {
+          window.roundtrips=window.roundtrips+1;
+
+          window.testend=Date.now()/1000;
+          if((window.testend - window.teststart) >=1)
+          {
+            window.secs_since_start++;
+            console.log("secs since start: ["+ window.secs_since_start+"]");
+            window.teststart=window.testend;
+            $$("barChart").add({rps: window.roundtrips, second: window.secs_since_start});
+            window.roundtrips=0;
+            if(window.secs_since_start > 30 )
+            {
+              $$("barChart").remove($$("barChart").getFirstId());
+            }
+          }
+
+          var message = CBOR.decode(event.data);
+          if(message.cid === 0)
+          {
+            if(message.status === 1)
+            {
+              if(typeof message.result[0].authkey !== "undefined") // authkey is arrived
+              {
+                window["lapps"]={
+                  authkey : message.result[0].authkey
+                }
+                echo.params.authkey = window.lapps.authkey;
+                websocket.send(CBOR.encode(echo));
+              }
+            }
+            else
+            {
+              console.log(JSON.stringify(message));
+            }
+          }
+        };
+        websocket.onopen=function() 
+        {
+          console.log('is open');
+          window.teststart=Date.now()/1000;
+          websocket.send(CBOR.encode(login));        
+        }
+        websocket.onclose=function()
+        {
+          console.log("is closed");
+        }
+    </script>
+      
+  </body>
+</html>

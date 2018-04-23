@@ -159,7 +159,6 @@ int wssend_raw(lua_State* L, const size_t wid, const int fd)
       
       if(!opcode_valid)
       {
-        std::cout << "Opcode: " << e.event.type << std::endl;
         lua_pushboolean(L,false);
         lua_pushstring(L,"Usage: ws::send(handler, opcode, string), opcode is not TEXT or BINARY");
         return 2;
@@ -199,12 +198,12 @@ int wssend_lapps(lua_State* L, const size_t wid, const int fd)
       e.sockfd=fd;
       e.wid=wid;
       e.event.type=WebSocketProtocol::BINARY;
-      e.event.message==std::make_shared<MSGBufferType>();
+      e.event.message=std::make_shared<MSGBufferType>();
       
       const json& msg=get_userdata_value(L,udidx);
       if(isLAppSOutMessageValid(msg))
       {
-        WebSocketProtocol::ServerMessage(*e.event.message,e.event.type,json::to_cbor(msg));
+        WebSocketProtocol::ServerMessage(e.event.message,e.event.type,json::to_cbor(msg));
         worker->submitResponse(e);
         lua_pushboolean(L,true);
         return 1;
@@ -226,8 +225,110 @@ int wssend_lapps(lua_State* L, const size_t wid, const int fd)
     return 2;
   }
 }
-
+// Lua interface: ws::close(handler,error_code [, err_string])
+// 
+int wsclose(lua_State*L,const size_t wid, const int32_t fd, const size_t argc)
+{
+  const int udidx=3;
+  if(lua_isnumber(L,udidx)) // protocol::LAPPS
+  {
+    uint16_t close_code=lua_tointeger(L,udidx);
+    
+    try {
+      auto worker=getWorker(wid);
+      TaggedEvent e;
+      e.sockfd=fd;
+      e.wid=wid;
+      e.event.type=WebSocketProtocol::CLOSE;
+      e.event.message==std::make_shared<MSGBufferType>();
+      
+      if(close_code>999&&((close_code < 1012)||((close_code>2999)&&(close_code<5000))))
+      {
+        if(argc == 3)
+        {
+          WebSocketProtocol::ServerCloseMessage(*e.event.message,close_code);
+        }else if(argc == 4)
+        {
+          if(lua_isstring(L,4))
+          {
+            size_t len;
+            const char *errmsg=lua_tolstring(L,argc,&len);
+            WebSocketProtocol::ServerCloseMessage(*e.event.message,close_code,errmsg,len);
+          }
+          else
+          {
+            lua_pushboolean(L,false);
+            lua_pushstring(L,"Usage: ws:close(handler, error_code [, error_string]) - error_string argument must be of a type string");
+            return 2;
+          }
+        }else{
+          // wrong call with number arguments not equal 3 or 4
+          lua_pushboolean(L,false);
+          lua_pushstring(L,"Usage: ws:close(handler, error_code [, error_string]) - wrong number of arguments is provided");
+          return 2;
+        }
+        worker->submitResponse(e);
+        lua_pushboolean(L,true);
+        return 1;
+      }
+      else
+      {
+        // unsupported error code
+        lua_pushboolean(L,false);
+        lua_pushstring(L,"Unsupported error code is provided for ws:close()");
+        return 2;
+      }      
+    }catch(const std::exception& e)
+    {
+      lua_pushboolean(L,false);
+      lua_pushstring(L,e.what());
+      return 2;
+    }
+  }else
+  {
+    lua_pushboolean(L,false);
+    lua_pushstring(L,"Usage: ws::close(handler, error_code [, error_string]), - handler must be an integer");
+    return 2;
+  }
+}
 extern "C" {
+    LUA_API int wsclose(lua_State* L)
+    {
+      size_t argc=lua_gettop(L);
+      if(workersCache.empty())
+      {
+        lua_pushboolean(L,false);
+        lua_pushstring(L,"No workers are available in cache");
+        return 2;
+      }
+      
+      switch(argc)
+      {
+        case 3:
+        case 4:
+        {
+          int hdidx=2;
+          if(lua_isnumber(L, hdidx))
+          {
+            size_t handler=lua_tointeger(L,hdidx);
+            size_t wid=handler>>32;
+            int32_t fd=static_cast<int32_t>(handler&0x00000000FFFFFFFFULL);
+            return wsclose(L,wid,fd,argc);
+          }
+          else{
+            lua_pushboolean(L,false);
+            lua_pushstring(L,"Usage: ws::close(handler, error_code [, error_string]), - handler is not integer");
+            return 2;
+          }
+        }
+        break;
+        default:
+          lua_pushboolean(L,false);
+          lua_pushstring(L,"Usage: ws::close(handler, error_code [, error_string]), - inappropriate number of arguments used");
+          return 2;
+      }
+    }
+    
     LUA_API int wssend(lua_State* L)
     {
       size_t argc=lua_gettop(L);
@@ -270,14 +371,14 @@ extern "C" {
           }
           else{
             lua_pushboolean(L,false);
-            lua_pushstring(L,"Usage: ws::send(handler, nljson), handler is not integer");
+            lua_pushstring(L,"Usage: ws::send(handler, opcode, string), handler is not integer");
             return 2;
           }
         }
         break;
         default:
           lua_pushboolean(L,false);
-          lua_pushstring(L,"Usage: ws::send(handler, [opcode,] nljson||string), - inappropriate number of arguments used");
+          lua_pushstring(L,"Usage: ws::send(handler, (opcode, string) || nljson), - inappropriate number of arguments used");
           return 2;
       }
     }
@@ -286,10 +387,12 @@ extern "C" {
     {
       static const struct luaL_reg functions[]= {
         {"send", wssend},
+        {"close", wsclose},
         {nullptr,nullptr}
       };
       static const struct luaL_reg members[] = {
         {"send",wssend},
+        {"close", wsclose},
         {nullptr,nullptr}
       };
       luaL_newmetatable(L,"ws");

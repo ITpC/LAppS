@@ -86,6 +86,18 @@ namespace WebSocketProtocol
       out.resize(offset+src.size());
       memcpy(out.data()+offset,src.data(),src.size());
     }
+    ServerMessage(
+      MSGBufferTypeSPtr& out, 
+      const WebSocketProtocol::OpCode oc,
+      const std::vector<uint8_t>& src
+    ){
+      out->clear();
+      out->push_back(128|oc);
+      WS::putLength(src.size(),*out);
+      size_t offset=out->size();
+      out->resize(offset+src.size());
+      memcpy(out->data()+offset,src.data(),src.size());
+    }
   };
   
   /**
@@ -137,7 +149,17 @@ struct ServerCloseMessage
       out.push_back(static_cast<uint8_t>((beCode<<8)>>8));
       out.push_back(static_cast<uint8_t>(beCode>>8));
     }
-    
+    explicit ServerCloseMessage(
+      std::vector<uint8_t>& out,
+      const uint16_t& c
+    ){
+      uint16_t beCode=htobe16(c);
+      out.clear();
+      out.push_back(128|8);
+      out.push_back(2);
+      out.push_back(static_cast<uint8_t>((beCode<<8)>>8));
+      out.push_back(static_cast<uint8_t>(beCode>>8));
+    }
     explicit ServerCloseMessage(
       std::vector<uint8_t>& out,
       const DefiniteCloseCode& c,
@@ -153,6 +175,41 @@ struct ServerCloseMessage
       size_t offset=out.size();
       out.resize(offset+src.size());
       memcpy(out.data()+offset,src.data(),src.size());
+    }
+    
+    explicit ServerCloseMessage(
+      std::vector<uint8_t>& out,
+      const DefiniteCloseCode& c,
+      const char* src,
+      const size_t len
+    ){
+      uint16_t beCode=htobe16(c);
+      out.clear();
+      out.push_back(128|8);
+      WS::putLength(len+2,out);
+      out.push_back(static_cast<uint8_t>((beCode<<8)>>8));
+      out.push_back(static_cast<uint8_t>(beCode>>8));
+      
+      size_t offset=out.size();
+      out.resize(offset+len);
+      memcpy(out.data()+offset,src,len);
+    }
+    explicit ServerCloseMessage(
+      std::vector<uint8_t>& out,
+      const uint16_t& c,
+      const char* src,
+      const size_t len
+    ){
+      uint16_t beCode=htobe16(c);
+      out.clear();
+      out.push_back(128|8);
+      WS::putLength(len+2,out);
+      out.push_back(static_cast<uint8_t>((beCode<<8)>>8));
+      out.push_back(static_cast<uint8_t>(beCode>>8));
+      
+      size_t offset=out.size();
+      out.resize(offset+len);
+      memcpy(out.data()+offset,src,len);
     }
   };
   
