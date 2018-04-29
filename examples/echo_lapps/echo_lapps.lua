@@ -27,7 +27,8 @@ echo["method_not_found"] = function(handler)
     "cid" : 0 -- we deliver the error message to CCH
   }]]);
   ws:send(handler,err_msg); 
-  ws:close(handler,1003); -- WebSocket close code here. 1003 - "no comprende", lets close clients those asking for wrong methods
+  ws:close(handler,1003); -- WebSocket close code here. 1003 - "no comprende", 
+                          -- lets close clients which asking for wrong methods
 end
 
 
@@ -39,9 +40,9 @@ end
 --    2 - Client Notification Message which has params attribute
 --    3 - Request as defined in LAppS Specification 1.0
 --    4 - Request wich has params attribute
+--  @param message - an nljson userdata object
 --]]
 echo["onMessage"]=function(handler,msg_type, message)
-  print("onMessage"..tostring(message))
   local switch={
     [1] = function() -- a CN message does not require any response. Let's restrict CN's without params
             local err_msg=nljson.decode([[{
@@ -68,7 +69,6 @@ echo["onMessage"]=function(handler,msg_type, message)
             method(handler,message.params);
           end
   }
-  print(msg_type)
   switch[msg_type]();
 
   return true;
