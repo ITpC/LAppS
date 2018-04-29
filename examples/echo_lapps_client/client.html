@@ -19,6 +19,9 @@
       window["testend"]=now();
       window["secs_since_start"]=0;
       window["roundtrips"]=0;
+      window["lapps"]={
+        authkey : 0
+      };
 
       console.log("timestamp: "+now());
 
@@ -72,7 +75,7 @@
           ]
         };
 
-        var websocket = new WebSocket("ws://192.168.13.13:5083/echo_lapps");
+        var websocket = new WebSocket("wss://192.168.13.13:5083/echo_lapps");
         websocket.binaryType = "arraybuffer";
 
         websocket.onmessage = function(event)
@@ -98,19 +101,29 @@
           {
             if(message.status === 1)
             {
-              if(typeof message.result[0].authkey !== "undefined") // authkey is arrived
+              if(window.lapps.authkey === 0)
               {
-                window["lapps"]={
-                  authkey : message.result[0].authkey
+                if(typeof message.result[0].authkey !== "undefined") // authkey is arrived
+                {
+                  window.lapps.authkey=message.result[0].authkey;
+                  echo.params[0].authkey = window.lapps.authkey;
+                  websocket.send(CBOR.encode(echo));
                 }
-                echo.params.authkey = window.lapps.authkey;
-                websocket.send(CBOR.encode(echo));
+                else
+                {
+                  console.log("No authkey: "+JSON.stringify(message));
+                }
               }
+              else websocket.send(CBOR.encode(echo));
             }
             else
             {
-              console.log(JSON.stringify(message));
+              //
             }
+          }
+          else
+          {
+            console.log("OON: "+JSON.stringify(message));
           }
         };
         websocket.onopen=function() 

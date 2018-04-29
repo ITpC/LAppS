@@ -7,24 +7,21 @@ lapps_echo_methods["_cn_w_params_method"]={
   ["logout"]=function(handler,params)
     if(nljson.find(params[1],"authkey") ~= nil) and (type(params[1].authkey) == "number")
     then
-    -- ticking memory leack bomb here: WebSocket connections terminated by client and then reconnected will get new authkey with persisting old key.
-    -- on reconnect client can use old key, it will work for everything but this logout method. NOTE: never do this in production.
-    -- TODO: add notifications for client about connections termination for keys invalidation, or if you want authkeys to be persistent and act like
-    -- a cookie then you need to invalidate old map value if you get message with already existing authkey and different handler
-    local hkey=handler;
-    local connection_authkey=nljson.find(maps.keys, tostring(hkey))
-    if(connection_authkey ~= nil) and (connection_authkey == params[1].authkey) -- logged in and is an owner of the key
-    then
-      nljson.erase(maps.keys,hkey)
-      ws:close(handler,1000);
-    end
+      local hkey=handler;
+      local connection_authkey=nljson.find(maps.keys, tostring(hkey))
+      if(connection_authkey ~= nil) and (connection_authkey == params[1].authkey) -- logged in and is an owner of the key
+      then
+        nljson.erase(maps.keys,hkey)
+        ws:close(handler,1000);
+      end
     else
       local can_not_logout=nljson.decode([[{
         "status" : 0,
         "error" : {
           "code" : 20,
           "message": "Can not logout. Not logged in."
-        }
+        },
+        "cid" : 3
       }]]);
       ws:send(handler,can_not_logout); -- lets try to send a response to CCH here, with no regard if client closed its websocket or not
       ws:close(handler,1000);
@@ -67,13 +64,13 @@ lapps_echo_methods["_request_w_params_method"]={
         "error" : {
           "code" : -32602,
           "message" : "there must be only one object inside the params array for method login(). This object must have two key/value pairs: { \"user\" : \"someusername\", \"password\" : \"somepassword\" }"
-        }
+        },
+        "cid" : 0
       }]]);
 
     local username=""
     local password=""
       
-    print(nljson.typename(params))
     if(nljson.typename(params[1]) == "object")
     then
       username=nljson.find(params[1],"user");
@@ -110,14 +107,30 @@ lapps_echo_methods["_request_w_params_method"]={
     end
   end,
   ["echo"] = function(handler,params)
-    local response=nljson.decode([[{
-      "cid" : 0,
-      "status" : 1,
-      "result" : []
-    }]]);
+    local not_authenticated=nljson.decode([[{
+        "status" : 0,
+        "error" : {
+          "code" : -32000,
+          "message" : "Not authenticated. Permission deneid"
+        },
+        "cid" : 0
+      }]]);
+    local authkey=nljson.find(params[1],"authkey");
+    local current_session_authkey=nljson.find(maps.keys,handler);
+    if(authkey ~= nil) and (current_session_authkey ~=nil) and (authkey == current_session_authkey)
+    then
+      local response=nljson.decode([[{
+        "cid" : 0,
+        "status" : 1,
+        "result" : []
+      }]]);
 
-    response.result=params;
-    ws:send(handler,response);
+      response.result=params;
+      ws:send(handler,response);
+    else -- close connection on not authenticated sessions
+      ws:send(handler,not_authenticated);
+      ws:close(handler,1000); -- WebSocket close code here. 1000 - "normal close"
+    end
   end
 }
 
