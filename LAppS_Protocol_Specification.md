@@ -55,7 +55,7 @@ Responses to Client Requests are taking place on Command Channel (CCH) with ID 0
 {"cid" : 0}. Responses on CCH MAY NOT appear out of order. All OONs MUST take 
 place on different channels then CCH. Thus CCH is reserved for Request-Response
 half duplex communications. The purpose of the channel is to provide the Client 
-with possibility to distinguish Server Responses from OON, those MAY take place 
+with possibility to distinguish Server Responses from OONs, those MAY take place 
 out of requested order. For example the server  MAY broadcast messages to the 
 clients in the  same time some Clients are awaiting Response on CCH. The 
 broadcast message MAY appear before the Response to expected Request, though the
@@ -80,9 +80,9 @@ OON MAY NOT appear on the CCH.
   *params*
 
     An Array that holds the parameter values to be used during the invocation of the
-    method. This member MAY be omitted. Each element of this Array will become the
-    method's argument in the preserved order. Therefore `params' must be an Array
-    containing the values in the Server expected order.
+    method. This member MAY be omitted. Every item of this object may contain values
+    of any type inclusive null, object and array. If this attribute is ommited then
+    method will be called without any arguments. 
 
   *cid*
 
