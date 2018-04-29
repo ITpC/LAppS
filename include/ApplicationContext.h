@@ -318,7 +318,7 @@ namespace LAppS
       
       cleanLuaStack();
       
-      std::shared_ptr<json> message=std::make_shared<json>(json::from_cbor(*event.message));
+      auto message=std::make_shared<json>(json::from_cbor(*event.message));
 
       auto msg_type=getLAppSInMessageType(*message);
 
