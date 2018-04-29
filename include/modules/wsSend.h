@@ -240,7 +240,7 @@ int wsclose(lua_State*L,const size_t wid, const int32_t fd, const size_t argc)
       e.sockfd=fd;
       e.wid=wid;
       e.event.type=WebSocketProtocol::CLOSE;
-      e.event.message==std::make_shared<MSGBufferType>();
+      e.event.message=std::make_shared<MSGBufferType>();
       
       if(close_code>999&&((close_code < 1012)||((close_code>2999)&&(close_code<5000))))
       {
