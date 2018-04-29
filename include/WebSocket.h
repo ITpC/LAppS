@@ -282,7 +282,8 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
             tls_close(TLSSocket);
             tls_free(TLSSocket);
           }
-          mApplication->enqueueDisconnect(mWorkerId,this->getFileDescriptor());
+          if(mApplication)
+            mApplication->enqueueDisconnect(mWorkerId,this->getFileDescriptor());
           mSocketSPtr.get()->close();
         }
         break;
