@@ -54,7 +54,7 @@
 #include <ApplicationRegistry.h>
 #include <Application.h>
 #include <IOWorker.h>
-
+#include <Balancer.h>
 
 // libressl
 #include <tls.h>
@@ -80,6 +80,7 @@ private:
   WorkerStats                         mAllStats;
     
   std::vector<TCPListenerThreadSPtr>  mListenersPool;
+  itc::sys::CancelableThread<Balancer<TLSEnable,StatsEnable>> mBalancer;
   
   
   
@@ -179,7 +180,8 @@ private:
           std::make_shared<::itc::TCPListener>(
             LAppSConfig::getInstance()->getWSConfig()["ip"],
             LAppSConfig::getInstance()->getWSConfig()["port"],
-            WorkersPool::getInstance()->next()
+            //WorkersPool::getInstance()->next()
+            mBalancer.getRunnable()
           )
         ));
       }
@@ -210,7 +212,8 @@ public:
   }
   
   wsServer()
-  : enableTLS(), enableStatsUpdate(), mWorkers(1), mAllStats{0,0,0,0,0,0,0}
+  : enableTLS(), enableStatsUpdate(), mWorkers(1), mAllStats{0,0,0,0,0,0,0,0},
+    mBalancer(std::make_shared<Balancer<TLSEnable, StatsEnable>>())
   {
       itc::getLog()->info(__FILE__,__LINE__,"Starting WS Server");
 
