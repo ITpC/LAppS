@@ -44,6 +44,7 @@ struct WorkerStats
   size_t mInCMASize;
   size_t mOutCMASize;
   size_t mConnections;
+  size_t mEventQSize;
 };
 
 #endif /* __WORKERSTATS_H__ */
