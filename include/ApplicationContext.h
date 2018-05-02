@@ -372,7 +372,6 @@ public:
       
       luaopen_wssend(mLState);
       lua_setfield(mLState,LUA_GLOBALSINDEX,"ws");
-      // itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>::getInstance()->getWorkers(workersCache);
             
       if(require(mName))
       {
