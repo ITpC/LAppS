@@ -2,70 +2,15 @@
 
 This is an attempt to provide very easy to use Lua Application Server working over WebSockets protocol (RFC 6455). LAppS is an application server for micro-services architecture. It is build to be highly scalable vertically. The docker cloud infrastructure (kubernetes or swarm) shall be used for horizontal scaling.
 
-It is in an alpha stage right now. As of today (13 April 2018) first lua application is running under LAppS. The WebSocket implementation is not yet 100% strict, though it is complient with RFC 6455 (see autobahn testsuite results in the link bellow). No WebSockets extensions are supported yet.
+RFC 6455 is fully implemented. RFC 7692 (compression extensions) not yet implemented.
 
-## How to build and run the LAppS
+Please see [LAppS wiki](https://github.com/ITpC/LAppS/wiki) on how to build and run LAppS. 
 
-### Prerequisites
-
-1. Docker installed
-2. Docker daemon is running
-
-## Build steps
-
-First we need a base docker image. This step is done only once and after you've got the base image lapps:luadev, you will not require to do this step anymore.
-Download [Dockerfile](https://github.com/ITpC/LAppS/blob/master/dockerfiles/Dockerfile) and place it somewhere. Change the directory to that *`somewhere'*. And then run the command:
-
-
-*docker build -t lapps:luadev .*
-
-
-This will create base image for your experimentation/development. Check it with **docker image ls** and you will see your base image with name *lapps* and tag *luadev* listed between the images.
-
-
-Download the [Dockerfile.lapps-build](https://github.com/ITpC/LAppS/blob/master/dockerfiles/Dockerfile.lapps-build) file now and place it again `somewhere'. Assuming it is the same directory as the last time run the command:
-
-*docker build -t lapps:build -f Dockerfile.lapps-build  .*
-
-Which will build the LAppS and create docker image with name lapps and tag build. 
-
-One more step before we run it. Lets install LAppS somewhere:
-
-
-*docker run -it --rm --name myldev -h ldev -v /opt/lapps-builds/latest:/opt/lapps lapps:build  make install-examples clone-luajit clone-libressl*
-
-
-This command will install LAppS, related luajit-2.0.5 and libressl files as well an example app into /opt/lapps-build/latest/
-
-
-## Running the LAppS
-
-Lets make a separate clean container without anything we do not need. Download the [Dockerfile.lapps-runenv](https://github.com/ITpC/LAppS/blob/master/dockerfiles/Dockerfile.lapps-runenv) file and run following command:
-
-*docker build -t lapps:runenv -f Dockerfile.lapps-runenv .*
-
-*docker run -it --rm --name myrun -h lapps -p 5083:5083 -v /opt/lapps-builds/latest:/opt/lapps lapps:runenv env LD_LIBRARY_PATH=/opt/lapps/lib LUA_PATH="${LUA_PATH};/opt/lapps/apps/echo/?.lua" /opt/lapps/bin/lapps*
-
-Now LAppS is up and running on port 5083, you may test it against autoban-testsuite fuzzing-client. Suppose your container has an IP address 172.17.0.1, the fuzzingclient.json config file for autoban-testsuite would look like:
-
-```json
-{
-    "outdir": "./reports/servers",
-    "servers": [
-        {
-          "agent": "LAppS TLS-enabled",
-          "url": "wss://172.17.0.1:5083/echo"
-        }
-    ],
-    "cases": ["*"],
-    "exclude-cases": [],
-    "exclude-agent-cases": {}
-}
-```
+LAppS is thought as a easy way to develop low-latency web applications. Please see [LAppS wiki](https://github.com/ITpC/LAppS/wiki) on examples of how to build your own application.
 
 # Side-notes
 
-Though LAppS is not even reached the optimization phase, it is running surprisingly good. 
+Though LAppS is not even reached the optimization phase, it performs surprisingly good. The server architecture is build to sustain up to one million connections (assuming sufficient hardware is provided). Take a note, that performance may be nearly doubled after development stack of the EventBus will be removed.
 
 Here are some performance results (dev instance with Intel(R) Core(TM) i7-7700 CPU @ 3.60GHz). Servers all were tested in TLS only. Number of clients: 80. As a client was used benchmark/echo_client_tls.cpp (websocketpp example client)
 
@@ -90,7 +35,6 @@ Here are some performance results (dev instance with Intel(R) Core(TM) i7-7700 C
 
 
 # TODO
-## ~~LAppS protocol implementation~~
 ## Lua applications documentation
 ## Dynamic deployer
 ## LAppS configuration guide

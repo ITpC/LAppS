@@ -76,6 +76,7 @@ private:
   itc::utils::Bool2Type<TLSEnable>    enableTLS;
   itc::utils::Bool2Type<StatsEnable>  enableStatsUpdate;
   
+  size_t                              mWorkers;
   WorkerStats                         mAllStats;
     
   std::vector<TCPListenerThreadSPtr>  mListenersPool;
@@ -167,7 +168,7 @@ private:
         }
       }
       
-      size_t max_listeners=LAppSConfig::getInstance()->getWSConfig()["listeners"];
+      size_t max_listeners=mWorkers;
       
       for(size_t i=0;i<max_listeners;++i)
       {
@@ -209,7 +210,7 @@ public:
   }
   
   wsServer()
-  : enableTLS(), enableStatsUpdate(), mAllStats{0,0,0,0,0,0,0}
+  : enableTLS(), enableStatsUpdate(), mWorkers(1), mAllStats{0,0,0,0,0,0,0}
   {
       itc::getLog()->info(__FILE__,__LINE__,"Starting WS Server");
 
@@ -217,7 +218,7 @@ public:
 
       if(TLSEnable&&(!is_tls_enabled))
       {
-        throw std::system_error(EINVAL,std::system_category(),"WS Server is build TLS support, tls option MUST BE enabled in config to start LAppS");
+        throw std::system_error(EINVAL,std::system_category(),"WS Server is build with TLS support, tls option MUST BE enabled in config to start LAppS");
       }
 
       if(is_tls_enabled&&(!TLSEnable))
@@ -233,11 +234,10 @@ public:
       
       auto found=LAppSConfig::getInstance()->getWSConfig().find("workers");
       size_t max_connections=1000;
-      size_t workers=1;
       
       if(found != LAppSConfig::getInstance()->getWSConfig().end())
       {
-        auto workers=found.value()["workers"];
+        mWorkers=found.value()["workers"];
 
         auto max_connections_found=found.value().find("max_connections");
 
@@ -247,7 +247,7 @@ public:
         }
       }
       
-      for(size_t i=0;i<workers;++i)
+      for(size_t i=0;i<mWorkers;++i)
       {
         WorkersPool::getInstance()->spawn(max_connections);
       }
