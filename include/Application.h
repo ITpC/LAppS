@@ -62,6 +62,7 @@ namespace LAppS
   private:
     typedef std::shared_ptr<::abstract::Worker> WorkerSPtrType;
     std::atomic<bool> mMayRun;
+    std::atomic<bool> mCanStop;
     std::mutex mMutex;
     std::string mName;
     std::string mTarget;
@@ -159,6 +160,7 @@ namespace LAppS
           itc::getLog()->flush();
         }
       }
+      mCanStop.store(true);
     }
     
     Application()=delete;
@@ -166,6 +168,11 @@ namespace LAppS
     Application(Application&)=delete;
     ~Application()
     {
+      mMayRun.store(false);
+      while(!mCanStop.load())
+      {
+        sched_yield();
+      }
     }
     
   };
