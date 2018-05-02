@@ -105,6 +105,7 @@ namespace LAppS
         mEvents.onEvent(
           [this](const LAppS::EBUS::Event& event)
           {
+            this->updateStats();
             switch(event.event)
             {
               case LAppS::EBUS::ERROR: // highest prio
@@ -151,7 +152,8 @@ namespace LAppS
     
     void updateStats()
     {
-      
+      mStats.mConnections=mConnections.size();
+      mStats.mEventQSize=mEvents.size()+mOutEvents.size();
     }
     
     void setEPollController(const LAppS::ePollControllerSPtrType& ref)
