@@ -75,7 +75,7 @@ private:
   
   itc::utils::Bool2Type<TLSEnable>    enableTLS;
   itc::utils::Bool2Type<StatsEnable>  enableStatsUpdate;
-  
+  float                               mConnectionWeight;
   size_t                              mWorkers;
   WorkerStats                         mAllStats;
     
@@ -169,7 +169,7 @@ private:
         }
       }
       
-      size_t max_listeners=mWorkers;
+      size_t max_listeners=LAppSConfig::getInstance()->getWSConfig()["listeners"];
       
       for(size_t i=0;i<max_listeners;++i)
       {
@@ -212,8 +212,10 @@ public:
   }
   
   wsServer()
-  : enableTLS(), enableStatsUpdate(), mWorkers(1), mAllStats{0,0,0,0,0,0,0,0},
-    mBalancer(std::make_shared<Balancer<TLSEnable, StatsEnable>>())
+  : enableTLS(), enableStatsUpdate(), mConnectionWeight(
+      LAppSConfig::getInstance()->getWSConfig()["connection_weight"]
+    ), mWorkers(1), mAllStats{0,0,0,0,0,0,0,0}, 
+    mBalancer(std::make_shared<Balancer<TLSEnable, StatsEnable>>(mConnectionWeight))
   {
       itc::getLog()->info(__FILE__,__LINE__,"Starting WS Server");
 
@@ -257,34 +259,7 @@ public:
       prepareServices();
   };
 
-  void run()
-  {
-    /*
-    sigset_t sigset;
-    int signo;
-    sigemptyset(&sigset);
-    sigaddset(&sigset, SIGQUIT);
-    sigaddset(&sigset, SIGINT);
-    sigaddset(&sigset, SIGTERM);
-    while(1)
-    {
-      if(sigwait(&sigset, &signo) == 0)
-      {
-        itc::getLog()->debug(__FILE__,__LINE__,"Shutdown is initiated by signal %d, - server is going down",signo);
-        itc::getLog()->flush();
-        // call shutdown ?
-        break;
-      }
-      else
-      {
-        throw std::system_error(errno, std::system_category(),"wsServer::run() failed on sigwait()");
-      }
-    }
-    */
-    
-    int c=getchar();
-    itc::getLog()->flush();
-  }
+ 
   ~wsServer()
   {
     itc::getLog()->info(__FILE__,__LINE__,"wsServer is down");
