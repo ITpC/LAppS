@@ -19,6 +19,7 @@
       <itemPath>include/Application.h</itemPath>
       <itemPath>include/ApplicationContext.h</itemPath>
       <itemPath>include/ApplicationRegistry.h</itemPath>
+      <itemPath>include/Balancer.h</itemPath>
       <itemPath>include/Config.h</itemPath>
       <itemPath>include/Env.h</itemPath>
       <itemPath>include/EventBus.h</itemPath>
@@ -109,6 +110,7 @@
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
+            <Elem>STATS_ENABLE</Elem>
             <Elem>TSAFE_LOG=1</Elem>
           </preprocessorList>
         </ccTool>
@@ -452,6 +454,12 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -468,6 +476,8 @@
       <item path="include/ApplicationContext.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ApplicationRegistry.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/Balancer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -551,6 +561,8 @@
       <item path="include/ApplicationContext.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ApplicationRegistry.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/Balancer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
       </item>
