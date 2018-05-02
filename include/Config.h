@@ -45,7 +45,8 @@ namespace LAppS
    Config() : 
     mEnv(), 
     ws_config({
-      {"listeners",3},
+      {"listeners",1},
+      {"connection_weight", 0.7},
       {"ip","0.0.0.0"},
       {"port",5083},
       {"workers",{ {"workers",3}, {"max_connections", 1000 }}},
