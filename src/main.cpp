@@ -28,7 +28,7 @@
 int main(int argc, char** argv)
 {
   
-  itc::getLog()->debug(__FILE__,__LINE__,"Starting LAppS");
+  itc::getLog()->info(__FILE__,__LINE__,"Starting LAppS");
 
 #ifdef LAPPS_TLS_ENABLE
   #ifdef STATS_ENABLE
@@ -44,8 +44,29 @@ int main(int argc, char** argv)
   #endif
 #endif
  
+    
+  sigset_t sigset;
+  int signo;
+  sigemptyset(&sigset);
+  sigaddset(&sigset, SIGQUIT);
+  sigaddset(&sigset, SIGINT);
+  sigaddset(&sigset, SIGTERM);
   
-  server.run();
-  itc::getLog()->debug(__FILE__,__LINE__,"LAppS is down");
+  while(1)
+  {
+    if(sigwait(&sigset, &signo) == 0)
+    {
+      itc::getLog()->info(__FILE__,__LINE__,"Shutdown is initiated by signal %d, - server is going down",signo);
+      itc::getLog()->flush();
+      break;
+    }
+    else
+    {
+      throw std::system_error(errno, std::system_category(),"LAppS failure on sigwait()");
+    }
+  }
+      
+  itc::getLog()->info(__FILE__,__LINE__,"LAppS is down");
+  itc::getLog()->flush();
   return 0;
 }
