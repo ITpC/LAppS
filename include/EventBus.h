@@ -62,6 +62,11 @@ namespace LAppS
       EventBus(const EventBus&)=delete;
       EventBus(EventBus&)=delete;
       
+      const size_t size() const
+      {
+        return mEvents.size();
+      }
+      
       void bachLock()
       {
         mMutex.lock();
