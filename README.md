@@ -38,12 +38,12 @@ Here are some performance results (dev instance with Intel(R) Core(TM) i7-7700 C
 
 
 # TODO
+## ~~LAppS configuration guide~~
 ## Lua applications documentation
 ## Dynamic deployer
-## LAppS configuration guide
 ## Decoupled apps (aka internal apps)
 ## WebSocket extensions
-## PostgreSQL connection pool
+## PostgreSQL connection pool (please use existing lua modules like luasql, pgmoon, etc; until this module is created)
 ## ... lot of other things
 ## Performance optimizations
 
