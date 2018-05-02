@@ -12,15 +12,10 @@
         <group>
             <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/src/main.cpp</file>
             <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/Config.h</file>
-            <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/examples/echo_lapps/echo_lapps.lua</file>
-            <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/abstract/Application.h</file>
             <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/IOWorker.h</file>
             <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/wsServer.h</file>
-            <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/Shakespeer.h</file>
             <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/modules/wsSend.h</file>
-            <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/WebSocket.h</file>
             <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/ApplicationContext.h</file>
-            <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/Application.h</file>
             <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/modules/nljson.h</file>
         </group>
     </open-files>

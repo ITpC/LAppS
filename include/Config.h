@@ -57,20 +57,7 @@ namespace LAppS
       {"tls_certificates",{ {"ca","/opt/lapps/etc/ssl/cert.pem"},{"cert", "/opt/lapps/conf/ssl/cert.pem"}, {"key","/opt/lapps/conf/ssl/key.pem" } }},
       // {"tls_certificates",{ {"ca","/etc/ssl/cert.pem"},{"cert", "./ssl/cert.pem"}, {"key","./ssl/key.pem" } }},
       {"auto_fragment",true}, // Not yet implemented
-      {"max_inbound_message_size",300000}, // 300 000 bytes. Not yet implemented.No message limit so far.
-      {"save_large_messages_as_files",true},  // Not yet implemented.
-      {"network_latency_tolerance",100}, /** in ms. <- ineffective right now.
-                                         * This parameter affects handshake. 
-                                         * Connection will be removed if peer 
-                                         * does not send a handshake request 
-                                         * within this threshold.
-                                         * Consider to increase amount of listeners
-                                         * with increasing this number.
-                                         **/
-      {"thread_pool",{ 
-        {"max_threads", 2}, {"overcommit_threads",1},
-        {"purge_timeout", 10000},{"min_threads_ready", 1}
-      }}
+      {"max_inbound_message_size",300000} // 300 000 bytes. Not yet implemented.No message limit so far.
     }),
     lapps_config({
       {
@@ -105,19 +92,35 @@ namespace LAppS
             {"instances", 1},
           }}}*/
         }
-      }}){
-        std::ifstream ws_config_file(mEnv["LAPPS_CONF_DIR"]+"/"+mEnv["WS_CONFIG"], std::ifstream::binary);
-        if(ws_config_file)
-        {
-          ws_config_file >> ws_config;
-          ws_config_file.close();
-        }
-        std::ifstream lapps_config_file(mEnv["LAPPS_CONF_DIR"]+"/"+mEnv["LAPPS_CONFIG"], std::ifstream::binary);
-        if(lapps_config_file)
-        {
-          lapps_config_file >> lapps_config;
-          lapps_config_file.close();
-        }
+      }})
+   {
+      std::ifstream ws_config_file(mEnv["LAPPS_CONF_DIR"]+"/"+mEnv["WS_CONFIG"], std::ifstream::binary);
+      if(ws_config_file)
+      {
+        ws_config_file >> ws_config;
+        ws_config_file.close();
+      }
+      std::ifstream lapps_config_file(mEnv["LAPPS_CONF_DIR"]+"/"+mEnv["LAPPS_CONFIG"], std::ifstream::binary);
+      if(lapps_config_file)
+      {
+        lapps_config_file >> lapps_config;
+        lapps_config_file.close();
+      }
+      // add application files to LUA_PATH
+      const std::string apps_subdir=lapps_config["directories"]["applications"];
+      const std::string apps_dir(mEnv["LAPPS_HOME"]+"/"+apps_subdir+"/");
+      auto it=lapps_config["services"].begin();
+      
+      std::string lua_path=mEnv["LUA_PATH"];
+      
+      while(it!=lapps_config["services"].end())
+      {
+        std::cout << it.value().begin().key() << std::endl;
+        const std::string app_path=apps_dir+it.value().begin().key()+"/?.lua";
+        lua_path=lua_path+";"+app_path;
+        ++it;
+      }
+      mEnv.setEnv("LUA_PATH",lua_path.c_str());
    }
    const json& getWSConfig() const
    {

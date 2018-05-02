@@ -42,10 +42,10 @@ namespace environment
     }
    public:
     LAppSEnv(): config({
-      {"LAPPS_HOME","/opt/LAppS"},
-      {"LAPPS_CONF_DIR","/opt/LAppS/etc"},
+      {"LAPPS_HOME","/opt/lapps"},
+      {"LAPPS_CONF_DIR","/opt/lapps/etc/conf"},
       {"WS_CONFIG","ws.json"},
-      {"LAPPS_CONF","lapps.json"}
+      {"LAPPS_CONFIG","lapps.json"}
     }){
       auto it=config.begin();
       
@@ -60,15 +60,23 @@ namespace environment
         }
       );
     }
+    
+    void setEnv(const std::string& name, const std::string& value)
+    {
+      config.emplace(name,value);
+      ::setenv(name.c_str(), value.c_str(),1);
+    }
+    
     const std::string& operator[](const std::string& var)
     {
-      static const std::string empty_string("");
       auto it=config.find(var);
       if(it!=config.end())
       {
         return it->second;
+      }else{
+        config.emplace(var,getEnv(var));
       }
-      return empty_string;
+      return config[var];
     }
   };
 }

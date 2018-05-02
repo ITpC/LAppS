@@ -49,9 +49,7 @@ namespace LAppS
       typedef WebSocket<TLSEnable,StatsEnable> WSType;
       typedef std::shared_ptr<WSType>          WSSPtr;
       
-      explicit Shakespeer()
-      : nlt(LAppSConfig::getInstance()->getWSConfig()["network_latency_tolerance"]),
-        headerBuffer(512)
+      explicit Shakespeer() : headerBuffer(512)
       {
       }
       Shakespeer(const Shakespeer&)=delete;
@@ -136,7 +134,6 @@ namespace LAppS
       
       HTTPRequestParser                             mHTTPRParser;
       CryptoPP::SHA1                                sha1;
-      int                                           nlt;
       std::vector<uint8_t>                          headerBuffer;
       std::vector<uint8_t>                          response;
       
