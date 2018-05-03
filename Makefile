@@ -111,6 +111,7 @@ install: build
 
 install-examples: install 
 	mkdir -p /opt/lapps/apps/echo
+	mkdir -p /opt/lapps/apps/echo_lapps
 	install -m 0644 ${CND_BASEDIR}/examples/echo/ssl/* /opt/lapps/conf/ssl/
 	install -m 0644 ${CND_BASEDIR}/examples/echo/echo.lua /opt/lapps/apps/echo/
 	install -m 0644 ${CND_BASEDIR}/examples/examples/echo_lapps/* /opt/lapps/apps/echo_lapps/
