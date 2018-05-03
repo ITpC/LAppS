@@ -106,7 +106,7 @@
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
           </incDir>
-          <commandLine>-pipe -Wall -pthread -O2 -fPIC -march=native -mtune=native -fstack-check -fstack-protector-strong -mfpmath=sse -ftree-vectorize -funroll-loops</commandLine>
+          <commandLine>-pipe -Wall -pthread -O2 -fPIC -march=native -mtune=generic -fstack-check -fstack-protector-strong -mfpmath=sse -ftree-vectorize -funroll-loops</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>LAPPS_TLS_ENABLE</Elem>
