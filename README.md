@@ -4,7 +4,9 @@ This is an attempt to provide very easy to use Lua Application Server working ov
 
 RFC 6455 is fully implemented. RFC 7692 (compression extensions) not yet implemented.
 
-Please see [LAppS wiki](https://github.com/ITpC/LAppS/wiki) on how to build and run LAppS. 
+Please see [LAppS wiki](https://github.com/ITpC/LAppS/wiki) on how to build and run LAppS from sources. 
+
+There is package for ubuntu xenial available in this repository: [lapps-0.5-amd64.deb](https://github.com/ITpC/LAppS/blob/master/packages/lapps-0.5-amd64.deb)
 
 LAppS is an easy way to develop low-latency web applications. Please see [LAppS wiki](https://github.com/ITpC/LAppS/wiki) on examples of how to build your own application.
 
