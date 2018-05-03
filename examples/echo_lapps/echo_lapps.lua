@@ -1,30 +1,30 @@
-echo = {}
-echo.__index = echo;
+echo_lapps = {}
+echo_lapps.__index = echo_lapps;
 
 maps=require("lapps_echo_maps");
 local methods=require("lapps_echo_methods");
 
-echo["onStart"]=function()
+echo_lapps["onStart"]=function()
   print("echo::onStart");
 end
 
-echo["onShutdown"]=function()
+echo_lapps["onShutdown"]=function()
   print("echo::onShutdown()");
 end
 
-echo["onDisconnect"]=function(handler)
+echo_lapps["onDisconnect"]=function(handler)
   nljson.erase(maps.keys, tostring(handler))
   print("Disconnected: "..handler);
 end
 
-echo["method_not_found"] = function(handler)
+echo_lapps["method_not_found"] = function(handler)
   local err_msg=nljson.decode([[{
     "status" : 0,
     "error" : {
       "code" : -32601,
       "message": "No such method"
     },
-    "cid" : 0 -- we deliver the error message to CCH
+    "cid" : 0
   }]]);
   ws:send(handler,err_msg); 
   ws:close(handler,1003); -- WebSocket close code here. 1003 - "no comprende", 
@@ -42,7 +42,7 @@ end
 --    4 - Request wich has params attribute
 --  @param message - an nljson userdata object
 --]]
-echo["onMessage"]=function(handler,msg_type, message)
+echo_lapps["onMessage"]=function(handler,msg_type, message)
   local switch={
     [1] = function() -- a CN message does not require any response. Let's restrict CN's without params
             local err_msg=nljson.decode([[{
@@ -51,7 +51,7 @@ echo["onMessage"]=function(handler,msg_type, message)
                 "code" : -32600,
                 "message": "This server does not accept Client Notifications"
               },
-              "cid" : 0 -- we deliverthe error message to CCH
+              "cid" : 0
             }]]);
             ws:send(handler,err_msg); 
             ws:close(handler,1003); -- WebSocket close code here. 1003 - "no comprende"
@@ -74,4 +74,4 @@ echo["onMessage"]=function(handler,msg_type, message)
   return true;
 end
 
-return echo;
+return echo_lapps;

@@ -73,7 +73,7 @@ int main(int argc, char** argv)
   
   itc::getLog()->info(__FILE__,__LINE__,"Starting LAppS");
   
-  if(argc >0)
+  if(argc > 1)
   {
     if(strncmp(argv[0],"-d",2)==1)
     {
@@ -86,10 +86,9 @@ int main(int argc, char** argv)
     }else{
       startWSServer();
     }
+  }else{
+    startWSServer();
   }
-
-
-    
   
       
   itc::getLog()->info(__FILE__,__LINE__,"LAppS is down");
