@@ -353,6 +353,16 @@ namespace LAppS
       }
       return false;
     }
+    void add_bcast(const itc::utils::Int2Type<ApplicationProtocol::LAPPS>& protocol_is_lapps)
+    {
+      luaopen_bcast(mLState);
+      lua_setfield(mLState,LUA_GLOBALSINDEX,"bcast");
+      cleanLuaStack();
+    }
+    void add_bcast(const itc::utils::Int2Type<ApplicationProtocol::RAW>& protocol_is_raw)
+    {
+    }
+    
 public:
     ApplicationContext(const ApplicationContext&)=delete;
     ApplicationContext(ApplicationContext&)=delete;
@@ -375,9 +385,7 @@ public:
       lua_setfield(mLState,LUA_GLOBALSINDEX,"ws");
       cleanLuaStack();
       
-      luaopen_bcast(mLState);
-      lua_setfield(mLState,LUA_GLOBALSINDEX,"bcast");
-      cleanLuaStack();
+      add_bcast(mProtocol);
             
       if(require(mName))
       {
