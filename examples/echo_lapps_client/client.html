@@ -15,6 +15,8 @@
       {
         return Math.floor(Date.now() / 1000);
       }
+
+      // globals
       window["teststart"]=now();
       window["testend"]=now();
       window["secs_since_start"]=0;
@@ -25,117 +27,131 @@
 
       console.log("timestamp: "+now());
 
+      // initial data set for the chart
+
       var dataset = [
         { id:1, rps:0, second:0 }
       ]
 
-        webix.ui({
-          id:"barChart",
-          container:"chart",
-          view:"chart",
-          type:"bar",
-          value:"#rps#",
-          label:"#rps#",
-          radius:0,
-          gradient:"rising",
-          barWidth:40,
-          tooltip:{
-              template:"#rps#"
-          },
-          xAxis:{
-              title:"Ticking RPS",
-              template:"#second#",
-              lines: false
-          },
-          padding:{
-              left:10,
-              right:10,
-              top:50
-          },
-          data: dataset
-        });
+      // the chart
+      webix.ui({
+        id:"barChart",
+        container:"chart",
+        view:"chart",
+        type:"bar",
+        value:"#rps#",
+        label:"#rps#",
+        radius:0,
+        gradient:"rising",
+        barWidth:40,
+        tooltip:{
+            template:"#rps#"
+        },
+        xAxis:{
+            title:"Ticking RPS",
+            template:"#second#",
+            lines: false
+        },
+        padding:{
+            left:10,
+            right:10,
+            top:50
+        },
+        data: dataset
+      });
 
-        var login = {
-          lapps : 1,
-          method: "login",
-          params: [
-            {
-              user : "admin",
-              password : "admin"
-            }
-          ]
-        };
-
-        var echo= {
-          lapps : 1,
-          method: "echo",
-          params: [
-            { authkey : 0 },
-            [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25]
-          ]
-        };
-
-        var websocket = new WebSocket("wss://192.168.13.13:5083/echo_lapps");
-        websocket.binaryType = "arraybuffer";
-
-        websocket.onmessage = function(event)
-        {
-          window.roundtrips=window.roundtrips+1;
-
-          window.testend=Date.now()/1000;
-          if((window.testend - window.teststart) >=1)
+      // might be a dialog instead
+      var login = {
+        lapps : 1,
+        method: "login",
+        params: [
           {
-            window.secs_since_start++;
-            console.log("secs since start: ["+ window.secs_since_start+"]");
-            window.teststart=window.testend;
-            $$("barChart").add({rps: window.roundtrips, second: window.secs_since_start});
-            window.roundtrips=0;
-            if(window.secs_since_start > 30 )
-            {
-              $$("barChart").remove($$("barChart").getFirstId());
-            }
+            user : "admin",
+            password : "admin"
           }
+        ]
+      };
 
-          var message = CBOR.decode(event.data);
-          if(message.cid === 0)
+      // echo request
+      var echo= {
+        lapps : 1,
+        method: "echo",
+        params: [
+          { authkey : 0 },
+          [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25]
+        ]
+      };
+
+      // create a websocket
+      var websocket = new WebSocket("wss://127.0.0.1:5083/echo_lapps");
+      websocket.binaryType = "arraybuffer";
+
+      // on response
+      websocket.onmessage = function(event)
+      {
+        window.roundtrips=window.roundtrips+1;
+
+        window.testend=Date.now()/1000;
+        if((window.testend - window.teststart) >=1)
+        {
+          window.secs_since_start++;
+          console.log("secs since start: ["+ window.secs_since_start+"]");
+          window.teststart=window.testend;
+          $$("barChart").add({rps: window.roundtrips, second: window.secs_since_start});
+          window.roundtrips=0;
+          if(window.secs_since_start > 30 )
           {
-            if(message.status === 1)
+            $$("barChart").remove($$("barChart").getFirstId());
+          }
+        }
+
+        // CBOR to native JavaScript object
+        var message = CBOR.decode(event.data);
+
+        // Verifying the channel
+        if(message.cid === 0)
+        {
+          if(message.status === 1)
+          {
+            if(window.lapps.authkey === 0)
             {
-              if(window.lapps.authkey === 0)
+              if(typeof message.result[0].authkey !== "undefined") // authkey is arrived
               {
-                if(typeof message.result[0].authkey !== "undefined") // authkey is arrived
-                {
-                  window.lapps.authkey=message.result[0].authkey;
-                  echo.params[0].authkey = window.lapps.authkey;
-                  websocket.send(CBOR.encode(echo));
-                }
-                else
-                {
-                  console.log("No authkey: "+JSON.stringify(message));
-                }
+                window.lapps.authkey=message.result[0].authkey;
+                echo.params[0].authkey = window.lapps.authkey;
+                websocket.send(CBOR.encode(echo));
               }
-              else websocket.send(CBOR.encode(echo));
+              else
+              {
+                console.log("No authkey: "+JSON.stringify(message));
+              }
             }
-            else
-            {
-              //
-            }
+            else websocket.send(CBOR.encode(echo));
           }
           else
           {
-            console.log("OON: "+JSON.stringify(message));
+            //
           }
-        };
-        websocket.onopen=function() 
-        {
-          console.log('is open');
-          window.teststart=Date.now()/1000;
-          websocket.send(CBOR.encode(login));        
         }
-        websocket.onclose=function()
+        else // OONs are just printed to console
         {
-          console.log("is closed");
+          console.log("OON: "+JSON.stringify(message));
         }
+      };
+
+      // login on connection
+      websocket.onopen=function() 
+      {
+        console.log('is open');
+        window.teststart=Date.now()/1000;
+        websocket.send(CBOR.encode(login));        
+      }
+
+      // close connection if peer sent close frame
+      websocket.onclose=function()
+      {
+        console.log("is closed");
+      }
     </script>
       
   </body>
