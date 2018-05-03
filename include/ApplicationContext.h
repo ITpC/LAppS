@@ -41,6 +41,7 @@ extern "C" {
 
 #include <modules/nljson.h>
 #include <modules/wsSend.h>
+#include <modules/bcast.h>
 
 using json = nlohmann::json;
 
@@ -372,6 +373,11 @@ public:
       
       luaopen_wssend(mLState);
       lua_setfield(mLState,LUA_GLOBALSINDEX,"ws");
+      cleanLuaStack();
+      
+      luaopen_bcast(mLState);
+      lua_setfield(mLState,LUA_GLOBALSINDEX,"bcast");
+      cleanLuaStack();
             
       if(require(mName))
       {
