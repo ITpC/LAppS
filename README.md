@@ -10,12 +10,16 @@ There is package for ubuntu xenial available in this repository: [lapps-0.5.1-am
 
 LAppS is an easy way to develop low-latency web applications. Please see [LAppS wiki](https://github.com/ITpC/LAppS/wiki) on examples of how to build your own application.
 
+# Conformance
+
+[Autobahn TestSuite Results. No extensions are implemented yet](http://htmlpreview.github.io/?https://github.com/ITpC/LAppS/blob/master/autobahn-testsuite-results/index.html)
+
+
 # Side-notes
 
 Though LAppS is not even reached the optimization phase, it performs surprisingly good. The server architecture is build to sustain up to one million connections (assuming sufficient hardware is provided). Take a note, that performance may be nearly doubled after development stack of the EventBus will be removed.
 
 Here are some performance results (dev instance with Intel(R) Core(TM) i7-7700 CPU @ 3.60GHz). Servers all were tested in TLS only. Number of clients: 80. As a client was used benchmark/echo_client_tls.cpp (websocketpp example client)
-
 
 <table style="width:100%">
 <tr>
@@ -39,16 +43,4 @@ Here are some performance results (dev instance with Intel(R) Core(TM) i7-7700 C
 </table>
 
 
-# TODO
-## ~~LAppS configuration guide~~
-## Lua applications documentation
-## Dynamic deployer
-## Decoupled apps (aka internal apps)
-## WebSocket extensions
-## PostgreSQL connection pool (please use existing lua modules like luasql, pgmoon, etc; until this module is created)
-## ... lot of other things
-## Performance optimizations
-
-
-[Autobahn TestSuite Results. No extensions are implemented yet](http://htmlpreview.github.io/?https://github.com/ITpC/LAppS/blob/master/autobahn-testsuite-results/index.html)
 
