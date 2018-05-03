@@ -69,12 +69,18 @@ namespace environment
     
     const std::string& operator[](const std::string& var)
     {
+      static const std::string empty_string("");
+      
       auto it=config.find(var);
       if(it!=config.end())
       {
         return it->second;
       }else{
-        config.emplace(var,getEnv(var));
+        const char *envptr=getEnv(var);
+        if(envptr == nullptr)
+          config.emplace(var,empty_string);
+        else
+          config.emplace(var,envptr);
       }
       return config[var];
     }
