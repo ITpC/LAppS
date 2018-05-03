@@ -63,5 +63,33 @@ template <typename T> struct UserdataAdapter
 typedef UserdataAdapter<JSPTR>       UDJSPTR;
 typedef UserdataAdapter<json>        UDJSON;
 
+
+static inline json& ud2json(void* ptr)
+{
+  if((*static_cast<UDJSON**>(ptr))->type == SHARED_PTR)
+  {
+    auto udptr=static_cast<UDJSPTR**>(ptr);
+    auto jsptr=(*udptr)->ptr; // std::shared_ptr<json>*
+    return **jsptr;
+  }
+  else
+  {
+    auto udptr=static_cast<UDJSON**>(ptr);
+    auto jsptr=(*udptr)->ptr; // json*
+    return *jsptr;
+  }
+}
+
+const json& get_userdata_value(lua_State *L, int index)
+{
+  auto valptr=luaL_checkudata(L, index, "nljson");
+  if( valptr != nullptr)
+  {
+    return ud2json(valptr);
+  }
+  throw std::system_error(EINVAL, std::system_category(), "The submitted userdata is not of an nljson type");
+}
+
+
 #endif /* __USERDATAADAPTER_H__ */
 
