@@ -40,23 +40,6 @@ extern "C" {
 
 #include <modules/UserDataAdapter.h>
 
-
-static inline json& ud2json(void* ptr)
-{
-  if((*static_cast<UDJSON**>(ptr))->type == SHARED_PTR)
-  {
-    auto udptr=static_cast<UDJSPTR**>(ptr);
-    auto jsptr=(*udptr)->ptr; // std::shared_ptr<json>*
-    return **jsptr;
-  }
-  else
-  {
-    auto udptr=static_cast<UDJSON**>(ptr);
-    auto jsptr=(*udptr)->ptr; // json*
-    return *jsptr;
-  }
-}
-
 static inline auto checktype_nljson(lua_State *L,const int lvl)
 {
     auto udptr=luaL_checkudata(L, lvl, "nljson");

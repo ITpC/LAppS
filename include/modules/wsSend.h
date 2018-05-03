@@ -48,15 +48,6 @@ using json = nlohmann::json;
 
 static thread_local std::vector<std::shared_ptr<::abstract::Worker>> workersCache;
 
-const json& get_userdata_value(lua_State *L, int index)
-{
-  auto valptr=luaL_checkudata(L, index, "nljson");
-  if( valptr != nullptr)
-  {
-    return ud2json(valptr);
-  }
-  throw std::system_error(EINVAL, std::system_category(), "The submitted userdata is not of an nljson type");
-}
 
 const std::shared_ptr<::abstract::Worker>& getWorker(const size_t wid)
 {
