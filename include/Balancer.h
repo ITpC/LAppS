@@ -32,86 +32,88 @@
 #include <memory>
 #include <abstract/Runnable.h>
 
-template <bool TLSEnable=true, bool StatsEnable=true> 
-class Balancer 
-: public ::itc::TCPListener::ViewType,
-  public ::itc::abstract::IRunnable
+namespace LAppS
 {
-private:
-  float                                             mConnectionWeight;
-  std::atomic<bool>                                 mMayRun;
-  itc::tsbqueue<::itc::TCPListener::value_type>     mInbound;
-  std::vector<std::shared_ptr<::abstract::Worker>>  mWorkersCache;
-  
-public:
-  void onUpdate(const ::itc::TCPListener::value_type& data)
+  template <bool TLSEnable=true, bool StatsEnable=true> 
+  class Balancer 
+  : public ::itc::TCPListener::ViewType,
+    public ::itc::abstract::IRunnable
   {
-    mInbound.send(data);
-  }
-  
-  Balancer(const float connw=0.7):mConnectionWeight(connw),mMayRun(true)
-  {
-    itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>::getInstance()->getWorkers(mWorkersCache);
-  }
-  void shutdown()
-  {
-    mMayRun.store(false);
-  }
-  void onCancel()
-  {
-    shutdown();
-  }
-  ~Balancer()
-  {
-    this->shutdown();
-  }
-  void execute()
-  {
-    while(mMayRun)
+  private:
+    float                                             mConnectionWeight;
+    std::atomic<bool>                                 mMayRun;
+    itc::tsbqueue<::itc::TCPListener::value_type>     mInbound;
+    std::vector<std::shared_ptr<::abstract::Worker>>  mWorkersCache;
+
+  public:
+    void onUpdate(const ::itc::TCPListener::value_type& data)
     {
-      try {
-        auto inbound_connection=mInbound.recv();
-        
-        if(mWorkersCache.size()==0)
-          itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>::getInstance()->getWorkers(mWorkersCache);
-        
-        if(mWorkersCache.size()>0)
-        {
-          size_t choosen=0;
-          auto stats=mWorkersCache[0]->getStats();
-          for(size_t i=1;i<mWorkersCache.size();++i)
+      mInbound.send(data);
+    }
+
+    Balancer(const float connw=0.7):mConnectionWeight(connw),mMayRun(true)
+    {
+      itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>::getInstance()->getWorkers(mWorkersCache);
+    }
+    void shutdown()
+    {
+      mMayRun.store(false);
+    }
+    void onCancel()
+    {
+      shutdown();
+    }
+    ~Balancer()
+    {
+      this->shutdown();
+    }
+    void execute()
+    {
+      while(mMayRun)
+      {
+        try {
+          auto inbound_connection=mInbound.recv();
+
+          if(mWorkersCache.size()==0)
+            itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>::getInstance()->getWorkers(mWorkersCache);
+
+          if(mWorkersCache.size()>0)
           {
-            auto stats2=mWorkersCache[i]->getStats();
-            if(stats.mConnections>stats2.mConnections) // candidate i
+            size_t choosen=0;
+            auto stats=mWorkersCache[0]->getStats();
+            for(size_t i=1;i<mWorkersCache.size();++i)
             {
-              if(stats.mEventQSize > stats2.mEventQSize)
+              auto stats2=mWorkersCache[i]->getStats();
+              if(stats.mConnections>stats2.mConnections) // candidate i
               {
-                stats=stats2;
-                choosen=i;
+                if(stats.mEventQSize > stats2.mEventQSize)
+                {
+                  stats=stats2;
+                  choosen=i;
+                }
+              }
+              else
+              {
+                if(stats.mEventQSize > stats2.mConnections*mConnectionWeight)
+                {
+                  stats=stats2;
+                  choosen=i;
+                }
               }
             }
-            else
-            {
-              if(stats.mEventQSize > stats2.mConnections*mConnectionWeight)
-              {
-                stats=stats2;
-                choosen=i;
-              }
-            }
+            mWorkersCache[choosen]->update(inbound_connection);
+          }else
+          {
+            mMayRun.store(false);
           }
-          mWorkersCache[choosen]->update(inbound_connection);
-        }else
+
+        }catch (const std::exception& e)
         {
           mMayRun.store(false);
         }
-        
-      }catch (const std::exception& e)
-      {
-        mMayRun.store(false);
       }
     }
-  }
-};
-
+  };
+}
 #endif /* __BALANCER_H__ */
 
