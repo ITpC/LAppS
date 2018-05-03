@@ -13,6 +13,7 @@
       </logicalFolder>
       <logicalFolder name="f1" displayName="modules" projectFiles="true">
         <itemPath>include/modules/UserDataAdapter.h</itemPath>
+        <itemPath>include/modules/bcast.h</itemPath>
         <itemPath>include/modules/nljson.h</itemPath>
         <itemPath>include/modules/wsSend.h</itemPath>
       </logicalFolder>
@@ -20,6 +21,8 @@
       <itemPath>include/ApplicationContext.h</itemPath>
       <itemPath>include/ApplicationRegistry.h</itemPath>
       <itemPath>include/Balancer.h</itemPath>
+      <itemPath>include/Broadcast.h</itemPath>
+      <itemPath>include/Broadcasts.h</itemPath>
       <itemPath>include/Config.h</itemPath>
       <itemPath>include/Env.h</itemPath>
       <itemPath>include/EventBus.h</itemPath>
@@ -479,6 +482,10 @@
       </item>
       <item path="include/Balancer.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/Broadcast.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/Broadcasts.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Env.h" ex="false" tool="3" flavor2="0">
@@ -522,6 +529,8 @@
       <item path="include/ext/json.hpp" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/modules/UserDataAdapter.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/modules/bcast.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/modules/nljson.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -564,6 +573,10 @@
       </item>
       <item path="include/Balancer.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/Broadcast.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/Broadcasts.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Env.h" ex="false" tool="3" flavor2="0">
@@ -607,6 +620,8 @@
       <item path="include/ext/json.hpp" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/modules/UserDataAdapter.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/modules/bcast.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/modules/nljson.h" ex="false" tool="3" flavor2="0">
       </item>
