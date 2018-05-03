@@ -23,23 +23,14 @@ lapps_echo_methods["_cn_w_params_method"]={
         },
         "cid" : 3
       }]]);
-      ws:send(handler,can_not_logout); -- lets try to send a response to CCH here, with no regard if client closed its websocket or not
-      ws:close(handler,1000);
+      ws:send(handler,can_not_logout); -- lets try to send an error notification to channel 3
+      ws:close(handler,1000); -- normal close code
     end
   end
 }
 
 lapps_echo_methods["_request_w_params_method"]={
   ["login"]=function(handler,params)
-      local login_wrong_params=nljson.decode([[{
-        "status" : 0,
-        "error" : {
-          "code" : -32602,
-          "message": "method 'login' requires 2 parameters: 'user', 'password', both of them must have a string value"
-        },
-        "cid" : 0 
-      }]]);
-
 
       local login_authentication_error=nljson.decode([[{
         "status" : 0,
@@ -76,13 +67,13 @@ lapps_echo_methods["_request_w_params_method"]={
       username=nljson.find(params[1],"user");
       password=nljson.find(params[1],"password");
     else
-      ws:send(handler,login_wrong_params);
+      ws:send(handler,wrong_params);
       ws:close(handler,1003); -- WebSocket close code here. 1002 - "protocol violation"
       return
     end
     if((type(username) ~= "string") or (type(password) ~= "string"))
     then
-      ws:send(handler,login_wrong_params);
+      ws:send(handler,wrong_params);
       ws:close(handler,1003); -- WebSocket close code here. 1002 - "protocol violation"
       return
     end
