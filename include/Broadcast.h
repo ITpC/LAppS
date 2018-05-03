@@ -39,14 +39,14 @@ namespace LAppS
     typedef std::forward_list<size_t>                         BCastSubscribers;
     typedef std::vector<std::shared_ptr<::abstract::Worker>>  WorkersCache;
    private:
-    mutable std::mutex        sMutex;
-    mutable std::mutex        uMutex;
+    std::mutex        sMutex;
+    std::mutex        uMutex;
     size_t                    ChannelID;
-    mutable WorkersCache      mWorkersCache;
-    mutable BCastSubscribers  mSubscribers;
-    mutable BCastSubscribers  mUnsubscribers;
+    WorkersCache      mWorkersCache;
+    BCastSubscribers  mSubscribers;
+    BCastSubscribers  mUnsubscribers;
     
-    void purge() const
+    void purge()
     {
       SyncLock syncu(uMutex);
       
@@ -106,25 +106,29 @@ namespace LAppS
       return ChannelID;
     }
     
-    void subscribe(const size_t handler) const
+    void subscribe(const size_t handler)
     {
       SyncLock sync(sMutex);
+      std::cout << "Broadcast::subscribe("<< handler <<")" << std::endl;
       mSubscribers.push_front(handler);
     }
-    void unsubscribe(const size_t handler) const
+    void unsubscribe(const size_t handler)
     {
       SyncLock sync(uMutex);
       mSubscribers.push_front(handler);
     }
     
-    void bcast(const MSGBufferTypeSPtr& msg) const
+    void bcast(const MSGBufferTypeSPtr& msg)
     {
       SyncLock sync(sMutex);
       purge();
+      
       for(auto handler : mSubscribers)
       {
+        
         size_t wid=handler>>32;
         int32_t fd=static_cast<int32_t>(handler&0x00000000FFFFFFFF);
+
         if(wid<mWorkersCache.size())
         {
           mWorkersCache[wid]->submitResponse({wid,fd,{WebSocketProtocol::BINARY,msg}});
