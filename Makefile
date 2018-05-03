@@ -134,7 +134,7 @@ build-deb: install-examples clone-luajit clone-libressl
 	cp dpkg/lapps.conf /opt/distrib/lapps-0.5.1-amd64/etc/ld.so.conf.d/lapps.conf
 	cp -RpP /opt/lapps/* /opt/distrib/lapps-0.5.1-amd64/opt/lapps/
 	cd /opt/distrib && dpkg-deb --build lapps-0.5.1-amd64
-	cp lapps-0.5.1-amd64.deb ${CND_BASEDIR}/packages
+	cp /opt/distrib/lapps-0.5.1-amd64.deb ${CND_BASEDIR}/packages/
 	
 # run tests
 test: .test-post
