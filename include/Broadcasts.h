@@ -40,7 +40,7 @@ namespace LAppS
    typedef Broadcast<TLSEnable,StatsEnable> BCastValueType;
   private:
     std::mutex mMutex;
-    std::set<Broadcast<TLSEnable,StatsEnable>> mBroadcasts;
+    std::map<size_t,std::shared_ptr<BCastValueType>> mBroadcasts;
     
   public:
    explicit Broadcasts():mMutex(){}
@@ -51,24 +51,24 @@ namespace LAppS
    const bool create(const size_t bcastid)
    {
      SyncLock sync(mMutex);
-     auto it=mBroadcasts.find(BCastValueType(bcastid));
+     auto it=mBroadcasts.find(bcastid);
      if(it==mBroadcasts.end())
      {
-       mBroadcasts.emplace(bcastid);
+       mBroadcasts.emplace(bcastid,std::make_shared<BCastValueType>(bcastid));
        return true;
      }
      return false;
    }
    
-   const BCastValueType* find(const size_t bcastid)
+   auto find(const size_t bcastid)
    {
      SyncLock sync(mMutex);
-     auto it=mBroadcasts.find(BCastValueType(bcastid));
+     auto it=mBroadcasts.find(bcastid);
      if(it!=mBroadcasts.end())
      {
-       return &(*it);
+       return it->second;
      }
-     throw nullptr;
+     throw std::runtime_error("Broadcast with id "+std::to_string(bcastid)+" is not found");
    }
   };
   

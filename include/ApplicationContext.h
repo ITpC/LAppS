@@ -361,6 +361,7 @@ namespace LAppS
     }
     void add_bcast(const itc::utils::Int2Type<ApplicationProtocol::RAW>& protocol_is_raw)
     {
+      std::cout << "No broadcast for RAW protocol" << std::endl;
     }
     
 public:

@@ -4,17 +4,18 @@ echo_lapps.__index = echo_lapps;
 maps=require("lapps_echo_maps");
 local methods=require("lapps_echo_methods");
 
+
+echo_lapps["last_timestamp"]=os.time();
+
 echo_lapps["onStart"]=function()
-  print("echo::onStart");
+  local result, err=bcast:create(1000);
 end
 
 echo_lapps["onShutdown"]=function()
-  print("echo::onShutdown()");
 end
 
 echo_lapps["onDisconnect"]=function(handler)
   nljson.erase(maps.keys, tostring(handler))
-  print("Disconnected: "..handler);
 end
 
 echo_lapps["method_not_found"] = function(handler)
@@ -43,6 +44,21 @@ end
 --  @param message - an nljson userdata object
 --]]
 echo_lapps["onMessage"]=function(handler,msg_type, message)
+
+  local timenow=os.time();
+  if(timenow-echo_lapps.last_timestamp >=1)
+  then
+     echo_lapps.last_timestamp=timenow;
+     local timestr=os.date("%c",timenow);
+     local oon=nljson.decode([[{
+      "cid" : 5,
+      "message" : [ "" ]
+     }]]);
+     oon.message[1]="Server time: "..timestr;
+
+     local result, err=bcast:send(1000,oon); -- need to move into internal app or amount of messages will grow with amount of clients
+  end
+
   local switch={
     [1] = function() -- a CN message does not require any response. Let's restrict CN's without params
             local err_msg=nljson.decode([[{

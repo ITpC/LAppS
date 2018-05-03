@@ -3,6 +3,7 @@ lapps_echo_methods.__index=lapps_echo_methods
 
 maps=require("lapps_echo_maps") -- must be global
 
+
 lapps_echo_methods["_cn_w_params_method"]={
   ["logout"]=function(handler,params)
     if(nljson.find(params[1],"authkey") ~= nil) and (type(params[1].authkey) == "number")
@@ -25,6 +26,26 @@ lapps_echo_methods["_cn_w_params_method"]={
       }]]);
       ws:send(handler,can_not_logout); -- lets try to send an error notification to channel 3
       ws:close(handler,1000); -- normal close code
+    end
+  end,
+  ["subscribe"]=function(handler,params)
+    local not_authenticated=nljson.decode([[{
+        "status" : 0,
+        "error" : {
+          "code" : -32000,
+          "message" : "Not authenticated. Permission deneid"
+        },
+        "cid" : 0
+      }]]);
+
+    local authkey=nljson.find(params[1],"authkey");
+    local current_session_authkey=nljson.find(maps.keys,handler);
+    if(authkey ~= nil) and (current_session_authkey ~=nil) and (authkey == current_session_authkey)
+    then
+      bcast:subscribe(1000,handler);
+    else
+      ws:send(handler,not_authenticated);
+      ws:close(handler,1000); -- WebSocket close code here. 1000 - "normal close"
     end
   end
 }

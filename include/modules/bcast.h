@@ -24,6 +24,8 @@
 #ifndef __BCAST_H__
 #  define __BCAST_H__
 
+#include <memory>
+
 #include <Broadcasts.h>
 #include <WSServerMessage.h>
 
@@ -41,7 +43,7 @@ extern "C" {
 #include <map>
 }
 
-static thread_local std::map<size_t,const LAppS::BCastType::BCastValueType*> broadcasts;
+static thread_local std::map<size_t,std::shared_ptr<LAppS::BCastType::BCastValueType>> broadcasts;
 
 
 const bool isLAppSBcastMessageValid(const json& msg)
@@ -55,58 +57,29 @@ const bool isLAppSBcastMessageValid(const json& msg)
   
   if(cid.value().is_number())
   {
-    auto status=msg.find("status");
-    if(status!=msg.end())
+    auto message=msg.find("message");
+    if(message!=msg.end())
     {
-      bool valid=status.value().is_number();
-      if(valid && ((status.value() == 1) || (status.value() == 0)))
-      {
-        if(status.value() == 0)
-        {
-          if(cid.value() != 0) return false;
-          
-          auto error=msg.find("error");
-          if(error!=msg.end())
-          {
-            auto error_code=error.value().find("code");
-            auto error_message=error.value().find("message");
-            valid =  (error_code != error.value().end())&&(!error_code.value().is_null()&&(error_code.value().is_number()));
-            valid = valid && (error_message != error.value().end()) && (!error_message.value().is_null()) && error_message.value().is_string();
-            return valid; // No checks for additional members. No idea if I need to invalidate messages with additional members
-          }
-          else return false;
-        }
-        else // not an error message
-        {
-          if(cid.value() == 0) // broadcasts are not allowed to appear on CCH
-          {
-            return false;
-          }
-          else // OON object
-          {
-            auto message=msg.find("message");
-            if(message!=msg.end())
-            {
-              if(message.value().is_array()) return true;
-              return false;
-            }
-            return false;
-          }
-        }
-      } else return false;
-    } else return false;
-  } else return false;
+      bool valid=message.value().is_array();
+      return valid;
+    }
+    return false;
+  }
+  return false;
 }
 
 auto find_bcast(const size_t bcastid)
 {
-  auto bcast_addr=LAppS::BroadcastRegistry::getInstance()->find(bcastid);
-  if(bcast_addr)
+  auto it=broadcasts.find(bcastid);
+  
+  if(it!=broadcasts.end())
   {
-    broadcasts.emplace(bcastid,bcast_addr);
-    return bcast_addr;
+    return it->second;
   }
-  return static_cast<const LAppS::BCastType::BCastValueType*>(nullptr);
+  
+  auto bcast_addr=LAppS::BroadcastRegistry::getInstance()->find(bcastid);
+  broadcasts.emplace(bcastid,bcast_addr);
+  return bcast_addr;
 }
 
 extern "C"
@@ -116,12 +89,14 @@ extern "C"
     static const char* usage="Usage: boolean[,string] bcast:send(id,message), where `id' is a unique identifier of the broadcast channel. The `id' must be an unsigned integer. message - is a userdata of nljson type. Returns: true on success, false on error. Optionally an error message is returned.";
     
     auto argc=lua_gettop(L);
+    
     if(argc!=3)
     {
       lua_pushboolean(L,false);
       lua_pushstring(L,usage);
       return 2;
     }
+    
     if(lua_isnumber(L,argc-1))
     {
       try {
@@ -129,29 +104,13 @@ extern "C"
         
         if(isLAppSBcastMessageValid(message))
         {
-          size_t bcastid=static_cast<size_t>(lua_tointeger(L,argc));
-          auto it=broadcasts.find(bcastid);
-          
-          if(it==broadcasts.end())
-          {
-            auto bcast_addr=find_bcast(bcastid);
-            if(bcast_addr)
-            {
-              auto msg=std::make_shared<MSGBufferType>();
-              WebSocketProtocol::ServerMessage(msg,WebSocketProtocol::BINARY,json::to_cbor(message));
-              bcast_addr->bcast(msg);
-              lua_pushboolean(L,true);
-              return 1;
-            }
-            lua_pushboolean(L,false);
-            return 1;
-          }else{
-            auto msg=std::make_shared<MSGBufferType>();
-            WebSocketProtocol::ServerMessage(msg,WebSocketProtocol::BINARY,json::to_cbor(message));
-            it->second->bcast(msg);
-            lua_pushboolean(L,true);
-            return 1;
-          }
+          size_t bcastid=static_cast<size_t>(lua_tointeger(L,argc-1));
+          auto bcast_addr=find_bcast(bcastid);
+          auto msg=std::make_shared<MSGBufferType>();
+          WebSocketProtocol::ServerMessage(msg,WebSocketProtocol::BINARY,json::to_cbor(message));
+          bcast_addr->bcast(msg);
+          lua_pushboolean(L,true);
+          return 1;
         }else{
           lua_pushboolean(L,false);
           return 1;
@@ -170,7 +129,7 @@ extern "C"
   
   LUA_API int bcast_subscribe(lua_State *L)
   {
-    static const char* usage="Usage: boolean[,string] bcast:subscribe(id,handler), where `id' is a unique identifier of the broadcast channel. `handler' is a IO handler provided for onMessage() method of your application. The `id' and the `handler' must be an unsigned integers. Returns: true on success, false on error. Optionally this message if the usage is wrong.";
+    static const char* usage="Usage: boolean[,string] bcast:subscribe(id,handler), where `id' is a unique identifier of the broadcast channel. `handler' is a IO handler provided for onMessage() method of your application. The `id' and the `handler' must be an unsigned integers. Returns: true on success, false on error. Optionally an error message is returned";
     
     auto argc=lua_gettop(L);
     if(argc!=3)
@@ -183,23 +142,17 @@ extern "C"
     {
       size_t handler=static_cast<size_t>(lua_tointeger(L,argc));
       size_t bcastid=static_cast<size_t>(lua_tointeger(L,argc-1));
-      auto it=broadcasts.find(bcastid);
-      
-      if(it==broadcasts.end())
-      {
+      try{
         auto bcast_addr=find_bcast(bcastid);
-        if(bcast_addr)
-        {
-          bcast_addr->subscribe(handler);
-          lua_pushboolean(L,true);
-          return 1;
-        }
-        lua_pushboolean(L,false);
+        bcast_addr->subscribe(handler);
+        lua_pushboolean(L,true);
         return 1;
+        
+      }catch(const std::exception& e){
+        lua_pushboolean(L,false);
+        lua_pushstring(L,e.what());
+        return 2;
       }
-      it->second->subscribe(handler);
-      lua_pushboolean(L,true);
-      return 1;
     }
     lua_pushboolean(L,false);
     lua_pushstring(L,usage);
@@ -221,23 +174,17 @@ extern "C"
     {
       size_t handler=static_cast<size_t>(lua_tointeger(L,argc));
       size_t bcastid=static_cast<size_t>(lua_tointeger(L,argc-1));
-      auto it=broadcasts.find(bcastid);
-      
-      if(it==broadcasts.end())
-      {
+      try{
         auto bcast_addr=find_bcast(bcastid);
-        if(bcast_addr)
-        {
-          bcast_addr->unsubscribe(handler);
-          lua_pushboolean(L,true);
-          return 1;
-        }
-        lua_pushboolean(L,false);
+        bcast_addr->unsubscribe(handler);
+        lua_pushboolean(L,true);
         return 1;
+        
+      }catch(const std::exception& e){
+        lua_pushboolean(L,false);
+        lua_pushstring(L,e.what());
+        return 2;
       }
-      it->second->unsubscribe(handler);
-      lua_pushboolean(L,true);
-      return 1;
     }
     lua_pushboolean(L,false);
     lua_pushstring(L,usage);
@@ -247,7 +194,6 @@ extern "C"
   {
     static const char* usage="Usage: bcast:create(id), where `id' is a unique identifier of the broadcast channel. The `id' must be an unsigned integer.";
     auto argc=lua_gettop(L);
-    
     if(argc!=2)
     {
       lua_pushboolean(L,false);
@@ -258,17 +204,23 @@ extern "C"
     if(lua_isnumber(L,argc))
     {
       size_t bcastid=lua_tointeger(L,argc);
-      LAppS::BroadcastRegistry::getInstance()->create(bcastid);
-      auto bcast_addr=LAppS::BroadcastRegistry::getInstance()->find(bcastid);
-      broadcasts.emplace(bcastid,bcast_addr);
-      lua_pushboolean(L,true);
-      return 1;
-    }
-    
+      if(LAppS::BroadcastRegistry::getInstance()->create(bcastid))
+      {
+        auto bcast_addr=find_bcast(bcastid);
+        if(!bcast_addr)
+        {
+          lua_pushboolean(L,false);
+          return 1;
+        }
+        lua_pushboolean(L,true);
+        return 1;
+      }
+    }    
     lua_pushboolean(L,false);
     lua_pushstring(L,usage);
     return 2;
   }
+  
   LUA_API int luaopen_bcast(lua_State *L)
     {
       static const struct luaL_reg functions[]= {
