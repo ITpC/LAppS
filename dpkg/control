@@ -1,0 +1,6 @@
+Package: LAppS
+Version: 0.5
+Maintainer: Pavel Kraynyukhov <pk@new-web.co>
+Architecture: amd64
+Description: Lua Application Server for micro-service architecture.
+Depends: libcrypto++9v5 (>=5.6.1)
