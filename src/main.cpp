@@ -19,20 +19,20 @@
  *  $Id: main.cpp December 29, 2017 8:10 AM $
  * 
  **/
+
+#include <sys/types.h>
+#include <unistd.h>
 #include <TSLog.h>
 #include <wsServer.h>
 #include <sys/Nanosleep.h>
 #include <HTTPRequestParser.h>
 
-
-int main(int argc, char** argv)
+void startWSServer()
 {
   
-  itc::getLog()->info(__FILE__,__LINE__,"Starting LAppS");
-
 #ifdef LAPPS_TLS_ENABLE
   #ifdef STATS_ENABLE
-      wsServer<true,true> server;
+      LAppS::wsServer<true,true> server;
   #else
       wsServer<true,false> server;
   #endif
@@ -43,8 +43,9 @@ int main(int argc, char** argv)
       wsServer<false,false> server;
   #endif
 #endif
- 
-    
+
+  signal(SIGHUP, SIG_IGN);
+  
   sigset_t sigset;
   int signo;
   sigemptyset(&sigset);
@@ -65,6 +66,31 @@ int main(int argc, char** argv)
       throw std::system_error(errno, std::system_category(),"LAppS failure on sigwait()");
     }
   }
+}
+
+int main(int argc, char** argv)
+{
+  
+  itc::getLog()->info(__FILE__,__LINE__,"Starting LAppS");
+  
+  if(argc >0)
+  {
+    if(strncmp(argv[0],"-d",2)==1)
+    {
+      auto pid=fork();
+      if(pid == 0)
+      {
+        setsid();
+        startWSServer();
+      }
+    }else{
+      startWSServer();
+    }
+  }
+
+
+    
+  
       
   itc::getLog()->info(__FILE__,__LINE__,"LAppS is down");
   itc::getLog()->flush();
