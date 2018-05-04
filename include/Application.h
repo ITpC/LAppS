@@ -134,7 +134,8 @@ namespace LAppS
     void enqueueDisconnect(const size_t wid, const int32_t sockfd)
     {
       try {
-        mAppContext.onDisconnect(wid,sockfd);
+        mEvents.send({wid,sockfd,{WebSocketProtocol::CLOSE,nullptr}});
+        //mAppContext.onDisconnect(wid,sockfd);
       } catch (const std::exception& e)
       {
         itc::getLog()->error(__FILE__,__LINE__,"Can't enqueue request to application %s, exception: %s",mName.c_str(),e.what());
@@ -147,10 +148,15 @@ namespace LAppS
         try
         {
           auto te=mEvents.recv();
-          const bool exec_result=mAppContext.onMessage(te.wid,te.sockfd,te.event);
-          if(!exec_result)
+          if(te.event.type == WebSocketProtocol::CLOSE)
+            mAppContext.onDisconnect(te.wid,te.sockfd);
+          else
           {
-            getWorker(te.wid)->submitError(te.sockfd);
+            const bool exec_result=mAppContext.onMessage(te.wid,te.sockfd,te.event);
+            if(!exec_result)
+            {
+              getWorker(te.wid)->submitError(te.sockfd);
+            }
           }
         }catch(std::exception& e)
         {
