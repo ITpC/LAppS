@@ -12,7 +12,29 @@ LAppS is an easy way to develop low-latency web applications. Please see [LAppS 
 
 # Architecture
 
-![LAppS-Architecture](https://github.com/ITPC/LAppS/raw/master/docs/LAppS-Architecture.png "LAppS")
+![LAppS-Architecture](https://github.com/ITPC/LAppS/raw/master/docs/LAppS-Architecture.png "LAppS pipline")
+
+There are several core components in LAppS:
+  * Listeners
+  * Balancer
+  * IOWorkers
+
+## Listeners
+
+Listeners are responsible for accepting new connections, you can awlays configure how many listeners may run in parallel (see the wiki).
+
+## Balancer
+
+Balancer weights the IOWorkers for their load and based on connection/IO-queue weighting assigns new connections to IOWorker with smallest weight (minimal load at the time).
+
+## IOWorkers
+
+IOWorkers are responsible for working on IO-queue, the only thing they do is a input and output of the data, to/from clients. Amount of IOWorkers running in parallel defines the IO-performance. Each IOWorker can support tens thousands of connections. 
+
+## Services
+
+Services are the Lua applications. Each service may run parallel copies of itself (instances) to achieve maximum performance. 
+
 
 # Conformance
 
