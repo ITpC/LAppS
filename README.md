@@ -54,6 +54,11 @@ Though LAppS is not even reached the optimization phase, it performs surprisingl
 
 Here are some performance results (dev instance with Intel(R) Core(TM) i7-7700 CPU @ 3.60GHz). Servers all were tested in TLS only. Number of clients: 80. As a client was used benchmark/echo_client_tls.cpp (websocketpp example client)
 
+**NOTE**: Please do not consider these results seriously. Because
+  * This comparison is made for raw echo servers with 277 bytes uniform text messages. 
+  * This comparison is made for products with real world application vs development release of LAppS, which does not have reached production maturity
+  * Testing vs nginx (a web-server), is not really a correct thing. Nginx was not build for WebSockets and running Lua-applications detached from workers (which is the case for LAppS).
+
 <table style="width:100%">
 <tr>
 <th>Server</th>
@@ -68,7 +73,7 @@ Here are some performance results (dev instance with Intel(R) Core(TM) i7-7700 C
 <td>LAppS(lua echo app)</td><td>1077.93</td><td>86627.7</td><td>(raw protocol - full round-trip over luajit stack: message is copied to lua string, after response it is copied to send buffer), with internal load balancer</td>
 </tr>
 <tr>
-<td>Nginx-1.12.2-r1 + lua-resty-websocket</td><td>720.6</td><td>58367.4</td><td>worker_processes 3; location section of [nginx.conf](https://github.com/ITpC/LAppS/blob/master/examples/nginx.conf)</td>
+<td>Nginx-1.12.2-r1 + lua-resty-websocket</td><td>720.6</td><td>58367.4</td><td>worker_processes 3; location section of https://github.com/ITpC/LAppS/blob/master/examples/nginx.conf</td>
 </tr>
 <tr>
 <td>LAppS(lua echo app)</td><td>692.9</td><td>55432.7</td><td>(raw protocol - full round-trip over luajit stack: message is copied to lua string, after response it is copied to send buffer), without load balancer</td>
