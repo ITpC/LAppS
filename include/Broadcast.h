@@ -110,7 +110,6 @@ namespace LAppS
     void subscribe(const size_t handler)
     {
       SyncLock sync(sMutex);
-      std::cout << "Broadcast::subscribe("<< handler <<")" << std::endl;
       mSubscribers.push_front(handler);
     }
     void unsubscribe(const size_t handler)

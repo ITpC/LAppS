@@ -115,7 +115,6 @@ namespace LAppS
       
       while(it!=lapps_config["services"].end())
       {
-        std::cout << it.value().begin().key() << std::endl;
         const std::string app_path=apps_dir+it.value().begin().key()+"/?.lua";
         lua_path=lua_path+";"+app_path;
         ++it;
