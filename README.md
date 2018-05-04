@@ -68,12 +68,13 @@ Here are some performance results (dev instance with Intel(R) Core(TM) i7-7700 C
 <td>LAppS(lua echo app)</td><td>1077.93</td><td>86627.7</td><td>(raw protocol - full round-trip over luajit stack: message is copied to lua string, after response it is copied to send buffer), with internal load balancer</td>
 </tr>
 <tr>
-<td>LAppS(lua echo app)</td><td>953.395</td><td>55432.7</td><td>(raw protocol - full round-trip over luajit stack: message is copied to lua string, after response it is copied to send buffer), without load balancer</td>
+<td>Nginx-1.12.2-r1 + lua-resty-websocket</td><td>720.6</td><td>58367.4</td><td>worker_processes 3; location section of [nginx.conf](https://github.com/ITpC/LAppS/blob/master/examples/nginx.conf)</td>
+</tr>
+<tr>
+<td>LAppS(lua echo app)</td><td>692.9</td><td>55432.7</td><td>(raw protocol - full round-trip over luajit stack: message is copied to lua string, after response it is copied to send buffer), without load balancer</td>
 </tr>
 <tr>
 <td>websocketpp(echo_server_tls)</td><td>737.49</td><td>38849.8</td><td>(same buffer is sent back. github version: 378437aecdcb1dfe62096ffd5d944bf1f640ccc3), websocketpp server failed to support 80 clinets, only 56 clients were running</td>
 </tr>
 </table>
-
-
 
