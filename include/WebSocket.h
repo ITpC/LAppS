@@ -186,7 +186,6 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
     
     if(mOutMessages.empty())
     {
-      std::cout << "out messages queue is empty" << std::endl;
       return true;
     }
     else
@@ -208,7 +207,6 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
         }
         if((*out.event.message)[0] == (128|8)) // close
         {
-          std::cout << "close frame sent" << std::endl;
           this->setState(CLOSED);
           return false;
         }

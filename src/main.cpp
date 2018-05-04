@@ -34,13 +34,13 @@ void startWSServer()
   #ifdef STATS_ENABLE
       LAppS::wsServer<true,true> server;
   #else
-      wsServer<true,false> server;
+      LAppS::wsServer<true,false> server;
   #endif
 #else
   #ifdef STATS_ENABLE
-      wsServer<false,true> server;
+      LAppS::wsServer<false,true> server;
   #else
-      wsServer<false,false> server;
+      LAppS::wsServer<false,false> server;
   #endif
 #endif
 
