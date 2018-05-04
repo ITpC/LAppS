@@ -436,14 +436,15 @@ public:
     }
     const bool onMessage(const size_t workerID, const int32_t socketfd, const WSEvent& event)
     {
-      SyncLock sync(mMutex);
+      //SyncLock sync(mMutex);
       if(workersCache.empty())
         itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>::getInstance()->getWorkers(workersCache);
       return onMessage(workerID,socketfd,event,mProtocol);
     }
+    
     void onDisconnect(const size_t workerID, const int32_t sockfd)
     {
-      SyncLock sync(mMutex);
+      //SyncLock sync(mMutex);
       
       cleanLuaStack();
       
