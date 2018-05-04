@@ -15,6 +15,7 @@ echo_lapps["onShutdown"]=function()
 end
 
 echo_lapps["onDisconnect"]=function(handler)
+  bcast:unsubscribe(1000,handler);
   nljson.erase(maps.keys, tostring(handler))
 end
 

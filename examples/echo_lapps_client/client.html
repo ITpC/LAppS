@@ -12,22 +12,14 @@
     <div id="stime" style="width:100%;height:300px;margin:3px"></div>
 
     <script>
-      function now()
-      {
-        return Math.floor(Date.now() / 1000);
-      }
 
       // globals
-      window["teststart"]=now();
-      window["testend"]=now();
       window["secs_since_start"]=0;
       window["roundtrips"]=0;
       window["subscribed"]=false;
       window["lapps"]={
         authkey : 0
       };
-
-      console.log("timestamp: "+now());
 
       // initial data set for the chart
 
@@ -93,19 +85,6 @@
       {
         window.roundtrips=window.roundtrips+1;
 
-        window.testend=Date.now()/1000;
-        if((window.testend - window.teststart) >=1)
-        {
-          window.secs_since_start++;
-          console.log("secs since start: ["+ window.secs_since_start+"]");
-          window.teststart=window.testend;
-          $$("barChart").add({rps: window.roundtrips, second: window.secs_since_start});
-          window.roundtrips=0;
-          if(window.secs_since_start > 30 )
-          {
-            $$("barChart").remove($$("barChart").getFirstId());
-          }
-        }
 
         // CBOR to native JavaScript object
         var message = CBOR.decode(event.data);
@@ -161,7 +140,15 @@
             text : message.message[0],
             type: "info",
             expire: 999
-         });
+          });
+
+          window.secs_since_start++;
+          $$("barChart").add({rps: window.roundtrips, second: window.secs_since_start});
+          window.roundtrips=0;
+          if(window.secs_since_start > 30 )
+          {
+            $$("barChart").remove($$("barChart").getFirstId());
+          }
         }
         else //  other OONs are just printed to console
         {

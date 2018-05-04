@@ -56,12 +56,13 @@ namespace LAppS
         for(auto it=mSubscribers.before_begin();it!=mSubscribers.end();++it)
         { 
           auto next=std::next(it);
-          if(*next==*uit)
+          if((next!=mSubscribers.end())&&((*next)==(*uit)))
           {
             mSubscribers.erase_after(it);
             break;
           }
         }
+        ++uit;
       }
       mUnsubscribers.clear();
     }
@@ -115,7 +116,7 @@ namespace LAppS
     void unsubscribe(const size_t handler)
     {
       SyncLock sync(uMutex);
-      mSubscribers.push_front(handler);
+      mUnsubscribers.push_front(handler);
     }
     
     void bcast(const MSGBufferTypeSPtr& msg)
