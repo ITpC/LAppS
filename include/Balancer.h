@@ -34,12 +34,15 @@
 
 namespace LAppS
 {
+  
+  
   template <bool TLSEnable=true, bool StatsEnable=true> 
   class Balancer 
   : public ::itc::TCPListener::ViewType,
     public ::itc::abstract::IRunnable
   {
   private:
+    
     float                                             mConnectionWeight;
     std::atomic<bool>                                 mMayRun;
     itc::tsbqueue<::itc::TCPListener::value_type>     mInbound;
@@ -51,7 +54,7 @@ namespace LAppS
       mInbound.send(data);
     }
 
-    Balancer(const float connw=0.7):mConnectionWeight(connw),mMayRun(true)
+    Balancer(const float connw=0.7):mConnectionWeight(connw),mMayRun(true),mWorkersCache(0)
     {
       itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>::getInstance()->getWorkers(mWorkersCache);
     }
