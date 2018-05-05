@@ -83,3 +83,28 @@ Here are some performance results (dev instance with Intel(R) Core(TM) i7-7700 C
 </tr>
 </table>
 
+
+
+Test results for 120 clients (same clients code)
+
+<table style="width:100%">
+<tr>
+<th>Server</th>
+<th>Average echo round-trips per second per client </th>
+<th>Average echo rps served per second by server </th>
+<th>Comments</th>
+</tr>
+<tr>
+<td>LAppS-0.5.3</td><td>775.733</td><td>92086</td><td>2 listeners, 4 workers, 4 instances of the echo service(raw protocol)</td>
+</tr>
+<tr>
+<td>uWebSockets</td><td>693.361</td><td>83177.5</td><td>not tunable</td>
+</tr>
+<tr>
+<td>nginx-1.12.2-r1/luajit(gentoo)+lua-resty-websocket</td><td>560.257</td><td>66962.1</td><td>4 workers</td>
+</tr>
+<tr>
+<td>nginx-1.12.2-r1/luajit(gentoo)+lua-resty-websocket</td><td>468.393</td><td>56171.8</td><td>3 workers</td>
+</tr>
+</table>
+
