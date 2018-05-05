@@ -28,6 +28,7 @@
       <itemPath>include/EventBus.h</itemPath>
       <itemPath>include/HTTPRequestParser.h</itemPath>
       <itemPath>include/IOWorker.h</itemPath>
+      <itemPath>InternalAppContext.h</itemPath>
       <itemPath>include/Shakespeer.h</itemPath>
       <itemPath>include/TLSServerContext.h</itemPath>
       <itemPath>include/TaggedEvent.h</itemPath>
@@ -106,7 +107,7 @@
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
           </incDir>
-          <commandLine>-pipe -Wall -pthread -O2 -fPIC -march=native -mtune=generic -fstack-check -fstack-protector-strong -mfpmath=sse -ftree-vectorize -funroll-loops</commandLine>
+          <commandLine>-pipe -Wall -pthread -O2 -fPIC -march=native -mtune=native -fstack-check -fstack-protector-strong -mfpmath=sse -ftree-vectorize -funroll-loops</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>LAPPS_TLS_ENABLE</Elem>
@@ -472,6 +473,8 @@
           <packInfoListElem name="Description" value="..." mandatory="false"/>
         </packInfoList>
       </packaging>
+      <item path="InternalAppContext.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="LAppS_Protocol_Specification.md" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Application.h" ex="false" tool="3" flavor2="0">
@@ -563,6 +566,8 @@
           <developmentMode>5</developmentMode>
         </asmTool>
       </compileType>
+      <item path="InternalAppContext.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="LAppS_Protocol_Specification.md" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Application.h" ex="false" tool="3" flavor2="0">
