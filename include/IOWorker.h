@@ -282,9 +282,12 @@ namespace LAppS
           {
             if(!current->sendNext())
             {
+              std::string peer_ip;
+              current->getPeerIP(peer_ip);
               itc::getLog()->error(
                 __FILE__,__LINE__,
-                "Can't send next outstanding message to peer with fd %d. Communication error. Removing this connection.",fd
+                "Can't send next outstanding message to peer %s with fd %d. Communication error. Removing this connection.",
+                fd,peer_ip.c_str()
               );
               mConnections.erase(it);
             }
@@ -293,7 +296,7 @@ namespace LAppS
           {
             itc::getLog()->error(
               __FILE__,__LINE__,
-              "processOutEvents(%d) - socket is in a wrong state, closing connection.",
+              "processOutEvents(%d) - socket is in a wrong state, removing connection.",
               fd
             );
             mConnections.erase(it);
