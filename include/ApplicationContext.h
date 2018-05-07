@@ -62,7 +62,7 @@ namespace LAppS
     void callAppOnMessage()
     {
       int ret = lua_pcall (mLState, 3, 1, 0);
-      this->checkForLuaErrorsOnPcall(ret,"onMessage");
+      checkForLuaErrorsOnPcall(ret,"onMessage");
     }
     
     const bool isAppModuleValid()
@@ -296,11 +296,9 @@ public:
       
       luaopen_nljson(mLState);
       lua_setfield(mLState,LUA_GLOBALSINDEX,"nljson");
-      cleanLuaStack();
       
       luaopen_wssend(mLState);
       lua_setfield(mLState,LUA_GLOBALSINDEX,"ws");
-      cleanLuaStack();
       
       add_bcast(mProtocol);
             
@@ -344,7 +342,7 @@ public:
       lua_close(mLState);
       mLState=nullptr;
     }
-    ~ApplicationContext()
+    virtual ~ApplicationContext()
     {
       if(mLState)
       {
