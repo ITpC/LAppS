@@ -796,7 +796,7 @@ extern "C" {
             {
               case LUA_TUSERDATA:
               {
-                  jsref[index]=get_userdata_value(L);
+                jsref[index]=get_userdata_value(L);
               }
               break;
               case LUA_TTABLE:
@@ -805,7 +805,7 @@ extern "C" {
               }
               break;
               default:
-                  set_pod_value(L,&(jsref[index]));
+                set_pod_value(L,&(jsref[index]));
               break;
             }             
             pushvalue(L,jsref[index].type(),jsref[index]);
