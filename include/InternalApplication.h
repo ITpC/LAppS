@@ -36,17 +36,26 @@ namespace LAppS
    public:
     explicit InternalApplication(const std::string name) : mContext(name)
     {
-      mContext.init();
     }
+    
     InternalApplication(const InternalApplication&)=delete;
     InternalApplication(InternalApplication&)=delete;
     InternalApplication()=delete;
     
     void execute()
     {
+      mContext.init();
       mContext.run();
     }
     ~InternalApplication()
+    {
+      this->shutdown();
+    }
+    void onCancel()
+    {
+      this->shutdown();
+    }
+    void shutdown()
     {
       mContext.stop();
     }

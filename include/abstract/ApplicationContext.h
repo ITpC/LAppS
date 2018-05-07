@@ -94,6 +94,7 @@ namespace abstract
     explicit ApplicationContext(const std::string& name)
     : mName(name),mLState(luaL_newstate())
     {}
+    virtual ~ApplicationContext(){}
   };
 }
 

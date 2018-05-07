@@ -78,12 +78,19 @@ namespace LAppS
             {"instances", 4}
           }}},
           {{"echo_lapps", {
-            {"internal", false},
             {"request_target", "/echo_lapps"},
             {"protocol", "LAppS"},
             {"instances", 3}
-          }}}
-          /**
+          }}},
+          {{"time_broadcast", {
+            {"internal", true},
+            {"instances", 1}
+          }}}/**,
+          {{"data_source", {
+            {"internal", true},
+            {"request_queue", "http_request"}, // optional request queue for apps ipc. if declared, may not be null
+            {"instances", 1}
+          }}},
           {{"console", {
             {"internal", false},
             {"request_target","/console"},
