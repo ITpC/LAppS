@@ -52,6 +52,7 @@
 #include <abstract/Worker.h>
 #include <abstract/Application.h>
 #include <ApplicationRegistry.h>
+#include <InternalApplicationRegistry.h>
 #include <Application.h>
 #include <IOWorker.h>
 #include <Balancer.h>
@@ -94,78 +95,100 @@ namespace LAppS
         {
           for(size_t i=0;i<it.value().size();++i)
           {
-
             auto service=it.value()[i].begin();
             std::string service_name=service.key();
 
             for(;service != it.value()[i].end();++service)
             {
-              std::string proto;
-              std::string app_target;
-
-              auto found=service.value().find("protocol");
-              if(found != service.value().end())
+              bool internal=false;
+              
+              auto find_internal=service.value().find("internal");
+              if(find_internal!=service.value().end()) // is internal?
               {
-                proto=found.value();
+                internal=find_internal.value();
+              }
+              
+              if(internal)
+              {
+                auto instances_it=service.value().find("instances");
+                if(instances_it != service.value().end())
+                {  
+                  size_t instances=instances_it.value();
+                  for(size_t i=0;i<instances;++i)
+                  {
+                    ::InternalAppsRegistry::getInstance()->startInstance(service_name);
+                  }
+                }
               }
               else
               {
-                proto.clear();
-              }
-              found=service.value().find("request_target");
-              if(found != service.value().end())
-              {
-                app_target=found.value();
-              }
-              else
-              {
-                app_target.clear();
-              }
+                std::string proto;
+                std::string app_target;
 
-              if((!app_target.empty())&&(!proto.empty()))
-              {
-                std::regex request_target("^[/][[:alpha:][:digit:]_-]*([/]?[[:alpha:][:digit:]_-]+)*$");
-
-                if(std::regex_match(app_target,request_target))
+                auto found=service.value().find("protocol");
+                if(found != service.value().end())
                 {
-                  if(proto.empty())
-                    throw std::system_error(EINVAL,std::system_category(), "Application protocol is empty in configuration of the service "+service_name);
-                  if(proto == "raw")
-                  {
-                    size_t instances=1;
+                  proto=found.value();
+                }
+                else
+                {
+                  proto.clear();
+                }
+                found=service.value().find("request_target");
+                if(found != service.value().end())
+                {
+                  app_target=found.value();
+                }
+                else
+                {
+                  app_target.clear();
+                }
 
-                    found=service.value().find("instances");
-                    if(found != service.value().end())
-                    {
-                      instances=found.value();
-                    }
-                    for(size_t i=0;i<instances;++i)
-                    {
-                      ::ApplicationRegistry::getInstance()->regApp(
-                        std::make_shared<LAppRAW>(service_name,app_target)
-                      );
-                    }
-                  }
-                  else if(proto == "LAppS")
-                  {
-                    size_t instances=1;
+                if((!app_target.empty())&&(!proto.empty()))
+                {
+                  std::regex request_target("^[/][[:alpha:][:digit:]_-]*([/]?[[:alpha:][:digit:]_-]+)*$");
 
-                    found=service.value().find("instances");
-                    if(found != service.value().end())
+                  if(std::regex_match(app_target,request_target))
+                  {
+                    if(proto.empty())
+                      throw std::system_error(EINVAL,std::system_category(), "Application protocol is empty in configuration of the service "+service_name);
+                    if(proto == "raw")
                     {
-                      instances=found.value();
+                      size_t instances=1;
+
+                      found=service.value().find("instances");
+                      if(found != service.value().end())
+                      {
+                        instances=found.value();
+                      }
+                      for(size_t i=0;i<instances;++i)
+                      {
+                        ::ApplicationRegistry::getInstance()->regApp(
+                          std::make_shared<LAppRAW>(service_name,app_target)
+                        );
+                      }
                     }
-                    for(size_t i=0;i<instances;++i)
+                    else if(proto == "LAppS")
                     {
-                      ::ApplicationRegistry::getInstance()->regApp(
-                        std::make_shared<LAppLAPPS>(service_name,app_target)
-                      );
+                      size_t instances=1;
+
+                      found=service.value().find("instances");
+                      if(found != service.value().end())
+                      {
+                        instances=found.value();
+                      }
+                      for(size_t i=0;i<instances;++i)
+                      {
+                        ::ApplicationRegistry::getInstance()->regApp(
+                          std::make_shared<LAppLAPPS>(service_name,app_target)
+                        );
+                      }
+                    }else{
+                        throw std::system_error(EINVAL,std::system_category(), "Incorrect protocol is specified for target "+app_target+" in service "+service_name+". Only two protocols are supported: raw, LAppS");
                     }
-                  }else{
-                      throw std::system_error(EINVAL,std::system_category(), "Incorrect protocol is specified for target "+app_target+" in service "+service_name+". Only two protocols are supported: raw, LAppS");
-                  }
-                } else throw std::system_error(EINVAL,std::system_category(), "Incorrect request target: "+app_target+" in configuration of service "+service.key());
-              } else throw std::system_error(EINVAL,std::system_category(), "Undefined request_target or protocol keyword which are both mandatory");
+                  } else throw std::system_error(EINVAL,std::system_category(), "Incorrect request target: "+app_target+" in configuration of service "+service.key());
+                } else throw std::system_error(EINVAL,std::system_category(), "Undefined request_target or protocol keyword which are both mandatory");
+              }
             }
           }
         }
