@@ -204,18 +204,18 @@ extern "C"
     if(lua_isnumber(L,argc))
     {
       size_t bcastid=lua_tointeger(L,argc);
-      if(LAppS::BroadcastRegistry::getInstance()->create(bcastid))
+      LAppS::BroadcastRegistry::getInstance()->create(bcastid);
+      
+      auto bcast_addr=find_bcast(bcastid);
+      if(!bcast_addr)
       {
-        auto bcast_addr=find_bcast(bcastid);
-        if(!bcast_addr)
-        {
-          lua_pushboolean(L,false);
-          return 1;
-        }
-        lua_pushboolean(L,true);
+        lua_pushboolean(L,false);
         return 1;
       }
-    }    
+      lua_pushboolean(L,true);
+      return 1;
+    }
+    
     lua_pushboolean(L,false);
     lua_pushstring(L,usage);
     return 2;
@@ -224,10 +224,6 @@ extern "C"
   LUA_API int luaopen_bcast(lua_State *L)
     {
       static const struct luaL_reg functions[]= {
-        {"create", bcast_create},
-        {"subscribe", bcast_subscribe},
-        {"unsubscribe", bcast_unsubscribe},
-        {"send", bcast_send},
         {nullptr,nullptr}
       };
       static const struct luaL_reg members[] = {
