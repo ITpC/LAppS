@@ -6,6 +6,7 @@
                    projectFiles="true">
       <logicalFolder name="f2" displayName="abstract" projectFiles="true">
         <itemPath>include/abstract/Application.h</itemPath>
+        <itemPath>include/abstract/ApplicationContext.h</itemPath>
         <itemPath>include/abstract/Worker.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f3" displayName="ext" projectFiles="true">
@@ -28,7 +29,8 @@
       <itemPath>include/EventBus.h</itemPath>
       <itemPath>include/HTTPRequestParser.h</itemPath>
       <itemPath>include/IOWorker.h</itemPath>
-      <itemPath>InternalAppContext.h</itemPath>
+      <itemPath>include/InternalAppContext.h</itemPath>
+      <itemPath>include/InternalApplication.h</itemPath>
       <itemPath>include/Shakespeer.h</itemPath>
       <itemPath>include/TLSServerContext.h</itemPath>
       <itemPath>include/TaggedEvent.h</itemPath>
@@ -464,6 +466,12 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -473,8 +481,6 @@
           <packInfoListElem name="Description" value="..." mandatory="false"/>
         </packInfoList>
       </packaging>
-      <item path="InternalAppContext.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="LAppS_Protocol_Specification.md" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Application.h" ex="false" tool="3" flavor2="0">
@@ -499,6 +505,10 @@
       </item>
       <item path="include/IOWorker.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/InternalAppContext.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/InternalApplication.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/Shakespeer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/TLSServerContext.h" ex="false" tool="3" flavor2="0">
@@ -522,6 +532,11 @@
       <item path="include/WorkerStats.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/abstract/Application.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/abstract/ApplicationContext.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
       </item>
       <item path="include/abstract/Worker.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -566,8 +581,6 @@
           <developmentMode>5</developmentMode>
         </asmTool>
       </compileType>
-      <item path="InternalAppContext.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="LAppS_Protocol_Specification.md" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Application.h" ex="false" tool="3" flavor2="0">
@@ -592,6 +605,10 @@
       </item>
       <item path="include/IOWorker.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/InternalAppContext.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/InternalApplication.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/Shakespeer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/TLSServerContext.h" ex="false" tool="3" flavor2="0">
@@ -615,6 +632,11 @@
       <item path="include/WorkerStats.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/abstract/Application.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/abstract/ApplicationContext.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
       </item>
       <item path="include/abstract/Worker.h" ex="false" tool="3" flavor2="0">
       </item>
