@@ -38,6 +38,7 @@ extern "C" {
 #include <WebSocket.h>
 #include <abstract/Worker.h>
 #include <WSWorkersPool.h>
+#include <abstract/ApplicationContext.h>
 
 #include <modules/nljson.h>
 #include <modules/wsSend.h>
@@ -49,79 +50,26 @@ using json = nlohmann::json;
 namespace LAppS
 {
   template <bool TLSEnable, bool StatsEnable, ApplicationProtocol Tproto>
-  class ApplicationContext
+  class ApplicationContext : public ::abstract::ApplicationContext
   {
-  public:
-    
   private:
     typedef std::shared_ptr<::abstract::Worker> WorkerSPtrType;
     enum LAppSInMessageType { INVALID, CN, CN_WITH_PARAMS, REQUEST, REQUEST_WITH_PARAMS };
     itc::utils::Int2Type<Tproto> mProtocol;
-    std::mutex mMutex;
-    std::string mName;
-    lua_State* mLState;
     abstract::Application* mParent;
 
-    void checkForLuaErrors(const int ret, const char* method)
-    {
-      if(ret != 0)
-      {
-        switch(ret)
-        {
-          case LUA_ERRRUN:
-            throw std::runtime_error(std::string("Lua runtime error on calling method "+mName+"::"+method+"(): ")+std::string(lua_tostring(mLState,lua_gettop(mLState))));
-            break;
-          case LUA_ERRMEM:
-            throw std::system_error(ENOMEM,std::system_category(),"Not enough memory to call method "+mName+"::"+method+"()"+std::string(lua_tostring(mLState,lua_gettop(mLState))));
-          case LUA_ERRERR:
-            throw std::logic_error("Error in lua error handler on calling method "+mName+"::"+method+"()"+std::string(lua_tostring(mLState,lua_gettop(mLState))));
-            break;
-        }
-      }
-    }
-    void cleanLuaStack()
-    {
-      while(int stackdepth=lua_gettop(mLState))
-      {
-        lua_pop(mLState,1);
-      }
-    }
     
     void callAppOnMessage()
     {
       int ret = lua_pcall (mLState, 3, 1, 0);
-      checkForLuaErrors(ret,"onMessage");
+      this->checkForLuaErrorsOnPcall(ret,"onMessage");
     }
     
-    const bool require(const std::string& module_name)
-    {
-      lua_getfield (mLState, LUA_GLOBALSINDEX, "require");
-      lua_pushstring (mLState, module_name.c_str());
-      int ret = lua_pcall (mLState, 1, 1, 0);
-      if(ret != 0)
-      {
-        switch(ret)
-        {
-          case LUA_ERRRUN:
-            throw std::runtime_error("Lua runtime error on loading module "+module_name+": "+std::string(lua_tostring(mLState,lua_gettop(mLState))));
-            break;
-          case LUA_ERRMEM:
-            throw std::system_error(ENOMEM,std::system_category(),"Not enough memory to load module "+module_name+": "+std::string(lua_tostring(mLState,lua_gettop(mLState))));
-          case LUA_ERRERR:
-            throw std::logic_error("Error in lua error handler on loading module "+module_name+": "+std::string(lua_tostring(mLState,lua_gettop(mLState))));
-            break;
-        }
-      }
-      lua_setfield(mLState, LUA_GLOBALSINDEX, module_name.c_str());
-      cleanLuaStack();
-      return true;
-    }
-    
-    const bool isAppModuleValid(const std::string& module_name)
+    const bool isAppModuleValid()
     {
       bool ret=false;
       // validate presence of required methods: onStart,onMessage,onShutdown
-      lua_getglobal(mLState, module_name.c_str());
+      lua_getglobal(mLState, mName.c_str());
       lua_getfield(mLState, -1, "onStart");
       ret=lua_isfunction(mLState,-1);
       if(ret){
@@ -170,20 +118,7 @@ namespace LAppS
       lua_getglobal(mLState, mName.c_str());
       lua_getfield(mLState, -1, "onShutdown");
       int ret = lua_pcall (mLState, 0, 0, 0);
-      if(ret != 0)
-      {
-        switch(ret)
-        {
-          case LUA_ERRRUN:
-            throw std::runtime_error("Lua runtime error on calling "+mName+".onShutdown(): "+std::string(lua_tostring(mLState,lua_gettop(mLState))));
-            break;
-          case LUA_ERRMEM:
-            throw std::system_error(ENOMEM,std::system_category(),"Not enough memory to call "+mName+".onShutdown(): "+std::string(lua_tostring(mLState,lua_gettop(mLState))));
-          case LUA_ERRERR:
-            throw std::logic_error("Error in lua error handler on calling "+mName+".onShutdown(): "+std::string(lua_tostring(mLState,lua_gettop(mLState))));
-            break;
-        }
-      }
+      checkForLuaErrorsOnPcall(ret,"onShutdown");
     }
     
     void startApp()
@@ -191,20 +126,7 @@ namespace LAppS
       lua_getglobal(mLState, mName.c_str());
       lua_getfield(mLState, -1, "onStart");
       int ret = lua_pcall (mLState, 0, 0, 0);
-      if(ret != 0)
-      {
-        switch(ret)
-        {
-          case LUA_ERRRUN:
-            throw std::runtime_error("Lua runtime error on calling "+mName+".onStart(): "+std::string(lua_tostring(mLState,lua_gettop(mLState))));
-            break;
-          case LUA_ERRMEM:
-            throw std::system_error(ENOMEM,std::system_category(),"Not enough memory to call "+mName+".onStart(): "+std::string(lua_tostring(mLState,lua_gettop(mLState))));
-          case LUA_ERRERR:
-            throw std::logic_error("Error in lua error handler on calling "+mName+".onStart(): "+std::string(lua_tostring(mLState,lua_gettop(mLState))));
-            break;
-        }
-      }
+      checkForLuaErrorsOnPcall(ret,"onStart");
       cleanLuaStack();
     }
     static const LAppSInMessageType getLAppSInMessageType(const json& msg)
@@ -368,13 +290,8 @@ public:
     ApplicationContext(ApplicationContext&)=delete;
     
     explicit ApplicationContext(const std::string& appname, abstract::Application* parent)
-    : mMutex(), mName(appname), mLState(luaL_newstate()),mParent(parent)
+    : ::abstract::ApplicationContext(appname), mParent(parent)
     {
-      /**
-      if(mParent == nullptr)
-        throw std::logic_error("Can not instantiate ApplicationContext without an instance of Application class");
-      **/
-      
       luaL_openlibs(mLState);
       
       luaopen_nljson(mLState);
@@ -390,7 +307,7 @@ public:
       if(require(mName))
       {
         itc::getLog()->info(__FILE__,__LINE__,"Lua module %s is registered",mName.c_str());
-        if(isAppModuleValid(mName))
+        if(isAppModuleValid())
         {
           itc::getLog()->info(
             __FILE__,__LINE__,
@@ -446,14 +363,14 @@ public:
     {
       //SyncLock sync(mMutex);
       
-      cleanLuaStack();
+      this->cleanLuaStack();
       
       lua_getfield(mLState, LUA_GLOBALSINDEX, mName.c_str());
       lua_getfield(mLState,-1,"onDisconnect");
       lua_pushinteger(mLState,(workerID<<32)|sockfd);
       
       int ret = lua_pcall (mLState, 1, 0, 0);
-      checkForLuaErrors(ret,"onDisconnect");
+      checkForLuaErrorsOnPcall(ret,"onDisconnect");
     }
   };
 }
