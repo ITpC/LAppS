@@ -376,19 +376,14 @@ extern "C" {
     
     LUA_API int luaopen_wssend(lua_State *L)
     {
-      static const struct luaL_reg functions[]= {
-        {"send", wssend},
-        {"close", wsclose},
-        {nullptr,nullptr}
-      };
       static const struct luaL_reg members[] = {
         {"send",wssend},
         {"close", wsclose},
         {nullptr,nullptr}
       };
+      
       luaL_newmetatable(L,"ws");
       luaL_openlib(L, NULL, members,0);
-      luaL_openlib(L, "ws", functions,0);
 
       return 1;
     }
