@@ -223,9 +223,6 @@ extern "C"
   
   LUA_API int luaopen_bcast(lua_State *L)
     {
-      static const struct luaL_reg functions[]= {
-        {nullptr,nullptr}
-      };
       static const struct luaL_reg members[] = {
         {"create", bcast_create},
         {"subscribe", bcast_subscribe},
@@ -235,7 +232,7 @@ extern "C"
       };
       luaL_newmetatable(L,"bcast");
       luaL_openlib(L, NULL, members,0);
-      luaL_openlib(L, "bcast", functions,0);
+
 
       return 1;
     }
