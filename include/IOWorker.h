@@ -131,10 +131,6 @@ namespace LAppS
     void shutdown()
     {
       mMayRun.store(false);
-      while(!mCanStop)
-      {
-        sched_yield();
-      }
     }
     void onCancel()
     {

@@ -87,11 +87,11 @@ namespace LAppS
     
     void onCancel()
     {
-
+       mMayRun.store(false);
     }
     void shutdown()
     {
-
+       mMayRun.store(false);
     }
     
     explicit Application(const std::string& appName,const std::string& target)
@@ -160,27 +160,25 @@ namespace LAppS
           }
         }catch(std::exception& e)
         {
-          mMayRun=false;
-          itc::getLog()->error(__FILE__,__LINE__,"exception in Application::execute(): %s",e.what());
-          itc::getLog()->info(__FILE__,__LINE__,"Application going down due to unhandled errors");
+          mMayRun.store(false);
+          itc::getLog()->error(__FILE__,__LINE__,"Exception in Application[%s]::execute(): %s",mName.c_str(),e.what());
           itc::getLog()->flush();
         }
       }
+      mAppContext.clearCache();
       mCanStop.store(true);
+      itc::getLog()->info(__FILE__,__LINE__,"Application instance [%s] main loop is finished.",mName.c_str());
     }
     
     Application()=delete;
     Application(const Application&)=delete;
     Application(Application&)=delete;
-    ~Application()
+    ~Application() noexcept
     {
       mMayRun.store(false);
-      while(!mCanStop.load())
-      {
-        sched_yield();
-      }
+      itc::getLog()->info(__FILE__,__LINE__,"Application instance [%s] is destroyed.",mName.c_str());
+      itc::getLog()->flush();
     }
-    
   };
 }
 

@@ -119,10 +119,15 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WSWorkersPool
       out.push_back(i->getRunnable());
     }
   }
-  ~WSWorkersPool()
+  void clear()
   {
     SyncLock sync(mMutex);
     mWorkers.clear();
+  }
+  
+  ~WSWorkersPool()
+  {
+    clear();
   }
 };
 
