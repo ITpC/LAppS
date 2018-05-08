@@ -24,6 +24,8 @@
 #ifndef __HTTPREQUESTPARSER_H__
 #  define __HTTPREQUESTPARSER_H__
 
+#include <assert.h>
+
 #include <string>
 #include <stdexcept>
 #include <map>
@@ -215,7 +217,7 @@ public:
        cursor+=HTTPVersion.size()+2;
 
        cursor+=collectHeaders((const char*)(&ref.data()[cursor]),bufflen-cursor);
-
+       assert(cursor <= bufflen);
      } else throwMalformedHTTPRequest("No space after MODE[GET]");
    } else throwMalformedHTTPRequest("Only GET requests are accepted");
  }

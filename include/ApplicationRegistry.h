@@ -47,6 +47,19 @@ namespace LAppS
     std::map<std::string,std::string>  mTarget2Name;
 
    public:
+    void clear()
+    {
+      SyncLock sync(mMutex);
+      mTarget2Name.clear();
+      for(auto it=mApplications.begin();it!=mApplications.end();++it)
+      {
+        while(!it->second.empty())
+        {
+          it->second.pop();
+        }
+      }
+      mApplications.clear();
+    }
     void regApp(const ApplicationSPtr& instance)
     {
       SyncLock sync(mMutex);

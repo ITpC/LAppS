@@ -64,6 +64,7 @@ namespace LAppS
   {
   private:
     std::atomic<bool> mMustStop;
+    std::atomic<bool> mCanStop;
     const bool isInternalAppValid() const
     {
       bool ret=false;
@@ -136,11 +137,13 @@ namespace LAppS
     void init()
     {
       mMustStop.store(false);
+      mCanStop.store(false);
       lua_getglobal(mLState, mName.c_str());
       lua_getfield(mLState, -1, "init");
       int ret = lua_pcall (mLState, 0, 0, 0);
       checkForLuaErrorsOnPcall(ret,"init");
       cleanLuaStack();
+      itc::getLog()->info(__FILE__,__LINE__,"Application instance [%s] is initialized",mName.c_str());
     }
     
     void stop()
@@ -156,15 +159,23 @@ namespace LAppS
       int ret = lua_pcall (mLState, 0, 0, 0);
       checkForLuaErrorsOnPcall(ret,"run");
       cleanLuaStack();
+      mCanStop.store(true);
+      itc::getLog()->info(__FILE__,__LINE__,"Application instance [%s] is down",mName.c_str());
+      itc::getLog()->flush();
     }
     
     InternalAppContext(const InternalAppContext&)=delete;
     InternalAppContext(InternalAppContext&)=delete;
     InternalAppContext()=delete; 
     
-    virtual ~InternalAppContext()
+    ~InternalAppContext() noexcept
     {
       this->stop();
+      itc::sys::Nap waithere;
+      while(!mCanStop)
+      {
+        waithere.usleep(10000);
+      }
     }
   };
 }

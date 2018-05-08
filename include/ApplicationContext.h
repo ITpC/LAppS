@@ -57,6 +57,8 @@ namespace LAppS
     enum LAppSInMessageType { INVALID, CN, CN_WITH_PARAMS, REQUEST, REQUEST_WITH_PARAMS };
     itc::utils::Int2Type<Tproto> mProtocol;
     abstract::Application* mParent;
+    std::mutex             mMutex;
+    std::atomic<bool>      mustStop;
 
     
     void callAppOnMessage()
@@ -290,7 +292,7 @@ public:
     ApplicationContext(ApplicationContext&)=delete;
     
     explicit ApplicationContext(const std::string& appname, abstract::Application* parent)
-    : ::abstract::ApplicationContext(appname), mParent(parent)
+    : ::abstract::ApplicationContext(appname), mParent(parent),mMutex(),mustStop(false)
     {
       luaL_openlibs(mLState);
       
@@ -334,15 +336,24 @@ public:
     }
     void shutdown()
     {
-      try{
-        shutdownApp();
-      }catch(const std::exception& e){
-        itc::getLog()->error(__FILE__,__LINE__,"Exception: %s",e.what());
+      SyncLock sync(mMutex);
+      if(mLState)
+      {
+        try{
+          shutdownApp();
+        }catch(const std::exception& e){
+          itc::getLog()->error(__FILE__,__LINE__,"Exception: %s",e.what());
+        }
+        lua_close(mLState);
+        mLState=nullptr;
       }
-      lua_close(mLState);
-      mLState=nullptr;
     }
-    virtual ~ApplicationContext()
+    void clearCache()
+    {
+      mustStop.store(true);
+      workersCache.clear();
+    }
+    virtual ~ApplicationContext() noexcept
     {
       if(mLState)
       {
@@ -351,7 +362,7 @@ public:
     }
     const bool onMessage(const size_t workerID, const int32_t socketfd, const WSEvent& event)
     {
-      //SyncLock sync(mMutex);
+      if(mustStop) return false;
       if(workersCache.empty())
         itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>::getInstance()->getWorkers(workersCache);
       return onMessage(workerID,socketfd,event,mProtocol);
