@@ -136,9 +136,9 @@ build-deb: install-examples clone-luajit clone-libressl
 	cp ${CND_BASEDIR}/dpkg/control /opt/distrib/lapps-${VERSION}-amd64/DEBIAN/
 	install -m 0755 ${CND_BASEDIR}/dpkg/postinst /opt/distrib/lapps-${VERSION}-amd64/DEBIAN/
 	cp ${CND_BASEDIR}/dpkg/lapps.conf /opt/distrib/lapps-${VERSION}-amd64/etc/ld.so.conf.d/lapps.conf
-	cp -RpP /opt/lapps/* /opt/distrib/lapps-${VERSION}-amd64/opt/lapps/
+	cp -RpP /opt/lapps/[^p]* /opt/distrib/lapps-${VERSION}-amd64/opt/lapps/
 	cd /opt/distrib && dpkg-deb --build lapps-${VERSION}-amd64
-	cp /opt/distrib/lapps-${VERSION}-amd64.deb ${CND_BASEDIR}/packages/
+	cp /opt/distrib/lapps-${VERSION}-amd64.deb /opt/lapps/packages/
 	
 # run tests
 test: .test-post
