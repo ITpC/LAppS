@@ -39,13 +39,14 @@ namespace abstract
   class Worker : public ::itc::abstract::IRunnable, public ::itc::TCPListener::ViewType
   {
    protected:
-    const size_t ID;
-    size_t mMaxConnections;
-    WorkerStats mStats;
+    const size_t  ID;
+    size_t        mMaxConnections;
+    bool          auto_fragment;
+    WorkerStats   mStats;
    public:
-    explicit Worker(const size_t id, const size_t maxConnections)
-    :  itc::abstract::IRunnable(), ID(id),mMaxConnections(maxConnections),
-       mStats{0,0,0,0,0,0,0}
+    explicit Worker(const size_t id, const size_t maxConnections, const bool af)
+    : itc::abstract::IRunnable(), ID(id),mMaxConnections(maxConnections),
+      auto_fragment(af),mStats{0,0,0,0,0,0,0}
     {
       sigset_t sigset;
       sigemptyset(&sigset);
@@ -58,6 +59,16 @@ namespace abstract
     void setMaxConnections(const size_t maxconn)
     {
       mMaxConnections=maxconn;
+    }
+    
+    const size_t getMaxConnections() const
+    {
+      return mMaxConnections;
+    }
+    
+    const bool mustAutoFragment() const
+    {
+      return auto_fragment;
     }
     
     const uint8_t getID() const

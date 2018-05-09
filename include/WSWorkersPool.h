@@ -45,10 +45,10 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WSWorkersPool
   WSWorkersPool(const WSWorkersPool&)=delete;
   WSWorkersPool(WSWorkersPool&)=delete;
   
-  void spawn(const size_t maxC)
+  void spawn(const size_t maxC, const bool auto_fragment)
   {
     SyncLock sync(mMutex);
-    auto worker=std::make_shared<WorkerType>(mWorkers.size(),maxC);
+    auto worker=std::make_shared<WorkerType>(mWorkers.size(),maxC, auto_fragment);
     mWorkers.push_back(
       std::make_shared<WorkerThread>(worker)
     );

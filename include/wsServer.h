@@ -33,6 +33,7 @@
 #include <iostream>
 #include <thread>
 #include <regex>
+#include <limits>
 
 // ITC Headers
 #include <TCPListener.h>
@@ -84,8 +85,6 @@ namespace LAppS
     std::vector<TCPListenerThreadSPtr>  mListenersPool;
     itc::sys::CancelableThread<Balancer<TLSEnable,StatsEnable>> mBalancer;
 
-
-
     void prepareServices()
     {
       try
@@ -116,6 +115,7 @@ namespace LAppS
                   size_t instances=instances_it.value();
                   for(size_t i=0;i<instances;++i)
                   {
+                    itc::getLog()->info(__FILE__,__LINE__,"Starting service %s instance %u",service_name.c_str(),i);
                     ::InternalAppsRegistry::getInstance()->startInstance(service_name);
                   }
                 }
@@ -124,8 +124,15 @@ namespace LAppS
               {
                 std::string proto;
                 std::string app_target;
+                size_t max_inbound_message_size=std::numeric_limits<size_t>::max();
+                
+                auto found=service.value().find("max_inbound_message_size");
+                if((found != service.value().end())&&found.value().is_number_integer())
+                {
+                  max_inbound_message_size=found.value();
+                }
 
-                auto found=service.value().find("protocol");
+                found=service.value().find("protocol");
                 if(found != service.value().end())
                 {
                   proto=found.value();
@@ -163,8 +170,9 @@ namespace LAppS
                       }
                       for(size_t i=0;i<instances;++i)
                       {
+                        itc::getLog()->info(__FILE__,__LINE__,"Starting service %s instance %u",service_name.c_str(),i);
                         ::ApplicationRegistry::getInstance()->regApp(
-                          std::make_shared<LAppRAW>(service_name,app_target)
+                          std::make_shared<LAppRAW>(service_name,app_target,max_inbound_message_size)
                         );
                       }
                     }
@@ -180,7 +188,7 @@ namespace LAppS
                       for(size_t i=0;i<instances;++i)
                       {
                         ::ApplicationRegistry::getInstance()->regApp(
-                          std::make_shared<LAppLAPPS>(service_name,app_target)
+                          std::make_shared<LAppLAPPS>(service_name,app_target,max_inbound_message_size)
                         );
                       }
                     }else{
@@ -261,7 +269,8 @@ namespace LAppS
         }
 
         auto found=LAppSConfig::getInstance()->getWSConfig().find("workers");
-        size_t max_connections=1000;
+        size_t max_connections=100000;
+        bool auto_fragment=false;
 
         if(found != LAppSConfig::getInstance()->getWSConfig().end())
         {
@@ -269,15 +278,28 @@ namespace LAppS
 
           auto max_connections_found=found.value().find("max_connections");
 
-          if(max_connections_found != found.value().end())
+          if((max_connections_found != found.value().end())&&max_connections_found.value().is_number_integer())
           {
             max_connections=max_connections_found.value();
+          }
+          else
+          {
+            itc::getLog()->error(__FILE__,__LINE__,"workers.max_connections option is not set or of inappropriate type, using default value: %u",max_connections);
+          }
+          auto auto_fragment_found=found.value().find("auto_fragment");
+          if((auto_fragment_found!=found.value().end())&&(auto_fragment_found.value().is_boolean()))
+          {
+            auto_fragment=auto_fragment_found.value();
+          }
+          else
+          {
+            itc::getLog()->error(__FILE__,__LINE__,"workers.auto_fragment option is not set or of inappropriate type, using default value: false");
           }
         }
 
         for(size_t i=0;i<mWorkers;++i)
         {
-          WorkersPool::getInstance()->spawn(max_connections);
+          WorkersPool::getInstance()->spawn(max_connections,auto_fragment);
         }
         prepareServices();
     };

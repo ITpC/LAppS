@@ -60,7 +60,7 @@ echo_lapps["onMessage"]=function(handler,msg_type, message)
           end,
     [2] = function() -- a CN with params,  does not require any response.
             local method=methods._cn_w_params_method[message.method] or echo.method_not_found;
-            method(handler,message.params);
+            method(handler,message.params,message.cid);
           end,
     [3] = function() -- requests without params are unsupported by this app
             local method=echo.method_not_found;

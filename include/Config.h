@@ -49,15 +49,13 @@ namespace LAppS
       {"connection_weight", 0.7},
       {"ip","0.0.0.0"},
       {"port",5083},
-      {"workers",{ {"workers",4}, {"max_connections", 1000 }}},
+      {"workers",{ {"workers",4}, {"max_connections", 10000 },{"auto_fragment",true}}},
 #ifdef LAPPS_TLS_ENABLE
       {"tls",true},
 #else      
       {"tls",false},
 #endif
-      {"tls_certificates",{ {"ca","/opt/lapps/etc/ssl/cert.pem"},{"cert", "/opt/lapps/conf/ssl/cert.pem"}, {"key","/opt/lapps/conf/ssl/key.pem" } }},
-      {"auto_fragment",true}, // Not yet implemented
-      {"max_inbound_message_size",300000} // 300 000 bytes. Not yet implemented.No message limit so far.
+      {"tls_certificates",{ {"ca","/opt/lapps/etc/ssl/cert.pem"},{"cert", "/opt/lapps/conf/ssl/cert.pem"}, {"key","/opt/lapps/conf/ssl/key.pem" } }}
     }),
     lapps_config({
       {
@@ -75,17 +73,24 @@ namespace LAppS
             {"internal", false},
             {"request_target", "/echo"},
             {"protocol", "raw"},
+            {"max_inbound_message_size",16*1024*1024}, // autobahn-testsuite uses up to 16MB messages in fuzzingclinet.
             {"instances", 4}
           }}},
           {{"echo_lapps", {
             {"request_target", "/echo_lapps"},
             {"protocol", "LAppS"},
+            {"max_inbound_message_size",1024},
             {"instances", 3}
           }}},
           {{"time_broadcast", {
             {"internal", true},
             {"instances", 1}
-          }}}/**,
+          }}},
+          {{"broadcast_blob", {
+            {"internal", true},
+            {"instances", 1}
+          }}}
+          /**,
           {{"data_source", {
             {"internal", true},
             {"request_queue", "http_request"}, // optional request queue for apps ipc. if declared, may not be null

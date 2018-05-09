@@ -28,21 +28,29 @@ lapps_echo_methods["_cn_w_params_method"]={
       ws:close(handler,1000); -- normal close code
     end
   end,
-  ["subscribe"]=function(handler,params)
+  ["subscribe"]=function(handler,params, cid)
     local not_authenticated=nljson.decode([[{
         "status" : 0,
         "error" : {
           "code" : -32000,
           "message" : "Not authenticated. Permission deneid"
         },
-        "cid" : 0
+        "cid" : 3
       }]]);
 
     local authkey=nljson.find(params[1],"authkey");
     local current_session_authkey=nljson.find(maps.keys,handler);
     if(authkey ~= nil) and (current_session_authkey ~=nil) and (authkey == current_session_authkey)
     then
-      bcast:subscribe(1000,handler);
+      if(cid == 5)
+      then
+        bcast:subscribe(1000,handler);
+      end
+
+      if(cid == 6)
+      then
+        bcast:subscribe(2000,handler);
+      end
     else
       ws:send(handler,not_authenticated);
       ws:close(handler,1000); -- WebSocket close code here. 1000 - "normal close"

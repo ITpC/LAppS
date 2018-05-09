@@ -41,8 +41,8 @@ namespace LAppS
       typedef WebSocket<TLSEnable,StatsEnable> WSType;
       typedef std::shared_ptr<WSType>          WSSPtr;
      
-    explicit IOWorker(const size_t id, const size_t maxConnections)
-    : Worker(id,maxConnections), mMayRun(true),mCanStop(false),
+    explicit IOWorker(const size_t id, const size_t maxConnections,const bool af)
+    : Worker(id,maxConnections,af), mMayRun(true),mCanStop(false),
       mConnectionsMutex(), mInboundMutex(), mOutMutex(),
       mShakespeer(),
       mEPollThr(std::make_shared<LAppS::ePollController>(1000)),
@@ -316,7 +316,15 @@ namespace LAppS
           switch(current->getState())
           {
             case WSType::HANDSHAKE:
-              mShakespeer.handshake(current);
+              if(mConnections.size()>mMaxConnections)
+              {
+                mShakespeer.sendForbidden(current);
+              }
+              else
+              {
+                mShakespeer.handshake(current);
+              }
+              
               if(current->getState()==WSType::CLOSED)
               {
                 deleteConnection(fd);

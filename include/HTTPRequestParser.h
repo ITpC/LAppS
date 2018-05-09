@@ -216,8 +216,8 @@ public:
        }
        cursor+=HTTPVersion.size()+2;
 
-       cursor+=collectHeaders((const char*)(&ref.data()[cursor]),bufflen-cursor);
-       assert(cursor <= bufflen);
+       collectHeaders((const char*)(&ref.data()[cursor]),bufflen-cursor);
+       
      } else throwMalformedHTTPRequest("No space after MODE[GET]");
    } else throwMalformedHTTPRequest("Only GET requests are accepted");
  }
