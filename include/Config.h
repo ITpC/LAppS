@@ -69,27 +69,27 @@ namespace LAppS
       },
       {
         "services", {
-          {{"echo", {
+          {"echo", {
             {"internal", false},
             {"request_target", "/echo"},
             {"protocol", "raw"},
             {"max_inbound_message_size",16*1024*1024}, // autobahn-testsuite uses up to 16MB messages in fuzzingclinet.
             {"instances", 4}
-          }}},
-          {{"echo_lapps", {
+          }},
+          {"echo_lapps", {
             {"request_target", "/echo_lapps"},
             {"protocol", "LAppS"},
             {"max_inbound_message_size",1024},
             {"instances", 3}
-          }}},
-          {{"time_broadcast", {
+          }},
+          {"time_broadcast", {
             {"internal", true},
             {"instances", 1}
-          }}},
-          {{"broadcast_blob", {
+          }},
+          {"broadcast_blob", {
             {"internal", true},
             {"instances", 1}
-          }}}
+          }}
           /**,
           {{"data_source", {
             {"internal", true},
@@ -127,11 +127,12 @@ namespace LAppS
       
       while(it!=lapps_config["services"].end())
       {
-        const std::string app_path=apps_dir+it.value().begin().key()+"/?.lua";
+        const std::string app_path=apps_dir+"/"+it.key()+"/?.lua";
         lua_path=lua_path+";"+app_path;
         ++it;
       }
       mEnv.setEnv("LUA_PATH",lua_path.c_str());
+      std::cout << mEnv.getEnv("LUA_PATH") << std::endl;
    }
    const json& getWSConfig() const
    {

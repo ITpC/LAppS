@@ -36,16 +36,13 @@ namespace environment
    private:
     std::map<std::string,std::string> config;
     
-    const char* getEnv(const std::string& variable) const
-    {
-      return secure_getenv(variable.c_str());
-    }
    public:
     LAppSEnv(): config({
       {"LAPPS_HOME","/opt/lapps"},
       {"LAPPS_CONF_DIR","/opt/lapps/etc/conf"},
       {"WS_CONFIG","ws.json"},
-      {"LAPPS_CONFIG","lapps.json"}
+      {"LAPPS_CONFIG","lapps.json"},
+      {"LUA_PATH",""}
     }){
       auto it=config.begin();
       
@@ -59,6 +56,11 @@ namespace environment
           }
         }
       );
+    }
+
+    const char* getEnv(const std::string& variable) const
+    {
+      return secure_getenv(variable.c_str());
     }
     
     void setEnv(const std::string& name, const std::string& value)
