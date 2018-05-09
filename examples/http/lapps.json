@@ -1,0 +1,22 @@
+{
+	"directories": {
+		"applications": "apps",
+		"app_conf_dir": "etc",
+		"tmp": "tmp",
+		"workdir": "workdir"
+	},
+	"services": {
+    "echo_lapps" : {
+       "internal" : false,
+       "request_target" : "/echo_lapps",
+       "protocol" : "LAppS",
+       "instances" : 3,
+       "max_inbound_message_size" : 1024
+     },
+		"http": {
+			"internal": true,
+			"protocol": "raw",
+			"instances": 1
+		}
+	}
+}
