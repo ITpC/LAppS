@@ -10,7 +10,8 @@ http["init"]=function()
   webDir = "/tmp/test/";
 end
 
-http["mayRun"]=function()
+http["mustStop"]=function()
+  print("test")
   return must_stop()
 end
 
@@ -36,7 +37,7 @@ http["run"]=function()
     }
   }
 
-  xavante.start(http.mayRun);
+  xavante.start(http.mustStop,1);
 end
 
 
