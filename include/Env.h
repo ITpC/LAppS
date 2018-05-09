@@ -36,6 +36,11 @@ namespace environment
    private:
     std::map<std::string,std::string> config;
     
+    auto getEnv(const std::string& variable) const
+    {
+      return secure_getenv(variable.c_str());
+    }
+    
    public:
     LAppSEnv(): config({
       {"LAPPS_HOME","/opt/lapps"},
@@ -44,23 +49,14 @@ namespace environment
       {"LAPPS_CONFIG","lapps.json"},
       {"LUA_PATH",""}
     }){
-      auto it=config.begin();
-      
-      std::for_each(it,config.end(),
-        [this](auto iter)
+      for(auto var : config)
+      {
+        auto ptr=this->getEnv(var.first);
+        if(ptr)
         {
-          auto ptr=this->getEnv(iter.first);
-          if(ptr!=nullptr)
-          {
-            iter.second=std::string(ptr);
-          }
+          config[var.first]=ptr;
         }
-      );
-    }
-
-    const char* getEnv(const std::string& variable) const
-    {
-      return secure_getenv(variable.c_str());
+      }
     }
     
     void setEnv(const std::string& name, const std::string& value)
@@ -69,7 +65,7 @@ namespace environment
       ::setenv(name.c_str(), value.c_str(),1);
     }
     
-    const std::string& operator[](const std::string& var)
+    std::string& operator[](const std::string& var)
     {
       static const std::string empty_string("");
       
