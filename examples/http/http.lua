@@ -11,7 +11,7 @@ http["init"]=function()
 end
 
 http["mayRun"]=function()
-  return not must_stop()
+  return must_stop()
 end
 
 http["run"]=function()
