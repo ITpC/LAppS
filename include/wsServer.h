@@ -90,117 +90,119 @@ namespace LAppS
       try
       {
         auto it=LAppSConfig::getInstance()->getLAppSConfig().find("services");
-        if(it!=LAppSConfig::getInstance()->getLAppSConfig().end())
+        if(it!=LAppSConfig::getInstance()->getLAppSConfig().end()) // services are defined
         {
-          for(size_t i=0;i<it.value().size();++i)
+          auto services=it.value().begin();
+          
+          while(services!=it.value().end())
           {
-            auto service=it.value()[i].begin();
-            std::string service_name=service.key();
+            std::string service_name=services.key();  
+            
+            auto options=services.value();
 
-            for(;service != it.value()[i].end();++service)
+            bool internal=false;
+
+            auto find_internal=options.find("internal");
+
+            if(find_internal!=options.end()) // is internal?
             {
-              bool internal=false;
-              
-              auto find_internal=service.value().find("internal");
-              if(find_internal!=service.value().end()) // is internal?
-              {
-                internal=find_internal.value();
-              }
-              
-              if(internal)
-              {
-                auto instances_it=service.value().find("instances");
-                if(instances_it != service.value().end())
-                {  
-                  size_t instances=instances_it.value();
-                  for(size_t i=0;i<instances;++i)
-                  {
-                    itc::getLog()->info(__FILE__,__LINE__,"Starting service %s instance %u",service_name.c_str(),i);
-                    ::InternalAppsRegistry::getInstance()->startInstance(service_name);
-                  }
+              internal=find_internal.value();
+            }
+
+            if(internal)
+            {
+              auto instances_it=options.find("instances");
+              if(instances_it != options.end())
+              {  
+                size_t instances=instances_it.value();
+                for(size_t i=0;i<instances;++i)
+                {
+                  itc::getLog()->info(__FILE__,__LINE__,"Starting service %s instance %u",service_name.c_str(),i);
+                  ::InternalAppsRegistry::getInstance()->startInstance(service_name);
                 }
+              }
+            }
+            else
+            {
+              std::string proto;
+              std::string app_target;
+              size_t max_inbound_message_size=std::numeric_limits<size_t>::max();
+
+              auto found=options.find("max_inbound_message_size");
+              if((found != options.end())&&found.value().is_number_integer())
+              {
+                max_inbound_message_size=found.value();
+              }
+
+              found=options.find("protocol");
+              if(found != options.end())
+              {
+                proto=found.value();
               }
               else
               {
-                std::string proto;
-                std::string app_target;
-                size_t max_inbound_message_size=std::numeric_limits<size_t>::max();
-                
-                auto found=service.value().find("max_inbound_message_size");
-                if((found != service.value().end())&&found.value().is_number_integer())
-                {
-                  max_inbound_message_size=found.value();
-                }
-
-                found=service.value().find("protocol");
-                if(found != service.value().end())
-                {
-                  proto=found.value();
-                }
-                else
-                {
-                  proto.clear();
-                }
-                found=service.value().find("request_target");
-                if(found != service.value().end())
-                {
-                  app_target=found.value();
-                }
-                else
-                {
-                  app_target.clear();
-                }
-
-                if((!app_target.empty())&&(!proto.empty()))
-                {
-                  std::regex request_target("^[/][[:alpha:][:digit:]_-]*([/]?[[:alpha:][:digit:]_-]+)*$");
-
-                  if(std::regex_match(app_target,request_target))
-                  {
-                    if(proto.empty())
-                      throw std::system_error(EINVAL,std::system_category(), "Application protocol is empty in configuration of the service "+service_name);
-                    if(proto == "raw")
-                    {
-                      size_t instances=1;
-
-                      found=service.value().find("instances");
-                      if(found != service.value().end())
-                      {
-                        instances=found.value();
-                      }
-                      for(size_t i=0;i<instances;++i)
-                      {
-                        itc::getLog()->info(__FILE__,__LINE__,"Starting service %s instance %u",service_name.c_str(),i);
-                        ::ApplicationRegistry::getInstance()->regApp(
-                          std::make_shared<LAppRAW>(service_name,app_target,max_inbound_message_size)
-                        );
-                      }
-                    }
-                    else if(proto == "LAppS")
-                    {
-                      size_t instances=1;
-
-                      found=service.value().find("instances");
-                      if(found != service.value().end())
-                      {
-                        instances=found.value();
-                      }
-                      for(size_t i=0;i<instances;++i)
-                      {
-                        ::ApplicationRegistry::getInstance()->regApp(
-                          std::make_shared<LAppLAPPS>(service_name,app_target,max_inbound_message_size)
-                        );
-                      }
-                    }else{
-                        throw std::system_error(EINVAL,std::system_category(), "Incorrect protocol is specified for target "+app_target+" in service "+service_name+". Only two protocols are supported: raw, LAppS");
-                    }
-                  } else throw std::system_error(EINVAL,std::system_category(), "Incorrect request target: "+app_target+" in configuration of service "+service.key());
-                } else throw std::system_error(EINVAL,std::system_category(), "Undefined request_target or protocol keyword which are both mandatory");
+                proto.clear();
               }
+
+              found=options.find("request_target");
+              if(found != options.end())
+              {
+                app_target=found.value();
+              }
+              else
+              {
+                app_target.clear();
+              }
+
+              if((!app_target.empty())&&(!proto.empty()))
+              {
+                std::regex request_target("^[/][[:alpha:][:digit:]_-]*([/]?[[:alpha:][:digit:]_-]+)*$");
+
+                if(std::regex_match(app_target,request_target))
+                {
+                  if(proto.empty())
+                    throw std::system_error(EINVAL,std::system_category(), "Application protocol is empty in configuration of the service "+service_name);
+                  if(proto == "raw")
+                  {
+                    size_t instances=1;
+
+                    found=options.find("instances");
+                    if(found != options.end())
+                    {
+                      instances=found.value();
+                    }
+                    for(size_t i=0;i<instances;++i)
+                    {
+                      itc::getLog()->info(__FILE__,__LINE__,"Starting service %s instance %u",service_name.c_str(),i);
+                      ::ApplicationRegistry::getInstance()->regApp(
+                        std::make_shared<LAppRAW>(service_name,app_target,max_inbound_message_size)
+                      );
+                    }
+                  }
+                  else if(proto == "LAppS")
+                  {
+                    size_t instances=1;
+
+                    found=options.find("instances");
+                    if(found != options.end())
+                    {
+                      instances=found.value();
+                    }
+                    for(size_t i=0;i<instances;++i)
+                    {
+                      ::ApplicationRegistry::getInstance()->regApp(
+                        std::make_shared<LAppLAPPS>(service_name,app_target,max_inbound_message_size)
+                      );
+                    }
+                  }else{
+                      throw std::system_error(EINVAL,std::system_category(), "Incorrect protocol is specified for target "+app_target+" in service "+service_name+". Only two protocols are supported: raw, LAppS");
+                  }
+                } else throw std::system_error(EINVAL,std::system_category(), "Incorrect request target: "+app_target+" in configuration of service "+service_name);
+              } else throw std::system_error(EINVAL,std::system_category(), "Undefined request_target or protocol keyword which are both mandatory");
             }
+            ++services;
           }
         }
-
         size_t max_listeners=LAppSConfig::getInstance()->getWSConfig()["listeners"];
 
         for(size_t i=0;i<max_listeners;++i)
@@ -216,7 +218,6 @@ namespace LAppS
             )
           ));
         }
-
       }catch(const std::exception& e)
       {
         itc::getLog()->fatal(__FILE__,__LINE__,"Caught an exception: %s. Abort.",e.what());
