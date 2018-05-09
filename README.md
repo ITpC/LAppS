@@ -11,11 +11,8 @@ Please see [LAppS wiki](https://github.com/ITpC/LAppS/wiki) on how to build and 
 
 There are package for ubuntu xenial available in this repository:
 
-* [lapps-0.5.3-amd64.deb](https://github.com/ITpC/LAppS/raw/master/packages/lapps-0.5.3-amd64.deb) (stable)
-* [lapps-0.6.0-amd64.deb](https://github.com/ITpC/LAppS/raw/master/packages/lapps-0.6.0-amd64.deb) (experimental build with decoupled apps)
-* [lapps-0.6.1-amd64.deb](https://github.com/ITpC/LAppS/raw/master/packages/lapps-0.6.1-amd64.deb) (experimental build with decoupled apps, stability improvments, development towards dynamic deployer)
+* [lapps-0.6.2-amd64.deb](https://github.com/ITpC/LAppS/raw/master/packages/lapps-0.6.1-amd64.deb) (stable build with decoupled apps. New available options: auto-fragmentation of outbound messages, inbound message size limit (service specific), possibility to limit amount of connections per worker)
 
-**NOTE:** Please beware, due to mistake in makefile 0.5.3 and 0.6.0 packages are too fat (including recursively some older packages). Consider to use 0.6.1 now. LAppS-0.6.1 is even more stable for old functional then 0.5.3.
 
 # Architecture
 
