@@ -11,7 +11,6 @@ http["init"]=function()
 end
 
 http["mustStop"]=function()
-  print("test")
   return must_stop()
 end
 
