@@ -15,7 +15,14 @@
      },
 		"http": {
 			"internal": true,
-			"protocol": "raw",
+			"instances": 1
+		},
+		"time_broadcast": {
+			"internal": true,
+			"instances": 1
+		},
+		"broadcast_blob": {
+			"internal": true,
 			"instances": 1
 		}
 	}
