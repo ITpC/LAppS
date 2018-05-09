@@ -123,7 +123,7 @@ namespace LAppS
       const std::string apps_dir(mEnv["LAPPS_HOME"]+"/"+apps_subdir+"/");
       auto it=lapps_config["services"].begin();
       
-      std::string lua_path=mEnv["LUA_PATH"];
+      std::string lua_path(mEnv["LUA_PATH"]);
       
       while(it!=lapps_config["services"].end())
       {
@@ -131,8 +131,7 @@ namespace LAppS
         lua_path=lua_path+";"+app_path;
         ++it;
       }
-      mEnv.setEnv("LUA_PATH",lua_path.c_str());
-      std::cout << mEnv.getEnv("LUA_PATH") << std::endl;
+      mEnv.setEnv("LUA_PATH",lua_path);
    }
    const json& getWSConfig() const
    {
