@@ -159,11 +159,27 @@ int wssend_raw(lua_State* L, const size_t wid, const int fd)
       const char* msg=lua_tolstring(L,udidx,&len);
       
       
-      e.event.message=std::make_shared<MSGBufferType>();
       
-      WebSocketProtocol::ServerMessage(*e.event.message,e.event.type,msg,len);
+      if(worker->mustAutoFragment())
+      {
+        WebSocketProtocol::FragmentedServerMessage::msgQType msgqueue;
+        
+        WebSocketProtocol::FragmentedServerMessage(msgqueue,e.event.type,msg,len);
+        while(!msgqueue.empty())
+        {
+          e.event.message=msgqueue.front();
+          msgqueue.pop();
+          worker->submitResponse(e);
+        }
+      }
+      else
+      {
+        e.event.message=std::make_shared<MSGBufferType>();
+        WebSocketProtocol::ServerMessage(*e.event.message,e.event.type,msg,len);
+        worker->submitResponse(e);
+      }
 
-      worker->submitResponse(e);
+      
       lua_pushboolean(L,true);
       return 1;
     }catch(const std::exception& e)
@@ -194,8 +210,24 @@ int wssend_lapps(lua_State* L, const size_t wid, const int fd)
       const json& msg=get_userdata_value(L,udidx);
       if(isLAppSOutMessageValid(msg))
       {
-        WebSocketProtocol::ServerMessage(e.event.message,e.event.type,json::to_cbor(msg));
-        worker->submitResponse(e);
+        if(worker->mustAutoFragment())
+        {
+          WebSocketProtocol::FragmentedServerMessage::msgQType msgqueue;
+
+          WebSocketProtocol::FragmentedServerMessage(msgqueue,e.event.type,json::to_cbor(msg));
+          while(!msgqueue.empty())
+          {
+            e.event.message=msgqueue.front();
+            msgqueue.pop();
+            worker->submitResponse(e);
+          }
+        }
+        else
+        {
+          e.event.message=std::make_shared<MSGBufferType>();
+          WebSocketProtocol::ServerMessage(e.event.message,e.event.type,json::to_cbor(msg));
+          worker->submitResponse(e);
+        }
         lua_pushboolean(L,true);
         return 1;
       }else{

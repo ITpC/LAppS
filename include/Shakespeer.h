@@ -41,6 +41,8 @@
 #include <Config.h>
 #include <ApplicationRegistry.h>
 
+static const std::string  forbidden("HTTP/1.1 403 Forbidden");
+
 namespace LAppS
 {
   template <bool TLSEnable=false, bool StatsEnable=false> class Shakespeer
@@ -55,6 +57,21 @@ namespace LAppS
       Shakespeer(const Shakespeer&)=delete;
       Shakespeer(Shakespeer&)=delete;
       
+      void sendForbidden(const WSSPtr& wssocket)
+      {
+        std::string peer_ip;
+        wssocket->getPeerIP(peer_ip);
+        
+        itc::getLog()->info(
+          __FILE__,__LINE__,
+          "Connection denied for fd %d, peer %s",
+          wssocket->getFileDescriptor(),
+          peer_ip.c_str()
+        );
+        
+        wssocket->send(forbidden);
+        wssocket->setState(WSType::CLOSED);
+      }
       void handshake(const WSSPtr& wssocket)
       {
         if(wssocket->getState() == WSType::HANDSHAKE)
@@ -111,7 +128,6 @@ namespace LAppS
                 "Shakespeer::handshake() was unsuccessful for peer %s. Closing this WebSocket.",
                 peer_addr.c_str()
               );
-              static const std::string  forbidden("HTTP/1.1 403 Forbidden");
               wssocket->send(forbidden);
               wssocket->setState(WSType::CLOSED);
               return;

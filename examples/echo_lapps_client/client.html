@@ -124,6 +124,8 @@
                   cid: 5
                 };
                 websocket.send(CBOR.encode(subscribe));
+                subscribe.cid=6; // subscribe to blob broadcast
+                websocket.send(CBOR.encode(subscribe));
                 window.subscribed=true;
               }
             }
@@ -149,6 +151,10 @@
           {
             $$("barChart").remove($$("barChart").getFirstId());
           }
+        }
+        else if(message.cid === 6) // blob was broadcasted by server
+        {
+          console.log("OON. Received a blob of size: "+message.message[5]);
         }
         else //  other OONs are just printed to console
         {

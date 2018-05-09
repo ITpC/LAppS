@@ -27,6 +27,7 @@
 #include <vector>
 #include <string>
 #include <WSProtocol.h>
+#include <queue>
 
 /**
  * Fast and bad implementation of server side messages.
@@ -47,6 +48,134 @@ namespace WebSocketProtocol
     MakeMessageHeader(MakeMessageHeader&)=delete;
     MakeMessageHeader()=delete;
   };
+  
+  struct FragmentedServerMessage
+  {
+    // Ethernet frame Upper Layer protocol payload typically 1500 bytes
+    // TCP frame 20 bytes without options up to 60 bytes with options
+    // IP header 24 bytes max
+    // 24+60 == 84 bytes
+    // 1500 - 84 = 1416 max WebSockets Frame size (inclusive headers)
+    // max WebSocket header size 24 bytes
+    // 1416 - 24 = 1392 max fame payload size
+    // 
+    
+    typedef std::vector<uint8_t> msgtype;
+    typedef std::queue<MSGBufferTypeSPtr> msgQType;
+    
+    FragmentedServerMessage(msgQType& out,const WebSocketProtocol::OpCode oc,const char* src, const size_t len)
+    {
+      int fragments = len/1392;
+      size_t bytes_left=len;
+      size_t offset=0;
+      
+      auto outmsg=std::make_shared<MSGBufferType>();
+      
+      if(fragments>1)
+      {
+        // first fragment
+        outmsg->clear();
+        outmsg->push_back(oc);
+        WS::putLength(1392,*outmsg);
+        offset=outmsg->size();
+        outmsg->resize(offset+1392);
+        memcpy(outmsg->data()+offset,src,1392);
+        bytes_left=bytes_left-1392;
+        out.push(outmsg);
+        --fragments;
+        
+        // continuation fragments
+        while((fragments-1)>0)
+        {
+          outmsg=std::make_shared<MSGBufferType>();
+          outmsg->clear();
+          outmsg->push_back(0);
+          WS::putLength(1392,*outmsg);
+          offset=outmsg->size();
+          outmsg->resize(offset+1392);
+          memcpy(outmsg->data()+offset,src+(len-bytes_left),1392);
+          bytes_left=bytes_left-1392;
+          out.push(outmsg);
+          --fragments;
+        }
+        // fin fragment;
+        outmsg=std::make_shared<MSGBufferType>();
+        outmsg->clear();
+        outmsg->push_back(128);
+        WS::putLength(bytes_left,*outmsg);
+        offset=outmsg->size();
+        outmsg->resize(offset+bytes_left);
+        memcpy(outmsg->data()+offset,src+(len-bytes_left),bytes_left);
+        out.push(outmsg);
+      }else{
+        outmsg->clear();
+        outmsg->push_back(128|oc);
+        WS::putLength(len,*outmsg);
+        size_t offset=outmsg->size();
+        outmsg->resize(offset+len);
+        memcpy(outmsg->data()+offset,src,len);
+        out.push(outmsg);
+      }
+    }
+    
+    FragmentedServerMessage(msgQType& out,const WebSocketProtocol::OpCode oc,const std::vector<uint8_t>& src)
+    {
+      const size_t len=src.size();
+      
+      int fragments = len/1392;
+      size_t bytes_left=len;
+      size_t offset=0;
+      
+      auto outmsg=std::make_shared<MSGBufferType>();
+      
+      if(fragments>1)
+      {
+        // first fragment
+        outmsg->clear();
+        outmsg->push_back(oc);
+        WS::putLength(1392,*outmsg);
+        offset=outmsg->size();
+        outmsg->resize(offset+1392);
+        memcpy(outmsg->data()+offset,src.data(),1392);
+        bytes_left=bytes_left-1392;
+        out.push(outmsg);
+        --fragments;
+        
+        // continuation fragments
+        while((fragments-1)>0)
+        {
+          outmsg=std::make_shared<MSGBufferType>();
+          outmsg->clear();
+          outmsg->push_back(0);
+          WS::putLength(1392,*outmsg);
+          offset=outmsg->size();
+          outmsg->resize(offset+1392);
+          memcpy(outmsg->data()+offset,src.data()+(len-bytes_left),1392);
+          bytes_left=bytes_left-1392;
+          out.push(outmsg);
+          --fragments;
+        }
+        // fin fragment;
+        outmsg=std::make_shared<MSGBufferType>();
+        outmsg->clear();
+        outmsg->push_back(128);
+        WS::putLength(bytes_left,*outmsg);
+        offset=outmsg->size();
+        outmsg->resize(offset+bytes_left);
+        memcpy(outmsg->data()+offset,src.data()+(len-bytes_left),bytes_left);
+        out.push(outmsg);
+      }else{
+        outmsg->clear();
+        outmsg->push_back(128|oc);
+        WS::putLength(len,*outmsg);
+        size_t offset=outmsg->size();
+        outmsg->resize(offset+len);
+        memcpy(outmsg->data()+offset,src.data(),len);
+        out.push(outmsg);
+      }
+    }
+  };
+  
   struct ServerMessage
   {
     ServerMessage(

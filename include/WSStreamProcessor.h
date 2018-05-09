@@ -89,6 +89,7 @@ private:
   
   uint64_t messageSize;
   uint64_t PLReadyBytes;
+  size_t   mMaxMSGSize;
   
   std::stack<WebSocketProtocol::OpCode> opcodes;
   MSGBufferTypeSPtr message;
@@ -118,7 +119,7 @@ private:
     currentOpCode(WebSocketProtocol::CFRSV5), 
     frame(WSStreamProcessing::SINGLE_FRAME), headerBytesReady(0), 
     sizeBytesReady(0), maskBytesReady(0), headerBytes{0}, optionalSizeBytes{0}, 
-    cursor(0), messageSize(0), PLReadyBytes(0), opcodes(), 
+    cursor(0), messageSize(0), PLReadyBytes(0), mMaxMSGSize(0), opcodes(), 
     message(std::make_shared<std::vector<uint8_t>>()),
     messageFrames(std::make_shared<std::vector<uint8_t>>()),MASK{0}
   {
@@ -129,6 +130,10 @@ private:
   WSStreamParser(const WSStreamParser&)=delete;
   WSStreamParser(WSStreamParser&)=delete;
   
+  void setMaxMSGSize(const size_t mms)
+  {
+    mMaxMSGSize=mms;
+  }
   
   const WSStreamProcessing::Result parse(const uint8_t* stream,const size_t limit, const size_t offset=0, const int fd=0)
   {
@@ -398,6 +403,13 @@ private:
         return { cursor, WSStreamProcessing::MORE, WebSocketProtocol::NORMAL};
       case WSStreamProcessing::SIZE_MIN:
         messageSize=headerBytes[1]&127;
+        if(messageSize > mMaxMSGSize)
+        {
+          return {
+            cursor, WSStreamProcessing::CLOSE_WITH_CODE, 
+            WebSocketProtocol::MESSAGE_TOO_BIG
+          };
+        }
         state=WSStreamProcessing::LOAD_MASK;
         PLReadyBytes=0;
         return parse(stream,limit,cursor,fd);
@@ -412,6 +424,13 @@ private:
           uint16_t tmpMsgSize=0;
           memcpy(&tmpMsgSize,optionalSizeBytes,2);
           messageSize=be16toh(tmpMsgSize);
+          if(messageSize > mMaxMSGSize)
+          {
+            return {
+              cursor, WSStreamProcessing::CLOSE_WITH_CODE, 
+              WebSocketProtocol::MESSAGE_TOO_BIG
+            };
+          }
           state=WSStreamProcessing::LOAD_MASK;
           PLReadyBytes=0;
           return parse(stream,limit,cursor,fd);
@@ -430,6 +449,13 @@ private:
           uint64_t tmpMsgSize=0;
           memcpy(&tmpMsgSize,optionalSizeBytes,8);
           messageSize=be64toh(tmpMsgSize);
+          if(messageSize > mMaxMSGSize)
+          {
+            return {
+              cursor, WSStreamProcessing::CLOSE_WITH_CODE, 
+              WebSocketProtocol::MESSAGE_TOO_BIG
+            };
+          }
           state=WSStreamProcessing::LOAD_MASK;
           PLReadyBytes=0;
           return parse(stream,limit,cursor,fd);
@@ -473,12 +499,21 @@ private:
           case WSStreamProcessing::MIDDLE_FRAME:
           case WSStreamProcessing::LAST_FRAME:
           {
+            if((messageFrames->size()+messageSize)>mMaxMSGSize)
+            {
+              return {
+                cursor, WSStreamProcessing::CLOSE_WITH_CODE, 
+                WebSocketProtocol::MESSAGE_TOO_BIG
+              };
+            }
+            
             while((PLReadyBytes<messageSize)&&(cursor<limit))
             {
               messageFrames->push_back(stream[cursor]^MASK[PLReadyBytes%4]);
               ++cursor;
               ++PLReadyBytes;
             }
+            
             if(PLReadyBytes == messageSize)
             {
               state=WSStreamProcessing::DONE;

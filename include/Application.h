@@ -66,6 +66,7 @@ namespace LAppS
     std::mutex mMutex;
     std::string mName;
     std::string mTarget;
+    size_t max_inbound_message_size;
     ApplicationContext<TLSEnable,StatsEnable,Tproto> mAppContext;
     itc::tsbqueue<TaggedEvent> mEvents;
     std::vector<WorkerSPtrType> mWorkers;
@@ -94,10 +95,16 @@ namespace LAppS
        mMayRun.store(false);
     }
     
-    explicit Application(const std::string& appName,const std::string& target)
-    : mMayRun(true),mMutex(),mName(appName), mTarget(target),mAppContext(appName,this)
+    explicit Application(const std::string& appName,const std::string& target,const size_t mims)
+    :  mMayRun(true),mMutex(),mName(appName), mTarget(target),
+        max_inbound_message_size(mims),mAppContext(appName,this)
     {
       itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>::getInstance()->getWorkers(mWorkers);
+    }
+    
+    const size_t getMaxMSGSize() const
+    {
+      return max_inbound_message_size;
     }
     
     auto getWorker(const size_t wid)

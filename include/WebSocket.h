@@ -218,6 +218,10 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   void setApplication(const ApplicationSPtr ptr)
   {
     mApplication=ptr;
+    if(mApplication)
+    {
+      streamProcessor.setMaxMSGSize(mApplication->getMaxMSGSize());
+    }
   }
   
   void setWorkerId(const size_t id)
