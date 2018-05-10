@@ -59,7 +59,7 @@ Though LAppS is not even reached the optimization phase, it performs surprisingl
 Here are some performance results (dev instance with Intel(R) Core(TM) i7-7700 CPU @ 3.60GHz). Servers all were tested in TLS only. Number of clients: 80. As a client was used benchmark/echo_client_tls.cpp (websocketpp example client)
 
 **NOTE**: Please do not consider these results seriously. Because
-  * This comparison is made for raw echo servers with 277 bytes uniform text messages. 
+  * This comparison is made for raw echo servers with 2x277 bytes uniform text messages. (corrected: there are 2x277 byes messages sent in client code within on_message handler)
   * This comparison is made for products with real world application vs development release of LAppS, which does not have reached production maturity
   * Testing vs nginx (a web-server), is not really a correct thing. Nginx was not build for WebSockets and running Lua-applications detached from workers (which is the case for LAppS).
 
