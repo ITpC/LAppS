@@ -39,7 +39,7 @@ IOWorkers are responsible for working on IO-queue, the only thing they do is an 
 
 Services are the Lua Applications. Each service may run parallel copies of itself (instances) to achieve maximum performance. The application have a choice of two protocols for clinet-server communications: RAW and LAppS.
 
-RAW protocol behaviour does not specified andi not affected by LAppS (excluding service frames, those are never sent to the Lua Applications). It is for application to define how to handle inbound requests and how to react on them.
+RAW protocol behaviour does not specified and not affected by LAppS (excluding service frames, those are never sent to the Lua Applications). It is for application to define how to handle inbound requests and how to react on them.
 
 LAppS protocol defines a framework similar to JSON-RPC, with following key differences:
   * Exchange between server and client is encoded with CBOR
