@@ -39,11 +39,11 @@ RUN make all install
 
 WORKDIR ${WORKSPACE}
 
-ADD https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-2.7.2.tar.gz ${WORKSPACE}
+ADD https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-2.7.3.tar.gz ${WORKSPACE}
 
-RUN tar xzvf libressl-2.7.2.tar.gz
+RUN tar xzvf libressl-2.7.3.tar.gz
 
-WORKDIR ${WORKSPACE}/libressl-2.7.2
+WORKDIR ${WORKSPACE}/libressl-2.7.3
 
 RUN ./configure --prefix=${WORKSPACE}/libressl
 
