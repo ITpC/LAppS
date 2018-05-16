@@ -61,25 +61,22 @@ namespace LAppS
       explicit EventBus():mMutex(),mSem(0),mEvents(){}
       EventBus(const EventBus&)=delete;
       EventBus(EventBus&)=delete;
+      ~EventBus()=default;
       
       const size_t size() const
       {
         return mEvents.size();
       }
       
-      void bachLock()
+      void push(const std::vector<Event>& e)
       {
-        mMutex.lock();
-      }
-      void batchUnLock()
-      {
-        mMutex.unlock();
-      }
-      void unsecureBatchPush(const Event& e)
-      {
-        mEvents.push(e);
-        if(!mSem.post())
-          throw std::system_error(errno,std::system_category(),"Can't increment semaphore, system is going down or semaphore error");
+        SyncLock sync(mMutex);
+        for(size_t i=0;i<e.size();++i)
+        {
+          mEvents.push(e[i]);
+          if(!mSem.post())
+            throw std::system_error(errno,std::system_category(),"Can't increment semaphore, system is going down or semaphore error");
+        }
       }
       
       void push(const Event& e)
@@ -89,14 +86,17 @@ namespace LAppS
         if(!mSem.post())
           throw std::system_error(errno,std::system_category(),"Can't increment semaphore, system is going down or semaphore error");
       }
+      
       void onEvent(std::function<void(const Event&)> processor)
       {
         if(!mSem.wait())
           throw std::system_error(errno,std::system_category(),"Can't wait on semaphore");
+        
         Event event;
+        
         try{
           SyncLock sync(mMutex);
-          event=mEvents.front();
+          event=std::move(mEvents.front());
           mEvents.pop();
         }catch(const std::exception& e)
         {

@@ -38,6 +38,7 @@
 #include <abstract/Application.h>
 #include <WSStreamProcessor.h>
 #include <WSServerMessage.h>
+#include <EventBus.h>
 #include <Config.h>
 
 // LibreSSL
@@ -45,33 +46,35 @@
 
 #include <WSConnectionStats.h>
 
+static thread_local std::vector<uint8_t> mInBuffer(8192);
 
 template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
 {
  public:
   enum State { HANDSHAKE, MESSAGING, CLOSED };
   
+  typedef std::shared_ptr<LAppS::EBUS::EventBus> SharedEventBus;
+  
  private:
-  State mState;
-  itc::CSocketSPtr mSocketSPtr;
-  WSStreamParser streamProcessor;
+  State                               mState;
+  itc::CSocketSPtr                    mSocketSPtr;
+  WSStreamParser                      streamProcessor;
   
-  struct tls* TLSContext;
-  struct tls* TLSSocket;
+  struct tls*                         TLSContext;
+  struct tls*                         TLSSocket;
   
-  ApplicationSPtr  mApplication;
+  ApplicationSPtr                     mApplication;
   
-  size_t          mWorkerId;
+  size_t                              mWorkerId;
+  SharedEventBus                      mEventBus;
   
-  WSConnectionStats mStats;
+  WSConnectionStats                   mStats;
   
-  itc::utils::Bool2Type<TLSEnable>   enableTLS;
-  itc::utils::Bool2Type<StatsEnable> enableStatsUpdate;
+  itc::utils::Bool2Type<TLSEnable>    enableTLS;
+  itc::utils::Bool2Type<StatsEnable>  enableStatsUpdate;
   
   
-  std::vector<uint8_t> outBuffer;
-  
-  std::queue<TaggedEvent> mOutMessages;
+  std::queue<MSGBufferTypeSPtr> mOutMessages;
   
   
   void init(const itc::utils::Bool2Type<true> tls_is_enabled)
@@ -120,6 +123,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
       return -1;
     }
   }
+  
   int send(const std::vector<uint8_t>& buff,const itc::utils::Bool2Type<true> withTLS)
   {
     int ret=0;
@@ -139,43 +143,52 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
       
     }while(offset!=buff.size());
     
-    return offset;
-  }
-  int send(const std::string& buff,const itc::utils::Bool2Type<false> fictive)
-  {
-    return mSocketSPtr.get()->write((const uint8_t*)(buff.data()),buff.size());
-  }
-  
-  int send(const std::string& buff,const itc::utils::Bool2Type<true> fictive)
-  {
-    int ret=0;
-    size_t offset=0;
-    do
-    {
-      ret=tls_write(TLSSocket,(const uint8_t*)(buff.data())+offset,buff.size()-offset);
-      if(ret == -1)
-        break;
-      
-      if((ret != TLS_WANT_POLLIN)&&(ret != TLS_WANT_POLLOUT))
-        offset+=ret;
-      
-    }while(offset!=buff.size());
-    
-    if(ret == -1)
-    {
-      itc::getLog()->error(__FILE__,__LINE__,"Error on reading from TLS socket: %s",tls_error(TLSSocket));
-    }
-    return ret;
+    return buff.size();
   }
   
  public:
-  /**
-   * @brief all out messages must be already prepared WebSocket messages
-   **/
-  void enqueueOutMessage(const TaggedEvent& e)
+  
+  void pushOutMessage(std::queue<MSGBufferTypeSPtr>& messages)
   {
-    mOutMessages.push(e);
+    auto events=std::vector<LAppS::EBUS::Event>(messages.size(),{LAppS::EBUS::OUT,this->getfd()});
+    while(!messages.empty())
+    {
+      mOutMessages.push(std::move(messages.front()));
+      messages.pop();
+    }
+    mEventBus->push(events);
   }
+  
+  void pushOutMessage(const MSGBufferTypeSPtr& msg)
+  {
+    mOutMessages.push(msg);
+    mEventBus->push({LAppS::EBUS::OUT,this->getfd()});
+  }
+
+  const bool handleInput()
+  {
+    try_again:
+    int received=this->recv(mInBuffer,MSG_NOSIGNAL);
+    switch(received)
+    {
+      case -1: 
+        if(errno != EAGAIN) 
+        {
+          goto try_again;
+        }
+        return false;
+      default:
+        this->processInput(mInBuffer,received);
+        /*
+        if(mStats.mOutCMASize>0)
+        {
+          streamProcessor.setMessageBufferSize(mStats.mOutCMASize*1.3);
+        }
+        **/
+        return true;
+    }
+  }
+  
   /**
    * @brief sending next prepared outstanding WebSocket message
    **/
@@ -190,23 +203,26 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
     }
     else
     {
-      auto out=mOutMessages.front();
+      auto message=std::move(mOutMessages.front());
       mOutMessages.pop();
-      int ret=this->send(*out.event.message);
+      
+      int ret=this->send(*message);
+      
       if(ret == -1)
       {
         itc::getLog()->error(__FILE__,__LINE__,"Communication error on WebSocket::sendNext(). Closing this connection.");
         this->setState(CLOSED);
         return false;
       }else{
-        if(static_cast<size_t>(ret) != out.event.message->size())
+        if(static_cast<size_t>(ret) != message->size())
         {
           itc::getLog()->error(__FILE__,__LINE__,"Incomplete message send on WebSocket::sendNext(). Should never happen. Closing this connection.");
           closeSocket(WebSocketProtocol::PROTOCOL_VIOLATION);
           return false;
         }
-        if((*out.event.message)[0] == (128|8)) // close
+        if((*message)[0] == (128|8)) // close
         {
+          mApplication->enqueue({mWorkerId,this->getfd(),{WebSocketProtocol::OpCode::CLOSE,std::move(message)}});
           this->setState(CLOSED);
           return false;
         }
@@ -243,9 +259,9 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   }
   WebSocket()=delete;
   
-  explicit WebSocket(const itc::CSocketSPtr socksptr,tls* tls_context=nullptr)
-  : mState(HANDSHAKE),mSocketSPtr(socksptr),streamProcessor(),TLSContext(tls_context),
-    mStats{0,0,0,0,0,0},enableTLS(),enableStatsUpdate()
+  explicit WebSocket(const itc::CSocketSPtr socksptr,SharedEventBus ebus, tls* tls_context=nullptr)
+  : mState(HANDSHAKE),mSocketSPtr(socksptr),streamProcessor(512),TLSContext(tls_context),
+    mEventBus(ebus), mStats{0,0,0,0,512,512},enableTLS(),enableStatsUpdate()
   {
     init(enableTLS);
   }
@@ -270,13 +286,16 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
         if((mSocketSPtr->isValid()))
         {
           this->closeSocket(WebSocketProtocol::SHUTDOWN);
+          
+          while((!mOutMessages.empty())&&sendNext());
+          
           if(TLSEnable)
           {
             tls_close(TLSSocket);
             tls_free(TLSSocket);
           }
           if(mApplication) 
-            mApplication->enqueueDisconnect(mWorkerId,this->getFileDescriptor());
+            mApplication->enqueueDisconnect(mWorkerId,this->getfd());
           mSocketSPtr.get()->close();
           setState(CLOSED);
         }
@@ -290,7 +309,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
             tls_free(TLSSocket);
           }
           if(mApplication)
-            mApplication->enqueueDisconnect(mWorkerId,this->getFileDescriptor());
+            mApplication->enqueueDisconnect(mWorkerId,this->getfd());
           mSocketSPtr.get()->close();
         }
         break;
@@ -317,7 +336,6 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
     {
       return;
     }
-    //sendNext();
     size_t cursor=0;
     again:
     auto state=streamProcessor.parse(input.data(),input_size,cursor,mSocketSPtr->getfd());
@@ -338,31 +356,54 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
         return;
     }
   }
-  
-  void updateInStats(const size_t sz, const itc::utils::Bool2Type<true> fictive)
+  const State getState() const
   {
-    // reset stats to avoid size_t overflow
+    return mState;
+  }
+  const int getfd() const
+  {
+    return mSocketSPtr.get()->getfd();
+  }
+  
+  int recv(std::vector<uint8_t>& buff,const int flags=0)
+  {
+    return this->recv(buff,flags,enableTLS);
+  }
+
+  int send(const std::vector<uint8_t>& buff)
+  {
+    updateOutStats(buff.size());
+    int ret=this->send(buff,enableTLS);  
+    return ret;
+  }
+  
+private:
+  void updateInStats(const size_t sz)
+  {
+    updateInStats(sz,enableStatsUpdate);
+  }
+  
+  void updateInStats(const size_t sz, const itc::utils::Bool2Type<true>& withStats)
+  {
+    ++mStats.mInMessageCount;
+    mStats.mInCMASize=(sz+(mStats.mInMessageCount-1)*mStats.mInCMASize)/(mStats.mInMessageCount);
     
+    // reset stats to avoid size_t overflow
     if(mStats.mInMessageCount+1 == 0xFFFFFFFFFFFFFFFFULL)
     {
       mStats.mInMessageCount=1;
-      mStats.mInCMASize=0;
+      mStats.mInCMASize=512;
     }
     
     
     if(sz>mStats.mInMessageMaxSize)
-      mStats.mInMessageMaxSize=sz;
-    
-    
-    
-    ++mStats.mInMessageCount;
-    mStats.mInCMASize=(sz+(mStats.mInMessageCount-1)*mStats.mInCMASize)/(mStats.mInMessageCount);
+        mStats.mInMessageMaxSize=sz;
   }
   
-  void updateInStats(const size_t sz, const itc::utils::Bool2Type<false> fictive)
+  void updateInStats(const size_t sz, const itc::utils::Bool2Type<false>& noStats)
   {
   }
-  // echo 
+  
   bool onMessage(const WSEvent& ref)
   {
     if(mApplication.get() == nullptr)
@@ -378,7 +419,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
       {
         if(streamProcessor.isValidUtf8(ref.message->data(),ref.message->size()))
         {
-          mApplication->enqueue({mWorkerId,this->getFileDescriptor(),ref});
+          mApplication->enqueue({mWorkerId,this->getfd(),ref});
           return true;
           
           /*
@@ -399,7 +440,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
       case WebSocketProtocol::BINARY:
       {
         
-        mApplication->enqueue({mWorkerId,this->getFileDescriptor(),ref});
+        mApplication->enqueue({mWorkerId,this->getfd(),ref});
         return true;
         
         /*
@@ -411,7 +452,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
       }
       break;
       case WebSocketProtocol::CLOSE:
-        closeSocket(ref);
+        onCloseMessage(ref);
         return false;
         break;
       case WebSocketProtocol::PING:
@@ -433,12 +474,13 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   
   void closeSocket(const WebSocketProtocol::DefiniteCloseCode& ccode)
   {
-    WebSocketProtocol::ServerCloseMessage(outBuffer,ccode);
-    this->send(outBuffer);
-    mState=CLOSED;
+    auto outBuffer=std::make_shared<MSGBufferType>();
+    
+    WebSocketProtocol::ServerCloseMessage(*outBuffer,ccode);
+    mApplication->enqueueDisconnect(mWorkerId,this->getfd(),outBuffer);
   }
   
-  void closeSocket(const WSEvent& event)
+  void onCloseMessage(const WSEvent& event)
   {
     if(event.message->size() < 2)
     {
@@ -504,67 +546,44 @@ RFC 6455                 The WebSocket Protocol            December 2011
    **/  
   const bool sendPong(const WSEvent& event)
   {
+    auto outBuffer=std::make_shared<MSGBufferType>();
     WebSocketProtocol::ServerPongMessage(
-      outBuffer,
+      *outBuffer,
       event.message
     );
-    int ret=this->send(outBuffer);
-    if(ret == -1) 
-      return false;
-    else
+    if(mApplication)
+    {
+      mApplication->enqueuePong(mWorkerId,this->getfd(),outBuffer);
       return true;
+    }
+    return false;
   }
   
-  const State getState() const
+  void updateOutStats(const size_t sz)
   {
-    return mState;
+    updateOutStats(sz,enableStatsUpdate);
   }
-  const int getFileDescriptor() const
+  void updateOutStats(const size_t sz, const itc::utils::Bool2Type<true>& withStats)
   {
-    return mSocketSPtr.get()->getfd();
-  }
-    
-  int recv(std::vector<uint8_t>& buff,const int flags=0)
-  {
-    return this->recv(buff,flags,enableTLS);
-  }
-  
-  void updateOutStats(const size_t& buff_size,const itc::utils::Bool2Type<true> fictive)
-  {
-    if(buff_size>mStats.mOutMessageMaxSize)
-      mStats.mOutMessageMaxSize=buff_size;
+    ++mStats.mOutMessageCount;
+    mStats.mOutCMASize=(sz+(mStats.mOutMessageCount-1)*mStats.mOutCMASize)/(mStats.mOutMessageCount);
     
     if(mStats.mOutMessageCount+1 == 0xFFFFFFFFFFFFFFFFULL)
     {
       mStats.mOutMessageCount=1;
-      mStats.mOutCMASize=0;
+      mStats.mOutCMASize=512;
     }
-    ++mStats.mOutMessageCount;
-    mStats.mOutCMASize=(buff_size+(mStats.mOutMessageCount-1)*mStats.mOutCMASize)/(mStats.mOutMessageCount);
+    
+    if(sz>mStats.mOutMessageMaxSize)
+    {
+      mStats.mOutMessageMaxSize=sz;
+    }
   }
   
-  void updateOutStats(const size_t& buff_size,const itc::utils::Bool2Type<false> fictive)
+  void updateOutStats(const size_t buff_size,const itc::utils::Bool2Type<false>& noStats)
   {
     
   }
-  
-  int send(const std::vector<uint8_t>& buff)
-  {
-    int ret=this->send(buff,enableTLS);
-    
-    updateOutStats(buff.size(),enableStatsUpdate);
-    
-    return ret;
-  }
-  
-  int send(const std::string& buff)
-  {
-    int ret=this->send(buff,enableTLS);
-    
-    updateOutStats(buff.size(),enableStatsUpdate);
-    
-    return ret;
-  } 
 };
 
 #endif /* __WEBSOCKET_H__ */

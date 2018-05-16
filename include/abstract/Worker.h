@@ -56,6 +56,12 @@ namespace abstract
       if(pthread_sigmask(SIG_BLOCK, &sigset, NULL) != 0)
         throw std::system_error(errno,std::system_category(),"Can not mask signals [SIGQUIT,SIGINT,SIGTERM");
     }
+      
+    Worker()=delete;
+    Worker(const Worker&)=delete;
+    Worker(Worker&)=delete;
+    
+    
     void setMaxConnections(const size_t maxconn)
     {
       mMaxConnections=maxconn;
@@ -75,17 +81,16 @@ namespace abstract
     {
       return ID;
     }
-    Worker()=delete;
-    Worker(const Worker&)=delete;
-    Worker(Worker&)=delete;
+    
+    
+    
     virtual const WorkerStats& getStats() const=0;
     virtual void updateStats()=0;
     virtual void deleteConnection(const int32_t)=0;
-    virtual void submitResponse(const TaggedEvent&)=0;
-    virtual void submitResponses(const std::vector<TaggedEvent>&)=0;
-    virtual void submitError(const int&)=0;
-    virtual void newConnection(const itc::CSocketSPtr&)=0;
+    virtual void submitResponse(const int, const MSGBufferTypeSPtr&)=0;
+    virtual void submitResponse(const int, std::queue<MSGBufferTypeSPtr>&)=0;
     virtual void setEPollController(const LAppS::ePollControllerSPtrType&)=0;
+   protected:
     virtual ~Worker()=default;
   };
 }

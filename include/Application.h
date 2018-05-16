@@ -138,15 +138,29 @@ namespace LAppS
         itc::getLog()->error(__FILE__,__LINE__,"Can't enqueue request to application %s, exception: %s",mName.c_str(),e.what());
       }
     }
+    
     void enqueueDisconnect(const size_t wid, const int32_t sockfd)
     {
       try {
         mEvents.send({wid,sockfd,{WebSocketProtocol::CLOSE,nullptr}});
-        //mAppContext.onDisconnect(wid,sockfd);
       } catch (const std::exception& e)
       {
-        itc::getLog()->error(__FILE__,__LINE__,"Can't enqueue request to application %s, exception: %s",mName.c_str(),e.what());
+        itc::getLog()->error(__FILE__,__LINE__,"Can't enqueue close event to application %s, exception: %s",mName.c_str(),e.what());
       }
+    }
+    void enqueueDisconnect(const size_t wid, const int32_t sockfd, const MSGBufferTypeSPtr& message)
+    {
+      try {
+        mEvents.send({wid,sockfd,{WebSocketProtocol::OpCode::CLOSE,message}});
+      } catch (const std::exception& e)
+      {
+        itc::getLog()->error(__FILE__,__LINE__,"Can't enqueue close event to application %s, exception: %s",mName.c_str(),e.what());
+      }
+    }
+    
+    void enqueuePong(const size_t wid, const int32_t sockfd, const MSGBufferTypeSPtr& pong)
+    {
+      mEvents.send({wid,sockfd,{WebSocketProtocol::OpCode::PONG,pong}});
     }
     void execute()
     {
@@ -155,14 +169,34 @@ namespace LAppS
         try
         {
           auto te=mEvents.recv();
-          if(te.event.type == WebSocketProtocol::CLOSE)
-            mAppContext.onDisconnect(te.wid,te.sockfd);
-          else
+          switch(te.event.type)
           {
-            const bool exec_result=mAppContext.onMessage(te.wid,te.sockfd,te.event);
-            if(!exec_result)
+            case WebSocketProtocol::OpCode::CLOSE:
+              mAppContext.onDisconnect(te.wid,te.sockfd);
+              if(te.event.message)
+              {
+                getWorker(te.wid)->submitResponse(te.sockfd,te.event.message);
+              }
+              break;
+            case WebSocketProtocol::OpCode::PONG:
+              if(te.event.message)
+              {
+                getWorker(te.wid)->submitResponse(te.sockfd,te.event.message);
+              }
+              break;
+            default:
             {
-              getWorker(te.wid)->submitError(te.sockfd);
+              const bool exec_result=mAppContext.onMessage(te.wid,te.sockfd,te.event);
+              if(!exec_result)
+              {
+                MSGBufferTypeSPtr outBuffer=std::make_shared<MSGBufferType>();
+
+                WebSocketProtocol::ServerCloseMessage(*outBuffer,WebSocketProtocol::DefiniteCloseCode::SHUTDOWN);
+
+                getWorker(te.wid)->submitResponse(te.sockfd,outBuffer);
+
+                mMayRun.store(false);
+              }
             }
           }
         }catch(std::exception& e)

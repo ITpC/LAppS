@@ -54,6 +54,11 @@ namespace LAppS
       mInbound.send(data);
     }
 
+    void onUpdate(const std::vector<::itc::TCPListener::value_type>& data)
+    {
+      mInbound.send(data);
+    }
+    
     Balancer(const float connw=0.7):mConnectionWeight(connw),mMayRun(true),mWorkersCache(0)
     {
       itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>::getInstance()->getWorkers(mWorkersCache);
