@@ -122,6 +122,7 @@ namespace LAppS
     
     void execute()
     {
+      std::vector<LAppS::EBUS::Event> outEvents;
       while(mMayRun)
       {
         //mIteration.wait();
@@ -129,7 +130,8 @@ namespace LAppS
           auto events=mEPoll.poll(mEvents,10);
           if(events > 0)
           {
-            std::vector<LAppS::EBUS::Event> outEvents(static_cast<size_t>(events));
+            outEvents.clear();
+            outEvents.reserve(static_cast<size_t>(events));
             
             for(size_t i=0;i<static_cast<size_t>(events);++i)
             {

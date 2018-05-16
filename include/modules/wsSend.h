@@ -133,12 +133,10 @@ int wssend_raw(lua_State* L, const size_t wid, const int fd)
   {
     try {
       auto worker=getWorker(wid);
-      TaggedEvent e;
-      e.sockfd=fd;
-      e.wid=wid;
+      WebSocketProtocol::OpCode opcode=WebSocketProtocol::OpCode::CLOSE;
       if(lua_isnumber(L,tpidx))
       {
-        e.event.type=static_cast<WebSocketProtocol::OpCode>(lua_tointeger(L,tpidx));
+        opcode=static_cast<WebSocketProtocol::OpCode>(lua_tointeger(L,tpidx));
       }
       else
       {
@@ -146,7 +144,7 @@ int wssend_raw(lua_State* L, const size_t wid, const int fd)
         lua_pushstring(L,"Usage: ws::send(handler, opcode, string), opcode is not integer");
         return 2;
       }
-      const bool opcode_valid=(e.event.type == 1)||(e.event.type == 2);
+      const bool opcode_valid=(opcode == 1)||(opcode == 2);
       
       if(!opcode_valid)
       {
@@ -158,25 +156,18 @@ int wssend_raw(lua_State* L, const size_t wid, const int fd)
       size_t len;
       const char* msg=lua_tolstring(L,udidx,&len);
       
-      
-      
       if(worker->mustAutoFragment())
       {
         WebSocketProtocol::FragmentedServerMessage::msgQType msgqueue;
         
-        WebSocketProtocol::FragmentedServerMessage(msgqueue,e.event.type,msg,len);
-        while(!msgqueue.empty())
-        {
-          e.event.message=msgqueue.front();
-          msgqueue.pop();
-          worker->submitResponse(e);
-        }
+        WebSocketProtocol::FragmentedServerMessage(msgqueue,opcode,msg,len);
+        worker->submitResponse(fd,msgqueue);
       }
       else
       {
-        e.event.message=std::make_shared<MSGBufferType>();
-        WebSocketProtocol::ServerMessage(*e.event.message,e.event.type,msg,len);
-        worker->submitResponse(e);
+        auto message=std::make_shared<MSGBufferType>();
+        WebSocketProtocol::ServerMessage(*message,opcode,msg,len);
+        worker->submitResponse(fd,message);
       }
 
       
@@ -201,11 +192,8 @@ int wssend_lapps(lua_State* L, const size_t wid, const int fd)
   {
     try {
       auto worker=getWorker(wid);
-      TaggedEvent e;
-      e.sockfd=fd;
-      e.wid=wid;
-      e.event.type=WebSocketProtocol::BINARY;
-      e.event.message=std::make_shared<MSGBufferType>();
+      auto opcode=WebSocketProtocol::BINARY;
+      
       
       const json& msg=get_userdata_value(L,udidx);
       if(isLAppSOutMessageValid(msg))
@@ -214,19 +202,15 @@ int wssend_lapps(lua_State* L, const size_t wid, const int fd)
         {
           WebSocketProtocol::FragmentedServerMessage::msgQType msgqueue;
 
-          WebSocketProtocol::FragmentedServerMessage(msgqueue,e.event.type,json::to_cbor(msg));
-          while(!msgqueue.empty())
-          {
-            e.event.message=msgqueue.front();
-            msgqueue.pop();
-            worker->submitResponse(e);
-          }
+          WebSocketProtocol::FragmentedServerMessage(msgqueue,opcode,json::to_cbor(msg));
+          
+          worker->submitResponse(fd,msgqueue);
         }
         else
         {
-          e.event.message=std::make_shared<MSGBufferType>();
-          WebSocketProtocol::ServerMessage(e.event.message,e.event.type,json::to_cbor(msg));
-          worker->submitResponse(e);
+          auto message=std::make_shared<MSGBufferType>();
+          WebSocketProtocol::ServerMessage(*message,opcode,json::to_cbor(msg));
+          worker->submitResponse(fd,message);
         }
         lua_pushboolean(L,true);
         return 1;
@@ -259,24 +243,20 @@ int wsclose(lua_State*L,const size_t wid, const int32_t fd, const size_t argc)
     
     try {
       auto worker=getWorker(wid);
-      TaggedEvent e;
-      e.sockfd=fd;
-      e.wid=wid;
-      e.event.type=WebSocketProtocol::CLOSE;
-      e.event.message=std::make_shared<MSGBufferType>();
+      auto message=std::make_shared<MSGBufferType>();
       
       if(close_code>999&&((close_code < 1012)||((close_code>2999)&&(close_code<5000))))
       {
         if(argc == 3)
         {
-          WebSocketProtocol::ServerCloseMessage(*e.event.message,close_code);
+          WebSocketProtocol::ServerCloseMessage(*message,close_code);
         }else if(argc == 4)
         {
           if(lua_isstring(L,4))
           {
             size_t len;
             const char *errmsg=lua_tolstring(L,argc,&len);
-            WebSocketProtocol::ServerCloseMessage(*e.event.message,close_code,errmsg,len);
+            WebSocketProtocol::ServerCloseMessage(*message,close_code,errmsg,len);
           }
           else
           {
@@ -290,7 +270,7 @@ int wsclose(lua_State*L,const size_t wid, const int32_t fd, const size_t argc)
           lua_pushstring(L,"Usage: ws:close(handler, error_code [, error_string]) - wrong number of arguments is provided");
           return 2;
         }
-        worker->submitResponse(e);
+        worker->submitResponse(fd,message);
         lua_pushboolean(L,true);
         return 1;
       }

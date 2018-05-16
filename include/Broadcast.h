@@ -127,11 +127,11 @@ namespace LAppS
       {
         
         size_t wid=handler>>32;
-        int32_t fd=static_cast<int32_t>(handler&0x00000000FFFFFFFF);
+        const int32_t fd=static_cast<int32_t>(handler&0x00000000FFFFFFFF);
 
         if(wid<mWorkersCache.size())
         {
-          mWorkersCache[wid]->submitResponse({wid,fd,{WebSocketProtocol::BINARY,msg}});
+          mWorkersCache[wid]->submitResponse(fd,msg);
         }
         else // second attempt
         {
@@ -139,7 +139,7 @@ namespace LAppS
           itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>::getInstance()->getWorkers(mWorkersCache);
           if(wid<mWorkersCache.size())
           {
-            mWorkersCache[wid]->submitResponse({wid,fd,{WebSocketProtocol::BINARY,msg}});
+            mWorkersCache[wid]->submitResponse(fd,msg);
           } // not broadcasted, worker is down or never existed.
         }
       }

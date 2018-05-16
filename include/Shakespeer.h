@@ -41,7 +41,7 @@
 #include <Config.h>
 #include <ApplicationRegistry.h>
 
-static const std::string  forbidden("HTTP/1.1 403 Forbidden");
+static const std::vector<uint8_t> forbidden{'H','T','T','P','/','1','.','1',' ','4','0','3',' ','F','o','r','b','i','d','d','e','n'};
 
 namespace LAppS
 {
@@ -59,17 +59,26 @@ namespace LAppS
       
       void sendForbidden(const WSSPtr& wssocket)
       {
-        std::string peer_ip;
-        wssocket->getPeerIP(peer_ip);
-        
-        itc::getLog()->info(
-          __FILE__,__LINE__,
-          "Connection denied for fd %d, peer %s",
-          wssocket->getFileDescriptor(),
-          peer_ip.c_str()
-        );
-        
-        wssocket->send(forbidden);
+        try{
+          std::string peer_ip;
+          wssocket->getPeerIP(peer_ip);
+
+          itc::getLog()->info(
+            __FILE__,__LINE__,
+            "Connection denied for fd %d, peer %s",
+            wssocket->getfd(),
+            peer_ip.c_str()
+          );
+          wssocket->send(forbidden);
+
+        }catch(const std::exception& e)
+        {
+          itc::getLog()->info(
+            __FILE__,__LINE__,
+            "Connection denied for fd %d, communication error (peer went down) before handshake",
+            wssocket->getfd()
+          );
+        }
         wssocket->setState(WSType::CLOSED);
       }
       void handshake(const WSSPtr& wssocket)
@@ -84,7 +93,7 @@ namespace LAppS
             itc::getLog()->error(
               __FILE__,__LINE__,
               "Shakespeer::handshake() - can't get the peer IP address for fd %d, exception: %s. Closing this WebSocket", 
-              wssocket->getFileDescriptor(),e.what()
+              wssocket->getfd(),e.what()
             );
             wssocket->setState(WSType::CLOSED);
             return;
@@ -138,9 +147,13 @@ namespace LAppS
             itc::getLog()->info(
               __FILE__,__LINE__,
               "Communication error on handshake with peer with fd %d. Closing this WebSocket",
-              wssocket->getFileDescriptor()
+              wssocket->getfd()
             );
           }
+        }
+        else
+        {
+          itc::getLog()->error(__FILE__,__LINE__,"The socket has wrong state [%u] for handshake",wssocket->getState());
         }
       }
     

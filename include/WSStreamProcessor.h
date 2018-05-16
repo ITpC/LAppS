@@ -73,30 +73,29 @@ private:
 
 /**===========================================================**/
  
-  WSStreamProcessing::State state;
-  WebSocketProtocol::OpCode currentOpCode;
-  WSStreamProcessing::Frame frame;
+  WSStreamProcessing::State           state;
+  WebSocketProtocol::OpCode           currentOpCode;
+  WSStreamProcessing::Frame           frame;
   
+  uint8_t                             headerBytesReady;
+  uint8_t                             sizeBytesReady;
+  uint8_t                             maskBytesReady;
+  uint8_t                             headerBytes[2];
+  uint8_t                             optionalSizeBytes[8];
   
-  uint8_t headerBytesReady;
-  uint8_t sizeBytesReady;
-  uint8_t maskBytesReady;
+  size_t                              cursor;
   
-  uint8_t headerBytes[2];
-  uint8_t optionalSizeBytes[8];
-  
-  size_t cursor;
-  
-  uint64_t messageSize;
-  uint64_t PLReadyBytes;
-  size_t   mMaxMSGSize;
+  uint64_t                            messageSize;
+  uint64_t                            PLReadyBytes;
+  size_t                              mMaxMSGSize;
   
   std::stack<WebSocketProtocol::OpCode> opcodes;
-  MSGBufferTypeSPtr message;
-  MSGBufferTypeSPtr messageFrames;
+  MSGBufferTypeSPtr                   message;
+  MSGBufferTypeSPtr                   messageFrames;
   
-  uint8_t MASK[4];
+  uint8_t                             MASK[4];
   
+  size_t                              mOutMSGPreSize;
   
   
 /**===========================================================**/
@@ -115,16 +114,17 @@ private:
 /**===========================================================**/
   
  public:  
-  explicit WSStreamParser() : state(WSStreamProcessing::INIT), 
+  explicit WSStreamParser(const size_t presz) : state(WSStreamProcessing::INIT), 
     currentOpCode(WebSocketProtocol::CFRSV5), 
     frame(WSStreamProcessing::SINGLE_FRAME), headerBytesReady(0), 
     sizeBytesReady(0), maskBytesReady(0), headerBytes{0}, optionalSizeBytes{0}, 
     cursor(0), messageSize(0), PLReadyBytes(0), mMaxMSGSize(0), opcodes(), 
     message(std::make_shared<std::vector<uint8_t>>()),
-    messageFrames(std::make_shared<std::vector<uint8_t>>()),MASK{0}
+    messageFrames(std::make_shared<std::vector<uint8_t>>()),MASK{0},
+    mOutMSGPreSize(presz)
   {
-    message->reserve(512);
-    messageFrames->reserve(512);
+    message->reserve(mOutMSGPreSize);
+    messageFrames->reserve(mOutMSGPreSize);
   }
   
   WSStreamParser(const WSStreamParser&)=delete;
@@ -134,7 +134,10 @@ private:
   {
     mMaxMSGSize=mms;
   }
-  
+  void setMessageBufferSize(const size_t bsz)
+  {
+    mOutMSGPreSize=bsz;
+  }
   const WSStreamProcessing::Result parse(const uint8_t* stream,const size_t limit, const size_t offset=0, const int fd=0)
   {
     switch(state)
@@ -557,14 +560,14 @@ private:
       {
         MSGBufferTypeSPtr tmp(message);
         message=std::make_shared<std::vector<uint8_t>>();
-        message->reserve(512);
+        message->reserve(mOutMSGPreSize);
         return { currentOpCode, tmp };
       }
       else
       {
         MSGBufferTypeSPtr tmp(messageFrames);
         messageFrames=std::make_shared<std::vector<uint8_t>>();
-        messageFrames->reserve(512);
+        messageFrames->reserve(mOutMSGPreSize);
         return {currentOpCode, tmp};
       }
     }
