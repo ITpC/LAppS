@@ -167,24 +167,17 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
 
   const bool handleInput()
   {
-    try_again:
     int received=this->recv(mInBuffer,MSG_NOSIGNAL);
     switch(received)
     {
       case -1: 
         if(errno != EAGAIN) 
         {
-          goto try_again;
+          return false;
         }
-        return false;
+        return true;
       default:
         this->processInput(mInBuffer,received);
-        /*
-        if(mStats.mOutCMASize>0)
-        {
-          streamProcessor.setMessageBufferSize(mStats.mOutCMASize*1.3);
-        }
-        **/
         return true;
     }
   }
