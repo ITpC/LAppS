@@ -48,6 +48,12 @@
 
 static thread_local std::vector<uint8_t> mInBuffer(8192);
 
+namespace io
+{
+    enum Status : int32_t  { ERROR=-1, POLLIN=-2, POLLOUT=-3 };
+}
+
+
 template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
 {
  public:
@@ -577,6 +583,117 @@ RFC 6455                 The WebSocket Protocol            December 2011
   {
     
   }
+  /*
+  int get(std::vector<uint8_t>& buff, const itc::utils::Bool2Type<false> noTLS)
+  {
+    int ret=::recv(fd,buff.data(),buff.size(),MSG_NOSIGNAL);
+    if(ret == -1)
+    {
+      if((errno == EWOULDBLOCK)||(errno == EAGAIN))
+      {
+        mEPoll->mod(fd);
+        return io::Status::POLLIN;
+      }
+      else
+      {
+        if(mApplication) mApplication->enqueueDisconnect(mWorkerID,fd);
+        mState=io::State::CLOSED;
+        return io::Status::ERROR;
+      }
+    }
+    if(mOutMessages.size()>0) mEPoll->mod_out(fd);
+    else mEPoll->mod(fd);
+    return ret;
+  }
+
+  int get(std::vector<uint8_t>& buff, const itc::utils::Bool2Type<true> withTLS)
+  {
+    int ret=tls_read(TLSSocket,buff.data(),buff.size());
+
+    switch(ret)
+    {
+      case -1:
+        if(mApplication) mApplication->enqueueDisconnect(mWorkerID,fd);
+        mState=io::State::CLOSED;
+        return io::Status::ERROR;
+      case TLS_WANT_POLLIN:
+        mEPoll->mod(fd);
+        return io::Status::POLLIN;
+      case TLS_WANT_POLLOUT:
+        mEPoll->mod_out(fd);
+        return io::Status::POLLOUT;
+      default:
+        if(mOutMessages.size()>0)
+          mEPoll->mod_out(fd);
+        else mEPoll->mod(fd);
+        return ret;
+    }
+  }
+
+  const int put(const std::vector<uint8_t>& buff,const itc::utils::Bool2Type<false> noTLS)
+  {
+    const int result=::send(fd,buff.data()+mOutCursor,buff.size()-mOutCursor,MSG_NOSIGNAL);
+
+    if(result == -1)
+    {
+      if((errno == EAGAIN)||(errno == EWOULDBLOCK))
+      {
+        mEPoll->mod_out(fd);
+        return io::Status::POLLOUT;
+      }
+      if(mApplication) mApplication->enqueueDisconnect(mWorkerID,fd);
+      mState=io::State::CLOSED;
+      return io::Status::ERROR;
+    }
+
+    if(mOutCursor != buff.size())
+    {
+      mOutCursor+=result;
+      mEPoll->mod_out(fd);
+      return io::Status::POLLOUT;
+    }
+
+    if(mOutMessages.size()>0)
+          mEPoll->mod_out(fd);
+    else mEPoll->mod(fd);
+
+    mOutCursor=0;
+
+    return buff.size();
+  }
+
+  const int put(const std::vector<uint8_t>& buff,const itc::utils::Bool2Type<true> withTLS)
+  {
+    const int result=tls_write(TLSSocket,buff.data()+mOutCursor,buff.size()-mOutCursor);
+    switch(result)
+    {
+      case -1:
+        if(mApplication) mApplication->enqueueDisconnect(mWorkerID,fd);
+        mState=io::State::CLOSED;
+        return io::Status::ERROR;
+      case TLS_WANT_POLLIN:
+        mEPoll->mod(fd);
+        return io::Status::POLLIN;
+      case TLS_WANT_POLLOUT:
+        mEPoll->mod_out(fd);
+        return io::Status::POLLOUT;
+      default:
+        if(mOutCursor != buff.size())
+        {
+          mOutCursor+=result;
+          mEPoll->mod_out(fd);
+          return io::Status::POLLOUT;
+        }
+        if(mOutMessages.size()>0)
+          mEPoll->mod_out(fd);
+        else mEPoll->mod(fd);
+
+        mOutCursor=0;
+
+        return buff.size();
+    }
+  }
+  */
 };
 
 #endif /* __WEBSOCKET_H__ */
