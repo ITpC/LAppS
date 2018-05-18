@@ -50,8 +50,6 @@ namespace abstract
     
     virtual void enqueue(const TaggedEvent&)=0;
     virtual void enqueueDisconnect(const size_t, const int32_t)=0;
-    virtual void enqueueDisconnect(const size_t, const int32_t, const MSGBufferTypeSPtr&)=0;
-    virtual void enqueuePong(const size_t wid, const int32_t sockfd, const MSGBufferTypeSPtr&)=0;
     virtual const ::abstract::Application::Protocol getProtocol() const=0;
     virtual const std::string& getName() const=0;
     virtual const std::string& getTarget() const=0;

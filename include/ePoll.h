@@ -32,61 +32,96 @@
 
 // 
 // 
-#define ePollINDefaultOps EPOLLIN|EPOLLRDHUP|EPOLLPRI|EPOLLONESHOT
-
-#define ePollINEdge ePollINDefaultOps|EPOLLET|EPOLLEXCLUSIVE
+#define ePollINDefaultInOps   EPOLLIN|EPOLLRDHUP|EPOLLPRI|EPOLLONESHOT
+#define ePollINDefaultOutOps  EPOLLOUT|EPOLLRDHUP|EPOLLPRI|EPOLLONESHOT
+#define ePollINDefaultBothOps EPOLLIN|EPOLLOUT|EPOLLRDHUP|EPOLLPRI|EPOLLONESHOT
 
 /**
  * \@brief epoll wrapper (inbound messages only), not thread-safe. To embed into
  * workers only.
  * 
  **/
-template <uint32_t ops=ePollINDefaultOps> class ePoll
+class ePoll
 {
 private:
   int mPollFD;
+  
 public:
-  ePoll():mPollFD(epoll_create1(O_CLOEXEC))
+  explicit ePoll():mPollFD(epoll_create1(O_CLOEXEC))
   {
     if(mPollFD == -1)
       throw std::system_error(errno,std::system_category(),std::string("In ePoll() constructor: "));
   }
-  void add(const int fd)
-  {
-    epoll_event ev;
-    ev.events=ops;
-    ev.data.fd=fd;
-    if(epoll_ctl(mPollFD,EPOLL_CTL_ADD,fd,&ev)==-1)
-      throw std::system_error(errno,std::system_category(),std::string("In ePoll::add(): "));
-  }
+  
+  ePoll(const ePoll&)=delete;
+  ePoll(ePoll&)=delete;
   
   ~ePoll()
   {
     close(mPollFD);
   }
+   
+  void add_in(const int fd)
+  {
+    epoll_event ev;
+    ev.events=ePollINDefaultInOps;
+    ev.data.fd=fd;
+    if(epoll_ctl(mPollFD,EPOLL_CTL_ADD,fd,&ev)==-1)
+      throw std::system_error(errno,std::system_category(),std::string("In ePoll::add(): "));
+  }
   
-  void mod(const int fd)
+  void add_out(const int fd)
+  {
+    epoll_event ev;
+    ev.events=ePollINDefaultOutOps;
+    ev.data.fd=fd;
+    if(epoll_ctl(mPollFD,EPOLL_CTL_ADD,fd,&ev)==-1)
+      throw std::system_error(errno,std::system_category(),std::string("In ePoll::add_out(): "));
+  }
+  
+ 
+  
+  void mod_in(const int fd)
   {    
     epoll_event ev;
-    ev.events=ops;
+    ev.events=ePollINDefaultInOps;
     ev.data.fd=fd;
     
     if(epoll_ctl(mPollFD,EPOLL_CTL_MOD,fd,&ev)==-1)
     {
       if(errno != ENOENT)
-        throw std::system_error(errno,std::system_category(),std::string("In ePoll::mod(): "));
+        throw std::system_error(errno,std::system_category(),std::string("In ePoll::mod_in(): "));
+      else
+        this->add_in(fd);
     }
   }
-  // no maxevents decrement here, because of EPOLLONESHOT and del() only called 
-  // after poll()
+  
+  void mod_out(const int fd)
+  {    
+    epoll_event ev;
+    ev.events=ePollINDefaultOutOps;
+    ev.data.fd=fd;
+    
+    if(epoll_ctl(mPollFD,EPOLL_CTL_MOD,fd,&ev)==-1)
+    {
+      if(errno != ENOENT)
+        throw std::system_error(errno,std::system_category(),std::string("In ePoll::mod_out(): "));
+      else
+        this->add_out(fd);
+    }
+  }
+  
   void del(const int fd)
   {
     epoll_event ev;
-    ev.events=ops;
+    ev.events=ePollINDefaultBothOps;
     ev.data.fd=fd;
     
     if(epoll_ctl(mPollFD,EPOLL_CTL_DEL,fd,&ev)==-1)
-      throw std::system_error(errno,std::system_category(),std::string("In ePoll::del(): "));
+    {
+      if(errno != ENOENT)
+        throw std::system_error(errno,std::system_category(),std::string("In ePoll::del(): "));
+    }
   }
   /**
    * \@brief epoll_wait wrapper. Use it within try{}catch(){}. This method
@@ -98,7 +133,7 @@ public:
    * \@return 0 on timeout, -1 on EINTR and throws system_error(errno),
    * or amount of events otherwise.
    **/
-  int poll(std::vector<epoll_event>& out, const int timeout=1)
+  int poll(std::vector<epoll_event>& out, const int timeout=10)
   {
     int ret=0;
     while(1)
@@ -113,12 +148,12 @@ public:
       else{
         if(ret >= 0)
           return ret;
-        // else EINTR, repeat epoll_wait.
       }
     }
   }
 };
 
+typedef std::shared_ptr<ePoll> SharedEPollType;
 
 #endif /* __EPOLL_H__ */
 

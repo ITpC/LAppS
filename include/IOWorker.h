@@ -24,49 +24,60 @@
 #ifndef __IOWORKER_H__
 #  define __IOWORKER_H__
 
+#include <ePoll.h>
 #include <abstract/IView.h>
-#include <EventBus.h>
 #include <WebSocket.h>
-#include <ePollController.h>
 #include <Shakespeer.h>
 #include <abstract/Worker.h>
 
 namespace LAppS
 {
+  
   template <bool TLSEnable=false, bool StatsEnable=false> 
-    class IOWorker :public ::abstract::Worker,
-                    public ::itc::abstract::IView<LAppS::EBUS::Event>
+    class IOWorker :public ::abstract::Worker
   {
     public:
-      typedef WebSocket<TLSEnable,StatsEnable> WSType;
-      typedef std::shared_ptr<WSType>          WSSPtr;
+      typedef WebSocket<TLSEnable,StatsEnable>  WSType;
+      typedef std::shared_ptr<WSType>           WSSPtr;
     private:
       itc::utils::Bool2Type<TLSEnable>          enableTLS;
       itc::utils::Bool2Type<StatsEnable>        enableStatsUpdate;
       
       std::atomic<bool>                         mMayRun;
       std::atomic<bool>                         mCanStop;
+      
       std::mutex                                mConnectionsMutex;
       std::mutex                                mInboundMutex;
       
       LAppS::Shakespeer<TLSEnable,StatsEnable>  mShakespeer;
-      LAppS::ePollControllerThread              mEPollThr;
-      LAppS::ePollControllerSPtrType            mEPoll;
-      
+      SharedEPollType                           mEPoll;
       
       std::queue<itc::CSocketSPtr>              mInboundConnections;
       std::map<int,WSSPtr>                      mConnections;
-      typename WSType::SharedEventBus           mEvents;
       
+      std::vector<epoll_event>                  mEvents;
+      
+      itc::sys::Nap                             mNap;
+      
+      std::atomic<bool>                         haveConnections;
+      std::atomic<bool>                         haveNewConnections;
+      
+      bool error_bit(const uint32_t event) const
+      {
+        return (event & (EPOLLRDHUP|EPOLLERR|EPOLLHUP));
+      }
+      bool in_out_bits(const uint32_t events) const
+      {
+        return (events & (EPOLLIN|EPOLLOUT));
+      }
     public:
      
     explicit IOWorker(const size_t id, const size_t maxConnections,const bool af)
-    : Worker(id,maxConnections,af), ::itc::abstract::IView<LAppS::EBUS::Event>(),
-      enableTLS(), enableStatsUpdate(), mMayRun(true), mCanStop(false),
-      mConnectionsMutex(), mInboundMutex(), mShakespeer(),
-      mEPollThr(std::make_shared<LAppS::ePollController>(1000)),
-      mEPoll(mEPollThr.getRunnable()), mInboundConnections(),
-      mConnections(), mEvents(std::make_shared<LAppS::EBUS::EventBus>())
+    : Worker(id,maxConnections,af), enableTLS(),        enableStatsUpdate(), 
+      mMayRun(true),                mCanStop(false),    mConnectionsMutex(), 
+      mInboundMutex(),              mShakespeer(),      mEPoll(std::make_shared<ePoll>()),
+      mInboundConnections(),        mConnections(),     mEvents(1000),
+      mNap(), haveConnections(false),haveNewConnections(false)
     {
       mConnections.clear();
     }
@@ -78,36 +89,20 @@ namespace LAppS
     void onUpdate(const ::itc::TCPListener::value_type& socketsptr)
     {
       SyncLock sync(mInboundMutex);
-      mInboundConnections.push(socketsptr);
-      mEvents->push({LAppS::EBUS::NEW,socketsptr->getfd()});
+      mInboundConnections.push(std::move(socketsptr));
+      haveNewConnections.store(true);
     }
     
     void onUpdate(const std::vector<::itc::TCPListener::value_type>& socketsptr)
     {
       SyncLock sync(mInboundMutex);
-      std::vector<LAppS::EBUS::Event> batch(socketsptr.size(),{LAppS::EBUS::NEW,0});
       for(size_t i=0;i<socketsptr.size();++i)
       {
         mInboundConnections.push(std::move(socketsptr[i]));
       }
-      mEvents->push(batch);
+      haveNewConnections.store(true);
     }
-    
-    void onUpdate(const LAppS::EBUS::Event& event)
-    {
-      mEvents->push(event);
-    }
-    
-    void onUpdate(const std::vector<LAppS::EBUS::Event>& event)
-    {
-      mEvents->push(event);
-    }
-    
-    auto getEPollController() const
-    {
-      return mEPoll;
-    }
-    
+        
     const size_t getConnectionsCount() const
     {
       SyncLock sync(mConnectionsMutex);
@@ -123,28 +118,36 @@ namespace LAppS
       pthread_sigmask(SIG_BLOCK, &sigpipe_mask, &saved_mask);
       while(mMayRun)
       {
-        mEvents->onEvent(
-          [this](const LAppS::EBUS::Event& event)
-          {
-            this->updateStats();
-            switch(event.event)
+        processInbound();
+        if(haveConnections)
+        {
+          try{
+            int ret=mEPoll->poll(mEvents,1);
+            if(ret > 0)
             {
-              case LAppS::EBUS::ERROR: // highest prio
-                deleteConnection(event.value);
-                break;
-              case LAppS::EBUS::IN: // High prio
-                processINEvents(event.value);
-                break;
-              case LAppS::EBUS::OUT: // Mid prio
-                processOutEvents(event.value);
-                break;
-              case LAppS::EBUS::NEW: // Low prio
-                processNewConnections();
-                break;
+              mStats.mEventQSize=ret;
+              for(auto i=0;i<ret;++i)
+              {
+                if(error_bit(mEvents[i].events))
+                {
+                  deleteConnection(mEvents[i].data.fd);
+                }
+                else 
+                {
+                  processIO(mEvents[i].data.fd);
+                }
+              }
             }
+          }catch(const std::exception& e)
+          {
+            itc::getLog()->error(__FILE__,__LINE__,"Exception on ePoll::poll(): ", e.what());
+            mMayRun.store(false);
           }
-        );
-        // enablePollForConnections();
+        }
+        else
+        {
+          mNap.usleep(10000);
+        }
       }
       mCanStop.store(true);
     }
@@ -154,6 +157,7 @@ namespace LAppS
       mMayRun.store(false);
       SyncLock sync(mConnectionsMutex);
       mConnections.clear();
+      mCanStop.store(true);
     }
     void onCancel()
     {
@@ -172,12 +176,6 @@ namespace LAppS
     void updateStats()
     {
       mStats.mConnections=mConnections.size();
-      mStats.mEventQSize=mEvents->size();
-    }
-    
-    void setEPollController(const LAppS::ePollControllerSPtrType& ref)
-    {
-      mEPoll=ref;
     }
     
     void submitResponse(const int fd, std::queue<MSGBufferTypeSPtr>& messages)
@@ -206,7 +204,7 @@ namespace LAppS
           mEPoll->del(fd);
         }catch(const std::exception& e)
         {
-          // ignore
+          itc::getLog()->error(__FILE__,__LINE__,"ePoll::del() exception: %s",e.what());
         }
       }
     }
@@ -236,93 +234,52 @@ namespace LAppS
       /**
        * @brief processing all inbound connections in bulk.
        **/
-      void processNewConnections()
+      void processInbound()
       {
-        SyncLock connSync(mConnectionsMutex);
-        SyncLock sync(mInboundMutex);
-        
-        std::string peer;
-        
-        while(mEPoll&&(!mInboundConnections.empty()))
+        if(haveNewConnections&&mConnectionsMutex.try_lock())
         {
-          auto current=mkWebSocket(std::move(mInboundConnections.front()));
-          int fd=current->getfd();
-          mInboundConnections.pop();
-          
-          try{    
-            current->getPeerIP(peer);
-            itc::getLog()->info(__FILE__,__LINE__,"New inbound connection from %s with fd %d",peer.c_str(),fd);
-          }catch(const std::exception& e)
+          SyncLock sync(mInboundMutex);
+
+          while(!mInboundConnections.empty())
           {
-            itc::getLog()->error(__FILE__,__LINE__,"Can't process new connection because of network error %s", e.what());
-            return;
-          }
-          
-          // check if it is already in mConnections:
-          auto it=mConnections.find(fd);
-          if(it==mConnections.end())
-          {
-            mConnections.emplace(fd,current);
-            current->setWorkerId(this->getID());
-            mEPoll->add(fd);
-          }
-          else
-          {
-            // drop connection otherwise.
-            itc::getLog()->error(__FILE__,__LINE__,"Dropping connection %s because of non-unique fd",peer.c_str());
-          }
-        }
-      }
-      
-      void processOutEvents(const int fd)
-      {
-        SyncLock sync(mConnectionsMutex); 
-        auto it=mConnections.find(fd);
-        if(it!=mConnections.end())
-        {
-          auto current=it->second;
-          if(current->getState()==WSType::MESSAGING)
-          {
-            if(!current->sendNext())
-            {
-              std::string peer_ip;
-              try{
-                current->getPeerIP(peer_ip);
-                itc::getLog()->error(
-                  __FILE__,__LINE__,
-                  "Can't send next outstanding message to peer %s with fd %d. Communication error. Removing this connection.",
-                  peer_ip.c_str(),fd
-                );
-              }catch(const std::exception& e)
+            try{
+              auto current=mkWebSocket(mInboundConnections.front());
+              int fd=current->getfd();
+
+              if(mConnections.size()<mMaxConnections)
               {
+                  itc::getLog()->info(
+                  __FILE__,__LINE__,
+                  "New inbound connection from %s with fd %d will be added to connection pool of worker %u ",
+                  current->getPeerAddress().c_str(),fd,ID
+                );
+                mConnections.emplace(fd,std::move(current));
+                mStats.mConnections=mConnections.size();
+                haveConnections.store(true);
+              }
+              else
+              {
+                mShakespeer.sendForbidden(current);
                 itc::getLog()->error(
                   __FILE__,__LINE__,
-                  "Exception %s, on attempt to acquire peer's ip address. Root cause: peer closed connection.",
-                  e.what()
+                  "Too many connections, new connection from %s on fd %d will is rejected",
+                  current->getPeerAddress().c_str(),fd
                 );
               }
-              mConnections.erase(it);
+            }catch(const std::exception& e)
+            {
+              itc::getLog()->error(__FILE__,__LINE__,"Connection on went invalid before handshake. Exception: %s",e.what());
             }
+
+            mInboundConnections.pop();
           }
-          else
-          {
-            itc::getLog()->error(
-              __FILE__,__LINE__,
-              "processOutEvents(%d) - socket is in a wrong state, removing connection.",
-              fd
-            );
-            mConnections.erase(it);
-          }
-        }else{
-          itc::getLog()->error(
-            __FILE__,__LINE__,
-            "processOutEvents(%d) - connection is already closed.",
-            fd
-          );
+          mConnectionsMutex.unlock();
+          haveNewConnections.store(false);
         }
+        
       }
       
-      void processINEvents(const int fd)
+      void processIO(const int fd)
       {
         SyncLock sync(mConnectionsMutex);
         auto it=mConnections.find(fd);
@@ -332,32 +289,17 @@ namespace LAppS
           switch(current->getState())
           {
             case WSType::HANDSHAKE:
-              if(mConnections.size()<mMaxConnections)
-              {
                 mShakespeer.handshake(current);
-                if(current->getState()==WSType::MESSAGING)
+                if(current->getState() !=WSType::MESSAGING)
                 {
-                  mEPoll->mod(fd);
+                  deleteConnection(fd);
                 }
-              }
-              else
-              {
-                mShakespeer.sendForbidden(current);
-              }
-              
-              if(current->getState()==WSType::CLOSED)
-              {
-                deleteConnection(fd);
-              }
-              
             break;
             case WSType::MESSAGING:
-              if(!current->handleInput())
+              mStats.mEventQSize+=current->getStats().mOutMessageCount;
+              if(!current->handleIO())
               {
                 deleteConnection(fd);
-              }
-              else{
-                mEPoll->mod(fd);
               }
             break;
             case WSType::CLOSED:
@@ -382,6 +324,11 @@ namespace LAppS
         {
           mConnections.erase(it);
         }
+        mStats.mConnections=mConnections.size();
+        if(mConnections.empty())
+        {
+          haveConnections.store(false);
+        }
       }
       
       const std::shared_ptr<WSType> mkWebSocket(const itc::CSocketSPtr& inbound)
@@ -391,13 +338,14 @@ namespace LAppS
       
       const std::shared_ptr<WSType> mkWebSocket(const itc::CSocketSPtr& inbound,const itc::utils::Bool2Type<false> tls_is_disabled)
       {
-        return std::make_shared<WSType>(inbound,mEvents);
+        return std::make_shared<WSType>(std::move(inbound),this->getID(),mEPoll);
       }
+      
       const std::shared_ptr<WSType> mkWebSocket(const itc::CSocketSPtr& inbound,const itc::utils::Bool2Type<true> tls_is_enabled)
       {
         auto tls_server_context=TLS::SharedServerContext::getInstance()->getContext();
         if(tls_server_context)
-          return std::make_shared<WSType>(inbound,mEvents,tls_server_context);
+          return std::make_shared<WSType>(std::move(inbound),this->getID(),mEPoll,tls_server_context);
         else throw std::system_error(EINVAL,std::system_category(),"TLS ServerContext is NULL");
       }
   };
