@@ -54,106 +54,78 @@ namespace LAppS
       explicit Shakespeer() : headerBuffer(512)
       {
       }
+      
       Shakespeer(const Shakespeer&)=delete;
       Shakespeer(Shakespeer&)=delete;
       
       void sendForbidden(const WSSPtr& wssocket)
       {
-        try{
-          std::string peer_ip;
-          wssocket->getPeerIP(peer_ip);
-
-          itc::getLog()->info(
-            __FILE__,__LINE__,
-            "Connection denied for fd %d, peer %s",
-            wssocket->getfd(),
-            peer_ip.c_str()
-          );
-          wssocket->send(forbidden);
-
-        }catch(const std::exception& e)
-        {
-          itc::getLog()->info(
-            __FILE__,__LINE__,
-            "Connection denied for fd %d, communication error (peer went down) before handshake",
-            wssocket->getfd()
-          );
-        }
+        wssocket->send_sync(forbidden);
         wssocket->setState(WSType::CLOSED);
       }
+      
       void handshake(const WSSPtr& wssocket)
       {
-        if(wssocket->getState() == WSType::HANDSHAKE)
+        mHTTPRParser.clear();
+        int received=wssocket->recv_sync(headerBuffer);
+        if(received != -1)
         {
-          std::string peer_addr;
-          try{
-            wssocket->getPeerIP(peer_addr);
-          }catch(const std::exception& e)
+          if(static_cast<size_t>(received) < headerBuffer.size())
+            headerBuffer[received]=0;
+
+          if(parseHeader(received))
           {
-            itc::getLog()->error(
-              __FILE__,__LINE__,
-              "Shakespeer::handshake() - can't get the peer IP address for fd %d, exception: %s. Closing this WebSocket", 
-              wssocket->getfd(),e.what()
-            );
-            wssocket->setState(WSType::CLOSED);
-            return;
-          }
-          
-          mHTTPRParser.clear();
-          int received=wssocket->recv(headerBuffer,MSG_NOSIGNAL);
-          if(received != -1)
-          {
-            if(static_cast<size_t>(received) < headerBuffer.size())
-              headerBuffer[received]=0;
-              
-            if(parseHeader(received))
-            {
-              try {
-                auto app=::ApplicationRegistry::getInstance()->findByTarget(mHTTPRParser.getRequestTarget());
-                wssocket->setApplication(app);
-              }catch(const std::exception& e)
+            prepareOKResponse(response);
+            int sent=wssocket->send_sync(response);
+            
+            try {
+              if(sent > 0)
               {
-                itc::getLog()->error(__FILE__,__LINE__,"Exception on handshake with peer %s: %s",peer_addr.c_str(),e.what());
-                wssocket->setState(WSType::CLOSED);
+                auto app=::ApplicationRegistry::getInstance()->findByTarget(mHTTPRParser.getRequestTarget());
+                wssocket->setState(WSType::MESSAGING);
+                wssocket->setApplication(app);
                 return;
               }
-              prepareOKResponse(response);
-              int sent=wssocket->send(response);
-              if(sent != static_cast<int>(response.size()))
+              else
               {
                 itc::getLog()->error(
                   __FILE__,__LINE__,
                   "Can't send OK response for the protocol upgrade after handshake to peer %s. Closing this WebSocket",
-                  peer_addr.c_str()
+                  wssocket->getPeerAddress().c_str()
                 );
+
                 wssocket->setState(WSType::CLOSED);
-                return;
+                return;   
               }
-              wssocket->setState(WSType::MESSAGING);
-              return;
-            }else{
+            }catch(const std::exception& e)
+            {
               itc::getLog()->error(
                 __FILE__,__LINE__,
-                "Shakespeer::handshake() was unsuccessful for peer %s. Closing this WebSocket.",
-                peer_addr.c_str()
+                "Exception on handshake with peer %s: %s",
+                wssocket->getPeerAddress().c_str(),e.what()
               );
-              wssocket->send(forbidden);
               wssocket->setState(WSType::CLOSED);
               return;
             }
-          }else
-          {
-            wssocket->setState(WSType::CLOSED);
-            itc::getLog()->info(
+          }else{
+            itc::getLog()->error(
               __FILE__,__LINE__,
-              "Communication error on handshake with peer with fd %d. Closing this WebSocket",
-              wssocket->getfd()
+              "Shakespeer::handshake() was unsuccessful for peer %s. Closing this WebSocket.",
+              wssocket->getPeerAddress().c_str()
             );
+            wssocket->send_sync(forbidden);
+            wssocket->setState(WSType::CLOSED);
+            return;
           }
         }
         else
         {
-          itc::getLog()->error(__FILE__,__LINE__,"The socket has wrong state [%u] for handshake",wssocket->getState());
+          wssocket->setState(WSType::CLOSED);
+          itc::getLog()->info(
+            __FILE__,__LINE__,
+            "Communication error on handshake with peer on fd %d. Closing this WebSocket",
+            wssocket->getfd()
+          );
         }
       }
     

@@ -28,7 +28,6 @@
 #include <mutex>
 #include <sys/synclock.h>
 #include <IOWorker.h>
-#include <ePollController.h>
 
 template <bool TLSEnable=false, bool StatsEnable=false> class WSWorkersPool
 {
@@ -50,9 +49,8 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WSWorkersPool
     SyncLock sync(mMutex);
     auto worker=std::make_shared<WorkerType>(mWorkers.size(),maxC, auto_fragment);
     mWorkers.push_back(
-      std::make_shared<WorkerThread>(worker)
+      std::make_shared<WorkerThread>(std::move(worker))
     );
-    worker->getEPollController()->setView(worker);
   }
   auto next()
   {
