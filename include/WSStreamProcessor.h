@@ -191,7 +191,7 @@ private:
           }
 
           currentOpCode=static_cast<WebSocketProtocol::OpCode>(headerBytes[0]&0x0F);
-          
+
           /**
            * Fail connection on unsupported opcodes.
            **/

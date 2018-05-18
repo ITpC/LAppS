@@ -31,8 +31,7 @@
 #include <WorkerStats.h>
 #include <abstract/Application.h>
 #include <WSEvent.h>
-#include <EventBus.h>
-#include <ePollController.h>
+
 
 namespace abstract
 {
@@ -89,7 +88,6 @@ namespace abstract
     virtual void deleteConnection(const int32_t)=0;
     virtual void submitResponse(const int, const MSGBufferTypeSPtr&)=0;
     virtual void submitResponse(const int, std::queue<MSGBufferTypeSPtr>&)=0;
-    virtual void setEPollController(const LAppS::ePollControllerSPtrType&)=0;
    protected:
     virtual ~Worker()=default;
   };
