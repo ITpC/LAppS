@@ -94,6 +94,7 @@ namespace LAppS
               auto stats2=mWorkersCache[i]->getStats();
               if(stats.mConnections>stats2.mConnections) // candidate i
               {
+                choosen=i;
                 if(stats.mEventQSize > stats2.mEventQSize)
                 {
                   stats=stats2;

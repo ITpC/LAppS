@@ -38,7 +38,7 @@
 #include <abstract/Application.h>
 #include <WSStreamProcessor.h>
 #include <WSServerMessage.h>
-#include <EventBus.h>
+#include <ePoll.h>
 #include <Config.h>
 
 // LibreSSL
@@ -46,11 +46,12 @@
 
 #include <WSConnectionStats.h>
 
-static thread_local std::vector<uint8_t> mInBuffer(8192);
+static thread_local std::vector<uint8_t> anInBuffer(8192);
 
 namespace io
 {
-    enum Status : int32_t  { ERROR=-1, POLLIN=-2, POLLOUT=-3 };
+  enum Status : int32_t  { ERROR=-1, POLLIN=-2, POLLOUT=-3 };
+  enum NextOp:  uint8_t  { SEND, RECV, ANY };
 }
 
 
@@ -59,33 +60,38 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
  public:
   enum State { HANDSHAKE, MESSAGING, CLOSED };
   
-  typedef std::shared_ptr<LAppS::EBUS::EventBus> SharedEventBus;
-  
  private:
-  State                               mState;
-  itc::CSocketSPtr                    mSocketSPtr;
-  WSStreamParser                      streamProcessor;
-  
-  struct tls*                         TLSContext;
-  struct tls*                         TLSSocket;
-  
-  ApplicationSPtr                     mApplication;
-  
+  int                                 fd;
   size_t                              mWorkerId;
-  SharedEventBus                      mEventBus;
-  
-  WSConnectionStats                   mStats;
+  State                               mState;
+  io::NextOp                          mNextOp;
   
   itc::utils::Bool2Type<TLSEnable>    enableTLS;
   itc::utils::Bool2Type<StatsEnable>  enableStatsUpdate;
   
+  struct tls*                         TLSContext;
+  struct tls*                         TLSSocket;
   
-  std::queue<MSGBufferTypeSPtr> mOutMessages;
+  itc::CSocketSPtr                    mSocketSPtr;
   
+  uint32_t                            mPeerIP;
+  std::string                         mPeerAddress;
+  
+  WSStreamParser                      streamProcessor;
+  
+  ApplicationSPtr                     mApplication;
+  
+  SharedEPollType                     mEPoll;
+  
+  WSConnectionStats                   mStats;
+  
+  std::queue<MSGBufferTypeSPtr>       mOutMessages;
+  
+  size_t                              mOutCursor;
   
   void init(const itc::utils::Bool2Type<true> tls_is_enabled)
   {
-    if(tls_accept_socket(TLSContext,&TLSSocket,mSocketSPtr->getfd()))
+    if(tls_accept_socket(TLSContext,&TLSSocket,fd))
     {
       throw std::system_error(errno,std::system_category(),"TLS: can't accept socket");
     }
@@ -95,153 +101,147 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   {
   }
   
-  int recv(std::vector<uint8_t>& buff, const int flags,const itc::utils::Bool2Type<false> fictive)
-  {
-    return mSocketSPtr.get()->recv((void*)(buff.data()),buff.size(),flags);
-  }
-  
-  int recv(std::vector<uint8_t>& buff, const int flags,const itc::utils::Bool2Type<true> fictive)
-  {
-    int ret=0;
-    
-    do{
-      ret=tls_read(TLSSocket,buff.data(),buff.size());
-    
-      if(ret == -1)
-      {
-        itc::getLog()->error(__FILE__,__LINE__,"Error on reading from TLS socket: %s",tls_error(TLSSocket));
-        break;
-      }
-    }while(ret == TLS_WANT_POLLIN || ret == TLS_WANT_POLLOUT);
-    return ret;
-  }
-    
-  int send(const std::vector<uint8_t>& buff,const itc::utils::Bool2Type<false> noTLS)
-  {
-    if(mSocketSPtr)
-    {
-      auto ret=mSocketSPtr->write(buff.data(),buff.size());
-      return ret;
-    }
-    else
-    {
-      itc::getLog()->error(__FILE__,__LINE__,"Socket Shared pointer is invalid");
-      return -1;
-    }
-  }
-  
-  int send(const std::vector<uint8_t>& buff,const itc::utils::Bool2Type<true> withTLS)
-  {
-    int ret=0;
-    size_t offset=0;
-    do
-    {
-      ret=tls_write(TLSSocket,buff.data()+offset,buff.size()-offset);
-      
-      if(ret == -1)
-      {
-        itc::getLog()->error(__FILE__,__LINE__,"Error on reading from TLS socket: %s",tls_error(TLSSocket));
-        return ret;
-      }
-      
-      if((ret != TLS_WANT_POLLIN)&&(ret != TLS_WANT_POLLOUT))
-        offset+=ret;
-      
-    }while(offset!=buff.size());
-    
-    return buff.size();
-  }
-  
  public:
+
+  WebSocket(const WebSocket&) = delete;
+  WebSocket(WebSocket&) = delete;
+  explicit WebSocket(
+    const itc::CSocketSPtr&  socksptr, 
+    const size_t&            workerid, 
+    const SharedEPollType&   ep, 
+    struct tls*              tls_context=nullptr
+  )
+  : fd(socksptr->getfd()),     mWorkerId(workerid),     mState(HANDSHAKE),
+    mNextOp(io::NextOp::RECV), enableTLS(),             enableStatsUpdate(),
+    TLSContext(tls_context),   TLSSocket(nullptr),      mSocketSPtr(std::move(socksptr)),
+    streamProcessor(512),      mEPoll(ep),              mStats{0,0,0,0,512,512}, 
+    mOutMessages(),            mOutCursor(0)
+  {
+    init(enableTLS);
+    mSocketSPtr->getpeeraddr(mPeerIP);
+    mSocketSPtr->getpeeraddr(mPeerAddress);
+    mEPoll->add_in(fd);
+  }
+    
+  WebSocket()=delete;
+  
+  ~WebSocket()
+  {
+    switch(mState)
+    {
+      case State::MESSAGING:
+      {
+        int flags = fcntl(fd, F_GETFL, 0);
+        fcntl(fd, F_SETFL, flags&(~O_NONBLOCK));
+
+        this->closeSocket(WebSocketProtocol::SHUTDOWN);
+
+        while(sendNextSync());
+
+        if(TLSEnable)
+        {
+          int ret=0;
+          do
+          {
+            ret=tls_close(TLSSocket);
+          }while((ret == TLS_WANT_POLLIN)||(ret == TLS_WANT_POLLOUT));
+          
+          tls_free(TLSSocket);
+        }
+        setState(CLOSED);
+
+        if(mApplication) 
+          mApplication->enqueueDisconnect(mWorkerId,fd);
+
+        mSocketSPtr->close();
+      }
+      break;  
+      case State::CLOSED:
+        if(TLSEnable)
+        {
+          tls_close(TLSSocket);
+          tls_free(TLSSocket);
+        }
+        
+        if(mApplication)
+          mApplication->enqueueDisconnect(mWorkerId,fd);
+        
+        mSocketSPtr->close();
+        
+        break;
+      case HANDSHAKE:
+        mState=CLOSED;
+        if(TLSEnable)
+        {
+          tls_close(TLSSocket);
+          tls_free(TLSSocket);
+        }
+        mSocketSPtr->close();
+        break;
+    }
+  }
+  
+  const uint32_t getPeerIP() const
+  {
+    return mPeerIP;
+  }
+  
+  const std::string& getPeerAddress() const
+  {
+    return mPeerAddress;
+  }
+  const WSConnectionStats& getStats() const
+  {
+    return mStats;
+  }
+  
+  void changeFlowToOut()
+  {
+    mNextOp=io::NextOp::SEND;
+    mEPoll->mod_out(fd);
+  }
+  
+  void changeFlowToIn()
+  {
+    mNextOp=io::NextOp::RECV;
+    mEPoll->mod_in(fd);
+  }
   
   void pushOutMessage(std::queue<MSGBufferTypeSPtr>& messages)
   {
-    auto events=std::vector<LAppS::EBUS::Event>(messages.size(),{LAppS::EBUS::OUT,this->getfd()});
-    while(!messages.empty())
+    if(mState == State::MESSAGING)
     {
-      mOutMessages.push(std::move(messages.front()));
-      messages.pop();
+      while(!messages.empty())
+      {
+        mOutMessages.push(std::move(messages.front()));
+        messages.pop();
+      }
+      changeFlowToOut();
+      mStats.mOutMessageCount=mOutMessages.size();
     }
-    mEventBus->push(events);
   }
   
   void pushOutMessage(const MSGBufferTypeSPtr& msg)
   {
-    mOutMessages.push(msg);
-    mEventBus->push({LAppS::EBUS::OUT,this->getfd()});
+    if(mState == State::MESSAGING)
+    {
+      mOutMessages.push(msg);
+      changeFlowToOut();
+      mStats.mOutMessageCount=mOutMessages.size();
+    }
   }
 
-  const bool handleInput()
-  {
-    int received=this->recv(mInBuffer,MSG_NOSIGNAL);
-    switch(received)
-    {
-      case -1: 
-        if(errno != EAGAIN) 
-        {
-          return false;
-        }
-        return true;
-      default:
-        this->processInput(mInBuffer,received);
-        return true;
-    }
-  }
-  
-  /**
-   * @brief sending next prepared outstanding WebSocket message
-   **/
-  const bool sendNext()
-  {
-    if(mState != MESSAGING)
-      return false;
-    
-    if(mOutMessages.empty())
-    {
-      return true;
-    }
-    else
-    {
-      auto message=std::move(mOutMessages.front());
-      mOutMessages.pop();
-      
-      int ret=this->send(*message);
-      
-      if(ret == -1)
-      {
-        itc::getLog()->error(__FILE__,__LINE__,"Communication error on WebSocket::sendNext(). Closing this connection.");
-        this->setState(CLOSED);
-        return false;
-      }else{
-        if(static_cast<size_t>(ret) != message->size())
-        {
-          itc::getLog()->error(__FILE__,__LINE__,"Incomplete message send on WebSocket::sendNext(). Should never happen. Closing this connection.");
-          closeSocket(WebSocketProtocol::PROTOCOL_VIOLATION);
-          return false;
-        }
-        if((*message)[0] == (128|8)) // close
-        {
-          mApplication->enqueue({mWorkerId,this->getfd(),{WebSocketProtocol::OpCode::CLOSE,std::move(message)}});
-          this->setState(CLOSED);
-          return false;
-        }
-        return true;
-      }
-    }
-  }
-  
   void setApplication(const ApplicationSPtr ptr)
   {
     mApplication=ptr;
     if(mApplication)
     {
       streamProcessor.setMaxMSGSize(mApplication->getMaxMSGSize());
+      mNextOp=io::NextOp::RECV;
+      int flags = fcntl(fd, F_GETFL, 0);
+      fcntl(fd, F_SETFL, flags|O_NONBLOCK);
+      mEPoll->mod_in(fd);
     }
-  }
-  
-  void setWorkerId(const size_t id)
-  {
-    mWorkerId=id;
   }
   
   bool isValid()
@@ -256,92 +256,87 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
         "Connection::setState(), - new state is out of order"
     );
   }
-  WebSocket()=delete;
   
-  explicit WebSocket(const itc::CSocketSPtr socksptr,SharedEventBus ebus, tls* tls_context=nullptr)
-  : mState(HANDSHAKE),mSocketSPtr(socksptr),streamProcessor(512),TLSContext(tls_context),
-    mEventBus(ebus), mStats{0,0,0,0,512,512},enableTLS(),enableStatsUpdate()
+  const State getState() const
   {
-    init(enableTLS);
+    return mState;
   }
-  void getPeerIP(uint32_t& peeraddr)
+  const int getfd() const
   {
-    mSocketSPtr->getpeeraddr(peeraddr);
+    return fd;
   }
   
-  void getPeerIP(std::string& peeraddr)
+  const io::NextOp getNextOp() const
   {
-    mSocketSPtr->getpeeraddr(peeraddr);
+    return mNextOp;
   }
-  const WSConnectionStats& getStats() const
+  
+  int recv_sync(std::vector<uint8_t>& buff)
   {
-    return mStats;
+    return this->recv_sync(buff,enableTLS);
   }
-  ~WebSocket()
+
+  int send_sync(const std::vector<uint8_t>& buff)
   {
-    switch(mState)
+    updateOutStats(buff.size());
+    return this->send_sync(buff,enableTLS);  
+  }
+  
+  const bool handleIO()
+  {
+    if(mState == State::MESSAGING)
     {
-      case MESSAGING:
-        if((mSocketSPtr->isValid()))
-        {
-          this->closeSocket(WebSocketProtocol::SHUTDOWN);
-          
-          while((!mOutMessages.empty())&&sendNext());
-          
-          if(TLSEnable)
+      switch(mNextOp)
+      {
+        case io::NextOp::ANY:
+          chooseFlow();
+          return handleIO();
+        case io::NextOp::RECV:
+          switch(this->handleInput())
           {
-            tls_close(TLSSocket);
-            tls_free(TLSSocket);
+            case io::Status::ERROR:
+              return false;
+            case io::Status::POLLIN:
+            case io::Status::POLLOUT:
+              return true;
+            default:
+              return true;
           }
-          if(mApplication) 
-            mApplication->enqueueDisconnect(mWorkerId,this->getfd());
-          mSocketSPtr.get()->close();
-          setState(CLOSED);
-        }
-        break;
-      case CLOSED:
-        if((mSocketSPtr->isValid()))
-        {
-          if(TLSEnable)
+        case io::NextOp::SEND:
+          switch(this->handleOutput())
           {
-            tls_close(TLSSocket);
-            tls_free(TLSSocket);
+            case io::Status::ERROR:
+              return false;
+            case io::Status::POLLIN:
+            case io::Status::POLLOUT:
+              return true;
+            default:
+              return true;
           }
-          if(mApplication)
-            mApplication->enqueueDisconnect(mWorkerId,this->getfd());
-          mSocketSPtr.get()->close();
-        }
-        break;
-      case HANDSHAKE:
-        mState=CLOSED;
-        if((mSocketSPtr->isValid()))
-        {
-          if(TLSEnable)
-          {
-            tls_close(TLSSocket);
-            tls_free(TLSSocket);
-          }
-          mSocketSPtr.get()->close();
-        }
-        break;
+      }
     }
+    
+    return false;
   }
-  WebSocket(const WebSocket&) = delete;
-  WebSocket(WebSocket&) = delete;
   
+private:
+ 
   void processInput(const std::vector<uint8_t>& input,const size_t input_size)
   {
-    if(mState!=MESSAGING)
+    if(mState!=State::MESSAGING)
     {
       return;
     }
+    
     size_t cursor=0;
     again:
-    auto state=streamProcessor.parse(input.data(),input_size,cursor,mSocketSPtr->getfd());
+    auto state=streamProcessor.parse(input.data(),input_size,cursor,fd);
     
     switch(state.directive)
     {
       case WSStreamProcessing::Directive::MORE:
+        mNextOp=io::NextOp::RECV;
+        mEPoll->mod_in(fd);
         return;
       case WSStreamProcessing::Directive::TAKE_READY_MESSAGE:
         if(onMessage(streamProcessor.getMessage())&&(state.cursor!=input_size))
@@ -349,34 +344,112 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
           cursor=state.cursor;
           goto again; 
         }
+        mNextOp=io::NextOp::ANY;
         return;
       case WSStreamProcessing::Directive::CLOSE_WITH_CODE:
         closeSocket(state.cCode);
         return;
     }
   }
-  const State getState() const
+  
+   /**
+   * @brief sending next prepared outstanding WebSocket message
+   **/
+  const int sendNext()
   {
-    return mState;
+    if(mOutMessages.empty())
+    {
+      changeFlowToIn();
+      mStats.mOutMessageCount=0;
+      return io::Status::POLLIN;
+    }
+    else
+    {
+      auto message=mOutMessages.front();
+      int ret=this->send(*message);
+      if((ret > 0 )&&(message->size() == static_cast<size_t>(ret)))
+      {
+        mOutMessages.pop();
+        if((*message)[0] == (128|8)) // close
+        {
+          mState=State::CLOSED;
+          mStats.mOutMessageCount=0;
+          return io::Status::ERROR;
+        }
+        else
+        {
+          if(mOutMessages.empty())
+          {
+            changeFlowToIn();
+            mStats.mOutMessageCount=0;
+            return ret;
+          }
+        }
+      }
+      changeFlowToOut();
+      mStats.mOutMessageCount=mOutMessages.size();
+      return ret;
+    }
   }
-  const int getfd() const
+  const bool sendNextSync()
   {
-    return mSocketSPtr.get()->getfd();
+    if(mOutMessages.empty())
+    {
+      return false;
+    }
+    else
+    {
+      auto message=mOutMessages.front();
+      int ret=this->send(*message);
+      if(ret > 0 )
+      {
+        mOutMessages.pop();
+        if((*message)[0] == (128|8)) // close
+        {
+          mApplication->enqueueDisconnect(mWorkerId,fd);
+          return false;
+        }
+        return true;
+      }
+      return false;
+    }
+  }
+  int handleInput()
+  {
+    if(mState == State::MESSAGING)
+    {
+      int ret=this->recv(anInBuffer);
+      
+      if(ret>0)
+      {
+        processInput(anInBuffer,ret);
+      }
+      return ret;
+    }
+    return io::Status::ERROR;
   }
   
-  int recv(std::vector<uint8_t>& buff,const int flags=0)
+  int handleOutput()
   {
-    return this->recv(buff,flags,enableTLS);
+    if(mState == State::MESSAGING)
+    {
+      return sendNext();
+    }
+    return io::Status::ERROR;
+  }
+  // async IO is private.
+  int recv(std::vector<uint8_t>& buff)
+  {
+    updateInStats(buff.size());
+    return this->recv(buff,enableTLS);
   }
 
   int send(const std::vector<uint8_t>& buff)
   {
     updateOutStats(buff.size());
-    int ret=this->send(buff,enableTLS);  
-    return ret;
+    return this->send(buff,enableTLS);  
   }
-  
-private:
+ 
   void updateInStats(const size_t sz)
   {
     updateInStats(sz,enableStatsUpdate);
@@ -405,7 +478,7 @@ private:
   
   bool onMessage(const WSEvent& ref)
   {
-    if(mApplication.get() == nullptr)
+    if(!mApplication)
     {
       throw std::system_error(EINVAL, std::system_category(), "No backend application available yet");
     }
@@ -415,68 +488,46 @@ private:
     switch(ref.type)
     {
       case WebSocketProtocol::TEXT:
-      {
         if(streamProcessor.isValidUtf8(ref.message->data(),ref.message->size()))
         {
-          mApplication->enqueue({mWorkerId,this->getfd(),ref});
-          return true;
-          
-          /*
-          WebSocketProtocol::ServerMessage tmp(outBuffer,WebSocketProtocol::TEXT,ref.message);
-          
-          int ret=this->send(outBuffer);
-          if(ret == -1) return false;
-          else return true;
-          */
+          mApplication->enqueue({mWorkerId,fd,ref});
+          return true;          
         }
         else 
         {
           closeSocket(WebSocketProtocol::BAD_DATA);     
           return false;
         }
-      }
-      break;
       case WebSocketProtocol::BINARY:
-      {
-        
-        mApplication->enqueue({mWorkerId,this->getfd(),ref});
+        mApplication->enqueue({mWorkerId,fd,ref});
         return true;
-        
-        /*
-        WebSocketProtocol::ServerMessage(outBuffer,WebSocketProtocol::BINARY,ref.message);
-        int ret=this->send(outBuffer);
-        if(ret == -1) return false;
-        else return true;
-        */
-      }
       break;
       case WebSocketProtocol::CLOSE:
         onCloseMessage(ref);
         return false;
-        break;
       case WebSocketProtocol::PING:
-        return sendPong(ref);
-        break;
+        sendPong(ref);
+        return true;
       case WebSocketProtocol::PONG: 
         // RFC 6455: A response to an unsolicited Pong frame is not expected.
         // This server does not requires in PONG at all, so all PONGs are
         // ignored.
+        mNextOp=io::NextOp::RECV;
+        mEPoll->mod_in(fd);
         return true;
-        break;
       default:
         closeSocket(WebSocketProtocol::PROTOCOL_VIOLATION);
         return false;
-        break;
     }
     return true;
   }
   
   void closeSocket(const WebSocketProtocol::DefiniteCloseCode& ccode)
   {
+    mApplication->enqueueDisconnect(mWorkerId,fd);
     auto outBuffer=std::make_shared<MSGBufferType>();
-    
     WebSocketProtocol::ServerCloseMessage(*outBuffer,ccode);
-    mApplication->enqueueDisconnect(mWorkerId,this->getfd(),outBuffer);
+    pushOutMessage(outBuffer);
   }
   
   void onCloseMessage(const WSEvent& event)
@@ -543,19 +594,14 @@ RFC 6455                 The WebSocket Protocol            December 2011
    unidirectional heartbeat.  A response to an unsolicited Pong frame is
    not expected.
    **/  
-  const bool sendPong(const WSEvent& event)
+  void sendPong(const WSEvent& event)
   {
     auto outBuffer=std::make_shared<MSGBufferType>();
     WebSocketProtocol::ServerPongMessage(
       *outBuffer,
       event.message
     );
-    if(mApplication)
-    {
-      mApplication->enqueuePong(mWorkerId,this->getfd(),outBuffer);
-      return true;
-    }
-    return false;
+    pushOutMessage(outBuffer);
   }
   
   void updateOutStats(const size_t sz)
@@ -583,54 +629,68 @@ RFC 6455                 The WebSocket Protocol            December 2011
   {
     
   }
-  /*
-  int get(std::vector<uint8_t>& buff, const itc::utils::Bool2Type<false> noTLS)
+  
+  void chooseFlow()
   {
-    int ret=::recv(fd,buff.data(),buff.size(),MSG_NOSIGNAL);
-    if(ret == -1)
+    if(mNextOp==io::NextOp::ANY)
     {
-      if((errno == EWOULDBLOCK)||(errno == EAGAIN))
+      if(mOutMessages.size()>0)
       {
-        mEPoll->mod(fd);
-        return io::Status::POLLIN;
+      mNextOp=io::NextOp::SEND;
+      mEPoll->mod_out(fd);
       }
       else
       {
-        if(mApplication) mApplication->enqueueDisconnect(mWorkerID,fd);
-        mState=io::State::CLOSED;
-        return io::Status::ERROR;
+        mNextOp=io::NextOp::RECV;
+        mEPoll->mod_in(fd);
       }
     }
-    if(mOutMessages.size()>0) mEPoll->mod_out(fd);
-    else mEPoll->mod(fd);
-    return ret;
   }
-
-  int get(std::vector<uint8_t>& buff, const itc::utils::Bool2Type<true> withTLS)
+  
+  int recv(std::vector<uint8_t>& buff, const itc::utils::Bool2Type<true> withTLS)
   {
     int ret=tls_read(TLSSocket,buff.data(),buff.size());
 
     switch(ret)
     {
       case -1:
-        if(mApplication) mApplication->enqueueDisconnect(mWorkerID,fd);
-        mState=io::State::CLOSED;
+        if(mApplication) mApplication->enqueueDisconnect(mWorkerId,fd);
+        mState=State::CLOSED;
         return io::Status::ERROR;
       case TLS_WANT_POLLIN:
-        mEPoll->mod(fd);
+        mEPoll->mod_in(fd);
         return io::Status::POLLIN;
       case TLS_WANT_POLLOUT:
         mEPoll->mod_out(fd);
         return io::Status::POLLOUT;
       default:
-        if(mOutMessages.size()>0)
-          mEPoll->mod_out(fd);
-        else mEPoll->mod(fd);
+        mNextOp=io::NextOp::ANY;
         return ret;
     }
   }
 
-  const int put(const std::vector<uint8_t>& buff,const itc::utils::Bool2Type<false> noTLS)
+  int recv(std::vector<uint8_t>& buff, const itc::utils::Bool2Type<false> noTLS)
+  {
+    int ret=::recv(fd,buff.data(),buff.size(),MSG_NOSIGNAL);
+    if(ret == -1)
+    {
+      if((errno == EWOULDBLOCK)||(errno == EAGAIN))
+      {
+        mEPoll->mod_in(fd);
+        return io::Status::POLLIN;
+      }
+      else
+      {
+        if(mApplication) mApplication->enqueueDisconnect(mWorkerId,fd);
+        mState=State::CLOSED;
+        return io::Status::ERROR;
+      }
+    }
+    mNextOp=io::NextOp::ANY;
+    return ret;
+  }
+
+  const int send(const std::vector<uint8_t>& buff,const itc::utils::Bool2Type<false> noTLS)
   {
     const int result=::send(fd,buff.data()+mOutCursor,buff.size()-mOutCursor,MSG_NOSIGNAL);
 
@@ -641,59 +701,129 @@ RFC 6455                 The WebSocket Protocol            December 2011
         mEPoll->mod_out(fd);
         return io::Status::POLLOUT;
       }
-      if(mApplication) mApplication->enqueueDisconnect(mWorkerID,fd);
-      mState=io::State::CLOSED;
+      if(mApplication) mApplication->enqueueDisconnect(mWorkerId,fd);
+      mState=State::CLOSED;
       return io::Status::ERROR;
     }
-
+    
+    mOutCursor+=result;
+    
     if(mOutCursor != buff.size())
     {
-      mOutCursor+=result;
       mEPoll->mod_out(fd);
       return io::Status::POLLOUT;
     }
 
-    if(mOutMessages.size()>0)
-          mEPoll->mod_out(fd);
-    else mEPoll->mod(fd);
-
     mOutCursor=0;
-
+    mNextOp=io::NextOp::ANY;
     return buff.size();
   }
 
-  const int put(const std::vector<uint8_t>& buff,const itc::utils::Bool2Type<true> withTLS)
+  const int send(const std::vector<uint8_t>& buff,const itc::utils::Bool2Type<true> withTLS)
   {
     const int result=tls_write(TLSSocket,buff.data()+mOutCursor,buff.size()-mOutCursor);
     switch(result)
     {
       case -1:
-        if(mApplication) mApplication->enqueueDisconnect(mWorkerID,fd);
-        mState=io::State::CLOSED;
+        if(mApplication) mApplication->enqueueDisconnect(mWorkerId,fd);
+        mState=State::CLOSED;
         return io::Status::ERROR;
       case TLS_WANT_POLLIN:
-        mEPoll->mod(fd);
+        mEPoll->mod_in(fd);
         return io::Status::POLLIN;
       case TLS_WANT_POLLOUT:
         mEPoll->mod_out(fd);
         return io::Status::POLLOUT;
       default:
+        mOutCursor+=result;
+        
         if(mOutCursor != buff.size())
         {
-          mOutCursor+=result;
           mEPoll->mod_out(fd);
           return io::Status::POLLOUT;
         }
-        if(mOutMessages.size()>0)
-          mEPoll->mod_out(fd);
-        else mEPoll->mod(fd);
-
         mOutCursor=0;
-
+        mNextOp=io::NextOp::ANY;
         return buff.size();
     }
   }
-  */
+  
+  int recv_sync(std::vector<uint8_t>& buff, const itc::utils::Bool2Type<false> noTLS)
+  {
+    while(1)
+    {
+      int ret=::recv(fd,buff.data(),buff.size(),MSG_NOSIGNAL);
+      if(ret == -1)
+      {
+        if((errno == EWOULDBLOCK)||(errno == EAGAIN))
+        {
+          continue;
+        }
+        else
+        {
+          return io::Status::ERROR;
+        }
+      }
+      return ret;
+    }
+  }
+  
+  int recv_sync(std::vector<uint8_t>& buff, const itc::utils::Bool2Type<true> withTLS)
+  {
+    int ret=0;
+    
+    do{
+      ret=tls_read(TLSSocket,buff.data(),buff.size());
+    
+      if(ret == -1)
+      {
+        return -1;
+      }
+    }while((ret == TLS_WANT_POLLIN) || (ret == TLS_WANT_POLLOUT));
+    return ret;
+  }
+   
+  const int send_sync(const std::vector<uint8_t>& buff,const itc::utils::Bool2Type<false> noTLS)
+  {
+    size_t outCursor=0;
+    do
+    {
+      const int result=::send(fd,buff.data()+outCursor,buff.size()-outCursor,MSG_NOSIGNAL);
+
+      if(result == -1)
+      {
+        if((errno == EAGAIN)||(errno == EWOULDBLOCK))
+          continue;
+        return io::Status::ERROR;
+      }
+
+      outCursor+=result;
+
+    } while(outCursor != buff.size());
+
+    return outCursor;
+  }
+
+  const int send_sync(const std::vector<uint8_t>& buff,const itc::utils::Bool2Type<true> withTLS)
+  {
+    size_t outCursor=0;
+    do
+    {
+      const int result=tls_write(TLSSocket,buff.data()+outCursor,buff.size()-outCursor);
+
+      if((result == TLS_WANT_POLLIN) || (result == TLS_WANT_POLLOUT))
+        continue;
+
+      if(result == -1)
+      {
+        mState=State::CLOSED;
+        return io::Status::ERROR;
+      }
+      outCursor+=result;
+    }while(outCursor!=buff.size());
+
+    return outCursor;
+  }
 };
 
 #endif /* __WEBSOCKET_H__ */
