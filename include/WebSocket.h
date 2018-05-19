@@ -309,7 +309,6 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
               return false;
             case io::Status::POLLIN:
             case io::Status::POLLOUT:
-              return true;
             default:
               return true;
           }

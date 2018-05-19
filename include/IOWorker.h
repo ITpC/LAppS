@@ -90,6 +90,7 @@ namespace LAppS
     {
       SyncLock sync(mInboundMutex);
       mInboundConnections.push(std::move(socketsptr));
+      mStats.mConnections=mConnections.size()+mInboundConnections.size();
       haveNewConnections.store(true);
     }
     
@@ -100,6 +101,7 @@ namespace LAppS
       {
         mInboundConnections.push(std::move(socketsptr[i]));
       }
+      mStats.mConnections=mConnections.size()+mInboundConnections.size();
       haveNewConnections.store(true);
     }
         
@@ -176,7 +178,7 @@ namespace LAppS
     
     void updateStats()
     {
-      mStats.mConnections=mConnections.size();
+      mStats.mConnections=mConnections.size()+mInboundConnections.size();
     }
     
     void submitResponse(const int fd, std::queue<MSGBufferTypeSPtr>& messages)

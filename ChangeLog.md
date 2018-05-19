@@ -1,3 +1,4 @@
+* 19.05.2018 - 0.6.3 branched-out and marked stable. 0.7.0 branch is in upstream - experimental work on performance improvements.
 * 09.05.2018 - 0.6.2; New features: service configuration option max_inbound_message_size to limit size of inbound messages
 * 09.05.2018 - 0.6.2; New features: workers configuration option: max_connections  to limit maximum amount of connections per worker (10 000 by default)
 * 09.05.2018 - 0.6.2; New features: workers configuration option: auto_fragment, - to autofragment outbound messages (default value: false)

@@ -23,13 +23,11 @@
 
 #ifndef __WORKERSTATS_H__
 #  define __WORKERSTATS_H__
-#include <mutex>
-#include <sys/synclock.h>
+
 
 /**
  * @brief statistics of every worker. No locking/syncing. Worker
- * writes to the stat-fields. ConsoleManager, gathers data from workers
- * "AS IS" with no guaranty of an accurate synchronized reading.
+ * writes to the stat-fields. No accuracy guarantee.
  * 
  **/
 struct WorkerStats
@@ -48,4 +46,3 @@ struct WorkerStats
 };
 
 #endif /* __WORKERSTATS_H__ */
-

@@ -65,7 +65,8 @@ namespace WebSocketProtocol
     
     FragmentedServerMessage(msgQType& out,const WebSocketProtocol::OpCode oc,const char* src, const size_t len)
     {
-      int fragments = len/1392;
+      const size_t fragment_pl_size=1392;
+      int fragments = len/fragment_pl_size;
       size_t bytes_left=len;
       size_t offset=0;
       
@@ -76,11 +77,11 @@ namespace WebSocketProtocol
         // first fragment
         outmsg->clear();
         outmsg->push_back(oc);
-        WS::putLength(1392,*outmsg);
+        WS::putLength(fragment_pl_size,*outmsg);
         offset=outmsg->size();
-        outmsg->resize(offset+1392);
-        memcpy(outmsg->data()+offset,src,1392);
-        bytes_left=bytes_left-1392;
+        outmsg->resize(offset+fragment_pl_size);
+        memcpy(outmsg->data()+offset,src,fragment_pl_size);
+        bytes_left=bytes_left-fragment_pl_size;
         out.push(outmsg);
         --fragments;
         
@@ -90,11 +91,11 @@ namespace WebSocketProtocol
           outmsg=std::make_shared<MSGBufferType>();
           outmsg->clear();
           outmsg->push_back(0);
-          WS::putLength(1392,*outmsg);
+          WS::putLength(fragment_pl_size,*outmsg);
           offset=outmsg->size();
-          outmsg->resize(offset+1392);
-          memcpy(outmsg->data()+offset,src+(len-bytes_left),1392);
-          bytes_left=bytes_left-1392;
+          outmsg->resize(offset+fragment_pl_size);
+          memcpy(outmsg->data()+offset,src+(len-bytes_left),fragment_pl_size);
+          bytes_left=bytes_left-fragment_pl_size;
           out.push(outmsg);
           --fragments;
         }
@@ -121,8 +122,8 @@ namespace WebSocketProtocol
     FragmentedServerMessage(msgQType& out,const WebSocketProtocol::OpCode oc,const std::vector<uint8_t>& src)
     {
       const size_t len=src.size();
-      
-      int fragments = len/1392;
+      const size_t fragment_pl_size=1392;
+      int fragments = len/fragment_pl_size;
       size_t bytes_left=len;
       size_t offset=0;
       
@@ -133,11 +134,11 @@ namespace WebSocketProtocol
         // first fragment
         outmsg->clear();
         outmsg->push_back(oc);
-        WS::putLength(1392,*outmsg);
+        WS::putLength(fragment_pl_size,*outmsg);
         offset=outmsg->size();
-        outmsg->resize(offset+1392);
-        memcpy(outmsg->data()+offset,src.data(),1392);
-        bytes_left=bytes_left-1392;
+        outmsg->resize(offset+fragment_pl_size);
+        memcpy(outmsg->data()+offset,src.data(),fragment_pl_size);
+        bytes_left=bytes_left-fragment_pl_size;
         out.push(outmsg);
         --fragments;
         
@@ -147,11 +148,11 @@ namespace WebSocketProtocol
           outmsg=std::make_shared<MSGBufferType>();
           outmsg->clear();
           outmsg->push_back(0);
-          WS::putLength(1392,*outmsg);
+          WS::putLength(fragment_pl_size,*outmsg);
           offset=outmsg->size();
-          outmsg->resize(offset+1392);
-          memcpy(outmsg->data()+offset,src.data()+(len-bytes_left),1392);
-          bytes_left=bytes_left-1392;
+          outmsg->resize(offset+fragment_pl_size);
+          memcpy(outmsg->data()+offset,src.data()+(len-bytes_left),fragment_pl_size);
+          bytes_left=bytes_left-fragment_pl_size;
           out.push(outmsg);
           --fragments;
         }

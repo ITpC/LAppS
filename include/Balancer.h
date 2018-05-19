@@ -87,18 +87,18 @@ namespace LAppS
 
           if(mWorkersCache.size()>0)
           {
-            size_t choosen=0;
+            size_t chosen=0;
             auto stats=mWorkersCache[0]->getStats();
             for(size_t i=1;i<mWorkersCache.size();++i)
             {
               auto stats2=mWorkersCache[i]->getStats();
               if(stats.mConnections>stats2.mConnections) // candidate i
               {
-                choosen=i;
+                chosen=i;
                 if(stats.mEventQSize > stats2.mEventQSize)
                 {
                   stats=stats2;
-                  choosen=i;
+                  chosen=i;
                 }
               }
               else
@@ -106,11 +106,11 @@ namespace LAppS
                 if(stats.mEventQSize > stats2.mConnections*mConnectionWeight)
                 {
                   stats=stats2;
-                  choosen=i;
+                  chosen=i;
                 }
               }
             }
-            mWorkersCache[choosen]->update(inbound_connection);
+            mWorkersCache[chosen]->update(inbound_connection);
           }else
           {
             mMayRun.store(false);

@@ -57,6 +57,9 @@ using websocketpp::lib::placeholders::_1;
 using websocketpp::lib::placeholders::_2;
 using websocketpp::lib::bind;
 
+std::string blob(1024,'c');
+size_t rounds_per_run=40000;
+
 size_t om_counter=0;
 
 uint64_t start=0;
@@ -77,17 +80,31 @@ typedef websocketpp::config::asio_client::message_type::ptr message_ptr;
 // prints the message and then sends a copy of the message back to the server.
 void on_message(client* c, websocketpp::connection_hdl hdl, message_ptr msg)
 {
-
-    //std::cout << "Message received: "  << msg->get_payload() << std::endl;
-    //
     om_counter++;
 
-    slice=time_now();
-    if((slice - start) >= 1000)
+    if(om_counter == rounds_per_run)
     {
-      std::cout << "Messages " << om_counter << " per " << slice - start << "ms" << std::endl;
-      start=time_now();
+      slice=time_now();
+      size_t ms = slice - start;
+      std::cout << om_counter << " messages of size " << blob.size() << " octets have had their roundtrips within " << ms << " ms " << std::endl; 
+      std::cout << "average rountrip time: " << float(om_counter)/float(ms) << " per ms, or " << (float(om_counter)/float(ms))*1000.0f << std::endl;
+      std::cout << "tabdata: " << blob.size() << " " << (float(om_counter)/float(ms))*1000.0f << std::endl; 
+      // 512kb max, no reason for larger blobs so far.
+      if(blob.size() < 262144)
+      {
+        blob=std::move(std::string(blob.size()*2,'x'));
+      }
+      else{
+        std::cout << "finished" << std::endl;
+        exit(0);
+      }
+      // make less iterations for larger blobs, or it never ends
+      if(rounds_per_run > 100)
+      {
+        rounds_per_run/=2;
+      }
       om_counter=0;
+      start=time_now();
     }
 
 
@@ -97,28 +114,21 @@ void on_message(client* c, websocketpp::connection_hdl hdl, message_ptr msg)
     if (ec) {
         std::cout << "Echo failed because: " << ec.message() << std::endl;
     }
-    //std::cout << "Message have been sent" << std::endl;
 }
 
 void on_open(client* c, websocketpp::connection_hdl hdl)
 {
   websocketpp::lib::error_code ec;
-  c->send(hdl,"ooooooooooooooooooooooooooooooooooooooooooooooooooooooooo\
-               ooooooooooooooooooooooooooooooooooooooooooooooooooooooooo\
-               ooooooooooooooooooooooooooooooooooooooooooooooooooooooooo\
-               ooooooooooooooooooooooooooooooooooooooo000000000000000000",
-  websocketpp::frame::opcode::text,ec);
+  start=time_now();
+  c->send(hdl,blob,websocketpp::frame::opcode::text,ec);
   if(ec)
   {
     std::cout << "Can't send a message: " << ec.message() << std::endl;
   }
   // else c->get_alog().write(websocketpp::log::alevel::app, "Sent Message: test");
 
-  c->send(hdl,"ooooooooooooooooooooooooooooooooooooooooooooooooooooooooo\
-               ooooooooooooooooooooooooooooooooooooooooooooooooooooooooo\
-               ooooooooooooooooooooooooooooooooooooooooooooooooooooooooo\
-               ooooooooooooooooooooooooooooooooooooooo000000000000000000",
-  websocketpp::frame::opcode::text,ec);
+  // speedup
+  c->send(hdl,"", websocketpp::frame::opcode::binary,ec);
   if(ec)
   {
     std::cout << "Can't send a message: " << ec.message() << std::endl;
@@ -138,7 +148,7 @@ int main(int argc, char* argv[]) {
     c.set_tls_init_handler(f);
 
 
-    std::string uri = "wss://localhost:5080/echo";
+    std::string uri = "wss://localhost:5083/echo";
 
     if (argc == 2) {
         uri = argv[1];
