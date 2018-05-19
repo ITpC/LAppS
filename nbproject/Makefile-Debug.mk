@@ -67,17 +67,17 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps: ../utils/dist/Debug/GNU-Linux/
 
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
-	g++ -pipe -Wall -pthread -O2 -mtune=native -march=native -fPIC -fstack-check -fstack-protector-strong -mfpmath=sse -msse2avx -ftree-vectorize -funroll-loops -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps ${OBJECTFILES} ${LDLIBSOPTIONS} -latomic -lcryptopp -ltls -lcrypto -lluajit-5.1 -lprofiler
+	g++ -pipe -Wall -pthread -O2 -mtune=native -march=native -fPIC -fstack-check -fstack-protector-strong -mfpmath=sse -msse2avx -ftree-vectorize -funroll-loops -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps ${OBJECTFILES} ${LDLIBSOPTIONS} -latomic -lcryptopp -ltls -lcrypto -lluajit-5.1
 
 ${OBJECTDIR}/src/getLog.o: src/getLog.cpp nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.cc) -g -DAPP_NAME=\"LAppS\" -DLOG_FILE=\"lapps.log\" -DLOG_INFO -DMAX_BUFF_SIZE=512 -DSTATS_ENABLE -DTSAFE_LOG=1 -DLAPPS_TLS_ENABLE -I../libressl/include -I../ITCFramework/include -I../ITCLib/include -I../utils/include -Iinclude -Iinclude/modules -I/usr/local/include -I/usr/local/include/luajit-2.0 -std=c++14 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/getLog.o src/getLog.cpp
+	$(COMPILE.cc) -g -DAPP_NAME=\"LAppS\" -DLOG_FILE=\"lapps.log\" -DLOG_INFO -DMAX_BUFF_SIZE=512 -DSTATS_ENABLE -DTSAFE_LOG=1 -I../libressl/include -I../ITCFramework/include -I../ITCLib/include -I../utils/include -Iinclude -Iinclude/modules -I/usr/local/include -I/usr/local/include/luajit-2.0 -std=c++14 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/getLog.o src/getLog.cpp
 
 ${OBJECTDIR}/src/main.o: src/main.cpp nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.cc) -g -DAPP_NAME=\"LAppS\" -DLOG_FILE=\"lapps.log\" -DLOG_INFO -DMAX_BUFF_SIZE=512 -DSTATS_ENABLE -DTSAFE_LOG=1 -DLAPPS_TLS_ENABLE -I../libressl/include -I../ITCFramework/include -I../ITCLib/include -I../utils/include -Iinclude -Iinclude/modules -I/usr/local/include -I/usr/local/include/luajit-2.0 -std=c++14 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/main.o src/main.cpp
+	$(COMPILE.cc) -g -DAPP_NAME=\"LAppS\" -DLOG_FILE=\"lapps.log\" -DLOG_INFO -DMAX_BUFF_SIZE=512 -DSTATS_ENABLE -DTSAFE_LOG=1 -I../libressl/include -I../ITCFramework/include -I../ITCLib/include -I../utils/include -Iinclude -Iinclude/modules -I/usr/local/include -I/usr/local/include/luajit-2.0 -std=c++14 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/main.o src/main.cpp
 
 # Subprojects
 .build-subprojects:

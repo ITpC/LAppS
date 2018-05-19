@@ -59,7 +59,7 @@ namespace LAppS
       mInbound.send(data);
     }
     
-    Balancer(const float connw=0.7):mConnectionWeight(connw),mMayRun(true),mWorkersCache(0)
+    Balancer(const float connw=0.7):mConnectionWeight(connw),mMayRun{true},mWorkersCache(0)
     {
       itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>::getInstance()->getWorkers(mWorkersCache);
     }

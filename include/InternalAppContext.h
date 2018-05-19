@@ -96,7 +96,7 @@ namespace LAppS
   public:
 
     InternalAppContext(const std::string& name):
-    ::abstract::ApplicationContext(name)
+    ::abstract::ApplicationContext(name), mMustStop{false},mCanStop{false}
     {
       luaL_openlibs(mLState);
 

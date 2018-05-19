@@ -74,10 +74,10 @@ namespace LAppS
      
     explicit IOWorker(const size_t id, const size_t maxConnections,const bool af)
     : Worker(id,maxConnections,af), enableTLS(),        enableStatsUpdate(), 
-      mMayRun(true),                mCanStop(false),    mConnectionsMutex(), 
+      mMayRun{true},                mCanStop{false},    mConnectionsMutex(), 
       mInboundMutex(),              mShakespeer(),      mEPoll(std::make_shared<ePoll>()),
       mInboundConnections(),        mConnections(),     mEvents(1000),
-      mNap(), haveConnections(false),haveNewConnections(false)
+      mNap(), haveConnections{false},haveNewConnections{false}
     {
       mConnections.clear();
     }
@@ -130,6 +130,7 @@ namespace LAppS
               {
                 if(error_bit(mEvents[i].events))
                 {
+                  SyncLock sync(mConnectionsMutex);
                   deleteConnection(mEvents[i].data.fd);
                 }
                 else 
