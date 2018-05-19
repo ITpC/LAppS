@@ -447,7 +447,8 @@ private:
   int send(const std::vector<uint8_t>& buff)
   {
     updateOutStats(buff.size());
-    return this->send(buff,enableTLS);  
+    int ret=this->send(buff,enableTLS);  
+    return ret;
   }
  
   void updateInStats(const size_t sz)
@@ -823,7 +824,7 @@ RFC 6455                 The WebSocket Protocol            December 2011
     }while(outCursor!=buff.size());
 
     return outCursor;
-  }
+  }  
 };
 
 #endif /* __WEBSOCKET_H__ */

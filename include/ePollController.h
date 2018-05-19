@@ -20,6 +20,17 @@
  * 
  **/
 
+/***
+ * DEPRECATED       DEPRECATED   DEPRECATED     DEPRECATED
+ * DE     CATED     DE           DE    CATED    DE    CATED
+ * DE     CATED     DE           DE    CATED    DE    CATED
+ * DE     CATED     DEPRECATED   DEPRECATED     DEPRECATED
+ * DE     CATED     DE           DE             DE REC
+ * DE     CATED     DE           DE             DE  ECA
+ * DEPRECATED       DEPRECATED   DE             DE   CATED  
+ * 
+ * ... you've got the idea. this sht is deprecated.
+ ***/
 
 #ifndef __EPOLLCONTROLLER_H__
 #  define __EPOLLCONTROLLER_H__

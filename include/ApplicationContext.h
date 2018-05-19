@@ -292,7 +292,7 @@ public:
     ApplicationContext(ApplicationContext&)=delete;
     
     explicit ApplicationContext(const std::string& appname, abstract::Application* parent)
-    : ::abstract::ApplicationContext(appname), mParent(parent),mMutex(),mustStop(false)
+    : ::abstract::ApplicationContext(appname), mParent(parent),mMutex(),mustStop{false}
     {
       luaL_openlibs(mLState);
       

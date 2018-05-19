@@ -96,7 +96,7 @@ namespace LAppS
     }
     
     explicit Application(const std::string& appName,const std::string& target,const size_t mims)
-    :  mMayRun(true),mMutex(),mName(appName), mTarget(target),
+    :  mMayRun{true},mMutex(),mName(appName), mTarget(target),
         max_inbound_message_size(mims),mAppContext(appName,this)
     {
       itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>::getInstance()->getWorkers(mWorkers);
@@ -155,7 +155,7 @@ namespace LAppS
       { 
         try
         {
-          auto te=mEvents.recv();
+          auto te=std::move(mEvents.recv());
           switch(te.event.type)
           {
             case WebSocketProtocol::OpCode::CLOSE:
@@ -166,13 +166,6 @@ namespace LAppS
               const bool exec_result=mAppContext.onMessage(te.wid,te.sockfd,te.event);
               if(!exec_result)
               {
-                /*
-                MSGBufferTypeSPtr outBuffer=std::make_shared<MSGBufferType>();
-
-                WebSocketProtocol::ServerCloseMessage(*outBuffer,WebSocketProtocol::DefiniteCloseCode::SHUTDOWN);
-
-                getWorker(te.wid)->submitResponse(te.sockfd,outBuffer);
-                 **/
                 mMayRun.store(false);
               }
             }
