@@ -29,6 +29,7 @@
 #include <WebSocket.h>
 #include <Shakespeer.h>
 #include <abstract/Worker.h>
+#include <sys/atomic_mutex.h>
 
 namespace LAppS
 {
@@ -46,8 +47,8 @@ namespace LAppS
       std::atomic<bool>                         mMayRun;
       std::atomic<bool>                         mCanStop;
       
-      std::mutex                                mConnectionsMutex;
-      std::mutex                                mInboundMutex;
+      itc::sys::AtomicMutex                     mConnectionsMutex;
+      itc::sys::AtomicMutex                     mInboundMutex;
       
       LAppS::Shakespeer<TLSEnable,StatsEnable>  mShakespeer;
       SharedEPollType                           mEPoll;
@@ -88,7 +89,7 @@ namespace LAppS
     
     void onUpdate(const ::itc::TCPListener::value_type& socketsptr)
     {
-      SyncLock sync(mInboundMutex);
+      AtomicLock sync(mInboundMutex);
       mInboundConnections.push(std::move(socketsptr));
       mStats.mConnections=mConnections.size()+mInboundConnections.size();
       haveNewConnections.store(true);
@@ -96,7 +97,7 @@ namespace LAppS
     
     void onUpdate(const std::vector<::itc::TCPListener::value_type>& socketsptr)
     {
-      SyncLock sync(mInboundMutex);
+      AtomicLock sync(mInboundMutex);
       for(size_t i=0;i<socketsptr.size();++i)
       {
         mInboundConnections.push(std::move(socketsptr[i]));
@@ -107,7 +108,7 @@ namespace LAppS
         
     const size_t getConnectionsCount() const
     {
-      SyncLock sync(mConnectionsMutex);
+      AtomicLock sync(mConnectionsMutex);
       return mConnections.size();
     }
     
@@ -124,7 +125,7 @@ namespace LAppS
         if(haveConnections)
         {
           try{
-            int ret=mEPoll->poll(mEvents,1);
+            int ret=mEPoll->poll(mEvents,10);
             if(ret > 0)
             {
               mStats.mEventQSize=ret;
@@ -132,7 +133,7 @@ namespace LAppS
               {
                 if(error_bit(mEvents[i].events))
                 {
-                  SyncLock sync(mConnectionsMutex);
+                  AtomicLock sync(mConnectionsMutex);
                   deleteConnection(mEvents[i].data.fd);
                 }
                 else 
@@ -158,7 +159,7 @@ namespace LAppS
     void shutdown()
     {
       mMayRun.store(false);
-      SyncLock sync(mConnectionsMutex);
+      AtomicLock sync(mConnectionsMutex);
       mConnections.clear();
       mCanStop.store(true);
     }
@@ -183,7 +184,7 @@ namespace LAppS
     
     void submitResponse(const int fd, std::queue<MSGBufferTypeSPtr>& messages)
     {
-      SyncLock sync(mConnectionsMutex);
+      AtomicLock sync(mConnectionsMutex);
       auto it=mConnections.find(fd);
       if(it!=mConnections.end())
       {
@@ -214,7 +215,7 @@ namespace LAppS
     
     void submitResponse(const int fd, const MSGBufferTypeSPtr& msg)
     {
-      SyncLock sync(mConnectionsMutex);
+      AtomicLock sync(mConnectionsMutex);
       auto it=mConnections.find(fd);
       if(it!=mConnections.end())
       {
@@ -241,7 +242,7 @@ namespace LAppS
       {
         if(haveNewConnections&&mConnectionsMutex.try_lock())
         {
-          SyncLock sync(mInboundMutex);
+          AtomicLock sync(mInboundMutex);
 
           while(!mInboundConnections.empty())
           {
@@ -279,12 +280,11 @@ namespace LAppS
           mConnectionsMutex.unlock();
           haveNewConnections.store(false);
         }
-        
       }
       
       void processIO(const int fd)
       {
-        SyncLock sync(mConnectionsMutex);
+        AtomicLock sync(mConnectionsMutex);
         auto it=mConnections.find(fd);
         if(it!=mConnections.end())
         {

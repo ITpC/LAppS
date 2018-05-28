@@ -14,7 +14,11 @@ fi
 
 rm log.*; let j=0; while [ $j -lt $clients ]; do ./benchmark > log.$j & let j++; done
 
+sleep 3;
+
 clients_started=$(ps ax | grep benchmark | grep -v grep | wc -l)
+
+echo clients started: $clients_started
 
 while [ 1 ]
 do
