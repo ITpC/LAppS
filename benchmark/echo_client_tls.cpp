@@ -58,7 +58,7 @@ using websocketpp::lib::placeholders::_2;
 using websocketpp::lib::bind;
 
 std::string blob(1024,'c');
-size_t rounds_per_run=40000;
+size_t rounds_per_run=10000;
 
 size_t om_counter=0;
 
@@ -87,21 +87,16 @@ void on_message(client* c, websocketpp::connection_hdl hdl, message_ptr msg)
       slice=time_now();
       size_t ms = slice - start;
       std::cout << om_counter << " messages of size " << blob.size() << " octets have had their roundtrips within " << ms << " ms " << std::endl; 
-      std::cout << "average rountrip time: " << float(om_counter)/float(ms) << " per ms, or " << (float(om_counter)/float(ms))*1000.0f << std::endl;
+      std::cout << "average rountrip time: " << float(om_counter)/float(ms) << " per ms, or " << (float(om_counter)/float(ms))*1000.0f << " roundtrips per second" << std::endl;
       std::cout << "tabdata: " << blob.size() << " " << (float(om_counter)/float(ms))*1000.0f << std::endl; 
       // 512kb max, no reason for larger blobs so far.
-      if(blob.size() < 262144)
+      if(blob.size() < 262144/4)
       {
         blob=std::move(std::string(blob.size()*2,'x'));
       }
       else{
         std::cout << "finished" << std::endl;
         exit(0);
-      }
-      // make less iterations for larger blobs, or it never ends
-      if(rounds_per_run > 100)
-      {
-        rounds_per_run/=2;
       }
       om_counter=0;
       start=time_now();
@@ -110,7 +105,7 @@ void on_message(client* c, websocketpp::connection_hdl hdl, message_ptr msg)
 
     websocketpp::lib::error_code ec;
 
-    c->send(hdl, msg->get_payload(), msg->get_opcode(), ec);
+    c->send(hdl, blob, websocketpp::frame::opcode::binary, ec);
     if (ec) {
         std::cout << "Echo failed because: " << ec.message() << std::endl;
     }
@@ -119,7 +114,6 @@ void on_message(client* c, websocketpp::connection_hdl hdl, message_ptr msg)
 void on_open(client* c, websocketpp::connection_hdl hdl)
 {
   websocketpp::lib::error_code ec;
-  start=time_now();
   c->send(hdl,blob,websocketpp::frame::opcode::text,ec);
   if(ec)
   {
@@ -134,8 +128,9 @@ void on_open(client* c, websocketpp::connection_hdl hdl)
     std::cout << "Can't send a message: " << ec.message() << std::endl;
   }
 
+  start=time_now();
   // get sock_fd:
-  auto skt=c->get_con_from_hdl(hdl)->get_raw_socket().native_handle();
+  // auto skt=c->get_con_from_hdl(hdl)->get_raw_socket().native_handle();
 
 }
 

@@ -1,3 +1,4 @@
+* 23-28.05.2018 - 0.7.0 - replaced mutexes with userspace locks based on atomic flags (CAS locks with forced context switch). EventBus is removed from workers. IO is non blocking. fixed bug in benchmark. 0.7.0 requires ITCLib/sys/atomic_mutex.h now. 
 * 19.05.2018 - 0.6.3 branched-out and marked stable. 0.7.0 branch is in upstream - experimental work on performance improvements.
 * 09.05.2018 - 0.6.2; New features: service configuration option max_inbound_message_size to limit size of inbound messages
 * 09.05.2018 - 0.6.2; New features: workers configuration option: max_connections  to limit maximum amount of connections per worker (10 000 by default)

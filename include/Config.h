@@ -46,10 +46,10 @@ namespace LAppS
     mEnv(), 
     ws_config({
       {"listeners",2},
-      {"connection_weight", 0.7},
+      {"connection_weight", 0.8},
       {"ip","0.0.0.0"},
       {"port",5083},
-      {"workers",{ {"workers",4}, {"max_connections", 10000 },{"auto_fragment",true}}},
+      {"workers",{ {"workers",4}, {"max_connections", 10000 },{"auto_fragment",false}}},
 #ifdef LAPPS_TLS_ENABLE
       {"tls",true},
 #else      
