@@ -39,8 +39,8 @@ namespace LAppS
     typedef std::forward_list<size_t>                         BCastSubscribers;
     typedef std::vector<std::shared_ptr<::abstract::Worker>>  WorkersCache;
    private:
-    std::mutex        sMutex;
-    std::mutex        uMutex;
+    itc::sys::AtomicMutex     sMutex;
+    itc::sys::AtomicMutex     uMutex;
     size_t                    ChannelID;
     WorkersCache      mWorkersCache;
     BCastSubscribers  mSubscribers;
@@ -48,7 +48,7 @@ namespace LAppS
     
     void purge()
     {
-      SyncLock syncu(uMutex);
+      AtomicLock syncu(uMutex);
       
       auto uit=mUnsubscribers.begin();
       while(uit!=mUnsubscribers.end())
@@ -109,18 +109,18 @@ namespace LAppS
     
     void subscribe(const size_t handler)
     {
-      SyncLock sync(sMutex);
+      AtomicLock sync(sMutex);
       mSubscribers.push_front(handler);
     }
     void unsubscribe(const size_t handler)
     {
-      SyncLock sync(uMutex);
+      AtomicLock sync(uMutex);
       mUnsubscribers.push_front(handler);
     }
     
     void bcast(const MSGBufferTypeSPtr& msg)
     {
-      SyncLock sync(sMutex);
+      AtomicLock sync(sMutex);
       purge();
       
       for(auto handler : mSubscribers)
