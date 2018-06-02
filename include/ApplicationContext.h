@@ -368,8 +368,6 @@ public:
     
     void onDisconnect(const size_t workerID, const int32_t sockfd)
     {
-      //SyncLock sync(mMutex);
-      
       this->cleanLuaStack();
       
       lua_getfield(mLState, LUA_GLOBALSINDEX, mName.c_str());
