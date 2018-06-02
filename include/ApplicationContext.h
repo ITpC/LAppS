@@ -57,7 +57,6 @@ namespace LAppS
     enum LAppSInMessageType { INVALID, CN, CN_WITH_PARAMS, REQUEST, REQUEST_WITH_PARAMS };
     itc::utils::Int2Type<Tproto> mProtocol;
     abstract::Application* mParent;
-    std::mutex             mMutex;
     std::atomic<bool>      mustStop;
 
     
@@ -292,7 +291,7 @@ public:
     ApplicationContext(ApplicationContext&)=delete;
     
     explicit ApplicationContext(const std::string& appname, abstract::Application* parent)
-    : ::abstract::ApplicationContext(appname), mParent(parent),mMutex(),mustStop{false}
+    : ::abstract::ApplicationContext(appname), mParent(parent),mustStop{false}
     {
       luaL_openlibs(mLState);
       
@@ -336,7 +335,6 @@ public:
     }
     void shutdown()
     {
-      SyncLock sync(mMutex);
       if(mLState)
       {
         try{
