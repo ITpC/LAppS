@@ -63,7 +63,6 @@ namespace LAppS
     typedef std::shared_ptr<::abstract::Worker> WorkerSPtrType;
     std::atomic<bool> mMayRun;
     std::atomic<bool> mCanStop;
-    std::mutex mMutex;
     std::string mName;
     std::string mTarget;
     size_t max_inbound_message_size;
@@ -96,7 +95,7 @@ namespace LAppS
     }
     
     explicit Application(const std::string& appName,const std::string& target,const size_t mims)
-    :  mMayRun{true},mMutex(),mName(appName), mTarget(target),
+    :  mMayRun{true},mName(appName), mTarget(target),
         max_inbound_message_size(mims),mAppContext(appName,this)
     {
       itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>::getInstance()->getWorkers(mWorkers);
