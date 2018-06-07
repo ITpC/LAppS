@@ -25,26 +25,24 @@
 #  define __BROADCAST_H__
 
 #include <sys/synclock.h>
-#include <WSWorkersPool.h>
 #include <forward_list>
 #include <TaggedEvent.h>
 
 #include "WSProtocol.h"
+#include "abstract/WebSocket.h"
 
 namespace LAppS
 {
   template <bool TLSEnable=true,bool StatsEnable=true> class Broadcast
   {
    public:
-    typedef std::forward_list<size_t>                         BCastSubscribers;
-    typedef std::vector<std::shared_ptr<::abstract::Worker>>  WorkersCache;
+    typedef std::forward_list<std::shared_ptr<abstract::WebSocket>>  BCastSubscribers;
    private:
     itc::sys::AtomicMutex     sMutex;
     itc::sys::AtomicMutex     uMutex;
     size_t                    ChannelID;
-    WorkersCache      mWorkersCache;
-    BCastSubscribers  mSubscribers;
-    BCastSubscribers  mUnsubscribers;
+    BCastSubscribers          mSubscribers;
+    BCastSubscribers          mUnsubscribers;
     
     void purge()
     {
@@ -71,7 +69,6 @@ namespace LAppS
     
     explicit Broadcast(const size_t chid) : sMutex(), uMutex(), ChannelID(chid)
     {
-      itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>::getInstance()->getWorkers(mWorkersCache);
     }
     
     Broadcast()=delete;
@@ -107,15 +104,15 @@ namespace LAppS
       return ChannelID;
     }
     
-    void subscribe(const size_t handler)
+    void subscribe(abstract::WebSocket* handler)
     {
       AtomicLock sync(sMutex);
-      mSubscribers.push_front(handler);
+      mSubscribers.push_front(std::move(handler->get_shared()));
     }
-    void unsubscribe(const size_t handler)
+    void unsubscribe(abstract::WebSocket* handler)
     {
       AtomicLock sync(uMutex);
-      mUnsubscribers.push_front(handler);
+      mUnsubscribers.push_front(std::move(handler->get_shared()));
     }
     
     void bcast(const MSGBufferTypeSPtr& msg)
@@ -125,23 +122,7 @@ namespace LAppS
       
       for(auto handler : mSubscribers)
       {
-        
-        size_t wid=handler>>32;
-        const int32_t fd=static_cast<int32_t>(handler&0x00000000FFFFFFFF);
-
-        if(wid<mWorkersCache.size())
-        {
-          mWorkersCache[wid]->submitResponse(fd,msg);
-        }
-        else // second attempt
-        {
-          mWorkersCache.clear(); 
-          itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>::getInstance()->getWorkers(mWorkersCache);
-          if(wid<mWorkersCache.size())
-          {
-            mWorkersCache[wid]->submitResponse(fd,msg);
-          } // not broadcasted, worker is down or never existed.
-        }
+        handler->send(std::move(*msg));
       }
     }
   };
