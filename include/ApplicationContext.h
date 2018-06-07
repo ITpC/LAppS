@@ -37,7 +37,6 @@ extern "C" {
 
 #include <WebSocket.h>
 #include <abstract/Worker.h>
-#include <WSWorkersPool.h>
 #include <abstract/ApplicationContext.h>
 
 #include <modules/nljson.h>
@@ -54,6 +53,9 @@ namespace LAppS
   {
   private:
     typedef std::shared_ptr<::abstract::Worker> WorkerSPtrType;
+    typedef WebSocket<TLSEnable,StatsEnable> WSType;
+    typedef std::shared_ptr<WSType> WSSPtrType;
+    
     enum LAppSInMessageType { INVALID, CN, CN_WITH_PARAMS, REQUEST, REQUEST_WITH_PARAMS };
     itc::utils::Int2Type<Tproto> mProtocol;
     abstract::Application* mParent;
@@ -186,15 +188,15 @@ namespace LAppS
       else return INVALID;
     }
   
-    const bool onMessage(const size_t workerID, const int32_t socketfd, const WSEvent& event, const itc::utils::Int2Type<ApplicationProtocol::RAW>& protocol_is_raw)
+    const bool onMessage(const abstract::InEvent& event, const itc::utils::Int2Type<ApplicationProtocol::RAW>& protocol_is_raw)
     {
       cleanLuaStack();
       
       lua_getfield(mLState, LUA_GLOBALSINDEX, mName.c_str());
       lua_getfield(mLState,-1,"onMessage");
       
-      lua_pushinteger(mLState,(workerID<<32)|socketfd); // handler
-      lua_pushinteger(mLState,event.type); // opcode
+      lua_pushinteger(mLState, (lua_Integer)(event.websocket.get()));
+      lua_pushinteger(mLState, event.opcode);
       lua_pushlstring(mLState,(const char*)(event.message->data()),event.message->size());
       
       callAppOnMessage(); 
@@ -230,21 +232,21 @@ namespace LAppS
       lua_setmetatable(mLState, -2);
     }
     
-    const bool onMessage(const size_t workerID, const int32_t socketfd, const WSEvent& event, const itc::utils::Int2Type<ApplicationProtocol::LAPPS>& protocol_is_lapps)
+    const bool onMessage(const abstract::InEvent& event, const itc::utils::Int2Type<ApplicationProtocol::LAPPS>& protocol_is_lapps)
     {
       // exceptions from json and from lua stack MUST be handled in the Application class
       // We must prevent possibility to kill app with inappropriate message, therefore 
       // content errors may not throw the exceptions.
       
       // Protocol violation, LAppS protocol accepts only binary messages (CBOR encoded)
-      if(event.type != WebSocketProtocol::OpCode::BINARY)
+      if(event.opcode != WebSocketProtocol::OpCode::BINARY)
         return false;
       
       cleanLuaStack();
       
-      auto message=std::make_shared<json>(json::from_cbor(*event.message));
+      auto msg=std::make_shared<json>(json::from_cbor(*event.message));
 
-      auto msg_type=getLAppSInMessageType(*message);
+      auto msg_type=getLAppSInMessageType(*msg);
 
       // "Protocol violation, LAppS protocol accepts only binary messages (CBOR encoded)"
       if(msg_type == INVALID)
@@ -253,9 +255,9 @@ namespace LAppS
       lua_getfield(mLState, LUA_GLOBALSINDEX, mName.c_str());
       lua_getfield(mLState,-1,"onMessage");
 
-      lua_pushinteger(mLState,(workerID<<32)|socketfd); // socket handler for ws::send
+      lua_pushinteger(mLState,(lua_Integer)(event.websocket.get())); // socket handler for ws::send
       lua_pushinteger(mLState,msg_type);
-      pushRequest(message);
+      pushRequest(msg);
 
       callAppOnMessage(); // handler, type, userdata
 
@@ -346,11 +348,7 @@ public:
         mLState=nullptr;
       }
     }
-    void clearCache()
-    {
-      mustStop.store(true);
-      workersCache.clear();
-    }
+    
     virtual ~ApplicationContext() noexcept
     {
       if(mLState)
@@ -358,21 +356,19 @@ public:
         this->shutdown();
       }
     }
-    const bool onMessage(const size_t workerID, const int32_t socketfd, const WSEvent& event)
+    const bool onMessage(const abstract::InEvent& event)
     {
       if(mustStop) return false;
-      if(workersCache.empty())
-        itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>::getInstance()->getWorkers(workersCache);
-      return onMessage(workerID,socketfd,event,mProtocol);
+      return onMessage(std::move(event),mProtocol);
     }
     
-    void onDisconnect(const size_t workerID, const int32_t sockfd)
+    void onDisconnect(const std::shared_ptr<::abstract::WebSocket>& ws)
     {
       this->cleanLuaStack();
       
       lua_getfield(mLState, LUA_GLOBALSINDEX, mName.c_str());
       lua_getfield(mLState,-1,"onDisconnect");
-      lua_pushinteger(mLState,(workerID<<32)|sockfd);
+      lua_pushinteger(mLState,(lua_Integer)(ws.get()));
       
       int ret = lua_pcall (mLState, 1, 0, 0);
       checkForLuaErrorsOnPcall(ret,"onDisconnect");
