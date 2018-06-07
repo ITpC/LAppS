@@ -33,8 +33,6 @@
 #include <modules/UserDataAdapter.h>
 #include <WSServerMessage.h>
 
-#include <WSWorkersPool.h>
-
 #include <ext/json.hpp>
 
 extern "C" {
@@ -45,18 +43,6 @@ extern "C" {
 }
 
 using json = nlohmann::json;
-
-static thread_local std::vector<std::shared_ptr<::abstract::Worker>> workersCache;
-
-
-const std::shared_ptr<::abstract::Worker>& getWorker(const size_t wid)
-{
-  if(wid < workersCache.size())
-  {
-    return workersCache[wid];
-  }
-  throw std::system_error(EINVAL,std::system_category(),"No worker with ID "+std::to_string(wid)+" is available");
-}
 
 const bool isLAppSOutMessageValid(const json& msg)
 {
@@ -124,7 +110,7 @@ const bool isLAppSOutMessageValid(const json& msg)
   } else return false;
 }
 
-int wssend_raw(lua_State* L, const size_t wid, const int fd)
+int wssend_raw(lua_State* L, abstract::WebSocket* handler)
 {
   const int tpidx=3;
   const int udidx=4;
@@ -132,7 +118,6 @@ int wssend_raw(lua_State* L, const size_t wid, const int fd)
   if(lua_isstring(L,udidx)) // protocol::RAW 
   {
     try {
-      auto worker=getWorker(wid);
       WebSocketProtocol::OpCode opcode=WebSocketProtocol::OpCode::CLOSE;
       if(lua_isnumber(L,tpidx))
       {
@@ -156,21 +141,24 @@ int wssend_raw(lua_State* L, const size_t wid, const int fd)
       size_t len;
       const char* msg=lua_tolstring(L,udidx,&len);
       
-      if(worker->mustAutoFragment())
+      if(handler->mustAutoFragment())
       {
         WebSocketProtocol::FragmentedServerMessage::msgQType msgqueue;
         
         WebSocketProtocol::FragmentedServerMessage(msgqueue,opcode,msg,len);
-        worker->submitResponse(fd,msgqueue);
+        while(!msgqueue.empty())
+        {
+          handler->send(std::move(*msgqueue.front()));
+          msgqueue.pop();
+        }
       }
       else
       {
-        auto message=std::make_shared<MSGBufferType>();
-        WebSocketProtocol::ServerMessage(*message,opcode,msg,len);
-        worker->submitResponse(fd,message);
+        MSGBufferType message;
+        WebSocketProtocol::ServerMessage(message,opcode,msg,len);
+        handler->send(std::move(message));
       }
-
-      
+  
       lua_pushboolean(L,true);
       return 1;
     }catch(const std::exception& e)
@@ -185,32 +173,35 @@ int wssend_raw(lua_State* L, const size_t wid, const int fd)
     return 2;
   }
 }
-int wssend_lapps(lua_State* L, const size_t wid, const int fd)
+int wssend_lapps(lua_State* L, abstract::WebSocket* handler)
 {
   const int udidx=3;
   if(lua_isuserdata(L,udidx)) // protocol::LAPPS
   {
     try {
-      auto worker=getWorker(wid);
       auto opcode=WebSocketProtocol::BINARY;
       
       
       const json& msg=get_userdata_value(L,udidx);
       if(isLAppSOutMessageValid(msg))
       {
-        if(worker->mustAutoFragment())
+        if(handler->mustAutoFragment())
         {
           WebSocketProtocol::FragmentedServerMessage::msgQType msgqueue;
 
           WebSocketProtocol::FragmentedServerMessage(msgqueue,opcode,json::to_cbor(msg));
           
-          worker->submitResponse(fd,msgqueue);
+          while(!msgqueue.empty())
+          {
+            handler->send(std::move(*msgqueue.front()));
+            msgqueue.pop();
+          }
         }
         else
         {
-          auto message=std::make_shared<MSGBufferType>();
-          WebSocketProtocol::ServerMessage(*message,opcode,json::to_cbor(msg));
-          worker->submitResponse(fd,message);
+          MSGBufferType message;
+          WebSocketProtocol::ServerMessage(message,opcode,json::to_cbor(msg));
+          handler->send(message);
         }
         lua_pushboolean(L,true);
         return 1;
@@ -234,7 +225,7 @@ int wssend_lapps(lua_State* L, const size_t wid, const int fd)
 }
 // Lua interface: ws::close(handler,error_code [, err_string])
 // 
-int wsclose(lua_State*L,const size_t wid, const int32_t fd, const size_t argc)
+int wsclose(lua_State*L,abstract::WebSocket* handler, const size_t argc)
 {
   const int udidx=3;
   if(lua_isnumber(L,udidx)) // protocol::LAPPS
@@ -242,21 +233,20 @@ int wsclose(lua_State*L,const size_t wid, const int32_t fd, const size_t argc)
     uint16_t close_code=lua_tointeger(L,udidx);
     
     try {
-      auto worker=getWorker(wid);
-      auto message=std::make_shared<MSGBufferType>();
+      MSGBufferType message;
       
       if(close_code>999&&((close_code < 1012)||((close_code>2999)&&(close_code<5000))))
       {
         if(argc == 3)
         {
-          WebSocketProtocol::ServerCloseMessage(*message,close_code);
+          WebSocketProtocol::ServerCloseMessage(message,close_code);
         }else if(argc == 4)
         {
           if(lua_isstring(L,4))
           {
             size_t len;
             const char *errmsg=lua_tolstring(L,argc,&len);
-            WebSocketProtocol::ServerCloseMessage(*message,close_code,errmsg,len);
+            WebSocketProtocol::ServerCloseMessage(message,close_code,errmsg,len);
           }
           else
           {
@@ -270,7 +260,7 @@ int wsclose(lua_State*L,const size_t wid, const int32_t fd, const size_t argc)
           lua_pushstring(L,"Usage: ws:close(handler, error_code [, error_string]) - wrong number of arguments is provided");
           return 2;
         }
-        worker->submitResponse(fd,message);
+        handler->send(message);
         lua_pushboolean(L,true);
         return 1;
       }
@@ -298,12 +288,6 @@ extern "C" {
     LUA_API int wsclose(lua_State* L)
     {
       size_t argc=lua_gettop(L);
-      if(workersCache.empty())
-      {
-        lua_pushboolean(L,false);
-        lua_pushstring(L,"No workers are available in cache");
-        return 2;
-      }
       
       switch(argc)
       {
@@ -313,10 +297,8 @@ extern "C" {
           int hdidx=2;
           if(lua_isnumber(L, hdidx))
           {
-            size_t handler=lua_tointeger(L,hdidx);
-            size_t wid=handler>>32;
-            int32_t fd=static_cast<int32_t>(handler&0x00000000FFFFFFFFULL);
-            return wsclose(L,wid,fd,argc);
+            auto handler=(abstract::WebSocket*)(lua_tointeger(L,hdidx));
+            return wsclose(L,handler,argc);
           }
           else{
             lua_pushboolean(L,false);
@@ -335,14 +317,7 @@ extern "C" {
     LUA_API int wssend(lua_State* L)
     {
       size_t argc=lua_gettop(L);
-      
-      if(workersCache.empty())
-      {
-        lua_pushboolean(L,false);
-        lua_pushstring(L,"No workers are available in cache");
-        return 2;
-      }
-      
+
       switch(argc)
       {
         case 3:
@@ -350,10 +325,8 @@ extern "C" {
           int hdidx=2;
           if(lua_isnumber(L, hdidx))
           {
-            size_t handler=lua_tointeger(L,hdidx);
-            size_t wid=handler>>32;
-            int32_t fd=static_cast<int32_t>(handler&0x00000000FFFFFFFFULL);
-            return wssend_lapps(L,wid,fd);
+            abstract::WebSocket* handler=(abstract::WebSocket*)(lua_tointeger(L,hdidx));
+            return wssend_lapps(L,handler);
           }
           else{
             lua_pushboolean(L,false);
@@ -367,10 +340,8 @@ extern "C" {
           int hdidx=2;
           if(lua_isnumber(L, hdidx))
           {
-            size_t handler=lua_tointeger(L,hdidx);
-            size_t wid=handler>>32;
-            int32_t fd=static_cast<int32_t>(handler&0x00000000FFFFFFFFULL);
-            return wssend_raw(L,wid,fd);
+            abstract::WebSocket* handler=(abstract::WebSocket*)lua_tointeger(L,hdidx);
+            return wssend_raw(L,handler);
           }
           else{
             lua_pushboolean(L,false);

@@ -51,7 +51,8 @@ namespace LAppS
       typedef WebSocket<TLSEnable,StatsEnable> WSType;
       typedef std::shared_ptr<WSType>          WSSPtr;
       
-      explicit Shakespeer() : headerBuffer(512)
+      explicit Shakespeer()
+      : headerBuffer(512)
       {
       }
       
@@ -60,14 +61,14 @@ namespace LAppS
       
       void sendForbidden(const WSSPtr& wssocket)
       {
-        wssocket->send_sync(forbidden);
+        wssocket->send(forbidden);
         wssocket->setState(WSType::CLOSED);
       }
       
-      void handshake(const WSSPtr& wssocket)
+      void handshake(const WSSPtr& wssocket,LAppS::ApplicationRegistry& anAppRegistry)
       {
         mHTTPRParser.clear();
-        int received=wssocket->recv_sync(headerBuffer);
+        int received=wssocket->recv(headerBuffer);
         if(received != -1)
         {
           if(static_cast<size_t>(received) < headerBuffer.size())
@@ -76,12 +77,11 @@ namespace LAppS
           if(parseHeader(received))
           {
             prepareOKResponse(response);
-            int sent=wssocket->send_sync(response);
-            
+            int sent=wssocket->send(response);
             try {
               if(sent > 0)
               {
-                auto app=::ApplicationRegistry::getInstance()->findByTarget(mHTTPRParser.getRequestTarget());
+                auto app=anAppRegistry.findByTarget(mHTTPRParser.getRequestTarget());
                 wssocket->setState(WSType::MESSAGING);
                 wssocket->setApplication(app);
                 return;
@@ -113,7 +113,7 @@ namespace LAppS
               "Shakespeer::handshake() was unsuccessful for peer %s. Closing this WebSocket.",
               wssocket->getPeerAddress().c_str()
             );
-            wssocket->send_sync(forbidden);
+            wssocket->send(forbidden);
             wssocket->setState(WSType::CLOSED);
             return;
           }

@@ -71,11 +71,6 @@ namespace LAppS
     typedef LAppS::IOWorker<TLSEnable,StatsEnable>                    WorkerType;
     typedef itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>      WorkersPool;
 
-
-    typedef LAppS::Application<TLSEnable,StatsEnable,ApplicationProtocol::LAPPS> LAppLAPPS;
-    typedef LAppS::Application<TLSEnable,StatsEnable,ApplicationProtocol::RAW> LAppRAW;
-
-
     itc::utils::Bool2Type<TLSEnable>    enableTLS;
     itc::utils::Bool2Type<StatsEnable>  enableStatsUpdate;
     float                               mConnectionWeight;
@@ -171,12 +166,19 @@ namespace LAppS
                     {
                       instances=found.value();
                     }
-                    for(size_t i=0;i<instances;++i)
+                    std::vector<std::shared_ptr<::abstract::Worker>> workers;
+                    WorkersPool::getInstance()->getWorkers(workers);
+                    size_t sinstcount=0;
+                    for(auto worker : workers)
                     {
-                      itc::getLog()->info(__FILE__,__LINE__,"Starting service %s instance %u",service_name.c_str(),i);
-                      ::ApplicationRegistry::getInstance()->regApp(
-                        std::make_shared<LAppRAW>(service_name,app_target,max_inbound_message_size)
-                      );
+                      itc::getLog()->info(__FILE__,__LINE__,"Starting service %s instance %u",service_name.c_str(),sinstcount++);
+                      worker->enqueue_service({
+                        service_name,
+                          app_target,
+                          ApplicationProtocol::RAW,
+                          max_inbound_message_size,
+                          instances
+                      });
                     }
                   }
                   else if(proto == "LAppS")
@@ -188,11 +190,19 @@ namespace LAppS
                     {
                       instances=found.value();
                     }
-                    for(size_t i=0;i<instances;++i)
+                    std::vector<std::shared_ptr<::abstract::Worker>> workers;
+                    WorkersPool::getInstance()->getWorkers(workers);
+                    size_t sinstcount=0;
+                    for(auto worker : workers)
                     {
-                      ::ApplicationRegistry::getInstance()->regApp(
-                        std::make_shared<LAppLAPPS>(service_name,app_target,max_inbound_message_size)
-                      );
+                      itc::getLog()->info(__FILE__,__LINE__,"Starting service %s instance %u",service_name.c_str(),sinstcount++);
+                      worker->enqueue_service({
+                        service_name,
+                          app_target,
+                          ApplicationProtocol::LAPPS,
+                          max_inbound_message_size,
+                          instances
+                      });
                     }
                   }else{
                       throw std::system_error(EINVAL,std::system_category(), "Incorrect protocol is specified for target "+app_target+" in service "+service_name+". Only two protocols are supported: raw, LAppS");

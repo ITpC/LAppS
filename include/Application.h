@@ -37,7 +37,7 @@
 #include <ApplicationContext.h>
 #include <tsbqueue.h>
 
-#include <WSWorkersPool.h>
+//#include <WSWorkersPool.h>
 #include <Singleton.h>
 #include <abstract/Worker.h>
 
@@ -55,20 +55,19 @@ using json = nlohmann::json;
 
 namespace LAppS
 {
-  
   template <bool TLSEnable, bool StatsEnable, ApplicationProtocol Tproto> 
   class Application : public ::abstract::Application
   {
   private:
     typedef std::shared_ptr<::abstract::Worker> WorkerSPtrType;
+    
     std::atomic<bool> mMayRun;
     std::atomic<bool> mCanStop;
     std::string mName;
     std::string mTarget;
     size_t max_inbound_message_size;
     ApplicationContext<TLSEnable,StatsEnable,Tproto> mAppContext;
-    itc::tsbqueue<TaggedEvent> mEvents;
-    std::vector<WorkerSPtrType> mWorkers;
+    itc::tsbqueue<abstract::InEvent> mEvents;
     
  public:
     
@@ -98,7 +97,6 @@ namespace LAppS
     :  mMayRun{true},mName(appName), mTarget(target),
         max_inbound_message_size(mims),mAppContext(appName,this)
     {
-      itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>::getInstance()->getWorkers(mWorkers);
     }
     
     const size_t getMaxMSGSize() const
@@ -106,42 +104,46 @@ namespace LAppS
       return max_inbound_message_size;
     }
     
-    auto getWorker(const size_t wid)
+    const bool try_enqueue(const std::vector<abstract::InEvent>& events)
     {
-      if( wid<mWorkers.size() ) 
+      try
       {
-        return mWorkers[wid];
+        if(mEvents.try_send(events))
+          return true;
+        else return false;
       }
-      else
-      { // Attempt to refresh local workers;
-        mWorkers.clear();
-        itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>::getInstance()->getWorkers(mWorkers);
-        if( wid < mWorkers.size())
-        {
-          return mWorkers[wid];
-        }
-        else
-        {
-          itc::getLog()->error(__FILE__,__LINE__,"No worker with ID %d is found",wid);
-          throw std::system_error(EINVAL,std::system_category(),"No requested worker is found. The system is probably going down");
-        }
+      catch(const std::exception& e)
+      {
+        itc::getLog()->error(__FILE__,__LINE__,"Can't enqueue request to application %s, exception: %s",mName.c_str(),e.what());
+        return false;
       }
     }
-    
-    void enqueue(const TaggedEvent& event)
+    void enqueue(const abstract::InEvent& event)
     {
       try {
         mEvents.send(event);
-      } catch (const std::exception& e)
+      }
+      catch (const std::exception& e)
       {
         itc::getLog()->error(__FILE__,__LINE__,"Can't enqueue request to application %s, exception: %s",mName.c_str(),e.what());
       }
     }
     
-    void enqueueDisconnect(const size_t wid, const int32_t sockfd)
+    void enqueue(const std::vector<abstract::InEvent>& event)
     {
       try {
-        mEvents.send({wid,sockfd,{WebSocketProtocol::CLOSE,nullptr}});
+        mEvents.send(event);
+      }
+      catch (const std::exception& e)
+      {
+        itc::getLog()->error(__FILE__,__LINE__,"Can't enqueue request to application %s, exception: %s",mName.c_str(),e.what());
+      }
+    }
+    
+    void enqueueDisconnect(const std::shared_ptr<::abstract::WebSocket>& ws)
+    {
+      try {
+        mEvents.send({WebSocketProtocol::CLOSE,ws,nullptr});
       } catch (const std::exception& e)
       {
         itc::getLog()->error(__FILE__,__LINE__,"Can't enqueue close event to application %s, exception: %s",mName.c_str(),e.what());
@@ -154,15 +156,15 @@ namespace LAppS
       { 
         try
         {
-          auto te=std::move(mEvents.recv());
-          switch(te.event.type)
+          auto event=std::move(mEvents.recv());
+          switch(event.opcode)
           {
             case WebSocketProtocol::OpCode::CLOSE:
-              mAppContext.onDisconnect(te.wid,te.sockfd);
+              mAppContext.onDisconnect(event.websocket);
               break;
             default:
             {
-              const bool exec_result=mAppContext.onMessage(te.wid,te.sockfd,te.event);
+              const bool exec_result=mAppContext.onMessage(event);
               if(!exec_result)
               {
                 mMayRun.store(false);
@@ -176,7 +178,6 @@ namespace LAppS
           itc::getLog()->flush();
         }
       }
-      mAppContext.clearCache();
       mCanStop.store(true);
       itc::getLog()->info(__FILE__,__LINE__,"Application instance [%s] main loop is finished.",mName.c_str());
     }

@@ -140,7 +140,7 @@ extern "C"
     }
     if(lua_isnumber(L,argc)&&lua_isnumber(L,argc-1))
     {
-      size_t handler=static_cast<size_t>(lua_tointeger(L,argc));
+      auto handler=(abstract::WebSocket*)(lua_tointeger(L,argc));
       size_t bcastid=static_cast<size_t>(lua_tointeger(L,argc-1));
       try{
         auto bcast_addr=find_bcast(bcastid);
@@ -172,7 +172,7 @@ extern "C"
     }
     if(lua_isnumber(L,argc)&&lua_isnumber(L,argc-1))
     {
-      size_t handler=static_cast<size_t>(lua_tointeger(L,argc));
+      auto handler=(abstract::WebSocket*)(lua_tointeger(L,argc));
       size_t bcastid=static_cast<size_t>(lua_tointeger(L,argc-1));
       try{
         auto bcast_addr=find_bcast(bcastid);

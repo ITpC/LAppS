@@ -24,15 +24,19 @@
 #ifndef __IOWORKER_H__
 #  define __IOWORKER_H__
 
+#include <Application.h>
 #include <ePoll.h>
 #include <abstract/IView.h>
 #include <WebSocket.h>
 #include <Shakespeer.h>
 #include <abstract/Worker.h>
 #include <sys/atomic_mutex.h>
+#include <ServiceProperties.h>
+
 
 namespace LAppS
 {
+  static thread_local LAppS::ApplicationRegistry aThreadLocalAppRegistry;
   
   template <bool TLSEnable=false, bool StatsEnable=false> 
     class IOWorker :public ::abstract::Worker
@@ -40,6 +44,9 @@ namespace LAppS
     public:
       typedef WebSocket<TLSEnable,StatsEnable>  WSType;
       typedef std::shared_ptr<WSType>           WSSPtr;
+      typedef ::LAppS::Application<TLSEnable,StatsEnable,::abstract::Application::Protocol::LAPPS> LAppLAPPS;
+      typedef ::LAppS::Application<TLSEnable,StatsEnable,::abstract::Application::Protocol::RAW>   LAppRAW;
+      
     private:
       itc::utils::Bool2Type<TLSEnable>          enableTLS;
       itc::utils::Bool2Type<StatsEnable>        enableStatsUpdate;
@@ -49,6 +56,7 @@ namespace LAppS
       
       itc::sys::AtomicMutex                     mConnectionsMutex;
       itc::sys::AtomicMutex                     mInboundMutex;
+      itc::sys::AtomicMutex                     mSSQMutex;
       
       LAppS::Shakespeer<TLSEnable,StatsEnable>  mShakespeer;
       SharedEPollType                           mEPoll;
@@ -63,6 +71,8 @@ namespace LAppS
       std::atomic<bool>                         haveConnections;
       std::atomic<bool>                         haveNewConnections;
       
+      std::queue<ServiceProperties>             mServiceStartQueue;
+      
       bool error_bit(const uint32_t event) const
       {
         return (event & (EPOLLRDHUP|EPOLLERR|EPOLLHUP));
@@ -70,6 +80,34 @@ namespace LAppS
       bool in_out_bits(const uint32_t events) const
       {
         return (events & (EPOLLIN|EPOLLOUT));
+      }
+      
+      void spawn_services()
+      {
+        AtomicLock sync(mSSQMutex);
+        if(!mServiceStartQueue.empty())
+        {
+          auto properties=std::move(mServiceStartQueue.front());
+          mServiceStartQueue.pop();
+          if(properties.proto == abstract::Application::Protocol::LAPPS)
+          {
+            for(size_t i=0;i<properties.instances;++i)
+            {
+              aThreadLocalAppRegistry.regApp(
+                std::make_shared<LAppLAPPS>(properties.service_name,properties.target,properties.max_inbound_message_size)
+              );  
+            }
+          }
+          if(properties.proto == abstract::Application::Protocol::RAW)
+          {
+            for(size_t i=0;i<properties.instances;++i)
+            {
+              aThreadLocalAppRegistry.regApp(
+                std::make_shared<LAppRAW>(properties.service_name,properties.target,properties.max_inbound_message_size)
+              );  
+            }
+          } 
+        }
       }
     public:
      
@@ -86,6 +124,12 @@ namespace LAppS
     IOWorker()=delete;
     IOWorker(const IOWorker&)=delete;
     IOWorker(IOWorker&)=delete;
+    
+    void enqueue_service(const ServiceProperties& properties)
+    {
+      AtomicLock sync(mSSQMutex);
+      mServiceStartQueue.push(std::move(properties));
+    }
     
     void onUpdate(const ::itc::TCPListener::value_type& socketsptr)
     {
@@ -111,7 +155,10 @@ namespace LAppS
       AtomicLock sync(mConnectionsMutex);
       return mConnections.size();
     }
-    
+    const bool  isTLSEnabled() const
+    {
+      return TLSEnable;
+    }
     void execute()
     {
       sigset_t sigpipe_mask;
@@ -121,6 +168,7 @@ namespace LAppS
       pthread_sigmask(SIG_BLOCK, &sigpipe_mask, &saved_mask);
       while(mMayRun)
       {
+        spawn_services();
         processInbound();
         if(haveConnections)
         {
@@ -155,7 +203,7 @@ namespace LAppS
       }
       mCanStop.store(true);
     }
-    
+
     void shutdown()
     {
       mMayRun.store(false);
@@ -181,59 +229,7 @@ namespace LAppS
     {
       mStats.mConnections=mConnections.size()+mInboundConnections.size();
     }
-    
-    void submitResponse(const int fd, std::queue<MSGBufferTypeSPtr>& messages)
-    {
-      AtomicLock sync(mConnectionsMutex);
-      auto it=mConnections.find(fd);
-      if(it!=mConnections.end())
-      {
-        auto current=it->second;
-        if(current)
-        {
-          if(current->getState() == WSType::MESSAGING)
-          {
-            current->pushOutMessage(messages);
-          }
-          else
-          {
-            mConnections.erase(it);
-          }
-        }else
-        {
-         deleteConnection(fd);
-        }
-      }else{
-        try{
-          mEPoll->del(fd);
-        }catch(const std::exception& e)
-        {
-          itc::getLog()->error(__FILE__,__LINE__,"ePoll::del() exception: %s",e.what());
-        }
-      }
-    }
-    
-    void submitResponse(const int fd, const MSGBufferTypeSPtr& msg)
-    {
-      AtomicLock sync(mConnectionsMutex);
-      auto it=mConnections.find(fd);
-      if(it!=mConnections.end())
-      {
-        auto current=it->second;
-        if(current)
-        {
-          if(current->getState() == WSType::MESSAGING)
-          {
-            current->pushOutMessage(msg);
-          }
-          else
-          {
-            mConnections.erase(it);
-          }
-        }
-      }
-    }
-    
+
     private:
       /**
        * @brief processing all inbound connections in bulk.
@@ -259,6 +255,7 @@ namespace LAppS
                 );
                 mConnections.emplace(fd,std::move(current));
                 mStats.mConnections=mConnections.size();
+                mEPoll->mod_in(fd);
                 haveConnections.store(true);
               }
               else
@@ -292,17 +289,21 @@ namespace LAppS
           switch(current->getState())
           {
             case WSType::HANDSHAKE:
-                mShakespeer.handshake(current);
+                mShakespeer.handshake(current,aThreadLocalAppRegistry);
                 if(current->getState() !=WSType::MESSAGING)
                 {
                   deleteConnection(fd);
+                }else{
+                  mEPoll->mod_in(fd);
                 }
             break;
             case WSType::MESSAGING:
               mStats.mEventQSize+=current->getStats().mOutMessageCount;
-              if(!current->handleIO())
+              if(current->handleInput()<0)
               {
                 deleteConnection(fd);
+              }else {
+                mEPoll->mod_in(fd);
               }
             break;
             case WSType::CLOSED:
@@ -341,14 +342,14 @@ namespace LAppS
       
       const std::shared_ptr<WSType> mkWebSocket(const itc::CSocketSPtr& inbound,const itc::utils::Bool2Type<false> tls_is_disabled)
       {
-        return std::make_shared<WSType>(std::move(inbound),this->getID(),mEPoll);
+        return std::make_shared<WSType>(std::move(inbound),this->getID(),mEPoll,mustAutoFragment());
       }
       
       const std::shared_ptr<WSType> mkWebSocket(const itc::CSocketSPtr& inbound,const itc::utils::Bool2Type<true> tls_is_enabled)
       {
         auto tls_server_context=TLS::SharedServerContext::getInstance()->getContext();
         if(tls_server_context)
-          return std::make_shared<WSType>(std::move(inbound),this->getID(),mEPoll,tls_server_context);
+          return std::make_shared<WSType>(std::move(inbound),this->getID(),mEPoll,mustAutoFragment(),tls_server_context);
         else throw std::system_error(EINVAL,std::system_category(),"TLS ServerContext is NULL");
       }
   };

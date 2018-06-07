@@ -31,7 +31,7 @@
 #include <WorkerStats.h>
 #include <abstract/Application.h>
 #include <WSEvent.h>
-
+#include <ServiceProperties.h>
 
 namespace abstract
 {
@@ -84,10 +84,10 @@ namespace abstract
     
     
     virtual const WorkerStats& getStats() const=0;
+    virtual void enqueue_service(const LAppS::ServiceProperties&)=0;
     virtual void updateStats()=0;
     virtual void deleteConnection(const int32_t)=0;
-    virtual void submitResponse(const int, const MSGBufferTypeSPtr&)=0;
-    virtual void submitResponse(const int, std::queue<MSGBufferTypeSPtr>&)=0;
+    virtual const bool  isTLSEnabled() const = 0;
    protected:
     virtual ~Worker()=default;
   };
