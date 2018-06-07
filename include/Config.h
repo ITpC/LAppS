@@ -74,13 +74,13 @@ namespace LAppS
             {"request_target", "/echo"},
             {"protocol", "raw"},
             {"max_inbound_message_size",16*1024*1024}, // autobahn-testsuite uses up to 16MB messages in fuzzingclinet.
-            {"instances", 4}
+            {"instances", 1}
           }},
           {"echo_lapps", {
             {"request_target", "/echo_lapps"},
             {"protocol", "LAppS"},
             {"max_inbound_message_size",1024},
-            {"instances", 4}
+            {"instances", 1}
           }},
           {"time_broadcast", {
             {"internal", true},

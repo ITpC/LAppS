@@ -7,6 +7,7 @@
       <logicalFolder name="f2" displayName="abstract" projectFiles="true">
         <itemPath>include/abstract/Application.h</itemPath>
         <itemPath>include/abstract/ApplicationContext.h</itemPath>
+        <itemPath>include/abstract/WebSocket.h</itemPath>
         <itemPath>include/abstract/Worker.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f3" displayName="ext" projectFiles="true">
@@ -33,6 +34,7 @@
       <itemPath>include/InternalAppContext.h</itemPath>
       <itemPath>include/InternalApplication.h</itemPath>
       <itemPath>include/InternalApplicationRegistry.h</itemPath>
+      <itemPath>include/ServiceProperties.h</itemPath>
       <itemPath>include/Shakespeer.h</itemPath>
       <itemPath>include/TLSServerContext.h</itemPath>
       <itemPath>include/TaggedEvent.h</itemPath>
@@ -167,7 +169,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-latomic -lcryptopp -ltls -lcrypto -lluajit-5.1</commandLine>
+          <commandLine>-lcryptopp -ltls -lcrypto -lluajit-5.1</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -205,6 +207,42 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -583,6 +621,8 @@
             tool="3"
             flavor2="0">
       </item>
+      <item path="include/ServiceProperties.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/Shakespeer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/TLSServerContext.h" ex="false" tool="3" flavor2="0">
@@ -611,6 +651,8 @@
             ex="false"
             tool="3"
             flavor2="0">
+      </item>
+      <item path="include/abstract/WebSocket.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/abstract/Worker.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -690,6 +732,8 @@
             tool="3"
             flavor2="0">
       </item>
+      <item path="include/ServiceProperties.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/Shakespeer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/TLSServerContext.h" ex="false" tool="3" flavor2="0">
@@ -718,6 +762,8 @@
             ex="false"
             tool="3"
             flavor2="0">
+      </item>
+      <item path="include/abstract/WebSocket.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/abstract/Worker.h" ex="false" tool="3" flavor2="0">
       </item>
