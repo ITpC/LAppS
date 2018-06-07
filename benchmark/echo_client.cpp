@@ -25,33 +25,12 @@
  *
  */
 
-#include <websocketpp/config/asio_client.hpp>
+#include <websocketpp/config/asio_no_tls_client.hpp>
 #include <websocketpp/client.hpp>
 
 #include <iostream>
 
-typedef websocketpp::client<websocketpp::config::asio_tls_client> client;
-typedef websocketpp::lib::shared_ptr<websocketpp::lib::asio::ssl::context> context_ptr;
-
-context_ptr on_tls_init(websocketpp::connection_hdl hdl)
-{
-  std::cout << "on_tls_init called with hdl: " << hdl.lock().get() << std::endl;
-  context_ptr ctx =
-     websocketpp::lib::make_shared<websocketpp::lib::asio::ssl::context>(websocketpp::lib::asio::ssl::context::tlsv12_client);
-
-  try {
-      ctx->set_options(boost::asio::ssl::context::default_workarounds |
-                       boost::asio::ssl::context::no_sslv2 |
-                       boost::asio::ssl::context::no_sslv3 |
-                       boost::asio::ssl::context::no_tlsv1_1 |
-                       boost::asio::ssl::context::single_dh_use);
-      ctx->set_verify_mode( 0 );
-  } catch (std::exception& e) {
-      std::cout << e.what() << std::endl;
-  }
-  return ctx;
-}
-
+typedef websocketpp::client<websocketpp::config::asio_client> client;
 
 using websocketpp::lib::placeholders::_1;
 using websocketpp::lib::placeholders::_2;
@@ -119,6 +98,8 @@ void on_open(client* c, websocketpp::connection_hdl hdl)
   {
     std::cout << "Can't send a message: " << ec.message() << std::endl;
   }
+  // else c->get_alog().write(websocketpp::log::alevel::app, "Sent Message: test");
+
   // speedup
   c->send(hdl,"", websocketpp::frame::opcode::binary,ec);
   if(ec)
@@ -127,6 +108,9 @@ void on_open(client* c, websocketpp::connection_hdl hdl)
   }
 
   start=time_now();
+  // get sock_fd:
+  // auto skt=c->get_con_from_hdl(hdl)->get_raw_socket().native_handle();
+
 }
 
 
@@ -134,11 +118,11 @@ int main(int argc, char* argv[]) {
     // Create a client endpoint
     client c;
 
-    websocketpp::transport::asio::tls_socket::tls_init_handler f=on_tls_init;
-    c.set_tls_init_handler(f);
+    //websocketpp::transport::asio::tls_socket::tls_init_handler f=on_tls_init;
+    //c.set_tls_init_handler(f);
 
 
-    std::string uri = "wss://localhost:5083/echo";
+    std::string uri = "ws://localhost:5083/echo";
 
     if (argc == 2) {
         uri = argv[1];
