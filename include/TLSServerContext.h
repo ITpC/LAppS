@@ -38,12 +38,13 @@
 
 // ITCLib/ITCFramework
 #include <Singleton.h>
+#include <sys/atomic_mutex.h>
 
 typedef void (*locking_function)(int mode, int n, const char *file,	int line);
 
 void openssl_crypt_locking_function_callback(int mode, int n, const char* file, const int line)
 {
-  static std::vector<std::mutex> locks(CRYPTO_num_locks());
+  static std::vector<itc::sys::AtomicMutex> locks(CRYPTO_num_locks());
   if(n>=static_cast<int>(locks.size()))
   {
     abort();
