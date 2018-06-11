@@ -318,7 +318,6 @@ namespace LAppS
                 }
             break;
             case WSType::MESSAGING:
-                mStats.mEventQSize+=current->getStats().mOutQueueSize;
                 mReaders[readersIndex]->getRunnable()->enqueue(current);
                 if((++readersIndex) == mMaxReaders)
                   readersIndex=0;
