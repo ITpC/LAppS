@@ -55,7 +55,16 @@ namespace LAppS
     {
       mReadQueue.send(std::move(ref));
     }
-    void execute(){
+    void execute()
+    {
+      sigset_t sigset;
+      sigemptyset(&sigset);
+      sigaddset(&sigset, SIGQUIT);
+      sigaddset(&sigset, SIGINT);
+      sigaddset(&sigset, SIGTERM);
+      sigaddset(&sigset, SIGPIPE);
+      if(pthread_sigmask(SIG_BLOCK, &sigset, NULL) != 0)
+        throw std::system_error(errno,std::system_category(),"Can not mask signals [SIGQUIT,SIGINT,SIGTERM,SIGPIPE");
       while(mMayRun)
       {
         WSSPtrType ws(mReadQueue.recv());

@@ -32,9 +32,9 @@
 
 // 
 // 
-#define ePollINDefaultInOps   EPOLLIN|EPOLLRDHUP|EPOLLPRI|EPOLLONESHOT
-#define ePollINDefaultOutOps  EPOLLOUT|EPOLLRDHUP|EPOLLPRI|EPOLLONESHOT
-#define ePollINDefaultBothOps EPOLLIN|EPOLLOUT|EPOLLRDHUP|EPOLLPRI|EPOLLONESHOT
+#define ePollDefaultInOps   EPOLLIN|EPOLLRDHUP|EPOLLPRI|EPOLLONESHOT
+#define ePollDefaultOutOps  EPOLLOUT|EPOLLRDHUP|EPOLLPRI|EPOLLONESHOT
+#define ePollDefaultBothOps EPOLLIN|EPOLLOUT|EPOLLRDHUP|EPOLLPRI|EPOLLONESHOT
 
 /**
  * \@brief epoll wrapper (inbound messages only), not thread-safe. To embed into
@@ -64,7 +64,7 @@ public:
   void add_in(const int fd)
   {
     epoll_event ev;
-    ev.events=ePollINDefaultInOps;
+    ev.events=ePollDefaultInOps;
     ev.data.fd=fd;
     if(epoll_ctl(mPollFD,EPOLL_CTL_ADD,fd,&ev)==-1)
       throw std::system_error(errno,std::system_category(),std::string("In ePoll::add(): "));
@@ -73,7 +73,7 @@ public:
   void add_out(const int fd)
   {
     epoll_event ev;
-    ev.events=ePollINDefaultOutOps;
+    ev.events=ePollDefaultOutOps;
     ev.data.fd=fd;
     if(epoll_ctl(mPollFD,EPOLL_CTL_ADD,fd,&ev)==-1)
       throw std::system_error(errno,std::system_category(),std::string("In ePoll::add_out(): "));
@@ -84,7 +84,7 @@ public:
   void mod_in(const int fd)
   {    
     epoll_event ev;
-    ev.events=ePollINDefaultInOps;
+    ev.events=ePollDefaultInOps;
     ev.data.fd=fd;
     
     if(epoll_ctl(mPollFD,EPOLL_CTL_MOD,fd,&ev)==-1)
@@ -99,7 +99,21 @@ public:
   void mod_out(const int fd)
   {    
     epoll_event ev;
-    ev.events=ePollINDefaultOutOps;
+    ev.events=ePollDefaultOutOps;
+    ev.data.fd=fd;
+    
+    if(epoll_ctl(mPollFD,EPOLL_CTL_MOD,fd,&ev)==-1)
+    {
+      if(errno != ENOENT)
+        throw std::system_error(errno,std::system_category(),std::string("In ePoll::mod_out(): "));
+      else
+        this->add_out(fd);
+    }
+  }
+  void mod_both(const int fd)
+  {    
+    epoll_event ev;
+    ev.events=ePollDefaultBothOps;
     ev.data.fd=fd;
     
     if(epoll_ctl(mPollFD,EPOLL_CTL_MOD,fd,&ev)==-1)
@@ -114,7 +128,7 @@ public:
   void del(const int fd)
   {
     epoll_event ev;
-    ev.events=ePollINDefaultBothOps;
+    ev.events=ePollDefaultBothOps;
     ev.data.fd=fd;
     
     if(epoll_ctl(mPollFD,EPOLL_CTL_DEL,fd,&ev)==-1)
