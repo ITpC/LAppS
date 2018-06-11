@@ -51,18 +51,10 @@
 static thread_local std::vector<uint8_t> anInBuffer(8192);
 
 
-namespace io
-{
-  enum NextOp : int8_t  { ERROR=-1, POLLIN=-2, FLUSH=-3 , DELETE=-4 } ;
-}
-
 template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
 : public abstract::WebSocket
 {
  public:
-  enum State { HANDSHAKE, MESSAGING, CLOSED };
-  
-  
   std::shared_ptr<abstract::WebSocket> get_shared()
   {
     return this->shared_from_this();
@@ -95,11 +87,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   size_t                              mOutCursor;
   
   bool                                mAutoFragment;
-  
-  io::NextOp                          mNextOp;
-  
-  size_t                              maxoutstanding;
-  
+    
   void init(const itc::utils::Bool2Type<true> tls_is_enabled)
   {
     if(tls_accept_socket(TLSContext,&TLSSocket,fd))
@@ -111,7 +99,23 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   void init(const itc::utils::Bool2Type<false> tls_is_not_enabled)
   {
   }
-  
+    
+  void close()
+  {
+    if(TLSEnable)
+    {
+      int ret=0;
+      do
+      {
+        ret=tls_close(TLSSocket);
+      }while((ret == TLS_WANT_POLLIN)||(ret == TLS_WANT_POLLOUT));
+
+      tls_free(TLSSocket);
+    }
+    setState(CLOSED);  
+
+    mSocketSPtr->close();
+  }
  public:
 
   WebSocket(const WebSocket&) = delete;
@@ -127,8 +131,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
     enableTLS(),               enableStatsUpdate(),
     TLSContext(tls_context),   TLSSocket(nullptr),      mSocketSPtr(std::move(socksptr)),
     streamProcessor(512),      mEPoll(ep),              mStats{0,0,0,0,512,512}, 
-    mOutCursor(0),             mAutoFragment(auto_fragment), mNextOp(io::NextOp::POLLIN),
-      maxoutstanding(0)
+    mOutCursor(0),             mAutoFragment(auto_fragment)
   {
     init(enableTLS);
     mSocketSPtr->getpeeraddr(mPeerIP);
@@ -144,86 +147,22 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
     {
       case State::MESSAGING:
       {
-        this->closeSocket(WebSocketProtocol::SHUTDOWN);
-
-        if(TLSEnable)
-        {
-          int ret=0;
-          do
-          {
-            ret=tls_close(TLSSocket);
-          }while((ret == TLS_WANT_POLLIN)||(ret == TLS_WANT_POLLOUT));
-          
-          tls_free(TLSSocket);
-        }
-        setState(CLOSED);
-
-        if(mApplication)
-        {
-          try
-          {
-            mApplication->enqueueDisconnect(this->get_shared());
-          }catch(const std::exception& e)
-          {
-            itc::getLog()->info(
-              __FILE__,
-              __LINE__,
-              "Can not send close frame to %s, due to exception [%s]. Probable cause - peer disconnect.",
-              mPeerAddress.c_str(),e.what()
-            );      
-          }
-        }
-          
-
-        mSocketSPtr->close();
+        this->closeSocket(WebSocketProtocol::SHUTDOWN);        
+        this->close();
       }
       break;  
       case State::CLOSED:
-        if(TLSEnable)
-        {
-          tls_close(TLSSocket);
-          tls_free(TLSSocket);
-        }
-        
-        if(mApplication)
-        {
-          try
-          {
-            mApplication->enqueueDisconnect(this->get_shared());
-          }
-          catch(const std::exception& e)
-          {
-            itc::getLog()->info(
-              __FILE__,
-              __LINE__,
-              "Can not send close frame to %s, due to exception [%s]. Probable cause - peer disconnect.",
-              mPeerAddress.c_str(),e.what()
-            );
-          }
-        }
-        
-        mSocketSPtr->close();
-        
-      break;
-      case HANDSHAKE:
-        mState=CLOSED;
-        if(TLSEnable)
-        {
-          tls_close(TLSSocket);
-          tls_free(TLSSocket);
-        }
-        mSocketSPtr->close();
+      case State::HANDSHAKE:
+        this->close();
         break;
     }
   }
-  const io::NextOp next_op() const
-  {
-    return mNextOp;
-  }
+  
   const bool mustAutoFragment() const
   {
     return mAutoFragment;
   }
+  
   const struct tls* getTLSSocket()
   {
     return TLSSocket;
@@ -250,8 +189,8 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
     if(mApplication)
     {
       streamProcessor.setMaxMSGSize(mApplication->getMaxMSGSize());
+      mEPoll->mod_in(fd);
     }
-    mNextOp=io::NextOp::POLLIN;
   }
   
   bool isValid()
@@ -289,20 +228,21 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   }
   
   
-  int handleInput()
+  
+  const int handleInput()
   {
     if(mState == State::MESSAGING)
     {
       int ret=this->recv(anInBuffer);
 
-      if(ret<0) return io::NextOp::ERROR;
       if(ret>0)
       {
         processInput(anInBuffer,ret);
       }
+      mEPoll->mod_in(fd);
       return ret;
     }
-    return io::NextOp::ERROR;
+    return -1;
   }
   
 private:
@@ -321,7 +261,6 @@ private:
     switch(state.directive)
     {
       case WSStreamProcessing::Directive::MORE:
-        mNextOp=io::NextOp::POLLIN;
         return;
       case WSStreamProcessing::Directive::TAKE_READY_MESSAGE:
         if(onMessage(streamProcessor.getMessage())&&(state.cursor!=input_size))
@@ -429,18 +368,17 @@ private:
   {
     try
     {
-      MSGBufferType outBuffer;
-      WebSocketProtocol::ServerCloseMessage(outBuffer,ccode);
+      auto outBuffer=std::make_shared<MSGBufferType>();
+      WebSocketProtocol::ServerCloseMessage(*outBuffer,ccode);
       
       mApplication->enqueue(std::move(
           abstract::InEvent{
             WebSocketProtocol::OpCode::CLOSE,
             this->get_shared(),
-            nullptr
+            outBuffer
           }
         )
       );
-      send(outBuffer);
     }
     catch(const std::exception& e)
     {
@@ -519,12 +457,19 @@ RFC 6455                 The WebSocket Protocol            December 2011
    **/  
   void sendPong(const WSEvent& event)
   {
-    MSGBufferType outBuffer;
+    auto outBuffer=std::make_shared<MSGBufferType>();
     WebSocketProtocol::ServerPongMessage(
-      outBuffer,
+      *outBuffer,
       event.message
     );
-    send(outBuffer);
+    mApplication->enqueue(std::move(
+        abstract::InEvent{
+          WebSocketProtocol::OpCode::PONG,
+          this->get_shared(),
+          outBuffer
+        }
+      )
+    );;
   }
   
   void updateOutStats(const size_t sz)
@@ -549,8 +494,7 @@ RFC 6455                 The WebSocket Protocol            December 2011
   }
   
   void updateOutStats(const size_t buff_size,const itc::utils::Bool2Type<false>& noStats)
-  {
-    
+  {  
   }
   
   int recv(std::vector<uint8_t>& buff, const itc::utils::Bool2Type<false> noTLS)
@@ -566,7 +510,7 @@ RFC 6455                 The WebSocket Protocol            December 2011
         }
         else
         {
-          return io::NextOp::ERROR;
+          return -1;
         }
       }
       return ret;
@@ -599,7 +543,7 @@ RFC 6455                 The WebSocket Protocol            December 2011
       {
         if((errno == EAGAIN)||(errno == EWOULDBLOCK))
           continue;
-        return io::NextOp::ERROR;
+        return -1;
       }
 
       outCursor+=result;
@@ -627,7 +571,7 @@ RFC 6455                 The WebSocket Protocol            December 2011
           "TLS Error on fd[%d] with peer %s: %s",
           fd,mPeerAddress.c_str(),tls_error(TLSContext)
         );
-        return io::NextOp::ERROR;
+        return -1;
       }
       outCursor+=result;
     }while((buff.size()-outCursor)>0);

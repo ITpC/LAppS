@@ -191,6 +191,7 @@ namespace LAppS
       {
         spawn_services();
         processInbound();
+        mStats.mEventQSize=0;
         if(haveConnections)
         {
           try{
@@ -314,15 +315,13 @@ namespace LAppS
                 if(current->getState() !=WSType::MESSAGING)
                 {
                   deleteConnection(fd);
-                }else{
-                  mEPoll->mod_in(fd);
                 }
             break;
             case WSType::MESSAGING:
-              //mStats.mEventQSize+=current->getStats().mOutMessageCount;
-              mReaders[readersIndex]->getRunnable()->enqueue(current);
-              if((++readersIndex) == mMaxReaders)
-                readersIndex=0;
+                mStats.mEventQSize+=current->getStats().mOutQueueSize;
+                mReaders[readersIndex]->getRunnable()->enqueue(current);
+                if((++readersIndex) == mMaxReaders)
+                  readersIndex=0;
             break;
             case WSType::CLOSED:
                 deleteConnection(fd);

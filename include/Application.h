@@ -87,6 +87,7 @@ namespace LAppS
     void onCancel()
     {
        mMayRun.store(false);
+       mCanStop.store(true);
     }
     void shutdown()
     {
@@ -139,35 +140,45 @@ namespace LAppS
         itc::getLog()->error(__FILE__,__LINE__,"Can't enqueue request to application %s, exception: %s",mName.c_str(),e.what());
       }
     }
-    
-    void enqueueDisconnect(const std::shared_ptr<::abstract::WebSocket>& ws)
-    {
-      try {
-        mEvents.send({WebSocketProtocol::CLOSE,ws,nullptr});
-      } catch (const std::exception& e)
-      {
-        itc::getLog()->error(__FILE__,__LINE__,"Can't enqueue close event to application %s, exception: %s",mName.c_str(),e.what());
-      }
-    }
-    
+        
     void execute()
     {
       while(mMayRun)
       { 
         try
         {
-          auto event=std::move(mEvents.recv());
-          switch(event.opcode)
+          std::queue<abstract::InEvent> events;
+          mEvents.recv(events);
+          while(!events.empty())
           {
-            case WebSocketProtocol::OpCode::CLOSE:
-              mAppContext.onDisconnect(event.websocket);
-              break;
-            default:
+            auto event=std::move(events.front());
+            events.pop();
+            switch(event.opcode)
             {
-              const bool exec_result=mAppContext.onMessage(event);
-              if(!exec_result)
+              case WebSocketProtocol::OpCode::CLOSE:
+                mAppContext.onDisconnect(event.websocket);
+                if(event.websocket->getState() == abstract::WebSocket::State::MESSAGING)
+                  try{
+                    event.websocket->send(*event.message);
+                  }catch(const std::exception& e)
+                  {// ignore errors (bad_weak_ptr and so one)
+                  }
+                break;
+              case WebSocketProtocol::OpCode::PONG:
+                if(event.websocket->getState() == abstract::WebSocket::State::MESSAGING)
+                  try{
+                    event.websocket->send(*event.message);
+                  }catch(const std::exception& e)
+                  {// ignore errors (bad_weak_ptr and so one)
+                  }
+                break;
+              default:
               {
-                mMayRun.store(false);
+                const bool exec_result=mAppContext.onMessage(event);
+                if(!exec_result)
+                {
+                  mMayRun.store(false);
+                }
               }
             }
           }
@@ -188,8 +199,7 @@ namespace LAppS
     ~Application() noexcept
     {
       mMayRun.store(false);
-      itc::getLog()->info(__FILE__,__LINE__,"Application instance [%s] is destroyed.",mName.c_str());
-      itc::getLog()->flush();
+      while(!mCanStop.load()) sched_yield();
     }
   };
 }
