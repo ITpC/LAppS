@@ -32,6 +32,7 @@
 #include <abstract/Worker.h>
 #include <sys/atomic_mutex.h>
 #include <ServiceProperties.h>
+#include <Reader.h>
 
 
 namespace LAppS
@@ -46,6 +47,10 @@ namespace LAppS
       typedef std::shared_ptr<WSType>           WSSPtr;
       typedef ::LAppS::Application<TLSEnable,StatsEnable,::abstract::Application::Protocol::LAPPS> LAppLAPPS;
       typedef ::LAppS::Application<TLSEnable,StatsEnable,::abstract::Application::Protocol::RAW>   LAppRAW;
+      typedef ::LAppS::Reader<TLSEnable,StatsEnable>  ReaderType;
+      typedef itc::sys::CancelableThread<ReaderType>  ReaderThreadType;
+      typedef std::shared_ptr<ReaderThreadType>       ReaderSharedThreadType;
+      typedef std::vector<ReaderSharedThreadType>     ReadersVector;
       
     private:
       itc::utils::Bool2Type<TLSEnable>          enableTLS;
@@ -72,6 +77,10 @@ namespace LAppS
       std::atomic<bool>                         haveNewConnections;
       
       std::queue<ServiceProperties>             mServiceStartQueue;
+      
+      ReadersVector                             mReaders;
+      size_t                                    readersIndex;
+      size_t                                    mMaxReaders;
       
       bool error_bit(const uint32_t event) const
       {
@@ -111,14 +120,26 @@ namespace LAppS
       }
     public:
      
-    explicit IOWorker(const size_t id, const size_t maxConnections,const bool af)
-    : Worker(id,maxConnections,af), enableTLS(),        enableStatsUpdate(), 
+    explicit IOWorker(const size_t id, const size_t maxConnections,const bool auto_fragment, const size_t preads)
+    : Worker(id,maxConnections,auto_fragment), enableTLS(),        enableStatsUpdate(), 
       mMayRun{true},                mCanStop{false},    mConnectionsMutex(), 
       mInboundMutex(),              mShakespeer(),      mEPoll(std::make_shared<ePoll>()),
       mInboundConnections(),        mConnections(),     mEvents(1000),
-      mNap(), haveConnections{false},haveNewConnections{false}
+      mNap(), haveConnections{false},haveNewConnections{false},readersIndex(0),mMaxReaders(preads)
     {
       mConnections.clear();
+      for(size_t i=0;i<mMaxReaders;++i)
+      {
+        mReaders.push_back(
+          std::move(
+            std::make_shared<ReaderThreadType>(
+              std::move(
+                std::make_shared<ReaderType>()
+              )
+            )
+          )
+        );  
+      }
     }
     
     IOWorker()=delete;
@@ -173,7 +194,7 @@ namespace LAppS
         if(haveConnections)
         {
           try{
-            int ret=mEPoll->poll(mEvents,10);
+            int ret=mEPoll->poll(mEvents,1);
             if(ret > 0)
             {
               mStats.mEventQSize=ret;
@@ -298,13 +319,10 @@ namespace LAppS
                 }
             break;
             case WSType::MESSAGING:
-              mStats.mEventQSize+=current->getStats().mOutMessageCount;
-              if(current->handleInput()<0)
-              {
-                deleteConnection(fd);
-              }else {
-                mEPoll->mod_in(fd);
-              }
+              //mStats.mEventQSize+=current->getStats().mOutMessageCount;
+              mReaders[readersIndex]->getRunnable()->enqueue(current);
+              if((++readersIndex) == mMaxReaders)
+                readersIndex=0;
             break;
             case WSType::CLOSED:
                 deleteConnection(fd);
