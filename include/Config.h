@@ -46,10 +46,10 @@ namespace LAppS
     mEnv(), 
     ws_config({
       {"listeners",2},
-      {"connection_weight", 0.8},
+      {"connection_weight", 10},
       {"ip","0.0.0.0"},
       {"port",5083},
-      {"workers",{ {"workers",2}, {"max_connections", 10000 },{"auto_fragment",false},{"preads",4}}},
+      {"workers",{ {"workers",1}, {"max_connections", 10000 },{"auto_fragment",false},{"preads",4}}},
 #ifdef LAPPS_TLS_ENABLE
       {"tls",true},
 #else      
@@ -74,7 +74,7 @@ namespace LAppS
             {"request_target", "/echo"},
             {"protocol", "raw"},
             {"max_inbound_message_size",16*1024*1024}, // autobahn-testsuite uses up to 16MB messages in fuzzingclinet.
-            {"instances", 4}
+            {"instances", 1}
           }},
           {"echo_lapps", {
             {"request_target", "/echo_lapps"},

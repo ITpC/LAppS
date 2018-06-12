@@ -81,7 +81,7 @@ namespace LAppS
             try {
               if(sent > 0)
               {
-                auto app=anAppRegistry.findByTarget(mHTTPRParser.getRequestTarget());
+                auto app=anAppRegistry.getByTarget(mHTTPRParser.getRequestTarget());
                 wssocket->setState(WSType::MESSAGING);
                 wssocket->setApplication(app);
                 return;

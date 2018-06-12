@@ -130,7 +130,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   : fd(socksptr->getfd()),     mWorkerId(workerid),     mState(HANDSHAKE),
     enableTLS(),               enableStatsUpdate(),
     TLSContext(tls_context),   TLSSocket(nullptr),      mSocketSPtr(std::move(socksptr)),
-    streamProcessor(512),      mEPoll(ep),              mStats{0,0,0,0,512,512}, 
+    streamProcessor(512),      mEPoll(ep),              mStats{0,0,0,0,0,0}, 
     mOutCursor(0),             mAutoFragment(auto_fragment)
   {
     init(enableTLS);
@@ -263,12 +263,14 @@ private:
       case WSStreamProcessing::Directive::MORE:
         return;
       case WSStreamProcessing::Directive::TAKE_READY_MESSAGE:
-        if(onMessage(streamProcessor.getMessage())&&(state.cursor!=input_size))
+      {
+        if(onMessage(std::move(streamProcessor.getMessage()))&&(state.cursor!=input_size))
         {
           cursor=state.cursor;
           goto again; 
         }
         return;
+      }
       case WSStreamProcessing::Directive::CLOSE_WITH_CODE:
         closeSocket(state.cCode);
         return;
@@ -281,20 +283,18 @@ private:
   }
   
   void updateInStats(const size_t sz, const itc::utils::Bool2Type<true>& withStats)
-  {
-    ++mStats.mInMessageCount;
-    mStats.mInCMASize=(sz+(mStats.mInMessageCount-1)*mStats.mInCMASize)/(mStats.mInMessageCount);
-    
-    // reset stats to avoid size_t overflow
+  { 
     if(mStats.mInMessageCount+1 == 0xFFFFFFFFFFFFFFFFULL)
     {
       mStats.mInMessageCount=1;
-      mStats.mInCMASize=512;
     }
+    else ++mStats.mInMessageCount;
     
-    
-    if(sz>mStats.mInMessageMaxSize)
-        mStats.mInMessageMaxSize=sz;
+    if(sz == 0) return; // exclude 0-size messages;
+    int64_t size=sz;
+    int64_t cma_size=mStats.mInCMASize;
+    cma_size=std::abs(cma_size+((size-cma_size)/static_cast<int64_t>(mStats.mInMessageCount)));
+    mStats.mInCMASize=cma_size;
   }
   
   void updateInStats(const size_t sz, const itc::utils::Bool2Type<false>& noStats)
@@ -307,8 +307,9 @@ private:
     {
       throw std::system_error(EINVAL, std::system_category(), "No backend application available yet");
     }
-        
-    updateInStats(ref.message->size(),enableStatsUpdate);
+
+    updateInStats(ref.message->size());
+    streamProcessor.setMessageBufferSize(mStats.mInCMASize);
     
     switch(ref.type)
     {
@@ -478,19 +479,13 @@ RFC 6455                 The WebSocket Protocol            December 2011
   }
   void updateOutStats(const size_t sz, const itc::utils::Bool2Type<true>& withStats)
   {
-    ++mStats.mOutMessageCount;
-    mStats.mOutCMASize=(sz+(mStats.mOutMessageCount-1)*mStats.mOutCMASize)/(mStats.mOutMessageCount);
-    
     if(mStats.mOutMessageCount+1 == 0xFFFFFFFFFFFFFFFFULL)
     {
       mStats.mOutMessageCount=1;
-      mStats.mOutCMASize=512;
     }
     
-    if(sz>mStats.mOutMessageMaxSize)
-    {
-      mStats.mOutMessageMaxSize=sz;
-    }
+    ++mStats.mOutMessageCount;
+    mStats.mOutCMASize=mStats.mOutCMASize+(sz-mStats.mOutCMASize)/mStats.mOutMessageCount;
   }
   
   void updateOutStats(const size_t buff_size,const itc::utils::Bool2Type<false>& noStats)

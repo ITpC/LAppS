@@ -561,14 +561,14 @@ private:
         MSGBufferTypeSPtr tmp(message);
         message=std::make_shared<std::vector<uint8_t>>();
         message->reserve(mOutMSGPreSize);
-        return { currentOpCode, tmp };
+        return { currentOpCode, std::move(tmp) };
       }
       else
       {
         MSGBufferTypeSPtr tmp(messageFrames);
         messageFrames=std::make_shared<std::vector<uint8_t>>();
         messageFrames->reserve(mOutMSGPreSize);
-        return {currentOpCode, tmp};
+        return {currentOpCode, std::move(tmp)};
       }
     }
     throw std::logic_error("WSStreamParser::getMessage() - message is not ready yet");

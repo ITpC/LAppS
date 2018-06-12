@@ -199,7 +199,6 @@ namespace LAppS
     ~Application() noexcept
     {
       mMayRun.store(false);
-      while(!mCanStop.load()) sched_yield();
     }
   };
 }
