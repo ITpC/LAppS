@@ -39,4 +39,4 @@ done
 echo "All results bellow are for ${clients_started} clients"
 echo
 
-grep tabdata log.* | awk '{print $2, $3}' | awk -v clients=$clients_started '{count[$1]++; avg[$1]=($2+(count[$1]-1)*avg[$1])/count[$1]}END{for(i in avg) print avg[i]*count[i], i, avg[i], i*avg[i]*count[i]/1024/1024*8 " Mbit/s, clients: " count[i]}' | sort -nr
+grep tabdata log.* | awk '{print $2, $3}' | awk '{count[$1]++; avg[$1]=avg[$1]+($2-avg[$1])/(count[$1]+1)}END{for(i in avg) print avg[i]*count[i], i, avg[i], i*avg[i]*count[i]/1024/1024*8 " Mbit/s, clients: " count[i]}' | sort -nr
