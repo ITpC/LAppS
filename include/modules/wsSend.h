@@ -201,7 +201,7 @@ int wssend_lapps(lua_State* L, abstract::WebSocket* handler)
         {
           MSGBufferType message;
           WebSocketProtocol::ServerMessage(message,opcode,json::to_cbor(msg));
-          handler->send(message);
+          handler->send(std::move(message));
         }
         lua_pushboolean(L,true);
         return 1;
@@ -260,7 +260,7 @@ int wsclose(lua_State*L,abstract::WebSocket* handler, const size_t argc)
           lua_pushstring(L,"Usage: ws:close(handler, error_code [, error_string]) - wrong number of arguments is provided");
           return 2;
         }
-        handler->send(message);
+        handler->send(std::move(message));
         lua_pushboolean(L,true);
         return 1;
       }

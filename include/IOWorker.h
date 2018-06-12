@@ -37,8 +37,6 @@
 
 namespace LAppS
 {
-  static thread_local LAppS::ApplicationRegistry aThreadLocalAppRegistry;
-  
   template <bool TLSEnable=false, bool StatsEnable=false> 
     class IOWorker :public ::abstract::Worker
   {
@@ -100,19 +98,22 @@ namespace LAppS
           mServiceStartQueue.pop();
           if(properties.proto == abstract::Application::Protocol::LAPPS)
           {
-            for(size_t i=0;i<properties.instances;++i)
+            while(::ApplicationRegistry::getInstance()->countInstances(properties.service_name)<properties.instances)
             {
-              aThreadLocalAppRegistry.regApp(
-                std::make_shared<LAppLAPPS>(properties.service_name,properties.target,properties.max_inbound_message_size)
+              
+              ::ApplicationRegistry::getInstance()->regApp(
+                std::make_shared<LAppLAPPS>(properties.service_name,properties.target,properties.max_inbound_message_size),
+                properties.instances
               );  
             }
           }
           if(properties.proto == abstract::Application::Protocol::RAW)
           {
-            for(size_t i=0;i<properties.instances;++i)
+            while(::ApplicationRegistry::getInstance()->countInstances(properties.service_name)<properties.instances)
             {
-              aThreadLocalAppRegistry.regApp(
-                std::make_shared<LAppRAW>(properties.service_name,properties.target,properties.max_inbound_message_size)
+              ::ApplicationRegistry::getInstance()->regApp(
+                std::make_shared<LAppRAW>(properties.service_name,properties.target,properties.max_inbound_message_size),
+                properties.instances
               );  
             }
           } 
@@ -311,7 +312,7 @@ namespace LAppS
           switch(current->getState())
           {
             case WSType::HANDSHAKE:
-                mShakespeer.handshake(current,aThreadLocalAppRegistry);
+                mShakespeer.handshake(current,*::ApplicationRegistry::getInstance());
                 if(current->getState() !=WSType::MESSAGING)
                 {
                   deleteConnection(fd);

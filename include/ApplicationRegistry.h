@@ -41,7 +41,7 @@ namespace LAppS
   class ApplicationRegistry
   {
     typedef std::queue<ApplicationThreadSPtr> AppInstances;
-    std::mutex mMutex;
+    mutable std::mutex mMutex;
 
     std::map<std::string,AppInstances> mApplications;
     std::map<std::string,std::string>  mTarget2Name;
@@ -60,7 +60,28 @@ namespace LAppS
       }
       mApplications.clear();
     }
-    void regApp(const ApplicationSPtr& instance)
+    
+    void unRegApp(const std::string name)
+    {
+      SyncLock sync(mMutex);
+      auto it=mApplications.find(name);
+      if(it!=mApplications.end())
+      {
+        auto target=it->second.front()->getRunnable()->getTarget();
+        auto target_it=mTarget2Name.find(target);
+        if(target_it != mTarget2Name.end())
+        {
+          mTarget2Name.erase(target_it);
+        }
+        
+        while(!(it->second.empty()))
+        {  
+          it->second.pop();
+        }
+      }
+    }
+    
+    void regApp(const ApplicationSPtr& instance,const size_t maxInstances)
     {
       SyncLock sync(mMutex);
 
@@ -78,9 +99,11 @@ namespace LAppS
 
       if(instances!=mApplications.end())
       {
-        instances->second.push(
-          std::make_shared<ApplicationThread>(instance)
-        );
+        if(instances->second.size()<maxInstances){
+          instances->second.push(
+            std::make_shared<ApplicationThread>(instance)
+          );  
+        }
       }
       else
       {
@@ -92,7 +115,7 @@ namespace LAppS
       mTarget2Name.emplace(instance->getTarget(),instance->getName());
     }
 
-    auto findByName(const std::string& name)
+    auto getByName(const std::string& name)
     {
       SyncLock sync(mMutex);
       auto it=mApplications.find(name);
@@ -109,7 +132,7 @@ namespace LAppS
       }
       throw std::system_error(ENOENT, std::system_category(), name+", - no such application");
     }
-    auto findByTarget(const std::string& target)
+    auto getByTarget(const std::string& target)
     {
       SyncLock sync(mMutex);
       auto target_iter=mTarget2Name.find(target);
@@ -131,6 +154,16 @@ namespace LAppS
         throw std::system_error(ENOENT, std::system_category(), name+", - no such application");
       }
       throw std::system_error(ENOENT, std::system_category(), target+", - no such target");
+    }
+    const size_t countInstances(const std::string& name) const
+    {
+      SyncLock sync(mMutex);
+      auto it=mApplications.find(name);
+      if(it!=mApplications.end())
+      {
+        return it->second.size();
+      }
+      return 0;
     }
   };
 }
