@@ -12,6 +12,7 @@
         <group>
             <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/IOWorker.h</file>
             <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/WSProtocol.h</file>
+            <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/Shakespeer.h</file>
             <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/WebSocket.h</file>
             <file>file:/home/pk/workspace/docker/luadev.env/workspace/LAppS/include/Application.h</file>
         </group>
