@@ -12,7 +12,7 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
- *  
+ *   
  *  You should have received a copy of the GNU General Public License
  *  along with LAppS.  If not, see <http://www.gnu.org/licenses/>.
  * 
@@ -49,6 +49,7 @@ namespace LAppS
       {"connection_weight", 10},
       {"ip","0.0.0.0"},
       {"port",5083},
+      {"lapps_config_auto_save", false },
       {"workers",{ {"workers",1}, {"max_connections", 10000 },{"auto_fragment",false},{"preads",4}}},
 #ifdef LAPPS_TLS_ENABLE
       {"tls",true},
@@ -64,7 +65,8 @@ namespace LAppS
           {"applications","apps"},
           {"app_conf_dir","etc"},
           {"tmp","tmp"},
-          {"workdir","workdir"}
+          {"workdir","workdir"},
+          {"deploy", "deploy" }
         },
       },
       {
@@ -74,21 +76,25 @@ namespace LAppS
             {"request_target", "/echo"},
             {"protocol", "raw"},
             {"max_inbound_message_size",16*1024*1024}, // autobahn-testsuite uses up to 16MB messages in fuzzingclinet.
-            {"instances", 1}
+            {"instances", 1},
+            {"auto_start" , true }
           }},
           {"echo_lapps", {
             {"request_target", "/echo_lapps"},
             {"protocol", "LAppS"},
             {"max_inbound_message_size",1024},
-            {"instances", 1}
+            {"instances", 1},
+            {"auto_start" , false }
           }},
           {"time_broadcast", {
             {"internal", true},
-            {"instances", 1}
+            {"instances", 1},
+            {"auto_start" , false }
           }},
           {"broadcast_blob", {
             {"internal", true},
-            {"instances", 1}
+            {"instances", 1},
+            {"auto_start" , false }
           }}
           /**,
           {{"data_source", {
@@ -137,9 +143,18 @@ namespace LAppS
    {
      return ws_config;
    } 
-   const json& getLAppSConfig() const
+   json& getLAppSConfig()
    {
      return lapps_config;
+   }
+   void save()
+   {
+     std::ofstream lapps_config_file(mEnv["LAPPS_CONF_DIR"]+"/"+mEnv["LAPPS_CONFIG"], std::ifstream::binary);
+     if(lapps_config_file)
+     {
+        lapps_config_file << lapps_config;
+        lapps_config_file.close();
+     }
    }
   };
 }

@@ -69,10 +69,27 @@ namespace LAppS
 
     const bool stopInstance(const std::string& name)
     {
+      ::SyncLock sync(mMutex);
       auto it=mRegistry.find(name);
       if(it!=mRegistry.end())
       {
         if(!it->second.empty())
+        {
+          it->second.pop();
+          return true;
+        }
+        return false;
+      }
+      return false;
+    }
+    
+    const bool stopInstances(const std::string& name)
+    {
+      ::SyncLock sync(mMutex);
+      auto it=mRegistry.find(name);
+      if(it!=mRegistry.end())
+      {
+        while(!it->second.empty())
         {
           it->second.pop();
           return true;

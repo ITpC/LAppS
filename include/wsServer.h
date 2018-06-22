@@ -57,6 +57,7 @@
 #include <Application.h>
 #include <IOWorker.h>
 #include <Balancer.h>
+#include <Deployer.h>
 
 // libressl
 #include <tls.h>
@@ -74,145 +75,17 @@ namespace LAppS
     itc::utils::Bool2Type<TLSEnable>    enableTLS;
     itc::utils::Bool2Type<StatsEnable>  enableStatsUpdate;
     float                               mConnectionWeight;
+    LAppS::Deployer<TLSEnable,StatsEnable> mDeployer;
     size_t                              mWorkers;
     WorkerStats                         mAllStats;
 
     std::vector<TCPListenerThreadSPtr>  mListenersPool;
     itc::sys::CancelableThread<Balancer<TLSEnable,StatsEnable>> mBalancer;
 
-    void prepareServices()
+    void startListeners()
     {
       try
       {
-        auto it=LAppSConfig::getInstance()->getLAppSConfig().find("services");
-        if(it!=LAppSConfig::getInstance()->getLAppSConfig().end()) // services are defined
-        {
-          auto services=it.value().begin();
-          
-          while(services!=it.value().end())
-          {
-            std::string service_name=services.key();  
-            
-            auto options=services.value();
-
-            bool internal=false;
-
-            auto find_internal=options.find("internal");
-
-            if(find_internal!=options.end()) // is internal?
-            {
-              internal=find_internal.value();
-            }
-
-            if(internal)
-            {
-              auto instances_it=options.find("instances");
-              if(instances_it != options.end())
-              {  
-                size_t instances=instances_it.value();
-                for(size_t i=0;i<instances;++i)
-                {
-                  itc::getLog()->info(__FILE__,__LINE__,"Starting service %s instance %u",service_name.c_str(),i);
-                  ::InternalAppsRegistry::getInstance()->startInstance(service_name);
-                }
-              }
-            }
-            else
-            {
-              std::string proto;
-              std::string app_target;
-              size_t max_inbound_message_size=std::numeric_limits<size_t>::max();
-
-              auto found=options.find("max_inbound_message_size");
-              if((found != options.end())&&found.value().is_number_integer())
-              {
-                max_inbound_message_size=found.value();
-              }
-
-              found=options.find("protocol");
-              if(found != options.end())
-              {
-                proto=found.value();
-              }
-              else
-              {
-                proto.clear();
-              }
-
-              found=options.find("request_target");
-              if(found != options.end())
-              {
-                app_target=found.value();
-              }
-              else
-              {
-                app_target.clear();
-              }
-
-              if((!app_target.empty())&&(!proto.empty()))
-              {
-                std::regex request_target("^[/][[:alpha:][:digit:]_-]*([/]?[[:alpha:][:digit:]_-]+)*$");
-
-                if(std::regex_match(app_target,request_target))
-                {
-                  if(proto.empty())
-                    throw std::system_error(EINVAL,std::system_category(), "Application protocol is empty in configuration of the service "+service_name);
-                  if(proto == "raw")
-                  {
-                    size_t instances=1;
-
-                    found=options.find("instances");
-                    if(found != options.end())
-                    {
-                      instances=found.value();
-                    }
-                    std::vector<std::shared_ptr<::abstract::Worker>> workers;
-                    WorkersPool::getInstance()->getWorkers(workers);
-                    size_t sinstcount=0;
-                    for(auto worker : workers)
-                    {
-                      itc::getLog()->info(__FILE__,__LINE__,"Starting service %s instance %u",service_name.c_str(),sinstcount++);
-                      worker->enqueue_service({
-                        service_name,
-                          app_target,
-                          ApplicationProtocol::RAW,
-                          max_inbound_message_size,
-                          instances
-                      });
-                    }
-                  }
-                  else if(proto == "LAppS")
-                  {
-                    size_t instances=1;
-
-                    found=options.find("instances");
-                    if(found != options.end())
-                    {
-                      instances=found.value();
-                    }
-                    std::vector<std::shared_ptr<::abstract::Worker>> workers;
-                    WorkersPool::getInstance()->getWorkers(workers);
-                    size_t sinstcount=0;
-                    for(auto worker : workers)
-                    {
-                      itc::getLog()->info(__FILE__,__LINE__,"Starting service %s instance %u",service_name.c_str(),sinstcount++);
-                      worker->enqueue_service({
-                        service_name,
-                          app_target,
-                          ApplicationProtocol::LAPPS,
-                          max_inbound_message_size,
-                          instances
-                      });
-                    }
-                  }else{
-                      throw std::system_error(EINVAL,std::system_category(), "Incorrect protocol is specified for target "+app_target+" in service "+service_name+". Only two protocols are supported: raw, LAppS");
-                  }
-                } else throw std::system_error(EINVAL,std::system_category(), "Incorrect request target: "+app_target+" in configuration of service "+service_name);
-              } else throw std::system_error(EINVAL,std::system_category(), "Undefined request_target or protocol keyword which are both mandatory");
-            }
-            ++services;
-          }
-        }
         size_t max_listeners=LAppSConfig::getInstance()->getWSConfig()["listeners"];
 
         for(size_t i=0;i<max_listeners;++i)
@@ -256,7 +129,7 @@ namespace LAppS
     wsServer()
     : enableTLS(), enableStatsUpdate(), mConnectionWeight(
         LAppSConfig::getInstance()->getWSConfig()["connection_weight"]
-      ), mWorkers(1), mAllStats{0,0,0,0,0,0,0,0}, 
+      ), mDeployer(),mWorkers(1), mAllStats{0,0,0,0,0,0,0,0}, 
       mBalancer(std::make_shared<Balancer<TLSEnable, StatsEnable>>(mConnectionWeight))
     {
         itc::getLog()->info(__FILE__,__LINE__,"Starting WS Server");
@@ -317,7 +190,7 @@ namespace LAppS
         {
           WorkersPool::getInstance()->spawn(max_connections,auto_fragment,preads);
         }
-        prepareServices();
+        startListeners();
     };
 
 

@@ -193,6 +193,11 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
     }
   }
   
+  const ApplicationSPtr& getApplication() const
+  {
+    return mApplication;
+  }
+  
   bool isValid()
   {
     return mSocketSPtr->isValid();
@@ -242,6 +247,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
       mEPoll->mod_in(fd);
       return ret;
     }
+    mState = State::CLOSED;
     return -1;
   }
   
@@ -317,7 +323,7 @@ private:
         if(streamProcessor.isValidUtf8(ref.message->data(),ref.message->size()))
         {
          
-          mApplication->enqueue(
+          if(mApplication) mApplication->enqueue(
             std::move(
               abstract::InEvent{
                 WebSocketProtocol::TEXT,
@@ -335,7 +341,7 @@ private:
         }
       case WebSocketProtocol::BINARY:
       {
-        mApplication->enqueue(
+        if(mApplication) mApplication->enqueue(
           std::move(
             abstract::InEvent{
               WebSocketProtocol::OpCode::BINARY,
@@ -372,7 +378,7 @@ private:
       auto outBuffer=std::make_shared<MSGBufferType>();
       WebSocketProtocol::ServerCloseMessage(*outBuffer,ccode);
       
-      mApplication->enqueue(std::move(
+      if(mApplication) mApplication->enqueue(std::move(
           abstract::InEvent{
             WebSocketProtocol::OpCode::CLOSE,
             this->get_shared(),
@@ -463,7 +469,7 @@ RFC 6455                 The WebSocket Protocol            December 2011
       *outBuffer,
       event.message
     );
-    mApplication->enqueue(std::move(
+    if(mApplication) mApplication->enqueue(std::move(
         abstract::InEvent{
           WebSocketProtocol::OpCode::PONG,
           this->get_shared(),

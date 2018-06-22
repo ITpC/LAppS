@@ -60,7 +60,14 @@ namespace LAppS
       }
       mApplications.clear();
     }
-    
+    void listApps(std::queue<std::string>& out)
+    {
+      SyncLock sync(mMutex);
+      for(auto it=mApplications.begin();it!=mApplications.end();++it)
+      {
+        out.push(it->first);
+      }
+    }
     void unRegApp(const std::string name)
     {
       SyncLock sync(mMutex);
@@ -73,11 +80,7 @@ namespace LAppS
         {
           mTarget2Name.erase(target_it);
         }
-        
-        while(!(it->second.empty()))
-        {  
-          it->second.pop();
-        }
+        mApplications.erase(it);
       }
     }
     
