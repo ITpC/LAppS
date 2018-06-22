@@ -41,10 +41,8 @@ namespace LAppS
     class IOWorker :public ::abstract::Worker
   {
     public:
-      typedef WebSocket<TLSEnable,StatsEnable>  WSType;
-      typedef std::shared_ptr<WSType>           WSSPtr;
-      typedef ::LAppS::Application<TLSEnable,StatsEnable,::abstract::Application::Protocol::LAPPS> LAppLAPPS;
-      typedef ::LAppS::Application<TLSEnable,StatsEnable,::abstract::Application::Protocol::RAW>   LAppRAW;
+      typedef WebSocket<TLSEnable,StatsEnable>        WSType;
+      typedef std::shared_ptr<WSType>                 WSSPtr;
       typedef ::LAppS::Reader<TLSEnable,StatsEnable>  ReaderType;
       typedef itc::sys::CancelableThread<ReaderType>  ReaderThreadType;
       typedef std::shared_ptr<ReaderThreadType>       ReaderSharedThreadType;
@@ -74,8 +72,6 @@ namespace LAppS
       std::atomic<bool>                         haveConnections;
       std::atomic<bool>                         haveNewConnections;
       
-      std::queue<ServiceProperties>             mServiceStartQueue;
-      
       ReadersVector                             mReaders;
       size_t                                    readersIndex;
       size_t                                    mMaxReaders;
@@ -89,36 +85,6 @@ namespace LAppS
         return (events & (EPOLLIN|EPOLLOUT));
       }
       
-      void spawn_services()
-      {
-        AtomicLock sync(mSSQMutex);
-        if(!mServiceStartQueue.empty())
-        {
-          auto properties=std::move(mServiceStartQueue.front());
-          mServiceStartQueue.pop();
-          if(properties.proto == abstract::Application::Protocol::LAPPS)
-          {
-            while(::ApplicationRegistry::getInstance()->countInstances(properties.service_name)<properties.instances)
-            {
-              
-              ::ApplicationRegistry::getInstance()->regApp(
-                std::make_shared<LAppLAPPS>(properties.service_name,properties.target,properties.max_inbound_message_size),
-                properties.instances
-              );  
-            }
-          }
-          if(properties.proto == abstract::Application::Protocol::RAW)
-          {
-            while(::ApplicationRegistry::getInstance()->countInstances(properties.service_name)<properties.instances)
-            {
-              ::ApplicationRegistry::getInstance()->regApp(
-                std::make_shared<LAppRAW>(properties.service_name,properties.target,properties.max_inbound_message_size),
-                properties.instances
-              );  
-            }
-          } 
-        }
-      }
     public:
      
     explicit IOWorker(const size_t id, const size_t maxConnections,const bool auto_fragment, const size_t preads)
@@ -146,12 +112,6 @@ namespace LAppS
     IOWorker()=delete;
     IOWorker(const IOWorker&)=delete;
     IOWorker(IOWorker&)=delete;
-    
-    void enqueue_service(const ServiceProperties& properties)
-    {
-      AtomicLock sync(mSSQMutex);
-      mServiceStartQueue.push(std::move(properties));
-    }
     
     void onUpdate(const ::itc::TCPListener::value_type& socketsptr)
     {
@@ -190,16 +150,14 @@ namespace LAppS
       pthread_sigmask(SIG_BLOCK, &sigpipe_mask, &saved_mask);
       while(mMayRun)
       {
-        spawn_services();
         processInbound();
-        mStats.mEventQSize=0;
         if(haveConnections)
         {
           try{
             int ret=mEPoll->poll(mEvents,1);
             if(ret > 0)
             {
-              mStats.mEventQSize=ret;
+              mStats.mEventQSize+=ret;
               for(auto i=0;i<ret;++i)
               {
                 if(error_bit(mEvents[i].events))
@@ -322,6 +280,11 @@ namespace LAppS
                 mReaders[readersIndex]->getRunnable()->enqueue(current);
                 if((++readersIndex) == mMaxReaders)
                   readersIndex=0;
+                mStats.mEventQSize=0;
+                for(size_t i=0;i<mMaxReaders;++i)
+                {
+                  mStats.mEventQSize+=mReaders[readersIndex]->getRunnable()->getQSize();
+                }
             break;
             case WSType::CLOSED:
                 deleteConnection(fd);

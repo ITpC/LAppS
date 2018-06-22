@@ -50,7 +50,10 @@ namespace LAppS
     {
       mReadQueue.send(ref);
     }
-    
+    const size_t getQSize() const
+    {
+      return mReadQueue.size();
+    }
     void enqueue(const std::vector<WSSPtrType>& ref)
     {
       mReadQueue.send(std::move(ref));
@@ -67,8 +70,18 @@ namespace LAppS
         throw std::system_error(errno,std::system_category(),"Can not mask signals [SIGQUIT,SIGINT,SIGTERM,SIGPIPE");
       while(mMayRun)
       {
-        WSSPtrType ws(mReadQueue.recv());
-        ws->handleInput();
+        try{
+          WSSPtrType ws(mReadQueue.recv());
+          int ret=ws->handleInput();
+          if(ret == -1)
+          {
+            itc::getLog()->info(__FILE__,__LINE__,"Disconnected: %s",ws->getPeerAddress().c_str());
+          }
+        }catch(const std::exception& e)
+        {
+          itc::getLog()->info(__FILE__,__LINE__,"Reader is going down. Reason: event queue is going down.");
+          mMayRun.store(false); 
+        }
       }
       mMayStop.store(true);
     }
@@ -76,8 +89,6 @@ namespace LAppS
     void shutdown()
     {
       mMayRun.store(false);
-      while(!mMayStop)
-        sched_yield();
     }
     
     void onCancel()

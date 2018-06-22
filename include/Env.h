@@ -65,7 +65,7 @@ namespace environment
       ::setenv(name.c_str(), value.c_str(),1);
     }
     
-    std::string& operator[](const std::string& var)
+    const std::string& operator[](const std::string& var)
     {
       static const std::string empty_string("");
       

@@ -84,7 +84,6 @@ namespace abstract
     
     
     virtual const WorkerStats& getStats() const=0;
-    virtual void enqueue_service(const LAppS::ServiceProperties&)=0;
     virtual void updateStats()=0;
     virtual void deleteConnection(const int32_t)=0;
     virtual const bool  isTLSEnabled() const = 0;
