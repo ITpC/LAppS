@@ -72,10 +72,13 @@ namespace LAppS
       {
         try{
           WSSPtrType ws(mReadQueue.recv());
-          int ret=ws->handleInput();
-          if(ret == -1)
+          if(ws->getState() == WSType::State::MESSAGING)
           {
-            itc::getLog()->info(__FILE__,__LINE__,"Disconnected: %s",ws->getPeerAddress().c_str());
+            int ret=ws->handleInput();
+            if(ret == -1)
+            {
+              itc::getLog()->info(__FILE__,__LINE__,"Disconnected: %s",ws->getPeerAddress().c_str());
+            }
           }
         }catch(const std::exception& e)
         {

@@ -49,8 +49,8 @@ namespace LAppS
       {"connection_weight", 10},
       {"ip","0.0.0.0"},
       {"port",5083},
-      {"lapps_config_auto_save", false },
-      {"workers",{ {"workers",1}, {"max_connections", 10000 },{"auto_fragment",false},{"preads",4}}},
+      {"lapps_config_auto_save", true },
+      {"workers",{ {"workers",1}, {"max_connections", 10000 },{"auto_fragment",false},{"preads",8}}},
 #ifdef LAPPS_TLS_ENABLE
       {"tls",true},
 #else      
@@ -71,44 +71,14 @@ namespace LAppS
       },
       {
         "services", {
-          {"echo", {
+          {"console", {
             {"internal", false},
-            {"request_target", "/echo"},
-            {"protocol", "raw"},
-            {"max_inbound_message_size",16*1024*1024}, // autobahn-testsuite uses up to 16MB messages in fuzzingclinet.
-            {"instances", 1},
-            {"auto_start" , true }
-          }},
-          {"echo_lapps", {
-            {"request_target", "/echo_lapps"},
+            {"request_target", "/console"},
             {"protocol", "LAppS"},
             {"max_inbound_message_size",1024},
             {"instances", 1},
             {"auto_start" , false }
-          }},
-          {"time_broadcast", {
-            {"internal", true},
-            {"instances", 1},
-            {"auto_start" , false }
-          }},
-          {"broadcast_blob", {
-            {"internal", true},
-            {"instances", 1},
-            {"auto_start" , false }
           }}
-          /**,
-          {{"data_source", {
-            {"internal", true},
-            {"request_queue", "http_request"}, // optional request queue for apps ipc. if declared, may not be null
-            {"instances", 1}
-          }}},
-          {{"console", {
-            {"internal", false},
-            {"request_target","/console"},
-            {"protocol", "LAppS"},
-            {"workers",{ {"workers",1}, {"max_connections", 100 }}},
-            {"instances", 1},
-          }}}*/
         }
       }})
    {
@@ -142,14 +112,16 @@ namespace LAppS
    const json& getWSConfig() const
    {
      return ws_config;
-   } 
+   }
+   
    json& getLAppSConfig()
    {
      return lapps_config;
    }
+   
    void save()
    {
-     std::ofstream lapps_config_file(mEnv["LAPPS_CONF_DIR"]+"/"+mEnv["LAPPS_CONFIG"], std::ifstream::binary);
+     std::ofstream lapps_config_file(mEnv["LAPPS_CONF_DIR"]+"/"+mEnv["LAPPS_CONFIG"]);
      if(lapps_config_file)
      {
         lapps_config_file << lapps_config;

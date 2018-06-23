@@ -102,18 +102,20 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
     
   void close()
   {
-    if(TLSEnable)
+    if(mState != State::CLOSED)
     {
-      int ret=0;
-      do
+      if(TLSEnable)
       {
-        ret=tls_close(TLSSocket);
-      }while((ret == TLS_WANT_POLLIN)||(ret == TLS_WANT_POLLOUT));
+        int ret=0;
+        do
+        {
+          ret=tls_close(TLSSocket);
+        }while((ret == TLS_WANT_POLLIN)||(ret == TLS_WANT_POLLOUT));
 
-      tls_free(TLSSocket);
+        tls_free(TLSSocket);
+      }
+      setState(CLOSED);
     }
-    setState(CLOSED);  
-
     mSocketSPtr->close();
   }
  public:
@@ -229,6 +231,9 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   {
     updateOutStats(buff.size());
     int ret=this->send(buff,enableTLS);
+    if(buff[0] == 128){
+      this->close();
+    }  
     return ret;
   }
   
@@ -247,7 +252,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
       mEPoll->mod_in(fd);
       return ret;
     }
-    mState = State::CLOSED;
+    mEPoll->mod_in(fd);
     return -1;
   }
   
@@ -550,7 +555,6 @@ RFC 6455                 The WebSocket Protocol            December 2011
       outCursor+=result;
 
     } while(outCursor != buff.size());
-    
     return outCursor;
   }
 
@@ -566,7 +570,7 @@ RFC 6455                 The WebSocket Protocol            December 2011
 
       if(result == -1)
       {
-        mState=State::CLOSED;
+        this->close();
         itc::getLog()->error(
           __FILE__,__LINE__,
           "TLS Error on fd[%d] with peer %s: %s",
