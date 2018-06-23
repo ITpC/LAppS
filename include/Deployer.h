@@ -54,76 +54,78 @@ namespace LAppS
     int                         mInotifyFD;
     environment::LAppSEnv       mEnv;
     fs::path                    mDeployDir;
-    int                         mDeployerFD;
-    
-  public:
-    explicit Deployer()
-    : mMayRun{true},mMutex(),mDeploymentQueue(),
-      mInotifyFD(inotify_init()),mEnv()
-    {
-      const std::string deploy_dir=LAppSConfig::getInstance()->getLAppSConfig()["directories"]["deploy"];
-      mDeployDir=fs::path(static_cast<const std::string>(mEnv["LAPPS_HOME"])) / deploy_dir;
-      
-      if(mInotifyFD == -1)
-        throw std::system_error(errno,std::system_category(),"Deployer::Deployer(), exception on inotify_init()");
-      
-      if(!fs::exists(mDeployDir))
-        throw std::system_error(ENOENT,std::system_category(),"Deployer::Deployer() - no such directory "+mDeployDir.u8string() +" to watch for LARs.");
-
-      mDeployerFD=inotify_add_watch(mInotifyFD,mDeployDir.u8string().c_str(),IN_CLOSE_WRITE);
-      
-      if(mDeployerFD == -1)
-        throw std::system_error(errno,std::system_category(),"Deployer::Deployer(), exception on inotify_add_watch()");
-      
-      deploy_all();
-      auto_start();
-    }
-    
+        
     void deploy_all()
     {
       for(auto& entry : fs::recursive_directory_iterator(mDeployDir))
       {
-        if(entry.status().type() == fs::file_type::regular)
-        {
-          if(entry.path().extension().u8string() == "lar")
-          { 
-            std::string lapps_tmp_dir=LAppSConfig::getInstance()->getWSConfig()["directories"]["tmp"];
-            fs::path tempdir(fs::path(static_cast<const std::string&>(mEnv["LAPPS_HOME"])) / lapps_tmp_dir  / entry.path().stem());
-            if(fs::exists(tempdir))
-            {
-              fs::remove_all(tempdir);
-            }
-            
-            lar::LAR service_archive;
+        itc::getLog()->info(__FILE__,__LINE__,"Deploying: %s",entry.path().u8string().c_str());
+        deploy_archive(entry.path());
+      }
+    }
+    
+    auto deploy_archive(const fs::path& archive_name)
+    {
+      if(fs::is_regular_file(archive_name))
+      {   
+        std::string extension(archive_name.extension().u8string().c_str());
+        
+        if(extension == ".lar")
+        { 
+          std::string lapps_tmp_dir=LAppSConfig::getInstance()->getLAppSConfig()["directories"]["tmp"];
+          fs::path tempdir(fs::path(static_cast<const std::string&>(mEnv["LAPPS_HOME"])) / lapps_tmp_dir);
+          
+          if(fs::exists(tempdir))
+          {
+            fs::remove_all(tempdir);
+          }
+          
+          itc::getLog()->info(__FILE__,__LINE__,"Unpacking archive %s",archive_name.u8string().c_str());
+          lar::LAR service_archive;
+          try{
             service_archive.unpack(
-              entry.path(),
+              archive_name,
               tempdir
             );
-            size_t counter=0;
-            for(auto& dir : fs::directory_iterator(tempdir))
-            {
+          }
+          catch(const std::exception& e)
+          {
+            std::string errmsg(std::string("Error on unpacking ")+archive_name.u8string()+std::string(": ")+std::string(e.what()));
+            throw std::system_error(ECANCELED,std::system_category(),std::move(errmsg));
+          }
+          
+          size_t counter=0;
+          for(auto& dir : fs::directory_iterator(tempdir))
+          {
+            if(fs::is_directory(dir.path()))
               ++counter;
-            }
-            if(counter == 0)
-              throw std::system_error(ENOENT,std::system_category(),"An empty archive"+entry.path().u8string());
-            
-            if(counter > 1)
-              throw std::system_error(EINVAL,std::system_category(),"An invalid LAR file {multiroot/multiservice)");
-            
-            for(auto& dir : fs::directory_iterator(tempdir))
+          }
+          if(counter == 0)
+            throw std::system_error(ENOENT,std::system_category(),"An empty archive"+archive_name.u8string());
+
+          if(counter > 1)
+            throw std::system_error(EINVAL,std::system_category(),"An invalid LAR file {multiroot/multiservice)");
+
+          for(auto& dir : fs::directory_iterator(tempdir))
+          {
+            auto service_config_file=dir / std::string(archive_name.stem().u8string()+".json");
+            if(fs::exists(service_config_file))
             {
-              auto service_config_file=entry.path() / std::string(entry.path().stem().u8string()+".json");
-              if(fs::exists(service_config_file))
-              {
-                std::ifstream service_config_stream(service_config_file);
-                json service_config;
-                service_config_stream >> service_config;
-                deploy_service(dir.path(),service_config);
-              }
+              std::ifstream service_config_stream(service_config_file);
+              json service_config;
+              service_config_stream >> service_config;
+              deploy_service(dir.path(),service_config);
+              std::string service_name=service_config["name"];
+              return service_name;
+            }else{
+              throw std::system_error(ENOENT,std::system_category(),std::string(u8"The service-config file ")+service_config_file.u8string()+std::string(u8" is unavailable"));
             }
           }
+        }else{
+          throw std::system_error(EINVAL,std::system_category(),std::string("Exception: ")+archive_name.u8string().c_str()+std::string(u8" does not have an extension .lar"));
         }
       }
+      throw std::system_error(EINVAL,std::system_category(),archive_name.u8string()+std::string(u8" is not a regular file"));
     }
     
     void auto_start()
@@ -135,12 +137,13 @@ namespace LAppS
         std::string service_name(service_iterator.key());
         const bool auto_start=service_iterator.value()["auto_start"];
         if(auto_start)
-          start_service(service_name);
+          restart_service(service_name);
       }
     }
     
     void deploy_service(const fs::path& dir, const json& service_config)
     {
+      itc::getLog()->info(__FILE__,__LINE__,"Deploying service: %s",dir.u8string().c_str());
       try
       {
         const bool internal{service_config["internal"]};
@@ -157,12 +160,15 @@ namespace LAppS
         std::string app_dir=LAppSConfig::getInstance()->getLAppSConfig()["directories"]["applications"];
         fs::path service_path{fs::path(static_cast<const std::string&>(mEnv["LAPPS_HOME"])) / app_dir / service_name};
         
+        if(fs::exists(service_path))
+        {
+          fs::remove_all(service_path);
+        }
+        
         if(internal)
         {
           if(already_exists)
           {
-            
-            fs::remove_all(service_path);
             LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["internal"]=internal;
             LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["instances"]=instances;
             LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["auto_start"]=auto_start;
@@ -181,11 +187,9 @@ namespace LAppS
           const std::string target=service_config["request_target"];
           const std::string protocol=service_config["protocol"];
           const size_t max_in_msg_size{service_config["max_inbound_message_size"]};
-          
+
           if(already_exists)
           {
-            fs::remove_all(service_path);
-            
             LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["internal"]=internal;
             LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["instances"]=instances;
             LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["auto_start"]=auto_start;
@@ -195,7 +199,7 @@ namespace LAppS
           }
           else
           {
-            json sconfig({
+            json sconfig{{
               service_name,{
                 { "internal", internal },
                 { "instances", instances },
@@ -204,8 +208,8 @@ namespace LAppS
                 { "protocol", protocol },
                 { "max_inbound_message_size", max_in_msg_size }
               }
-            });
-            LAppSConfig::getInstance()->getLAppSConfig()["services"].push_back(sconfig);
+            }};
+            LAppSConfig::getInstance()->getLAppSConfig()["services"].insert(sconfig.begin(),sconfig.end());
           }
           
           fs::rename(dir, service_path);
@@ -214,19 +218,21 @@ namespace LAppS
       catch(const std::exception& e){
         itc::getLog()->error(
           __FILE__,__LINE__,
-          "Service is not configured properly (unpacked from archive) [%s]. Exception [%s]",
+          "Service is not configured properly (unpacked from archive) into dir [%s]. Exception [%s]",
           dir.u8string().c_str(),e.what()
         );
         itc::getLog()->flush();
         return;
       }
+      
       const bool config_auto_save{LAppSConfig::getInstance()->getWSConfig()["lapps_config_auto_save"]};
+      
       if(config_auto_save)
       {
         LAppSConfig::getInstance()->save();
       }
     }
-    
+  public:
     void stop_service(const std::string& service_name)
     {
       try{
@@ -255,6 +261,13 @@ namespace LAppS
       {
         const bool internal=LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["internal"];
         const size_t instances=LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["instances"];
+        
+        const std::string apps_dir=LAppSConfig::getInstance()->getLAppSConfig()["directories"]["applications"];
+        
+        fs::path lua_module_path_extend{fs::path(static_cast<const std::string&>(mEnv["LAPPS_HOME"])) / apps_dir / fs::path(service_name)};
+        
+        mEnv.setEnv("LUA_PATH", mEnv["LUA_PATH"] + ";" + lua_module_path_extend.u8string() + "/?.lua");
+        
         itc::getLog()->info(__FILE__,__LINE__,"Starting service %s with %d instance(s)",service_name.c_str(),instances);    
         if(internal)
         {  
@@ -268,22 +281,25 @@ namespace LAppS
           const std::string target=LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["request_target"];
           const std::string protocol=LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["protocol"];
           const size_t max_in_msg_size=LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["max_inbound_message_size"];
-          
-          if(protocol == "raw")
+
+          for(size_t i=0;i<instances;++i)
           {
-            ::ApplicationRegistry::getInstance()->regApp(
-                std::make_shared<RAWPROTOApp>(service_name,target,max_in_msg_size),
-                instances
-            );
-          }
-          else if(protocol == "LAppS")
-          {
-            ::ApplicationRegistry::getInstance()->regApp(
-                std::make_shared<LAppSPROTOApp>(service_name,target,max_in_msg_size),
-                instances
-            );
-          }else{
-            throw std::system_error(EINVAL,std::system_category(),"Unknown protocol is configured for service "+service_name);
+            if(protocol == "raw")
+            {
+              ::ApplicationRegistry::getInstance()->regApp(
+                  std::make_shared<RAWPROTOApp>(service_name,target,max_in_msg_size),
+                  instances
+              );
+            }
+            else if(protocol == "LAppS")
+            {
+              ::ApplicationRegistry::getInstance()->regApp(
+                  std::make_shared<LAppSPROTOApp>(service_name,target,max_in_msg_size),
+                  instances
+              );
+            }else{
+              throw std::system_error(EINVAL,std::system_category(),"Unknown protocol is configured for service "+service_name);
+            }
           }
         }
       }
@@ -304,18 +320,66 @@ namespace LAppS
       stop_service(service_name);
       start_service(service_name);
     }
+    explicit Deployer()
+    : mMayRun{true},mMutex(),mDeploymentQueue(),
+      mInotifyFD(inotify_init()),mEnv()
+    {
+      const std::string deploy_dir=LAppSConfig::getInstance()->getLAppSConfig()["directories"]["deploy"];
+      mDeployDir=fs::path(static_cast<const std::string>(mEnv["LAPPS_HOME"])) / deploy_dir;
+      
+      if(mInotifyFD == -1)
+        throw std::system_error(errno,std::system_category(),"Deployer::Deployer(), exception on inotify_init()");
+      
+      if(!fs::exists(mDeployDir))
+        throw std::system_error(ENOENT,std::system_category(),"Deployer::Deployer() - no such directory "+mDeployDir.u8string() +" to watch for LARs.");
+
+      int ret=inotify_add_watch(mInotifyFD,mDeployDir.u8string().c_str(),IN_CLOSE_WRITE);
+      
+      if(ret == -1)
+        throw std::system_error(errno,std::system_category(),"Deployer::Deployer(), exception on inotify_add_watch()");
+      
+      itc::getLog()->info(__FILE__,__LINE__,"Deploying all services");
+      deploy_all();
+      itc::getLog()->info(__FILE__,__LINE__,"Starting all services with auto_start enabled");
+      auto_start();
+    }
     
     Deployer(const Deployer&)=delete;
     Deployer(Deployer&)=delete;
     ~Deployer(){shutdown();}
     
     void onCancel() {}
-    void shutdown() {mMayRun.store(true);}
+    void shutdown() {mMayRun.store(false);}
     void execute()
     {
+      size_t buffer_size=sizeof(struct inotify_event) + NAME_MAX + 1;
+      std::vector<uint8_t> buffer(buffer_size);
+
       while(mMayRun.load())
-      {
+      { 
+        int ret=read(mInotifyFD,buffer.data(),buffer_size);
         
+        if(ret < 0)
+        {
+          itc::getLog()->error(__FILE__,__LINE__,"Error on inotify read. Going down.");
+          mMayRun.store(false);
+          break;
+        }
+
+        buffer.resize(ret);
+        
+        auto p=(inotify_event*)(buffer.data());
+        std::string name(p->name,p->len);
+        fs::path archive_name(std::move(name));
+        try{
+          fs::path service_name(std::move(deploy_archive(archive_name)));
+          restart_service(service_name.stem().u8string());
+        }
+        catch(const std::exception& e)
+        {
+          itc::getLog()->error(__FILE__,__LINE__,"Error on deployment of an archive %s: %s ",archive_name.u8string().c_str(),e.what());
+        }
+        buffer.resize(buffer_size);
       }
     }
   };

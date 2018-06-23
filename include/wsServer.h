@@ -71,16 +71,19 @@ namespace LAppS
   private:
     typedef LAppS::IOWorker<TLSEnable,StatsEnable>                    WorkerType;
     typedef itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>      WorkersPool;
-
+    typedef LAppS::Deployer<TLSEnable,StatsEnable>                    DeployerType;
+    typedef itc::sys::CancelableThread<DeployerType>                  DeployerThread;
+    
     itc::utils::Bool2Type<TLSEnable>    enableTLS;
     itc::utils::Bool2Type<StatsEnable>  enableStatsUpdate;
     float                               mConnectionWeight;
-    LAppS::Deployer<TLSEnable,StatsEnable> mDeployer;
     size_t                              mWorkers;
     WorkerStats                         mAllStats;
-
+    
+    DeployerThread                      mDeployer;
     std::vector<TCPListenerThreadSPtr>  mListenersPool;
     itc::sys::CancelableThread<Balancer<TLSEnable,StatsEnable>> mBalancer;
+    
 
     void startListeners()
     {
@@ -129,7 +132,7 @@ namespace LAppS
     wsServer()
     : enableTLS(), enableStatsUpdate(), mConnectionWeight(
         LAppSConfig::getInstance()->getWSConfig()["connection_weight"]
-      ), mDeployer(),mWorkers(1), mAllStats{0,0,0,0,0,0,0,0}, 
+      ), mWorkers(1), mAllStats{0,0,0,0,0,0,0,0}, mDeployer(std::make_shared<DeployerType>()),
       mBalancer(std::make_shared<Balancer<TLSEnable, StatsEnable>>(mConnectionWeight))
     {
         itc::getLog()->info(__FILE__,__LINE__,"Starting WS Server");

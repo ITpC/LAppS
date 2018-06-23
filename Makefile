@@ -109,7 +109,10 @@ install: build
 	
 	install -m 0755 ${CND_ARTIFACT_PATH_${CONF}} /opt/lapps/bin
 
-install-examples: install 
+install-examples: install
+	mkdir -p /opt/lapps/etc/conf
+	mkdir -p /opt/lapps/deploy
+	mkdir -p /opt/lapps/tmp
 	mkdir -p /opt/lapps/apps/echo
 	mkdir -p /opt/lapps/apps/echo_lapps
 	mkdir -p /opt/lapps/apps/time_broadcast
