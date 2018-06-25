@@ -18,6 +18,7 @@
         <itemPath>include/modules/bcast.h</itemPath>
         <itemPath>include/modules/nap.h</itemPath>
         <itemPath>include/modules/nljson.h</itemPath>
+        <itemPath>src/pam_auth.h</itemPath>
         <itemPath>include/modules/wsSend.h</itemPath>
       </logicalFolder>
       <itemPath>include/Application.h</itemPath>
@@ -130,7 +131,6 @@
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>../libressl/lib</pElem>
-            <pElem>/opt/gperftools/lib</pElem>
           </linkerAddLib>
           <commandlineTool>g++ -pipe -Wall -pthread -O2 -mtune=native -march=native -fPIC -fstack-check -fstack-protector-strong -mfpmath=sse -msse2avx -ftree-vectorize -funroll-loops</commandlineTool>
           <linkerLibItems>
@@ -171,7 +171,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -ltls -lcrypto -lluajit-5.1 -lbz2 -lstdc++fs -lprofiler</commandLine>
+          <commandLine>-lcryptopp -ltls -lcrypto -lluajit-5.1 -lbz2 -lstdc++fs</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -209,6 +209,12 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -718,6 +724,8 @@
       </item>
       <item path="src/main.cpp" ex="false" tool="1" flavor2="0">
       </item>
+      <item path="src/pam_auth.h" ex="false" tool="3" flavor2="0">
+      </item>
     </conf>
     <conf name="Release" type="1">
       <toolsSet>
@@ -830,6 +838,8 @@
       <item path="src/getLog.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="src/main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/pam_auth.h" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
   </confs>
