@@ -124,14 +124,17 @@ namespace LAppS
       auto it=mApplications.find(name);
       if(it!=mApplications.end())
       {
-        if(it->second.size() > 0)
+        while(it->second.size() > 0)
         {
           ApplicationThreadSPtr app=it->second.front(); // round-robin access to instances
           it->second.pop();
-          it->second.push(app);
-          return app->getRunnable();
+          if(app->getRunnable()->isUp())
+          {
+            it->second.push(app);
+            return app->getRunnable();
+          }
         }
-        else throw std::system_error(ENOENT, std::system_category(), name+", - no instances available");
+        throw std::system_error(ENOENT, std::system_category(), name+", - no instances available");
       }
       throw std::system_error(ENOENT, std::system_category(), name+", - no such application");
     }
@@ -145,14 +148,17 @@ namespace LAppS
         auto it=mApplications.find(name);
         if(it!=mApplications.end())
         {
-          if(it->second.size() > 0)
+          while(it->second.size() > 0)
           {
             ApplicationThreadSPtr app=it->second.front(); // round-robin access to instances
             it->second.pop();
-            it->second.push(app);
-            return app->getRunnable();
+            if(app->getRunnable()->isUp())
+            {
+              it->second.push(app);
+              return app->getRunnable();
+            }
           }
-          else throw std::system_error(ENOENT, std::system_category(), name+", - no instances available");
+          throw std::system_error(ENOENT, std::system_category(), name+", - no instances available");
         }
         throw std::system_error(ENOENT, std::system_category(), name+", - no such application");
       }

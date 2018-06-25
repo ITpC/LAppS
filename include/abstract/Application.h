@@ -56,7 +56,7 @@ namespace abstract
     Application()=default;
     Application(const Application&)=delete;
     Application(Application&)=delete;
-    
+    virtual const bool isUp() const=0;
     virtual void enqueue(const InEvent&)=0;
     virtual void enqueue(const std::vector<InEvent>&)=0;
     virtual const bool try_enqueue(const std::vector<InEvent>&)=0;

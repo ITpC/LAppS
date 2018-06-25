@@ -90,7 +90,7 @@ namespace LAppS
           }
           catch(const std::exception& e)
           {
-            std::string errmsg(std::string("Error on unpacking ")+archive_name.u8string()+std::string(": ")+std::string(e.what()));
+            std::string errmsg(std::string("Error on unpacking ")+std::string(archive_name.u8string().c_str())+std::string(": ")+std::string(e.what()));
             throw std::system_error(ECANCELED,std::system_category(),std::move(errmsg));
           }
           
@@ -101,14 +101,14 @@ namespace LAppS
               ++counter;
           }
           if(counter == 0)
-            throw std::system_error(ENOENT,std::system_category(),"An empty archive"+archive_name.u8string());
+            throw std::system_error(ENOENT,std::system_category(),"An empty archive"+std::string(archive_name.u8string().c_str()));
 
           if(counter > 1)
             throw std::system_error(EINVAL,std::system_category(),"An invalid LAR file {multiroot/multiservice)");
 
           for(auto& dir : fs::directory_iterator(tempdir))
           {
-            auto service_config_file=dir / std::string(archive_name.stem().u8string()+".json");
+            auto service_config_file=dir / std::string(std::string(archive_name.stem().u8string().c_str())+std::string(".json"));
             if(fs::exists(service_config_file))
             {
               std::ifstream service_config_stream(service_config_file);
@@ -122,10 +122,13 @@ namespace LAppS
             }
           }
         }else{
-          throw std::system_error(EINVAL,std::system_category(),std::string("Exception: ")+archive_name.u8string().c_str()+std::string(u8" does not have an extension .lar"));
+          throw std::system_error(EINVAL,std::system_category(),std::string("Exception: ")+std::string(archive_name.u8string().c_str())+std::string(" does not have an extension .lar"));
         }
       }
-      throw std::system_error(EINVAL,std::system_category(),archive_name.u8string()+std::string(u8" is not a regular file"));
+      else {
+        throw std::system_error(EINVAL,std::system_category(),std::string(archive_name.u8string().c_str())+std::string(" is not a regular file"));
+      }
+      throw std::system_error(EINVAL,std::system_category(),"inappropriate exit");
     }
     
     void auto_start()
@@ -259,14 +262,14 @@ namespace LAppS
     {
       try
       {
-        const bool internal=LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["internal"];
-        const size_t instances=LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["instances"];
+        const bool internal{LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["internal"]};
+        const size_t instances{LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["instances"]};
         
         const std::string apps_dir=LAppSConfig::getInstance()->getLAppSConfig()["directories"]["applications"];
         
         fs::path lua_module_path_extend{fs::path(static_cast<const std::string&>(mEnv["LAPPS_HOME"])) / apps_dir / fs::path(service_name)};
         
-        mEnv.setEnv("LUA_PATH", mEnv["LUA_PATH"] + ";" + lua_module_path_extend.u8string() + "/?.lua");
+        mEnv.setEnv("LUA_PATH", mEnv["LUA_PATH"] + ";" + std::string(lua_module_path_extend.u8string().c_str()) + "/?.lua");
         
         itc::getLog()->info(__FILE__,__LINE__,"Starting service %s with %d instance(s)",service_name.c_str(),instances);    
         if(internal)
@@ -370,15 +373,7 @@ namespace LAppS
         
         auto p=(inotify_event*)(buffer.data());
         std::string name(p->name,p->len);
-        fs::path archive_name(std::move(name));
-        try{
-          fs::path service_name(std::move(deploy_archive(archive_name)));
-          restart_service(service_name.stem().u8string());
-        }
-        catch(const std::exception& e)
-        {
-          itc::getLog()->error(__FILE__,__LINE__,"Error on deployment of an archive %s: %s ",archive_name.u8string().c_str(),e.what());
-        }
+        restart_service(deploy_archive(mDeployDir / name));
         buffer.resize(buffer_size);
       }
     }
