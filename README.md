@@ -59,3 +59,4 @@ Please see the [Project Page](https://github.com/ITpC/LAppS/projects/1) to glimp
 
 Right now the experimental branch 0.7.0 with significant performance improvements is in development.
 
+Please use branch 0.6.3, the upstream is not yet fully functioning.

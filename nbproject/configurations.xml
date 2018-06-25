@@ -18,7 +18,7 @@
         <itemPath>include/modules/bcast.h</itemPath>
         <itemPath>include/modules/nap.h</itemPath>
         <itemPath>include/modules/nljson.h</itemPath>
-        <itemPath>src/pam_auth.h</itemPath>
+        <itemPath>include/modules/pam_auth.h</itemPath>
         <itemPath>include/modules/wsSend.h</itemPath>
       </logicalFolder>
       <itemPath>include/Application.h</itemPath>
@@ -716,6 +716,8 @@
       </item>
       <item path="include/modules/nljson.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/modules/pam_auth.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/modules/wsSend.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
@@ -723,8 +725,6 @@
       <item path="src/getLog.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="src/main.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="src/pam_auth.h" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
     <conf name="Release" type="1">
@@ -831,6 +831,8 @@
       </item>
       <item path="include/modules/nljson.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/modules/pam_auth.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/modules/wsSend.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
@@ -838,8 +840,6 @@
       <item path="src/getLog.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="src/main.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="src/pam_auth.h" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
   </confs>
