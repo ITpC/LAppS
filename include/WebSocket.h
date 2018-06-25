@@ -48,6 +48,8 @@
 
 #include <abstract/WebSocket.h>
 
+#include "ApplicationRegistry.h"
+
 static thread_local std::vector<uint8_t> anInBuffer(8192);
 
 
@@ -149,8 +151,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
     {
       case State::MESSAGING:
       {
-        this->closeSocket(WebSocketProtocol::SHUTDOWN);        
-        this->close();
+        closeSocket(WebSocketProtocol::SHUTDOWN);        
       }
       break;  
       case State::CLOSED:
@@ -314,7 +315,7 @@ private:
   
   bool onMessage(const WSEvent& ref)
   {
-    if(!mApplication)
+    if(!getApplication())
     {
       throw std::system_error(EINVAL, std::system_category(), "No backend application available yet");
     }
@@ -328,7 +329,7 @@ private:
         if(streamProcessor.isValidUtf8(ref.message->data(),ref.message->size()))
         {
          
-          if(mApplication) mApplication->enqueue(
+          getApplication()->enqueue(
             std::move(
               abstract::InEvent{
                 WebSocketProtocol::TEXT,
@@ -341,12 +342,12 @@ private:
         }
         else 
         {
-          closeSocket(WebSocketProtocol::BAD_DATA);     
+          closeSocket(WebSocketProtocol::BAD_DATA);
           return false;
         }
       case WebSocketProtocol::BINARY:
       {
-        if(mApplication) mApplication->enqueue(
+        getApplication()->enqueue(
           std::move(
             abstract::InEvent{
               WebSocketProtocol::OpCode::BINARY,
@@ -376,6 +377,21 @@ private:
     return true;
   }
   
+  auto getApplication()
+  {
+    if(mApplication)
+    {
+      if(mApplication->isUp())
+      {
+        return mApplication;
+      }
+      else{
+        mApplication=ApplicationRegistry::getInstance()->getByTarget(mApplication->getTarget());
+        return mApplication;
+      }
+    }
+    throw std::system_error(ENOENT,std::system_category(),"Application is down");
+  }
   void closeSocket(const WebSocketProtocol::DefiniteCloseCode& ccode)
   {
     try
@@ -383,7 +399,7 @@ private:
       auto outBuffer=std::make_shared<MSGBufferType>();
       WebSocketProtocol::ServerCloseMessage(*outBuffer,ccode);
       
-      if(mApplication) mApplication->enqueue(std::move(
+      getApplication()->enqueue(std::move(
           abstract::InEvent{
             WebSocketProtocol::OpCode::CLOSE,
             this->get_shared(),
@@ -397,10 +413,11 @@ private:
       itc::getLog()->info(
         __FILE__,
         __LINE__,
-        "Can not send close frame to %s, due to exception [%s]. Probable cause - peer disconnect.",
+        "Can not send close frame to %s, due to exception [%s]. Probable causes are the peer disconnect or an service restart.",
         mPeerAddress.c_str(),e.what()
       );
     }
+    this->close();
   }
   
   void onCloseMessage(const WSEvent& event)
@@ -474,7 +491,7 @@ RFC 6455                 The WebSocket Protocol            December 2011
       *outBuffer,
       event.message
     );
-    if(mApplication) mApplication->enqueue(std::move(
+    getApplication()->enqueue(std::move(
         abstract::InEvent{
           WebSocketProtocol::OpCode::PONG,
           this->get_shared(),

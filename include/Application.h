@@ -70,7 +70,10 @@ namespace LAppS
     itc::tsbqueue<abstract::InEvent> mEvents;
     
  public:
-    
+    const bool isUp() const
+    {
+      return mMayRun;
+    }
     const std::string& getName() const
     {
       return mName;
