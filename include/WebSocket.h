@@ -413,7 +413,7 @@ private:
       itc::getLog()->info(
         __FILE__,
         __LINE__,
-        "Can not send close frame to %s, due to exception [%s]. Probable causes are the peer disconnect or an service restart.",
+        "Can not send close frame to %s, due to exception [%s]. Probable causes are the peer disconnect or a service going down.",
         mPeerAddress.c_str(),e.what()
       );
     }
