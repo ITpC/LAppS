@@ -31,7 +31,9 @@ namespace abstract
     enum State { HANDSHAKE=0, MESSAGING=1, CLOSED=2 };
     
     WebSocket()=default;
+    
     virtual const int send(const std::vector<uint8_t>&)=0;
+    virtual void close()=0;
     virtual const State getState() const=0;
     virtual const bool mustAutoFragment() const =0;
     virtual std::shared_ptr<abstract::WebSocket> get_shared()=0;

@@ -62,7 +62,7 @@ namespace LAppS
       void sendForbidden(const WSSPtr& wssocket)
       {
         wssocket->send(forbidden);
-        wssocket->setState(WSType::CLOSED);
+        wssocket->close();
       }
       
       void handshake(const WSSPtr& wssocket,LAppS::ApplicationRegistry& anAppRegistry)
@@ -94,7 +94,7 @@ namespace LAppS
                   wssocket->getPeerAddress().c_str()
                 );
 
-                wssocket->setState(WSType::CLOSED);
+                wssocket->close();
                 return;   
               }
             }catch(const std::exception& e)
@@ -104,7 +104,7 @@ namespace LAppS
                 "Exception on handshake with peer %s: %s",
                 wssocket->getPeerAddress().c_str(),e.what()
               );
-              wssocket->setState(WSType::CLOSED);
+              wssocket->close();
               return;
             }
           }else{
@@ -114,13 +114,13 @@ namespace LAppS
               wssocket->getPeerAddress().c_str()
             );
             wssocket->send(forbidden);
-            wssocket->setState(WSType::CLOSED);
+            wssocket->close();
             return;
           }
         }
         else
         {
-          wssocket->setState(WSType::CLOSED);
+          wssocket->close();
           itc::getLog()->info(
             __FILE__,__LINE__,
             "Communication error on handshake with peer on fd %d. Closing this WebSocket",

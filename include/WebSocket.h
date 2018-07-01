@@ -66,6 +66,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   int                                 fd;
   size_t                              mWorkerId;
   State                               mState;
+  std::atomic<bool>                   mNoInput;
   
   itc::utils::Bool2Type<TLSEnable>    enableTLS;
   itc::utils::Bool2Type<StatsEnable>  enableStatsUpdate;
@@ -102,28 +103,11 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   {
   }
     
-  void close()
-  {
-    if(mState != State::CLOSED)
-    {
-      if(TLSEnable)
-      {
-        int ret=0;
-        do
-        {
-          ret=tls_close(TLSSocket);
-        }while((ret == TLS_WANT_POLLIN)||(ret == TLS_WANT_POLLOUT));
-
-        tls_free(TLSSocket);
-      }
-      setState(CLOSED);
-    }
-    mSocketSPtr->close();
-  }
+  
  public:
-
   WebSocket(const WebSocket&) = delete;
   WebSocket(WebSocket&) = delete;
+  
   explicit WebSocket(
     const itc::CSocketSPtr&  socksptr, 
     const size_t&            workerid, 
@@ -131,9 +115,9 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
     const bool               auto_fragment,
     struct tls*              tls_context=nullptr
   )
-  : fd(socksptr->getfd()),     mWorkerId(workerid),     mState(HANDSHAKE),
-    enableTLS(),               enableStatsUpdate(),
-    TLSContext(tls_context),   TLSSocket(nullptr),      mSocketSPtr(std::move(socksptr)),
+  : fd(socksptr->getfd()),     mWorkerId{workerid},     mState{HANDSHAKE}, 
+    mNoInput{false},           enableTLS(),             enableStatsUpdate(),
+    TLSContext{tls_context},   TLSSocket{nullptr},      mSocketSPtr(std::move(socksptr)),
     streamProcessor(512),      mEPoll(ep),              mStats{0,0,0,0,0,0}, 
     mOutCursor(0),             mAutoFragment(auto_fragment)
   {
@@ -150,14 +134,30 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
     switch(mState)
     {
       case State::MESSAGING:
-      {
-        closeSocket(WebSocketProtocol::SHUTDOWN);        
-      }
-      break;  
-      case State::CLOSED:
+        closeSocket(WebSocketProtocol::SHUTDOWN);
       case State::HANDSHAKE:
         this->close();
-        break;
+      case State::CLOSED:
+        mSocketSPtr->close();
+    }
+  }
+  
+  void close()
+  {
+    if(mState != State::CLOSED)
+    {
+      if(TLSEnable)
+      {
+        int ret=0;
+        do
+        {
+          ret=tls_close(TLSSocket);
+        }while((ret == TLS_WANT_POLLIN)||(ret == TLS_WANT_POLLOUT));
+
+        tls_free(TLSSocket);
+        TLSSocket=nullptr;
+      }
+      setState(State::CLOSED);
     }
   }
   
@@ -225,35 +225,43 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   
   int recv(std::vector<uint8_t>& buff)
   {
-    return this->recv(buff,enableTLS);
+    if(mState != State::CLOSED)
+    {
+      return this->recv(buff,enableTLS);
+    }
+    return -1;
   }
 
   const int send(const std::vector<uint8_t>& buff)
   {
-    updateOutStats(buff.size());
-    int ret=this->send(buff,enableTLS);
-    if(buff[0] == 128){
-      this->close();
-    }  
-    return ret;
+    if(mState != State::CLOSED)
+    {
+      const size_t bsize=buff.size();
+      updateOutStats(bsize);
+      int ret=this->send(buff,enableTLS);
+      return ret;
+    }
+    return -1;
   }
-  
-  
   
   const int handleInput()
   {
-    if(mState == State::MESSAGING)
+    if(mState != State::CLOSED)
     {
+      if(mNoInput.load())
+      {
+        mEPoll->mod_both(fd);
+        return 0;
+      }
       int ret=this->recv(anInBuffer);
 
       if(ret>0)
       {
         processInput(anInBuffer,ret);
+        mEPoll->mod_in(fd);
       }
-      mEPoll->mod_in(fd);
       return ret;
     }
-    mEPoll->mod_in(fd);
     return -1;
   }
   
@@ -275,14 +283,12 @@ private:
       case WSStreamProcessing::Directive::MORE:
         return;
       case WSStreamProcessing::Directive::TAKE_READY_MESSAGE:
-      {
         if(onMessage(std::move(streamProcessor.getMessage()))&&(state.cursor!=input_size))
         {
           cursor=state.cursor;
           goto again; 
         }
         return;
-      }
       case WSStreamProcessing::Directive::CLOSE_WITH_CODE:
         closeSocket(state.cCode);
         return;
@@ -331,7 +337,7 @@ private:
          
           getApplication()->enqueue(
             std::move(
-              abstract::InEvent{
+              abstract::AppInEvent{
                 WebSocketProtocol::TEXT,
                 this->get_shared(),
                 std::move(ref.message)
@@ -349,7 +355,7 @@ private:
       {
         getApplication()->enqueue(
           std::move(
-            abstract::InEvent{
+            abstract::AppInEvent{
               WebSocketProtocol::OpCode::BINARY,
               this->get_shared(),
               std::move(ref.message)
@@ -386,8 +392,7 @@ private:
         return mApplication;
       }
       else{
-        mApplication=ApplicationRegistry::getInstance()->getByTarget(mApplication->getTarget());
-        return mApplication;
+        throw std::system_error(ENOENT,std::system_category(),"Application is down");
       }
     }
     throw std::system_error(ENOENT,std::system_category(),"Application is down");
@@ -400,13 +405,14 @@ private:
       WebSocketProtocol::ServerCloseMessage(*outBuffer,ccode);
       
       getApplication()->enqueue(std::move(
-          abstract::InEvent{
+          abstract::AppInEvent{
             WebSocketProtocol::OpCode::CLOSE,
             this->get_shared(),
             outBuffer
           }
         )
       );
+      mNoInput.store(true);
     }
     catch(const std::exception& e)
     {
@@ -417,7 +423,6 @@ private:
         mPeerAddress.c_str(),e.what()
       );
     }
-    this->close();
   }
   
   void onCloseMessage(const WSEvent& event)
@@ -492,7 +497,7 @@ RFC 6455                 The WebSocket Protocol            December 2011
       event.message
     );
     getApplication()->enqueue(std::move(
-        abstract::InEvent{
+        abstract::AppInEvent{
           WebSocketProtocol::OpCode::PONG,
           this->get_shared(),
           outBuffer
@@ -542,17 +547,21 @@ RFC 6455                 The WebSocket Protocol            December 2011
   
   int recv(std::vector<uint8_t>& buff, const itc::utils::Bool2Type<true> withTLS)
   {
-    int ret=0;
+    if(TLSSocket)
+    {
+      int ret=0;
     
-    do{
-      ret=tls_read(TLSSocket,buff.data(),buff.size());
-    
-      if(ret == -1)
-      {
-        return -1;
-      }
-    }while((ret == TLS_WANT_POLLIN) || (ret == TLS_WANT_POLLOUT));
-    return ret;
+      do{
+        ret=tls_read(TLSSocket,buff.data(),buff.size());
+
+        if(ret == -1)
+        {
+          return -1;
+        }
+      }while((ret == TLS_WANT_POLLIN) || (ret == TLS_WANT_POLLOUT));
+      return ret;
+    }
+    return -1;
   }
   
   const int send(const std::vector<uint8_t>& buff,const itc::utils::Bool2Type<false> noTLS)
@@ -577,28 +586,26 @@ RFC 6455                 The WebSocket Protocol            December 2011
 
   const int send(const std::vector<uint8_t>& buff,const itc::utils::Bool2Type<true> withTLS)
   {
-    size_t outCursor=0;
-    do
+    if(TLSSocket)
     {
-      const int result=tls_write(TLSSocket,buff.data()+outCursor,buff.size()-outCursor);
-
-      if((result == TLS_WANT_POLLIN) || (result == TLS_WANT_POLLOUT))
-        continue;
-
-      if(result == -1)
+      size_t outCursor=0;
+      do
       {
-        this->close();
-        itc::getLog()->error(
-          __FILE__,__LINE__,
-          "TLS Error on fd[%d] with peer %s: %s",
-          fd,mPeerAddress.c_str(),tls_error(TLSContext)
-        );
-        return -1;
-      }
-      outCursor+=result;
-    }while((buff.size()-outCursor)>0);
+        const int result=tls_write(TLSSocket,buff.data()+outCursor,buff.size()-outCursor);
 
-    return outCursor;
+        if((result == TLS_WANT_POLLIN) || (result == TLS_WANT_POLLOUT))
+          continue;
+
+        if(result == -1)
+        {
+          return -1;
+        }
+        outCursor+=result;
+      }while(outCursor<buff.size());
+
+      return outCursor;
+    }
+    return -1;
   }  
 };
 

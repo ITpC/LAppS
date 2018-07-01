@@ -58,12 +58,14 @@ namespace LAppS
       itc::sys::AtomicMutex                     mConnectionsMutex;
       itc::sys::AtomicMutex                     mInboundMutex;
       itc::sys::AtomicMutex                     mSSQMutex;
+      itc::sys::AtomicMutex                     mDCQMutex;
       
       LAppS::Shakespeer<TLSEnable,StatsEnable>  mShakespeer;
       SharedEPollType                           mEPoll;
       
       std::queue<itc::CSocketSPtr>              mInboundConnections;
       std::map<int,WSSPtr>                      mConnections;
+      std::queue<int32_t>                       mDCQueue;
       
       std::vector<epoll_event>                  mEvents;
       
@@ -71,6 +73,7 @@ namespace LAppS
       
       std::atomic<bool>                         haveConnections;
       std::atomic<bool>                         haveNewConnections;
+      std::atomic<bool>                         haveDisconnects;
       
       ReadersVector                             mReaders;
       size_t                                    readersIndex;
@@ -88,11 +91,12 @@ namespace LAppS
     public:
      
     explicit IOWorker(const size_t id, const size_t maxConnections,const bool auto_fragment, const size_t preads)
-    : Worker(id,maxConnections,auto_fragment), enableTLS(),        enableStatsUpdate(), 
-      mMayRun{true},                mCanStop{false},    mConnectionsMutex(), 
-      mInboundMutex(),              mShakespeer(),      mEPoll(std::make_shared<ePoll>()),
-      mInboundConnections(),        mConnections(),     mEvents(1000),
-      mNap(), haveConnections{false},haveNewConnections{false},readersIndex(0),mMaxReaders(preads)
+    : Worker(id,maxConnections,auto_fragment), enableTLS(),  enableStatsUpdate(), 
+      mMayRun{true}, mCanStop{false}, mConnectionsMutex(),  mInboundMutex(), 
+      mDCQMutex(), mShakespeer(), mEPoll(std::make_shared<ePoll>()),
+      mInboundConnections(), mConnections(), mDCQueue(), mEvents(1000),
+      mNap(), haveConnections{false},haveNewConnections{false},haveDisconnects{false},
+      readersIndex(0),mMaxReaders(preads)
     {
       mConnections.clear();
       for(size_t i=0;i<mMaxReaders;++i)
@@ -101,7 +105,7 @@ namespace LAppS
           std::move(
             std::make_shared<ReaderThreadType>(
               std::move(
-                std::make_shared<ReaderType>()
+                std::make_shared<ReaderType>(this)
               )
             )
           )
@@ -131,7 +135,14 @@ namespace LAppS
       mStats.mConnections=mConnections.size()+mInboundConnections.size();
       haveNewConnections.store(true);
     }
-        
+    
+    void disconnect(const int32_t fd)
+    {
+      AtomicLock sync(mDCQMutex);
+      mDCQueue.push(fd);
+      haveDisconnects.store(true);
+    }
+    
     const size_t getConnectionsCount() const
     {
       AtomicLock sync(mConnectionsMutex);
@@ -151,6 +162,18 @@ namespace LAppS
       while(mMayRun)
       {
         processInbound();
+        if(haveDisconnects)
+        {
+          AtomicLock syncdcq(mDCQMutex);
+          AtomicLock sync(mConnectionsMutex);
+          while(!mDCQueue.empty())
+          {
+            const int32_t fd=std::move(mDCQueue.front());
+            mDCQueue.pop();
+            deleteConnection(fd);
+          }
+          haveDisconnects.store(false);
+        }
         if(haveConnections)
         {
           try{
@@ -250,7 +273,7 @@ namespace LAppS
               }
             }catch(const std::exception& e)
             {
-              itc::getLog()->error(__FILE__,__LINE__,"Connection on went invalid before handshake. Exception: %s",e.what());
+              itc::getLog()->error(__FILE__,__LINE__,"Connection became invalid before handshake. Exception: %s",e.what());
             }
 
             mInboundConnections.pop();
