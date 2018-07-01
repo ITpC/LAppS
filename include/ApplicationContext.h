@@ -188,7 +188,7 @@ namespace LAppS
       else return INVALID;
     }
   
-    const bool onMessage(const abstract::InEvent& event, const itc::utils::Int2Type<ApplicationProtocol::RAW>& protocol_is_raw)
+    const bool onMessage(const abstract::AppInEvent& event, const itc::utils::Int2Type<ApplicationProtocol::RAW>& protocol_is_raw)
     {
       cleanLuaStack();
       
@@ -232,7 +232,7 @@ namespace LAppS
       lua_setmetatable(mLState, -2);
     }
     
-    const bool onMessage(const abstract::InEvent& event, const itc::utils::Int2Type<ApplicationProtocol::LAPPS>& protocol_is_lapps)
+    const bool onMessage(const abstract::AppInEvent& event, const itc::utils::Int2Type<ApplicationProtocol::LAPPS>& protocol_is_lapps)
     {
       // exceptions from json and from lua stack MUST be handled in the Application class
       // We must prevent possibility to kill app with inappropriate message, therefore 
@@ -356,7 +356,7 @@ public:
         this->shutdown();
       }
     }
-    const bool onMessage(const abstract::InEvent& event)
+    const bool onMessage(const abstract::AppInEvent& event)
     {
       if(mustStop) return false;
       return onMessage(std::move(event),mProtocol);

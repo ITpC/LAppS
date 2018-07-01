@@ -27,7 +27,6 @@
 #include <string>
 #include <memory>
 #include <abstract/Runnable.h>
-#include <WebSocket.h>
 #include <WorkerStats.h>
 #include <abstract/Application.h>
 #include <WSEvent.h>
@@ -81,11 +80,10 @@ namespace abstract
       return ID;
     }
     
-    
-    
     virtual const WorkerStats& getStats() const=0;
     virtual void updateStats()=0;
     virtual void deleteConnection(const int32_t)=0;
+    virtual void disconnect(const int32_t)=0;
     virtual const bool  isTLSEnabled() const = 0;
    protected:
     virtual ~Worker()=default;

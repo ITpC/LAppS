@@ -26,6 +26,7 @@
 #include <tsbqueue.h>
 #include <abstract/Runnable.h>
 #include <WebSocket.h>
+#include <abstract/Worker.h>
 
 namespace LAppS
 {
@@ -38,11 +39,12 @@ namespace LAppS
   private:
     std::atomic<bool>               mMayRun;
     std::atomic<bool>               mMayStop;
-    
+    ::abstract::Worker*             mParentWorker;
     itc::tsbqueue<WSSPtrType>       mReadQueue;
     
   public:
-    explicit Reader() : mMayRun(true),mMayStop(false){}
+    explicit Reader(::abstract::Worker* _parent)
+    : mMayRun(true), mMayStop(false), mParentWorker(_parent){}
     Reader(const Reader&)=delete;
     Reader(Reader&)=delete;
     
@@ -74,10 +76,23 @@ namespace LAppS
           WSSPtrType ws(mReadQueue.recv());
           if(ws->getState() == WSType::State::MESSAGING)
           {
-            int ret=ws->handleInput();
-            if(ret == -1)
+            try {
+              int ret=ws->handleInput();
+              if(ret == -1)
+              {
+                itc::getLog()->info(__FILE__,__LINE__,"Disconnected: %s",ws->getPeerAddress().c_str());
+                mParentWorker->disconnect(ws->getfd());
+              }
+              else if(ws->getState() == WSType::State::CLOSED)
+              {
+                itc::getLog()->info(__FILE__,__LINE__,"Connection with peer %s is closed.",ws->getPeerAddress().c_str());
+                mParentWorker->disconnect(ws->getfd());
+              }
+            }
+            catch(const std::exception& e)
             {
-              itc::getLog()->info(__FILE__,__LINE__,"Disconnected: %s",ws->getPeerAddress().c_str());
+              itc::getLog()->info(__FILE__,__LINE__,"Application is going down [Exception: %s], socket with fd %d must be disconnected ", e.what(),ws->getfd());
+              mParentWorker->disconnect(ws->getfd());
             }
           }
         }catch(const std::exception& e)

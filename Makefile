@@ -100,6 +100,9 @@ build-tests: .build-tests-post
 # Add your post 'build-tests' code here...
 
 install: build
+	mkdir -p /opt/lapps/etc/conf
+	mkdir -p /opt/lapps/deploy
+	mkdir -p /opt/lapps/tmp
 	mkdir -p /opt/lapps/etc
 	mkdir -p /opt/lapps/conf/ssl
 	mkdir -p /opt/lapps/bin
@@ -110,9 +113,6 @@ install: build
 	install -m 0755 ${CND_ARTIFACT_PATH_${CONF}} /opt/lapps/bin
 
 install-examples: install
-	mkdir -p /opt/lapps/etc/conf
-	mkdir -p /opt/lapps/deploy
-	mkdir -p /opt/lapps/tmp
 	mkdir -p /opt/lapps/apps/echo
 	mkdir -p /opt/lapps/apps/echo_lapps
 	mkdir -p /opt/lapps/apps/time_broadcast

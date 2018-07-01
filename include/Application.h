@@ -67,7 +67,7 @@ namespace LAppS
     std::string mTarget;
     size_t max_inbound_message_size;
     ApplicationContext<TLSEnable,StatsEnable,Tproto> mAppContext;
-    itc::tsbqueue<abstract::InEvent> mEvents;
+    itc::tsbqueue<abstract::AppInEvent> mEvents;
     
  public:
     const bool isUp() const
@@ -108,7 +108,7 @@ namespace LAppS
       return max_inbound_message_size;
     }
     
-    const bool try_enqueue(const std::vector<abstract::InEvent>& events)
+    const bool try_enqueue(const std::vector<abstract::AppInEvent>& events)
     {
       try
       {
@@ -122,7 +122,7 @@ namespace LAppS
         return false;
       }
     }
-    void enqueue(const abstract::InEvent& event)
+    void enqueue(const abstract::AppInEvent& event)
     {
       try {
         mEvents.send(event);
@@ -133,7 +133,7 @@ namespace LAppS
       }
     }
     
-    void enqueue(const std::vector<abstract::InEvent>& event)
+    void enqueue(const std::vector<abstract::AppInEvent>& event)
     {
       try {
         mEvents.send(event);
@@ -150,7 +150,7 @@ namespace LAppS
       { 
         try
         {
-          std::queue<abstract::InEvent> events;
+          std::queue<abstract::AppInEvent> events;
           mEvents.recv(events);
           while(!events.empty())
           {
@@ -163,6 +163,7 @@ namespace LAppS
                 if(event.websocket->getState() == abstract::WebSocket::State::MESSAGING)
                   try{
                     event.websocket->send(*event.message);
+                    event.websocket->close();
                   }catch(const std::exception& e)
                   {// ignore errors (bad_weak_ptr and so one)
                   }
