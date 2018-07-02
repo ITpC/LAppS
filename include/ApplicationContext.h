@@ -212,6 +212,8 @@ namespace LAppS
         );
       }
       
+      event.websocket->returnBuffer(event.message);
+      
       if(lua_isboolean(mLState,argc))
       {
         return lua_toboolean(mLState,argc);
@@ -258,6 +260,8 @@ namespace LAppS
       lua_pushinteger(mLState,(lua_Integer)(event.websocket.get())); // socket handler for ws::send
       lua_pushinteger(mLState,msg_type);
       pushRequest(msg);
+      
+      
 
       callAppOnMessage(); // handler, type, userdata
 
@@ -271,7 +275,9 @@ namespace LAppS
           " values, but only one boolean value is expected"
         );
       }
-
+      
+      event.websocket->returnBuffer(std::move(event.message));
+      
       if(lua_isboolean(mLState,argc))
       {
         return lua_toboolean(mLState,argc);

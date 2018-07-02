@@ -33,10 +33,11 @@ namespace abstract
     WebSocket()=default;
     
     virtual const int send(const std::vector<uint8_t>&)=0;
-    virtual void close()=0;
     virtual const State getState() const=0;
-    virtual const bool mustAutoFragment() const =0;
+    virtual const bool mustAutoFragment() const=0;
     virtual std::shared_ptr<abstract::WebSocket> get_shared()=0;
+    virtual void returnBuffer(std::remove_reference<const std::shared_ptr<MSGBufferType>&>::type)=0;
+    virtual void close()=0;
   protected:
     virtual ~WebSocket()=default;
   };

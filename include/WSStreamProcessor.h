@@ -97,6 +97,23 @@ private:
   
   size_t                              mOutMSGPreSize;
   
+  std::queue<MSGBufferTypeSPtr>       mBufferQueue;
+  itc::sys::AtomicMutex               mBQMutex;
+  
+  
+  auto getBuffer()
+  {
+    AtomicLock sync(mBQMutex);
+    if(mBufferQueue.empty())
+    {
+      return std::make_shared<MSGBufferType>(mOutMSGPreSize);
+    }else{
+      auto tmp=std::move(mBufferQueue.front());
+      tmp->resize(mOutMSGPreSize);
+      mBufferQueue.pop();
+      return tmp;
+    }
+  }
   
 /**===========================================================**/
   
@@ -119,16 +136,20 @@ private:
     frame(WSStreamProcessing::SINGLE_FRAME), headerBytesReady(0), 
     sizeBytesReady(0), maskBytesReady(0), headerBytes{0}, optionalSizeBytes{0}, 
     cursor(0), messageSize(0), PLReadyBytes(0), mMaxMSGSize(0), opcodes(), 
-    message(std::make_shared<std::vector<uint8_t>>()),
-    messageFrames(std::make_shared<std::vector<uint8_t>>()),MASK{0},
-    mOutMSGPreSize(presz)
+    message(std::make_shared<std::vector<uint8_t>>(presz)),
+    messageFrames(std::make_shared<std::vector<uint8_t>>(presz)),MASK{0},
+    mOutMSGPreSize(presz),mBufferQueue(),mBQMutex()
   {
-    message->reserve(mOutMSGPreSize);
-    messageFrames->reserve(mOutMSGPreSize);
   }
   
   WSStreamParser(const WSStreamParser&)=delete;
   WSStreamParser(WSStreamParser&)=delete;
+  
+  void returnBuffer(std::remove_reference<const std::shared_ptr<MSGBufferType>&>::type buff)
+  {
+    AtomicLock sync(mBQMutex);
+    mBufferQueue.push(std::move(buff));
+  }
   
   void setMaxMSGSize(const size_t mms)
   {
@@ -484,9 +505,11 @@ private:
         {
           case WSStreamProcessing::SINGLE_FRAME:
           {
+            if(PLReadyBytes == 0)
+              message->resize(messageSize);
             while((PLReadyBytes<messageSize)&&(cursor<limit))
             {
-              message->push_back(stream[cursor]^MASK[(message->size())%4]);
+              (*message)[PLReadyBytes]=stream[cursor]^MASK[PLReadyBytes%4];
               ++cursor;
               ++PLReadyBytes;
             }
@@ -509,10 +532,12 @@ private:
                 WebSocketProtocol::MESSAGE_TOO_BIG
               };
             }
+            if(PLReadyBytes == 0)
+              messageFrames->resize(messageSize);
             
             while((PLReadyBytes<messageSize)&&(cursor<limit))
             {
-              messageFrames->push_back(stream[cursor]^MASK[PLReadyBytes%4]);
+              (*messageFrames)[PLReadyBytes]=stream[cursor]^MASK[PLReadyBytes%4];
               ++cursor;
               ++PLReadyBytes;
             }
@@ -559,15 +584,13 @@ private:
       if(frame==WSStreamProcessing::SINGLE_FRAME)
       {
         MSGBufferTypeSPtr tmp(message);
-        message=std::make_shared<std::vector<uint8_t>>();
-        message->reserve(mOutMSGPreSize);
+        message=getBuffer();
         return { currentOpCode, std::move(tmp) };
       }
       else
       {
         MSGBufferTypeSPtr tmp(messageFrames);
-        messageFrames=std::make_shared<std::vector<uint8_t>>();
-        messageFrames->reserve(mOutMSGPreSize);
+        messageFrames=getBuffer();
         return {currentOpCode, std::move(tmp)};
       }
     }

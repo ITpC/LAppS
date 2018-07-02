@@ -70,7 +70,7 @@ namespace abstract
       checkForLuaErrorsOn(ret,"loading module",module);
     }
     
-    void checkForLuaErrorsOn(const int ret,const std::string on, const char* module_or_method)
+    void checkForLuaErrorsOn(const int ret,const std::string& on, const char* module_or_method)
     {
       if(ret != 0)
       {
@@ -84,6 +84,8 @@ namespace abstract
           case LUA_ERRERR:
             throw std::logic_error("Error in lua error handler on "+on+" "+module_or_method+": "+std::string(lua_tostring(mLState,lua_gettop(mLState))));
             break;
+          default:
+            throw std::system_error(EINVAL,std::system_category(),"Unknown error on lua_pcall()");
         }
       }
     }
