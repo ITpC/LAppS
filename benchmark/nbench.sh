@@ -17,7 +17,7 @@ fi
 
 echo Running $CLIENTS echo-processes with $BSIZE bytes large messages
 
-rm -f log.*; let j=0;while [ $j -lt $CLIENTS ]; do ./benchmark wss://localhost:5083/echo $BSIZE >log.$j & let j++; done > /dev/null 2>&1
+rm -f log.*; let j=0;while [ $j -lt $CLIENTS ]; do ./benchmark ws://localhost:5083/echo $BSIZE >log.$j & let j++; done 
 
 
 sleep 10
