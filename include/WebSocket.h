@@ -102,7 +102,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   void init(const itc::utils::Bool2Type<false> tls_is_not_enabled)
   {
   }
-    
+  
   
  public:
   WebSocket(const WebSocket&) = delete;
@@ -140,6 +140,11 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
       case State::CLOSED:
         mSocketSPtr->close();
     }
+  }
+  
+  void returnBuffer(std::remove_reference<const std::shared_ptr<MSGBufferType>&>::type buffer)
+  {
+    streamProcessor.returnBuffer(std::move(buffer));
   }
   
   void close()
