@@ -345,14 +345,14 @@ namespace LAppS
       
       const std::shared_ptr<WSType> mkWebSocket(const itc::CSocketSPtr& inbound,const itc::utils::Bool2Type<false> tls_is_disabled)
       {
-        return std::make_shared<WSType>(std::move(inbound),this->getID(),mEPoll,mustAutoFragment());
+        return std::make_shared<WSType>(std::move(inbound),this->getID(),mEPoll,this,mustAutoFragment());
       }
       
       const std::shared_ptr<WSType> mkWebSocket(const itc::CSocketSPtr& inbound,const itc::utils::Bool2Type<true> tls_is_enabled)
       {
         auto tls_server_context=TLS::SharedServerContext::getInstance()->getContext();
         if(tls_server_context)
-          return std::make_shared<WSType>(std::move(inbound),this->getID(),mEPoll,mustAutoFragment(),tls_server_context);
+          return std::make_shared<WSType>(std::move(inbound),this->getID(),mEPoll,this,mustAutoFragment(),tls_server_context);
         else throw std::system_error(EINVAL,std::system_category(),"TLS ServerContext is NULL");
       }
   };

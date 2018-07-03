@@ -39,7 +39,7 @@ namespace LAppS
   private:
     std::atomic<bool>               mMayRun;
     std::atomic<bool>               mMayStop;
-    ::abstract::Worker*             mParentWorker;
+    ::abstract::Worker*       mParentWorker;
     itc::tsbqueue<WSSPtrType>       mReadQueue;
     
   public:
@@ -81,11 +81,6 @@ namespace LAppS
               if(ret == -1)
               {
                 itc::getLog()->info(__FILE__,__LINE__,"Disconnected: %s",ws->getPeerAddress().c_str());
-                mParentWorker->disconnect(ws->getfd());
-              }
-              else if(ws->getState() == WSType::State::CLOSED)
-              {
-                itc::getLog()->info(__FILE__,__LINE__,"Connection with peer %s is closed.",ws->getPeerAddress().c_str());
                 mParentWorker->disconnect(ws->getfd());
               }
             }
