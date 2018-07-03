@@ -10,3 +10,4 @@ profiling
 benchres
 benchmark/benchmark_notls
 benchmark/benchmark_tls
+benchmark/log.*
