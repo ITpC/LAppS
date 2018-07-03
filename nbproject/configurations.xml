@@ -131,7 +131,6 @@
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>../libressl/lib</pElem>
-            <pElem>/opt/gperfrools/lib</pElem>
           </linkerAddLib>
           <commandlineTool>g++ -pipe -Wall -pthread -O2 -mtune=native -march=native -fPIC -fstack-check -fstack-protector-strong -mfpmath=sse -msse2avx -ftree-vectorize -funroll-loops</commandlineTool>
           <linkerLibItems>
@@ -172,7 +171,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -ltls -lcrypto -lluajit-5.1 -lbz2 -lstdc++fs -lprofiler</commandLine>
+          <commandLine>-lcryptopp -ltls -lcrypto -lluajit-5.1 -lbz2 -lstdc++fs</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -210,6 +209,12 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
