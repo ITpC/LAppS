@@ -47,6 +47,7 @@
 #include <WSConnectionStats.h>
 
 #include <abstract/WebSocket.h>
+#include <abstract/Worker.h>
 
 #include "ApplicationRegistry.h"
 
@@ -74,6 +75,8 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   struct tls*                         TLSContext;
   struct tls*                         TLSSocket;
   
+  ::abstract::Worker*                 mParent;
+  
   itc::CSocketSPtr                    mSocketSPtr;
   
   uint32_t                            mPeerIP;
@@ -90,7 +93,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   size_t                              mOutCursor;
   
   bool                                mAutoFragment;
-    
+      
   void init(const itc::utils::Bool2Type<true> tls_is_enabled)
   {
     if(tls_accept_socket(TLSContext,&TLSSocket,fd))
@@ -112,12 +115,14 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
     const itc::CSocketSPtr&  socksptr, 
     const size_t&            workerid, 
     const SharedEPollType&   ep,
+    ::abstract::Worker*      _parent,
     const bool               auto_fragment,
     struct tls*              tls_context=nullptr
   )
   : fd(socksptr->getfd()),     mWorkerId{workerid},     mState{HANDSHAKE}, 
     mNoInput{false},           enableTLS(),             enableStatsUpdate(),
-    TLSContext{tls_context},   TLSSocket{nullptr},      mSocketSPtr(std::move(socksptr)),
+    TLSContext{tls_context},   TLSSocket{nullptr},      mParent{_parent},
+    mSocketSPtr(std::move(socksptr)), 
     streamProcessor(512),      mEPoll(ep),              mStats{0,0,0,0,0,0}, 
     mOutCursor(0),             mAutoFragment(auto_fragment)
   {
@@ -136,15 +141,39 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
       case State::MESSAGING:
         closeSocket(WebSocketProtocol::SHUTDOWN);
       case State::HANDSHAKE:
-        this->close();
+        terminate();
       case State::CLOSED:
-        mSocketSPtr->close();
+          mSocketSPtr->close();
     }
   }
   
   void returnBuffer(std::remove_reference<const std::shared_ptr<MSGBufferType>&>::type buffer)
   {
     streamProcessor.returnBuffer(std::move(buffer));
+  }
+  
+  void terminate()
+  {
+    if(mState != State::CLOSED)
+    {
+      sigset_t sigsetmask;
+      sigemptyset(&sigsetmask);
+      sigaddset(&sigsetmask, SIGPIPE);
+      pthread_sigmask(SIG_BLOCK, &sigsetmask, NULL); // ignore if can't mask;
+      
+      if(TLSEnable)
+      {
+        int ret=0;
+        do
+        {
+          ret=tls_close(TLSSocket);
+        }while((ret == TLS_WANT_POLLIN)||(ret == TLS_WANT_POLLOUT));
+
+        tls_free(TLSSocket);
+        TLSSocket=nullptr;
+      }      
+      setState(State::CLOSED);
+    }
   }
   
   void close()
@@ -161,8 +190,9 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
 
         tls_free(TLSSocket);
         TLSSocket=nullptr;
-      }
+      }      
       setState(State::CLOSED);
+      mParent->disconnect(fd);
     }
   }
   
