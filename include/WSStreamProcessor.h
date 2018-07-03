@@ -522,22 +522,36 @@ private:
             return { cursor, WSStreamProcessing::MORE, WebSocketProtocol::NORMAL};
           } break;
           case WSStreamProcessing::FIRST_FRAME:
+            if(PLReadyBytes == 0)
+            {
+              if(messageSize>mMaxMSGSize)
+                return {
+                  cursor, WSStreamProcessing::CLOSE_WITH_CODE, 
+                  WebSocketProtocol::MESSAGE_TOO_BIG
+                };
+              messageFrames->resize(messageSize);
+            }
           case WSStreamProcessing::MIDDLE_FRAME:
           case WSStreamProcessing::LAST_FRAME:
           {
-            if((messageFrames->size()+messageSize)>mMaxMSGSize)
+            if(frame!=WSStreamProcessing::FIRST_FRAME)
             {
-              return {
-                cursor, WSStreamProcessing::CLOSE_WITH_CODE, 
-                WebSocketProtocol::MESSAGE_TOO_BIG
-              };
+              if((PLReadyBytes == 0)&&(cursor!=limit))
+              {
+                if((messageFrames->size()+messageSize)>mMaxMSGSize)
+                return {
+                  cursor, WSStreamProcessing::CLOSE_WITH_CODE, 
+                  WebSocketProtocol::MESSAGE_TOO_BIG
+                };
+                messageFrames->resize(messageFrames->size()+messageSize);
+              }
             }
-            if(PLReadyBytes == 0)
-              messageFrames->resize(messageSize);
+            
+            const size_t used=messageFrames->size()-messageSize;
             
             while((PLReadyBytes<messageSize)&&(cursor<limit))
             {
-              (*messageFrames)[PLReadyBytes]=stream[cursor]^MASK[PLReadyBytes%4];
+              (*messageFrames)[used+PLReadyBytes]=stream[cursor]^MASK[PLReadyBytes%4];
               ++cursor;
               ++PLReadyBytes;
             }
