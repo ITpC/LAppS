@@ -42,6 +42,8 @@ extern "C" {
 #include <modules/nljson.h>
 #include <modules/wsSend.h>
 #include <modules/bcast.h>
+#include <modules/pam_auth.h>
+
 
 using json = nlohmann::json;
 
@@ -309,6 +311,12 @@ public:
       luaopen_wssend(mLState);
       lua_setfield(mLState,LUA_GLOBALSINDEX,"ws");
       
+      if(appname == "console")
+      {
+        luaopen_pam_auth(mLState);
+        lua_setfield(mLState,LUA_GLOBALSINDEX,"pam_auth");
+      }
+        
       add_bcast(mProtocol);
             
       if(require(mName))
