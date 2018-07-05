@@ -1,8 +1,7 @@
 console = {}
 console.__index = console;
 
-maps=require("console_maps");
-local methods=require("console_methods");
+local methods=require("console.methods");
 
 
 console["onStart"]=function()
@@ -45,18 +44,18 @@ end
 console["onMessage"]=function(handler,msg_type, message)
   local switch={
     [1] = function() -- a CN without params 
-            local method=methods._cn_wo_params_method[message.method] or echo.method_not_found;
+            local method=methods._cn_wo_params_method[message.method] or console.method_not_found;
           end,
     [2] = function() -- a CN with params 
-            local method=methods._cn_w_params_method[message.method] or echo.method_not_found;
+            local method=methods._cn_w_params_method[message.method] or console.method_not_found;
             method(handler,message.params,message.cid);
           end,
     [3] = function() -- request without params
-            local method=methods._request_wo_params_method[message.method] or echo.method_not_found;
+            local method=methods._request_wo_params_method[message.method] or console.method_not_found;
             method(handler);
           end,
     [4] = function()
-            local method=methods._request_w_params_method[message.method] or echo.method_not_found;
+            local method=methods._request_w_params_method[message.method] or console.method_not_found;
             method(handler,message.params);
           end
   }
