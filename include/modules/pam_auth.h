@@ -76,6 +76,7 @@ extern "C"
     
     bool args_proper=((!lua_isnil(L,argc))&&(!lua_isnil(L,argc-1))&&(!lua_isnil(L,argc-2)));
     args_proper=args_proper&&lua_isstring(L,argc)&&lua_isstring(L,argc-1)&&lua_isstring(L,argc-2);
+    args_proper=args_proper&&(lua_strlen(L,argc)!=0)&&(lua_strlen(L,argc-1)!=0)&&(lua_strlen(L,argc-2)!=0);
     
     if(!args_proper)
     {
