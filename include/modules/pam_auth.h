@@ -24,10 +24,25 @@
 
 #include <memory>
 #include <vector>
+#include <functional>
+
 #include <security/pam_appl.h>
 
 using json = nlohmann::json;
 
+static thread_local std::vector<pam_response> __resp(1);
+
+int lapps_pam_conversation(int n, const struct pam_message **msg, struct pam_response **resp, void *data)
+{
+  if (n!=1)
+    return PAM_CONV_ERR;
+
+  __resp[0].resp_retcode = 0;
+  __resp[0].resp=strdup(static_cast<const char*>(data));
+  *resp = __resp.data();
+
+  return PAM_SUCCESS;
+}
 
 extern "C" 
 {
@@ -46,7 +61,8 @@ extern "C"
    */
   LUA_API int pam_auth(lua_State *L)
   {
-    static const char* usage="Usage: boolean[,string] pam_auth:check(string service,string username,string password) returns true on successful authentication, otherwise false.";
+    static const char* usage="Usage: boolean[,string] pam_auth:login(string service,string username,string password) returns true on successful authentication, otherwise false. In case of inappropriate usage returns this error message as well.";
+    
     pam_handle_t *pamh=NULL;
     int ret;
     
@@ -58,7 +74,8 @@ extern "C"
       return 2;
     }
     
-    bool args_proper=lua_isnumber(L,argc)&&lua_isnumber(L,argc-1)&&lua_isnumber(L,argc-2);
+    bool args_proper=((!lua_isnil(L,argc))&&(!lua_isnil(L,argc-1))&&(!lua_isnil(L,argc-2)));
+    args_proper=args_proper&&lua_isstring(L,argc)&&lua_isstring(L,argc-1)&&lua_isstring(L,argc-2);
     
     if(!args_proper)
     {
@@ -69,17 +86,44 @@ extern "C"
     
     const char *service=lua_tostring(L,argc-2);
     const char *username=lua_tostring(L,argc-1);
-    const char *password=lua_tostring(L,argc);
     
     
+    struct pam_conv conv = {
+      lapps_pam_conversation,
+      (char*)(lua_tostring(L,argc))
+    };
+
     
+    ret = pam_start(service, username, &conv, &pamh);
+    
+    if(ret == PAM_SUCCESS)
+    {
+      ret=pam_authenticate(pamh, 0);
+      if(ret == PAM_SUCCESS)
+      {
+        ret=pam_acct_mgmt(pamh, 0);
+      }
+      
+      if(ret == PAM_SUCCESS)
+      {
+        if (pam_end(pamh,ret) == PAM_SUCCESS)
+        {
+          pamh=NULL;
+          __resp[0].resp=NULL;
+          lua_pushboolean(L,true);
+          return 1;
+        }
+      }
+    }
+    
+    lua_pushboolean(L,false);
     return 1;
   }
   
   LUA_API int luaopen_pam_auth(lua_State *L)
   {
     static const struct luaL_reg members[] = {
-      {"check", pam_auth},
+      {"login", pam_auth},
       {nullptr,nullptr}
     };
     luaL_newmetatable(L,"pam_auth");
