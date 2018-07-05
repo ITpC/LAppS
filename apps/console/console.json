@@ -1,0 +1,10 @@
+{
+  "name" : "console",
+  "auto_start": true,
+  "instances": 1,
+  "internal": false,
+  "max_inbound_message_size": 2097152,
+  "protocol": "LAppS",
+  "request_target": "/console"
+}
+
