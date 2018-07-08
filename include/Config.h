@@ -99,6 +99,9 @@ namespace LAppS
       // add application files to LUA_PATH
       const std::string apps_subdir=lapps_config["directories"]["applications"];
       const std::string apps_dir(mEnv["LAPPS_HOME"]+"/"+apps_subdir+"/");
+      
+      mEnv.setEnv("LAPPS_APPS_DIR",apps_dir);
+      
       auto it=lapps_config["services"].begin();
       
       std::string lua_path(mEnv["LUA_PATH"]);
