@@ -1,6 +1,8 @@
 /*
  * Copyright (C) 2018 Pavel Kraynyukhov <pk@new-web.co>
  *
+ *  This file is a part of LAppS (Lua Application Server).
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -14,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- * $Id: Reader.h Created on June 9, 2018, 10:12 AM $
+ * $Id: LAppS:Reader.h Created on June 9, 2018, 10:12 AM $
  */
 
 

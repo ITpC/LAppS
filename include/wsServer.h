@@ -58,6 +58,7 @@
 #include <IOWorker.h>
 #include <Balancer.h>
 #include <Deployer.h>
+#include <NetworkACL.h>
 
 // libressl
 #include <tls.h>
@@ -79,14 +80,37 @@ namespace LAppS
     float                               mConnectionWeight;
     size_t                              mWorkers;
     WorkerStats                         mAllStats;
-    
+    std::shared_ptr<LAppS::NetworkACL>  mNACL;
     DeployerThread                      mDeployer;
     std::vector<TCPListenerThreadSPtr>  mListenersPool;
     itc::sys::CancelableThread<Balancer<TLSEnable,StatsEnable>> mBalancer;
     
+    void loadNACL()
+    {
+      std::string default_policy=LAppSConfig::getInstance()->getWSConfig()["acl"]["policy"];
+      if(default_policy == "allow")
+      {
+        mNACL=LAppS::GlobalNACL::getInstance(LAppS::Network_ACL_Policy::ALLOW);
+      } else if(default_policy == "deny")
+      {
+        mNACL=LAppS::GlobalNACL::getInstance(LAppS::Network_ACL_Policy::DENY);
+      } else {
+        throw std::system_error(EINVAL,std::system_category(), "Invalid value for ws_config.acl.policy: "+default_policy+", must be one of: deny, allow");
+      }
+      auto it=LAppSConfig::getInstance()->getWSConfig()["acl"]["exclude"].begin();
+      auto eit=LAppSConfig::getInstance()->getWSConfig()["acl"]["exclude"].end();
+      
+      for(;it!=eit;++it)
+      {
+        std::string addr=it.value();
+        mNACL->add(std::move(LAppS::addrinfo(std::move(addr))));
+      }
+    }
 
     void startListeners()
     {
+      loadNACL();
+      
       try
       {
         size_t max_listeners=LAppSConfig::getInstance()->getWSConfig()["listeners"];
@@ -100,7 +124,26 @@ namespace LAppS
             std::make_shared<::itc::TCPListener>(
               LAppSConfig::getInstance()->getWSConfig()["ip"],
               LAppSConfig::getInstance()->getWSConfig()["port"],
-              mBalancer.getRunnable()
+              mBalancer.getRunnable(),
+              [this](const uint32_t address)
+              {
+                switch(this->mNACL->mPolicy)
+                {
+                  case LAppS::Network_ACL_Policy::ALLOW:
+                  {
+                    if(this->mNACL->match(address))
+                      return true;
+                    return false;
+                  } break;
+                  case LAppS::Network_ACL_Policy::DENY:
+                  {
+                    if(this->mNACL->match(address))
+                      return false;
+                    return true;
+                  } break;
+                }
+                return false;
+              }
             )
           ));
         }

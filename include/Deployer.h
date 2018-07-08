@@ -323,6 +323,7 @@ namespace LAppS
       stop_service(service_name);
       start_service(service_name);
     }
+    
     explicit Deployer()
     : mMayRun{true},mMutex(),mDeploymentQueue(),
       mInotifyFD(inotify_init()),mEnv()

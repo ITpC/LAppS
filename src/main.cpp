@@ -28,6 +28,8 @@
 #include <HTTPRequestParser.h>
 #include <bz2Compression.h>
 
+#include <NetworkACL.h>
+
 void startWSServer()
 {
   
@@ -85,7 +87,7 @@ void startWSServer()
 }
 
 int main(int argc, char** argv)
-{  
+{ 
   itc::getLog()->info(__FILE__,__LINE__,"Starting LAppS");
   
   if(argc > 1)
