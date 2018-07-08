@@ -79,7 +79,7 @@ namespace LAppS
             {"max_inbound_message_size",1024},
             {"instances", 1},
             {"auto_start" , false },
-            {"acl",{{"policy","deny"},{"exclude", {"127.0.0.1","192.168.13.13/24"}}}}
+            {"acl",{{"policy","deny"},{"exclude", {}}}}
           }}
         }
       }})
