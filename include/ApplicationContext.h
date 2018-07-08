@@ -43,6 +43,10 @@ extern "C" {
 #include <modules/wsSend.h>
 #include <modules/bcast.h>
 #include <modules/pam_auth.h>
+#include <modules/murmur.h>
+#include <modules/time_now.h>
+
+#include <Config.h>
 
 
 using json = nlohmann::json;
@@ -311,12 +315,33 @@ public:
       luaopen_wssend(mLState);
       lua_setfield(mLState,LUA_GLOBALSINDEX,"ws");
       
-      if(appname == "console")
-      {
-        luaopen_pam_auth(mLState);
-        lua_setfield(mLState,LUA_GLOBALSINDEX,"pam_auth");
-      }
+      try{
+        json& modules=LAppSConfig::getInstance()->getLAppSConfig()["services"][appname]["preload"];
         
+        for(const std::string& module: modules)
+        {
+          if(module == "pam_auth")
+          {
+            luaopen_pam_auth(mLState);
+            lua_setfield(mLState,LUA_GLOBALSINDEX,"pam_auth");
+            
+          }else if(module == "time")
+          {
+            luaopen_time(mLState);
+            lua_setfield(mLState,LUA_GLOBALSINDEX,"time");
+          }else if(module == "murmur")
+          {
+            luaopen_murmur(mLState);
+            lua_setfield(mLState,LUA_GLOBALSINDEX,"murmur");
+          }else{
+            itc::getLog()->error(__FILE__,__LINE__,"No such module %s", module.c_str());
+          }
+        }
+      }catch(const std::exception& e)
+      {
+        itc::getLog()->error(__FILE__,__LINE__,"An exception %s is risen on modules preload for service %s", e.what(), appname.c_str());
+      }
+      
       add_bcast(mProtocol);
             
       if(require(mName))
