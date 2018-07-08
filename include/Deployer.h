@@ -199,6 +199,15 @@ namespace LAppS
             LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["request_target"]=target;
             LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["protocol"]=protocol;
             LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["max_inbound_message_size"]=max_in_msg_size;
+            
+            if(service_config.find("acl") != service_config.end())
+            {
+              LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["acl"]=service_config["acl"];
+            }
+            if(service_config.find("preload") != service_config.end())
+            {
+              LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["preload"]=service_config["preload"];
+            }
           }
           else
           {
