@@ -309,8 +309,6 @@ namespace LAppS
             default_policy=LAppS::Network_ACL_Policy::ALLOW;
           }
           
-          std::cout << exclude_list.dump(2) << std::endl;
-          
           for(size_t i=0;i<instances;++i)
           {
             if(protocol == "raw")
