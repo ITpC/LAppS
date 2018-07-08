@@ -51,6 +51,7 @@ namespace LAppS
       {"port",5083},
       {"lapps_config_auto_save", true },
       {"workers",{ {"workers",1}, {"max_connections", 10000 },{"auto_fragment",false},{"preads",3}}},
+      {"acl", {{"policy", "allow"},{"exclude", {} }}},
 #ifdef LAPPS_TLS_ENABLE
       {"tls",true},
 #else      
@@ -77,7 +78,8 @@ namespace LAppS
             {"protocol", "LAppS"},
             {"max_inbound_message_size",1024},
             {"instances", 1},
-            {"auto_start" , false }
+            {"auto_start" , false },
+            {"acl",{{"policy","deny"},{"exclude", {"127.0.0.1","192.168.13.13/24"}}}}
           }}
         }
       }})
