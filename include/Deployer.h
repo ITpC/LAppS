@@ -284,20 +284,46 @@ namespace LAppS
           const std::string target=LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["request_target"];
           const std::string protocol=LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["protocol"];
           const size_t max_in_msg_size=LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["max_inbound_message_size"];
-
+          
+          LAppS::Network_ACL_Policy default_policy;
+          
+          json exclude_list=json::array();
+          
+          auto aclit=LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name].find("acl");
+          if(aclit != LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name].end())
+          {
+            std::string spolicy=LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["acl"]["policy"];
+            if(spolicy == "allow")
+            {
+              default_policy=LAppS::Network_ACL_Policy::ALLOW;
+            }else if(spolicy == "deny")
+            {
+              default_policy=LAppS::Network_ACL_Policy::DENY;
+            }else{
+              throw std::system_error(
+                EINVAL,std::system_category(),"Invalid network acl policy for a service "+service_name+": "+spolicy+". Only `allow' and `deny' are accepted"
+              );
+            }
+            exclude_list=LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["acl"]["exclude"];
+          }else{
+            default_policy=LAppS::Network_ACL_Policy::ALLOW;
+          }
+          
+          std::cout << exclude_list.dump(2) << std::endl;
+          
           for(size_t i=0;i<instances;++i)
           {
             if(protocol == "raw")
             {
               ::ApplicationRegistry::getInstance()->regApp(
-                  std::make_shared<RAWPROTOApp>(service_name,target,max_in_msg_size),
+                  std::make_shared<RAWPROTOApp>(service_name,target,max_in_msg_size,default_policy,exclude_list),
                   instances
               );
             }
             else if(protocol == "LAppS")
             {
               ::ApplicationRegistry::getInstance()->regApp(
-                  std::make_shared<LAppSPROTOApp>(service_name,target,max_in_msg_size),
+                  std::make_shared<LAppSPROTOApp>(service_name,target,max_in_msg_size,default_policy,exclude_list),
                   instances
               );
             }else{

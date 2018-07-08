@@ -82,6 +82,13 @@ namespace LAppS
               if(sent > 0)
               {
                 auto app=anAppRegistry.getByTarget(mHTTPRParser.getRequestTarget());
+                
+                if(app->filter(wssocket->getPeerIP()))
+                {
+                  wssocket->send(forbidden);
+                  wssocket->close();
+                  return;
+                }
                 wssocket->setState(WSType::MESSAGING);
                 wssocket->setApplication(app);
                 return;

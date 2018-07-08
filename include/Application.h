@@ -48,6 +48,8 @@ extern "C" {
 #include <lualib.h>
 #include <lauxlib.h>
 #include <stdexcept>
+
+#include "NetworkACL.h"
 }
 
 
@@ -61,13 +63,17 @@ namespace LAppS
   private:
     typedef std::shared_ptr<::abstract::Worker> WorkerSPtrType;
     
-    std::atomic<bool> mMayRun;
-    std::atomic<bool> mCanStop;
-    std::string mName;
-    std::string mTarget;
-    size_t max_inbound_message_size;
-    ApplicationContext<TLSEnable,StatsEnable,Tproto> mAppContext;
-    itc::tsbqueue<abstract::AppInEvent> mEvents;
+    std::atomic<bool>                                 mMayRun;
+    std::atomic<bool>                                 mCanStop;
+    size_t                                            mMaxInMsgSize;
+    
+    LAppS::NetworkACL                                 mACL;
+    
+    std::string                                       mName;
+    std::string                                       mTarget;
+    
+    ApplicationContext<TLSEnable,StatsEnable,Tproto>  mAppContext;
+    itc::tsbqueue<abstract::AppInEvent>               mEvents;
     
  public:
     const bool isUp() const
@@ -97,15 +103,45 @@ namespace LAppS
        mMayRun.store(false);
     }
     
-    explicit Application(const std::string& appName,const std::string& target,const size_t mims)
-    :  mMayRun{true},mName(appName), mTarget(target),
-        max_inbound_message_size(mims),mAppContext(appName,this)
+    explicit Application(
+      const std::string& appName,
+      const std::string& target,
+      const size_t mims,const LAppS::Network_ACL_Policy& _policy, 
+      const json& policy_exclude
+    ):  mMayRun{true},  mCanStop{false},  mMaxInMsgSize(mims),        mACL(_policy),
+        mName(appName), mTarget(target),  mAppContext(appName,this),  mEvents()
     {
+      for(auto it=policy_exclude.begin();it!=policy_exclude.end();++it)
+      {
+        std::string exclude=it.value();
+        mACL.add(std::move(LAppS::addrinfo(std::move(exclude))));
+      }
     }
+    
+    const bool filter(const uint32_t address)
+    {
+      switch(mACL.mPolicy)
+      {
+        case LAppS::Network_ACL_Policy::ALLOW:
+        {
+          if(mACL.match(address))
+            return true;
+          return false;
+        } break;
+        case LAppS::Network_ACL_Policy::DENY:
+        {
+          if(mACL.match(address))
+            return false;
+          return true;
+        } break;
+      }
+      return false;
+    }
+    
     
     const size_t getMaxMSGSize() const
     {
-      return max_inbound_message_size;
+      return mMaxInMsgSize;
     }
     
     const bool try_enqueue(const std::vector<abstract::AppInEvent>& events)

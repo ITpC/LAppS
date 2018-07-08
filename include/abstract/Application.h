@@ -64,6 +64,7 @@ namespace abstract
     virtual const std::string& getName() const=0;
     virtual const std::string& getTarget() const=0;
     virtual const size_t getMaxMSGSize() const=0;
+    virtual const bool filter(const uint32_t)=0;
     virtual ~Application() noexcept = default;
   };
 }
