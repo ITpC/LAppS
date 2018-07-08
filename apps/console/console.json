@@ -5,6 +5,11 @@
   "internal": false,
   "max_inbound_message_size": 2097152,
   "protocol": "LAppS",
-  "request_target": "/console"
+  "request_target": "/console",
+  "acl" : {
+    "policy" : "deny",
+    "exclude": [ "192.168.13.0/24" ]
+  },
+  "preload" : [ "time", "murmur", "pam_auth" ]
 }
 

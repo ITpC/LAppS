@@ -1,22 +1,28 @@
 console = {}
 console.__index = console;
 
+--[[
+nljson=require("nljson")
+murmur=require("murmur")
+time=require("time")
+]]--
+
 local methods=require("console.methods");
 
 
-console["onStart"]=function()
+console.onStart = function()
   local result, err=bcast:create(100);
 end
 
-console["onShutdown"]=function()
+console.onShutdown = function()
 end
 
-console["onDisconnect"]=function(handler)
+console.onDisconnect = function(handler)
   bcast:unsubscribe(100,handler);
   nljson.erase(maps.keys, tostring(handler))
 end
 
-console["method_not_found"] = function(handler)
+console.method_not_found = function(handler)
   local err_msg=nljson.decode([[{
     "status" : 0,
     "error" : {
@@ -41,7 +47,7 @@ end
 --    4 - Request with params attribute
 --  @param message - an nljson userdata object
 --]]
-console["onMessage"]=function(handler,msg_type, message)
+console.onMessage = function(handler,msg_type, message)
   local switch={
     [1] = function() -- a CN without params 
             local method=methods._cn_wo_params_method[message.method] or console.method_not_found;
