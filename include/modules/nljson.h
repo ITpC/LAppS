@@ -20,6 +20,9 @@
  * 
  **/
 
+/** 
+ * TODO: replace the exceptions with lua_error;
+ **/
 
 #ifndef __NLJSON_H__
 #  define __NLJSON_H__
@@ -119,7 +122,7 @@ static inline void set_pod_value(lua_State *L,json *sp)
           std::to_string(__LINE__)+
           ": value on stack at level "+
           std::to_string(lua_gettop(L))+
-          " is not of a POD type, instead it is of: "+
+          " is not of a POD type, instead it is of type: "+
           lua_typename(L,-1)+"["+
             std::to_string(value_type)+
           "]"
@@ -378,7 +381,7 @@ extern "C" {
   LUA_API int decode_file(lua_State *L)
   {
      unsigned int argc = lua_gettop(L);
-     if(argc == 2)
+     if(argc == 1)
      {
         if(lua_isstring(L,argc))
         {
@@ -408,7 +411,7 @@ extern "C" {
           }
           else
           {
-            std::system_error(ENOENT, std::system_category(), file_name );
+            throw std::system_error(ENOENT, std::system_category(), file_name );
           }
         }
         else
