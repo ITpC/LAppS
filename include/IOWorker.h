@@ -180,7 +180,7 @@ namespace LAppS
             int ret=mEPoll->poll(mEvents,1);
             if(ret > 0)
             {
-              mStats.mEventQSize+=ret;
+              mStats.mEventQSize=ret;
               for(auto i=0;i<ret;++i)
               {
                 if(error_bit(mEvents[i].events))
@@ -192,6 +192,11 @@ namespace LAppS
                 {
                   processIO(mEvents[i].data.fd);
                 }
+              }
+              mStats.mEventQSize=0;
+              for(size_t i=0;i<mMaxReaders;++i)
+              {
+                mStats.mEventQSize+=mReaders[i]->getRunnable()->getQSize();
               }
             }
           }catch(const std::exception& e)
@@ -303,11 +308,6 @@ namespace LAppS
                 mReaders[readersIndex]->getRunnable()->enqueue(current);
                 if((++readersIndex) == mMaxReaders)
                   readersIndex=0;
-                mStats.mEventQSize=0;
-                for(size_t i=0;i<mMaxReaders;++i)
-                {
-                  mStats.mEventQSize+=mReaders[readersIndex]->getRunnable()->getQSize();
-                }
             break;
             case WSType::CLOSED:
                 deleteConnection(fd);
