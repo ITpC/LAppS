@@ -193,11 +193,12 @@ namespace LAppS
                   processIO(mEvents[i].data.fd);
                 }
               }
-              mStats.mEventQSize=0;
+              size_t eqsz=0;
               for(size_t i=0;i<mMaxReaders;++i)
               {
-                mStats.mEventQSize+=mReaders[i]->getRunnable()->getQSize();
+                eqsz+=mReaders[i]->getRunnable()->getQSize();
               }
+              mStats.mEventQSize=eqsz;
             }
           }catch(const std::exception& e)
           {
