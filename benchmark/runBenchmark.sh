@@ -11,6 +11,11 @@ then
   g++ -pthread -O3 -std=c++14 echo_client_tls.cpp -o benchmark_tls -lboost_system -lcrypto -lssl
 fi
 
+if [ -f ./echo_client.cpp -a ! -f ./benchmark_nontls ]
+then
+  g++ -pthread -O3 -std=c++14 echo_client.cpp -o benchmark_nontls -lboost_system
+fi
+
 LAPPS_PID=$(ps ax | grep lapps | grep -v grep | awk '{print $1}')
 
 
@@ -34,9 +39,16 @@ then
   echo LAPPS is not started on localhost. benchmarking uri is $URI 
 fi
 
+export BINARY=./benchmark_tls
+
+if [ "${NOTLS}x" != "x" ]
+then
+  export BINARY=./benchmark_nontls
+fi
+
 echo Running $CLIENTS echo-processes with $BSIZE bytes large messages
 
-rm -f log.*; let j=0;while [ $j -lt $CLIENTS ]; do ./benchmark_tls $URI $BSIZE >log.$j & let j++; done 
+rm -f log.*; let j=0;while [ $j -lt $CLIENTS ]; do $BINARY $URI $BSIZE >log.$j & let j++; done 
 
 
 sleep 10
