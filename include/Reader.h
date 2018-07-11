@@ -41,7 +41,7 @@ namespace LAppS
   private:
     std::atomic<bool>               mMayRun;
     std::atomic<bool>               mMayStop;
-    ::abstract::Worker*       mParentWorker;
+    ::abstract::Worker*             mParentWorker;
     itc::tsbqueue<WSSPtrType>       mReadQueue;
     
   public:
