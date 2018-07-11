@@ -37,8 +37,7 @@
 #include <abstract/WebSocket.h>
 #include <Sequence.h>
 #include <Singleton.h>
-
-typedef itc::Singleton<itc::Sequence<uint64_t,true>> InstanceIdNonce;
+#include <Nonce.h>
 
 namespace abstract
 {
