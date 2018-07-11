@@ -47,23 +47,24 @@ extern "C" {
     {
       case LUA_TSTRING:
       {
-        std::hash<std::string> hash;
-        std::string result;
         std::string tmp(lua_tostring(L,argc));
 
-        long long unsigned int digest=hash(std::move(tmp));
-        result.resize(16);
+        long long unsigned int digest=std::hash<std::string>{}(std::move(tmp));
+        
+        std::string result(16,'\0');
+        
         snprintf((char*)(result.c_str()),16,"%016llx",digest);
         lua_pushlstring(L,result.c_str(),result.length());
       }
       break;
       case LUA_TNUMBER:
       {
-        std::hash<std::size_t> hash;
-        std::string result;
         size_t tmp=static_cast<size_t>(lua_tonumber(L,argc));
-        long long unsigned int digest=hash(tmp);
-        result.resize(16);
+        
+        long long unsigned int digest=std::hash<std::size_t>{}(tmp);
+        
+        std::string result(16,'\0');
+        
         snprintf((char*)(result.c_str()),16,"%016llx",digest);
         lua_pushlstring(L,result.c_str(),result.length());
       }
@@ -88,18 +89,16 @@ extern "C" {
     {
       case LUA_TSTRING:
       {
-        std::hash<std::string> hash;
         std::string tmp(lua_tostring(L,argc));
 
-        long long unsigned int digest=hash(std::move(tmp));
+        long long unsigned int digest=std::hash<std::string>{}(std::move(tmp));
         lua_pushinteger(L,digest);
       }
       break;
       case LUA_TNUMBER:
       {
-        std::hash<std::size_t> hash;
         size_t tmp=static_cast<size_t>(lua_tonumber(L,argc));
-        long long unsigned int digest=hash(tmp);
+        long long unsigned int digest=std::hash<size_t>{}(tmp);
         lua_pushinteger(L,digest);
       }
       break;
