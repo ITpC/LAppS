@@ -118,12 +118,12 @@ static inline void set_pod_value(lua_State *L,json *sp)
       throw std::system_error(
         EINVAL, 
         std::system_category(),
-        "Error in set_pod_value():"+
+        "Error in set_pod_value() at line"+
           std::to_string(__LINE__)+
-          ": value on stack at level "+
+          ": the value on lua stack at level "+
           std::to_string(lua_gettop(L))+
           " is not of a POD type, instead it is of type: "+
-          lua_typename(L,-1)+"["+
+          lua_typename(L,lua_gettop(L))+"["+
             std::to_string(value_type)+
           "]"
       );
