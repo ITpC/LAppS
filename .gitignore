@@ -12,3 +12,4 @@ benchmark/benchmark_notls
 benchmark/benchmark_tls
 benchmark/log.*
 profiling
+benchmark/benchmark_nontls
