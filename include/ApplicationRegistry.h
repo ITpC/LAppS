@@ -45,6 +45,7 @@ namespace LAppS
 
     std::map<std::string,AppInstances> mApplications;
     std::map<std::string,std::string>  mTarget2Name;
+    std::map<size_t, ApplicationSPtr> mInstanceID2Instance;
 
    public:
     void clear()
@@ -75,12 +76,18 @@ namespace LAppS
       if(it!=mApplications.end())
       {
         auto target=it->second.front()->getRunnable()->getTarget();
+        auto instanceid=it->second.front()->getRunnable()->getInstanceId();
         auto target_it=mTarget2Name.find(target);
         if(target_it != mTarget2Name.end())
         {
           mTarget2Name.erase(target_it);
         }
         mApplications.erase(it);
+        auto iidit=mInstanceID2Instance.find(instanceid);
+        if(iidit!=mInstanceID2Instance.end())
+        {
+          mInstanceID2Instance.erase(iidit);
+        }
       }
     }
     
@@ -116,8 +123,20 @@ namespace LAppS
         );
       }
       mTarget2Name.emplace(instance->getTarget(),instance->getName());
+      mInstanceID2Instance.emplace(instance->getInstanceId(),instance);
     }
 
+    auto getByInstanceId(const size_t& instanceid)
+    {
+      SyncLock sync(mMutex);
+      auto it=mInstanceID2Instance.find(instanceid);
+      if(it!=mInstanceID2Instance.end())
+      {
+        return it->second;
+      }
+      throw std::runtime_error(std::string("The instance with id ")+std::to_string(instanceid)+std::string(" is not registered"));
+    }
+    
     auto getByName(const std::string& name)
     {
       SyncLock sync(mMutex);

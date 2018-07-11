@@ -26,6 +26,7 @@
 
 #include <memory>
 #include <vector>
+#include <chrono>
 
 #include <abstract/Worker.h>
 #include <abstract/Runnable.h>
@@ -34,13 +35,16 @@
 #include <WSEvent.h>
 #include <TaggedEvent.h>
 #include <abstract/WebSocket.h>
+#include <Sequence.h>
+#include <Singleton.h>
 
-
+typedef itc::Singleton<itc::Sequence<uint64_t,true>> InstanceIdNonce;
 
 namespace abstract
 {
   typedef std::shared_ptr<::abstract::WebSocket> WSSPtrType;
-    
+  
+  
   struct AppInEvent
   {
     WebSocketProtocol::OpCode opcode;
@@ -50,12 +54,24 @@ namespace abstract
   
   class Application : public itc::abstract::IRunnable
   {
+   private:
+    size_t        mInstanceID;
    public:
     enum Protocol { RAW, LAPPS };
     
-    Application()=default;
+    Application(): mInstanceID(
+      std::hash<std::string>{}(std::to_string(std::chrono::duration_cast<std::chrono::nanoseconds>(
+        std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch()
+      ).count())+std::to_string(std::hash<size_t>{}(InstanceIdNonce::getInstance()->getNext())))
+    ){};
+    
     Application(const Application&)=delete;
     Application(Application&)=delete;
+    
+    const size_t getInstanceId() {
+      return mInstanceID;
+    }
+    
     virtual const bool isUp() const=0;
     virtual void enqueue(const AppInEvent&)=0;
     virtual void enqueue(const std::vector<AppInEvent>&)=0;
@@ -65,6 +81,7 @@ namespace abstract
     virtual const std::string& getTarget() const=0;
     virtual const size_t getMaxMSGSize() const=0;
     virtual const bool filter(const uint32_t)=0;
+    
     virtual ~Application() noexcept = default;
   };
 }
