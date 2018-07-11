@@ -34,12 +34,13 @@
 
 #include <InternalApplication.h>
 
+
 namespace LAppS
 {
   class InternalApplicationRegistry
   {
    public:
-    typename std::shared_ptr<InternalApplication>           IntAppSPtr;
+    typedef std::shared_ptr<InternalApplication>            IntAppSPtr;
     typedef itc::sys::CancelableThread<InternalApplication> InternalAppThread;
     typedef std::shared_ptr<InternalAppThread>              InternalAppThreadSPtr;
     typedef std::queue<InternalAppThreadSPtr>               InternalAppsQueue;
@@ -47,6 +48,7 @@ namespace LAppS
    private:
     std::mutex mMutex;
     std::map<std::string,InternalAppsQueue> mRegistry;
+    std::map<size_t,IntAppSPtr> mInstanceID2Instance;
     
    public:
     explicit InternalApplicationRegistry():mMutex(),mRegistry()
@@ -64,7 +66,9 @@ namespace LAppS
       {
         mRegistry.emplace(name,InternalAppsQueue());
       }
-      mRegistry[name].emplace(std::make_shared<InternalAppThread>(std::make_shared<InternalApplication>(name)));
+      auto instance=std::make_shared<InternalApplication>(name);
+      mRegistry[name].emplace(std::make_shared<InternalAppThread>(instance));
+      mInstanceID2Instance.emplace(instance->getInstanceId(),std::move(instance));
     }
 
     const bool stopInstance(const std::string& name)
@@ -75,7 +79,14 @@ namespace LAppS
       {
         if(!it->second.empty())
         {
+          size_t instanceid=it->second.front()->getRunnable()->getInstanceId();
           it->second.pop();
+          
+          auto iidit=mInstanceID2Instance.find(instanceid);
+          if(iidit!=mInstanceID2Instance.end())
+          {
+            mInstanceID2Instance.erase(iidit);
+          }
           return true;
         }
         return false;
@@ -91,7 +102,13 @@ namespace LAppS
       {
         while(!it->second.empty())
         {
+          size_t instanceid=it->second.front()->getRunnable()->getInstanceId();
           it->second.pop();
+          auto iidit=mInstanceID2Instance.find(instanceid);
+          if(iidit!=mInstanceID2Instance.end())
+          {
+            mInstanceID2Instance.erase(iidit);
+          }
           return true;
         }
         return false;
