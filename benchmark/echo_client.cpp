@@ -80,7 +80,6 @@ void on_message(client* c, websocketpp::connection_hdl hdl, message_ptr msg)
     if (ec) {
         std::cout << "Echo failed because: " << ec.message() << std::endl;
     }
-    //std::cout << "Message have been sent" << std::endl;
 }
 
 void on_open(client* c, websocketpp::connection_hdl hdl)
