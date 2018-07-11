@@ -108,7 +108,7 @@ namespace LAppS
       const std::string& target,
       const size_t mims,const LAppS::Network_ACL_Policy& _policy, 
       const json& policy_exclude
-    ):  mMayRun{true},  mCanStop{false},  mMaxInMsgSize(mims),        mACL(_policy),
+    ): abstract::Application(), mMayRun{true},  mCanStop{false},  mMaxInMsgSize(mims),        mACL(_policy),
         mName(appName), mTarget(target),  mAppContext(appName,this),  mEvents()
     {
       for(auto it=policy_exclude.begin();it!=policy_exclude.end();++it)
