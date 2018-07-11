@@ -23,24 +23,39 @@
 
 #ifndef __INTERNALAPPLICATION_H__
 #  define __INTERNALAPPLICATION_H__
+#include <chrono>
+#include <string>
+#include <functional>
 
 #include <InternalAppContext.h>
 #include <abstract/Runnable.h>
+#include <Nonce.h>
 
 namespace LAppS
 {
   class InternalApplication : public itc::abstract::IRunnable
   {
    private:
+    size_t mInstanceID;
     InternalAppContext mContext;
    public:
-    explicit InternalApplication(const std::string name) : mContext(name)
+    explicit InternalApplication(const std::string name)
+    : mInstanceID(
+        std::hash<std::string>{}(std::to_string(std::chrono::duration_cast<std::chrono::nanoseconds>(
+          std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch()
+        ).count())+std::to_string(std::hash<size_t>{}(InstanceIdNonce::getInstance()->getNext())))
+      ), mContext(name)
     {
     }
     
     InternalApplication(const InternalApplication&)=delete;
     InternalApplication(InternalApplication&)=delete;
     InternalApplication()=delete;
+    
+    const size_t getInstanceId() const
+    {
+      return mInstanceID;
+    }
     
     void execute()
     {
