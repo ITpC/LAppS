@@ -144,7 +144,7 @@ public:
    * 
    * \@param std::vector<epoll_event>& - available events (if any)
    * 
-   * \@return 0 on timeout, -1 on EINTR and throws system_error(errno),
+   * \@return 0 on timeout, -1 on errors other then EINTR and throws system_error(errno),
    * or amount of events otherwise.
    **/
   int poll(std::vector<epoll_event>& out, const int timeout=10)
