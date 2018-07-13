@@ -230,27 +230,10 @@ namespace WebSocketProtocol
 **/
 namespace WebSocketProtocol
 {
-  enum PLLength { MIN=0, SHORT=2, LONG=8 };
-  
-  union MASKType {
-    uint32_t intMASK;
-    uint8_t byteMASK[4];
-  };
-  
+
   struct WS
   {
-    static const PLLength getSizeType(const uint8_t secondByte)
-    {
-      switch(secondByte&127)
-      {
-        case 127:
-          return LONG;
-        case 126:
-          return SHORT;
-        default:
-          return MIN;
-      }
-    }
+    
     static const bool isOpCodeSupported(const uint8_t opcode)
     {
       // Supported opcodes: CONTINUE=0, TEXT=1, BINARY=2,  CLOSE=8, PING=9,PONG=10
@@ -258,18 +241,7 @@ namespace WebSocketProtocol
           (opcode == 8) || (opcode == 9) || (opcode == 10)
         );
     }
-    static const bool isFIN(const uint8_t firstByte)
-    {
-      return firstByte&128;
-    }
-    static const bool isMASKED(const uint8_t secondByte)
-    {
-      return secondByte&128;
-    }
-    constexpr uint8_t MASKLength() const
-    {
-      return 4;
-    }
+
     static void putLength(const size_t pllength, std::vector<uint8_t>& out)
     {
       if(pllength > std::numeric_limits<uint16_t>::max())
@@ -291,20 +263,8 @@ namespace WebSocketProtocol
         out.push_back(126); // size code 126 2 bytes pl
         out.push_back(ptr[0]);
         out.push_back(ptr[1]);
-      }else out.push_back(pllength);
-    }
-    
-    static void putMASK(const MASKType& mask, std::vector<uint8_t>& out)
-    {
-      for(auto i=0;i<4;++i)
-      {
-        out.push_back(mask.byteMASK[i]);
       }
-    }
-    
-    static const uint32_t MASK2HOST(const uint32_t be32)
-    {
-      return be32toh(be32);
+      else out.push_back(pllength);
     }
   };
 }
