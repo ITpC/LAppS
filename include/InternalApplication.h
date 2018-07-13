@@ -73,6 +73,7 @@ namespace LAppS
     void shutdown()
     {
       mContext.stop();
+      itc::getLog()->info(__FILE__,__LINE__,"Instance %ul  of an internal application %s is down",mInstanceID, mContext.getName().c_str());
     }
   };
 }

@@ -30,7 +30,7 @@
 #include <exception>
 
 #include <abstract/Runnable.h>
-#include <WSStreamProcessor.h>
+
 #include <sys/synclock.h>
 #include <WebSocket.h>
 #include <abstract/Application.h>
@@ -182,6 +182,12 @@ namespace LAppS
         
     void execute()
     {
+      sigset_t sigpipe_mask;
+      sigemptyset(&sigpipe_mask);
+      sigaddset(&sigpipe_mask, SIGPIPE);
+      sigset_t saved_mask;
+      pthread_sigmask(SIG_BLOCK, &sigpipe_mask, &saved_mask);
+      
       while(mMayRun)
       { 
         try
@@ -225,12 +231,12 @@ namespace LAppS
         }catch(std::exception& e)
         {
           mMayRun.store(false);
-          itc::getLog()->error(__FILE__,__LINE__,"Exception in Application[%s]::execute(): %s",mName.c_str(),e.what());
+          itc::getLog()->error(__FILE__,__LINE__,"Exception in the service instance %ul [%s]::execute(): %s",getInstanceId(), mName.c_str(),e.what());
           itc::getLog()->flush();
         }
       }
       mCanStop.store(true);
-      itc::getLog()->info(__FILE__,__LINE__,"Application instance [%s] main loop is finished.",mName.c_str());
+      itc::getLog()->info(__FILE__,__LINE__,"Application instance %ul of an application [%s] main loop is finished.",getInstanceId(), mName.c_str());
     }
     
     Application()=delete;
@@ -239,6 +245,7 @@ namespace LAppS
     ~Application() noexcept
     {
       mMayRun.store(false);
+      itc::getLog()->info(__FILE__,__LINE__,"Instance %ul  of an internal application [%s] is down",getInstanceId(), mName.c_str());
     }
   };
 }

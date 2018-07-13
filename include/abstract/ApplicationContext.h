@@ -96,6 +96,9 @@ namespace abstract
     explicit ApplicationContext(const std::string& name)
     : mName(name),mLState(luaL_newstate())
     {}
+    const std::string& getName() const {
+      return mName;
+    }
     virtual ~ApplicationContext() noexcept = default;
   };
 }
