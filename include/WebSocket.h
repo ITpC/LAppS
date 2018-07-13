@@ -36,7 +36,7 @@
 
 #include <WSEvent.h>
 #include <abstract/Application.h>
-#include <WSStreamProcessor.h>
+#include <WSStreamParser.h>
 #include <WSServerMessage.h>
 #include <ePoll.h>
 #include <Config.h>
@@ -49,9 +49,9 @@
 #include <abstract/WebSocket.h>
 #include <abstract/Worker.h>
 
-#include "ApplicationRegistry.h"
+#include <ApplicationRegistry.h>
 
-static thread_local std::vector<uint8_t> anInBuffer(8192);
+static thread_local std::vector<uint8_t> anInBuffer(4096);
 
 
 template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
@@ -82,7 +82,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   uint32_t                            mPeerIP;
   std::string                         mPeerAddress;
   
-  WSStreamParser                      streamProcessor;
+  WSStreamProcessing::WSStreamParser  streamProcessor;
   
   ApplicationSPtr                     mApplication;
   
@@ -311,22 +311,26 @@ private:
     
     size_t cursor=0;
     again:
-    auto state=streamProcessor.parse(input.data(),input_size,cursor,fd);
+    auto state=std::move(streamProcessor.parse(input.data(),input_size,cursor));
     
     switch(state.directive)
     {
       case WSStreamProcessing::Directive::MORE:
         return;
       case WSStreamProcessing::Directive::TAKE_READY_MESSAGE:
+        
         if(onMessage(std::move(streamProcessor.getMessage()))&&(state.cursor!=input_size))
         {
           cursor=state.cursor;
-          goto again; 
+          goto again;
         }
         return;
       case WSStreamProcessing::Directive::CLOSE_WITH_CODE:
         closeSocket(state.cCode);
         return;
+      case WSStreamProcessing::Directive::CONTINUE:
+        cursor=state.cursor;
+        goto again;
     }
   }
  
