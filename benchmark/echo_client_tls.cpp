@@ -79,8 +79,6 @@ typedef websocketpp::config::asio_client::message_type::ptr message_ptr;
 void on_message(client* c, websocketpp::connection_hdl hdl, message_ptr msg)
 {
 
-    //std::cout << "Message received: "  << msg->get_payload() << std::endl;
-    //
     om_counter++;
 
     slice=time_now();
@@ -98,7 +96,6 @@ void on_message(client* c, websocketpp::connection_hdl hdl, message_ptr msg)
     if (ec) {
         std::cout << "Echo failed because: " << ec.message() << std::endl;
     }
-    //std::cout << "Message have been sent" << std::endl;
 }
 
 void on_open(client* c, websocketpp::connection_hdl hdl)
@@ -156,6 +153,7 @@ int main(int argc, char* argv[]) {
             std::cout << "could not create connection because: " << ec.message() << std::endl;
             return 0;
         }
+        // int socketfd=con->get_raw_socket().native_handle();
 
         // Note that connect here only requests a connection. No network messages are
         // exchanged until the event loop starts running in the next line.
