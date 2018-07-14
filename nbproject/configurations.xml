@@ -137,7 +137,6 @@
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>../libressl/lib</pElem>
-            <pElem>/opt/gperfrools/lib</pElem>
           </linkerAddLib>
           <commandlineTool>g++ -pipe -Wall -pthread -O2 -mtune=native -march=native -fPIC  -mfpmath=sse -mavx -msse2avx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong</commandlineTool>
           <linkerLibItems>
@@ -178,7 +177,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -ltls -lcrypto -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lprofiler</commandLine>
+          <commandLine>-lcryptopp -ltls -lcrypto -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
