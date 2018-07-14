@@ -25,6 +25,8 @@ RUN apt-get install -y libcrypto++-dev
 
 RUN apt-get install -y libpam0g-dev
 
+RUN apt-get install -y libbz2-dev
+
 ENV WORKSPACE /root/workspace
 
 RUN mkdir ${WORKSPACE}
