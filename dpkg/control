@@ -1,5 +1,5 @@
 Package: LAppS
-Version: 0.5
+Version: 0.7.0
 Maintainer: Pavel Kraynyukhov <pk@new-web.co>
 Architecture: amd64
 Description: Lua Application Server for micro-service architecture.

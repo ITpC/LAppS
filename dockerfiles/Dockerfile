@@ -39,13 +39,13 @@ RUN make all install
 
 WORKDIR ${WORKSPACE}
 
-ADD https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-2.7.3.tar.gz ${WORKSPACE}
+ADD https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-2.7.4.tar.gz ${WORKSPACE}
 
-RUN tar xzvf libressl-2.7.3.tar.gz
+RUN tar xzvf libressl-2.7.4.tar.gz
 
-WORKDIR ${WORKSPACE}/libressl-2.7.3
+WORKDIR ${WORKSPACE}/libressl-2.7.4
 
-RUN ./configure --prefix=${WORKSPACE}/libressl
+RUN CFLAGS="-pipe -Wall -pthread -O2 -fPIC -march=native -mtune=generic -mfpmath=sse -mavx -msse2avx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fno-omit-frame-pointer" ./configure --prefix=${WORKSPACE}/libressl
 
 RUN make all install
 

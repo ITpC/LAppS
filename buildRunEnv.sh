@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker build -t lapps:runenv -f dockerfiles/Dockerfile.lapps-runenv.0.6.3 --force-rm  .
+docker build -t lapps:runenv -f dockerfiles/Dockerfile.lapps-runenv.0.7.0 --force-rm  .
