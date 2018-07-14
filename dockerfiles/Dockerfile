@@ -23,6 +23,8 @@ RUN apt-get install -y autotools-dev
 
 RUN apt-get install -y libcrypto++-dev
 
+RUN apt-get install -y libpam0g-dev
+
 ENV WORKSPACE /root/workspace
 
 RUN mkdir ${WORKSPACE}
@@ -58,6 +60,8 @@ RUN git clone https://github.com/ITpC/utils.git
 RUN git clone https://github.com/ITpC/ITCFramework.git
 
 RUN git clone https://github.com/ITpC/LAppS.git
+
+RUN git clone https://github.com/ITpC/lar.git
 
 WORKDIR ${WORKSPACE}/LAppS
 
