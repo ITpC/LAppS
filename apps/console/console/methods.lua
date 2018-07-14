@@ -10,6 +10,8 @@ methods.messages={}
 methods.private={}
 methods._cn_w_params_method={}
 methods._cn_wo_params_method={}
+methods._request_wo_params_method={}
+methods._request_w_params_method={}
 
 methods.maps.active_users=nljson.decode([[{
 }]]);
@@ -89,8 +91,8 @@ function(handler, params)
   if(pam_auth:login(pam_config.service,username,password))
   then
     local message=methods.messages.login_success;
-    message.result[1].authkey=murmur.hashstr(username..time.now());
-    methods.maps.active_users[message.result[1].authkey]=username;
+    message.result[1].authkey=murmur.hashstr(handler);
+    methods.maps.active_users[tostring(handler)]=message.result[1].authkey;
     ws:send(handler,message);
     methods.private.push_view(handler);
   else
