@@ -39,6 +39,11 @@
 #include <sys/atomic_mutex.h>
 #include <sys/synclock.h>
 
+/* check for AVX2 */
+#include <immintrin.h>
+#include <cpuid.h>
+
+
 namespace WSStreamProcessing
 {
   enum State : uint8_t {
@@ -126,6 +131,8 @@ namespace WSStreamProcessing
     std::queue<MSGBufferTypeSPtr>           mBufferQueue;
     
     itc::sys::AtomicMutex                   mBQMutex;
+    
+    uint64_t                                MASK;
     
     void reset()
     {
@@ -428,6 +435,18 @@ namespace WSStreamProcessing
             mHeader.MASK[3]=stream[cursor];
             ++cursor;
             
+            uint8_t *ptr=(uint8_t*)(&MASK);
+            
+            ptr[0]=mHeader.MASK[0];
+            ptr[1]=mHeader.MASK[1];
+            ptr[2]=mHeader.MASK[2];
+            ptr[3]=mHeader.MASK[3];
+            ptr[4]=mHeader.MASK[0];
+            ptr[5]=mHeader.MASK[1];
+            ptr[6]=mHeader.MASK[2];
+            ptr[7]=mHeader.MASK[3];
+            
+            
             mState=State::VALIDATE;
             if((cursor == limit)&&(mHeader.MSG_SIZE!=0))
             {
@@ -564,6 +583,32 @@ namespace WSStreamProcessing
         {
           if(mPLBytesReady == 0)
             message->resize(mHeader.MSG_SIZE);
+          
+          if((limit-cursor)>=8)
+          {
+            while((mPLBytesReady<mHeader.MSG_SIZE)&&((cursor)<limit)&&(mPLBytesReady%4))
+            {
+              (message->data())[mPLBytesReady]=stream[cursor]^mHeader.MASK[mPLBytesReady%4];
+              ++cursor;
+              ++mPLBytesReady;
+            }
+
+            uint8_t *dst_s_ptr=&(message->data()[mPLBytesReady]);
+            const uint8_t *src_s_ptr=&stream[cursor];
+            
+            uint64_t *dst_ptr=(uint64_t*)(dst_s_ptr);
+            const uint64_t *src_ptr=(const uint64_t*)(src_s_ptr);
+            
+            while(((mPLBytesReady+8)<=mHeader.MSG_SIZE)&&((cursor+8)<=limit))
+            {
+              *dst_ptr = (*src_ptr)^MASK;
+              ++dst_ptr;
+              ++src_ptr;
+              
+              cursor+=8;
+              mPLBytesReady+=8;
+            }
+          }
           
           while((mPLBytesReady<mHeader.MSG_SIZE)&&((cursor)<limit))
           {
