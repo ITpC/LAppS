@@ -51,7 +51,7 @@
 
 #include <ApplicationRegistry.h>
 
-static thread_local std::vector<uint8_t> anInBuffer(4096);
+static thread_local std::vector<uint8_t> anInBuffer(16384);
 
 
 template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket

@@ -584,32 +584,36 @@ namespace WSStreamProcessing
           if(mPLBytesReady == 0)
             message->resize(mHeader.MSG_SIZE);
           
-          if((limit-cursor)>=8)
+          if(mHeader.MSG_SIZE>=8192)
           {
-            while((mPLBytesReady<mHeader.MSG_SIZE)&&((cursor)<limit)&&(mPLBytesReady%4))
+            if((limit-cursor)>=8)
             {
-              (message->data())[mPLBytesReady]=stream[cursor]^mHeader.MASK[mPLBytesReady%4];
-              ++cursor;
-              ++mPLBytesReady;
-            }
+              // align to mask
+              while((mPLBytesReady<mHeader.MSG_SIZE)&&((cursor)<limit)&&(mPLBytesReady%4))
+              {
+                (message->data())[mPLBytesReady]=stream[cursor]^mHeader.MASK[mPLBytesReady%4];
+                ++cursor;
+                ++mPLBytesReady;
+              }
 
-            uint8_t *dst_s_ptr=&(message->data()[mPLBytesReady]);
-            const uint8_t *src_s_ptr=&stream[cursor];
-            
-            uint64_t *dst_ptr=(uint64_t*)(dst_s_ptr);
-            const uint64_t *src_ptr=(const uint64_t*)(src_s_ptr);
-            
-            while(((mPLBytesReady+8)<=mHeader.MSG_SIZE)&&((cursor+8)<=limit))
-            {
-              *dst_ptr = (*src_ptr)^MASK;
-              ++dst_ptr;
-              ++src_ptr;
-              
-              cursor+=8;
-              mPLBytesReady+=8;
+              uint8_t *dst_s_ptr=&(message->data()[mPLBytesReady]);
+              const uint8_t *src_s_ptr=&stream[cursor];
+
+              uint64_t *dst_ptr=(uint64_t*)(dst_s_ptr);
+              const uint64_t *src_ptr=(const uint64_t*)(src_s_ptr);
+
+              while(((mPLBytesReady+8)<=mHeader.MSG_SIZE)&&((cursor+8)<=limit))
+              {
+                *dst_ptr = (*src_ptr)^MASK;
+                ++dst_ptr;
+                ++src_ptr;
+
+                cursor+=8;
+                mPLBytesReady+=8;
+              }
             }
           }
-          
+          // fallback to 1byte xor to catch with the rest of payload
           while((mPLBytesReady<mHeader.MSG_SIZE)&&((cursor)<limit))
           {
             (message->data())[mPLBytesReady]=stream[cursor]^mHeader.MASK[mPLBytesReady%4];
