@@ -38,6 +38,7 @@
       <itemPath>include/InternalApplication.h</itemPath>
       <itemPath>include/InternalApplicationRegistry.h</itemPath>
       <itemPath>include/NetworkACL.h</itemPath>
+      <itemPath>include/Nonce.h</itemPath>
       <itemPath>include/Reader.h</itemPath>
       <itemPath>include/ServiceProperties.h</itemPath>
       <itemPath>include/Shakespeer.h</itemPath>
@@ -47,6 +48,7 @@
       <itemPath>include/WSEvent.h</itemPath>
       <itemPath>include/WSProtocol.h</itemPath>
       <itemPath>include/WSServerMessage.h</itemPath>
+      <itemPath>include/WSStreamParser.h</itemPath>
       <itemPath>include/WSStreamProcessor.h</itemPath>
       <itemPath>include/WSWorkersPool.h</itemPath>
       <itemPath>include/WebSocket.h</itemPath>
@@ -120,7 +122,7 @@
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
           </incDir>
-          <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -march=native -mtune=native -fstack-check -fstack-protector-strong -mfpmath=sse -mavx -msse2avx -ftree-vectorize -funroll-loops</commandLine>
+          <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -march=native -mtune=generic -mfpmath=sse -mavx -msse2avx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fno-omit-frame-pointer</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>LAPPS_TLS_ENABLE</Elem>
@@ -135,8 +137,9 @@
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>../libressl/lib</pElem>
+            <pElem>/opt/gperfrools/lib</pElem>
           </linkerAddLib>
-          <commandlineTool>g++ -pipe -Wall -pthread -O2 -mtune=native -march=native -fPIC -fstack-check -fstack-protector-strong -mfpmath=sse -msse2avx -ftree-vectorize -funroll-loops</commandlineTool>
+          <commandlineTool>g++ -pipe -Wall -pthread -O2 -mtune=native -march=native -fPIC  -mfpmath=sse -mavx -msse2avx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"
@@ -175,7 +178,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -ltls -lcrypto -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
+          <commandLine>-lcryptopp -ltls -lcrypto -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lprofiler</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -213,6 +216,36 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -725,6 +758,8 @@
       </item>
       <item path="include/NetworkACL.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/Nonce.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/Reader.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ServiceProperties.h" ex="false" tool="3" flavor2="0">
@@ -742,6 +777,8 @@
       <item path="include/WSProtocol.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WSServerMessage.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/WSStreamParser.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WSStreamProcessor.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -848,6 +885,8 @@
       </item>
       <item path="include/NetworkACL.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/Nonce.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/Reader.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ServiceProperties.h" ex="false" tool="3" flavor2="0">
@@ -865,6 +904,8 @@
       <item path="include/WSProtocol.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WSServerMessage.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/WSStreamParser.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WSStreamProcessor.h" ex="false" tool="3" flavor2="0">
       </item>
