@@ -1,0 +1,6 @@
+{
+  "name" : "time_broadcast",
+  "internal": true,
+  "instances" : 1,
+  "auto_start": true
+}

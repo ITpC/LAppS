@@ -12,17 +12,13 @@ time_broadcast["run"]=function()
       "cid" : 5,
       "message" : [ "" ]
   }]]);
-  while true
+  while not must_stop()
   do
     time_broadcast.nap:usleep(1000000);
     local timenow=os.time();
     local timestr=os.date("%c",timenow);
     oon.message[1]="Server time: "..timestr;
     bcast:send(1000,oon);
-    if(must_stop())
-    then
-      break;
-    end
   end
 end
 
