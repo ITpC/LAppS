@@ -1,5 +1,6 @@
 # 0.7.x branch changes
 
+```
 76d693c deployment descriptor and stop condition
 ee62516 formatting
 49ce263 auto save of the config file in pretty print
@@ -91,9 +92,11 @@ bdab8ab Merge pull request #2 from ITpC/0.7-highperf
 4f676ba (origin/0.6.3-stable) license file for nlohmann json
 0b532f0 (origin/0.7-highperf) VERSION bump
 bd32488 LAppS-0.7.0 experimental high performance branch
+```
 
 # 0.6 and before
 
+```
 00adcfd toward perfopts
 fe8f581 removed useless file
 4b81e4d Merge branch 'master' of github.com:ITpC/LAppS
@@ -263,3 +266,4 @@ b97a243 removed build files
 a90ed89 Autobahn Testsuite Results
 d4f3602 Initial import, WebSockets Protocol Implementation, non-SSL and TLSv1.2
 d8c0f6f Initial commit
+```
