@@ -692,7 +692,8 @@ namespace WSStreamProcessing
             }
           }
           
-          // fallback to 1byte xor to catch with the rest of payload
+          // fallback to 1byte xor to catch with the rest of payload or process small frames in 8bit xor 
+          // which is faster then 64bit or 32bit xor on modern CPUs, probably because of g++ optimizations.
           while((mPLBytesReady<mHeader.MSG_SIZE)&&(cursor<limit))
           {
             (messageFrames->data())[used+mPLBytesReady]=stream[cursor]^mHeader.MASK[mPLBytesReady%4];
