@@ -60,7 +60,12 @@ namespace LAppS
       for(auto& entry : fs::recursive_directory_iterator(mDeployDir))
       {
         itc::getLog()->info(__FILE__,__LINE__,"Deploying: %s",entry.path().u8string().c_str());
-        deploy_archive(entry.path());
+        try{
+          deploy_archive(entry.path());
+        }catch(const std::exception& e)
+        {
+          itc::getLog()->info(__FILE__,__LINE__,"Archive %s was not deployed. Reason: %s",entry.path().u8string().c_str(),e.what());
+        }
       }
     }
     
@@ -176,12 +181,12 @@ namespace LAppS
             LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["instances"]=instances;
             LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["auto_start"]=auto_start;
           }else{
-            json sconfig({ service_name , {
+            json sconfig{{ service_name , {
               {"internal",internal},
               {"instances",instances},
               {"auto_start",auto_start}
-            }});
-            LAppSConfig::getInstance()->getLAppSConfig()["services"].push_back(sconfig);
+            }}};
+            LAppSConfig::getInstance()->getLAppSConfig()["services"].insert(sconfig.begin(),sconfig.end());
           }
           fs::rename(dir,service_path);          
         }
