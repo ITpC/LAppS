@@ -446,7 +446,6 @@ namespace WSStreamProcessing
             ptr[6]=mHeader.MASK[2];
             ptr[7]=mHeader.MASK[3];
             
-            
             mState=State::VALIDATE;
             if((cursor == limit)&&(mHeader.MSG_SIZE!=0))
             {
@@ -583,8 +582,7 @@ namespace WSStreamProcessing
         {
           if(mPLBytesReady == 0)
             message->resize(mHeader.MSG_SIZE);
-          
-          
+
           if(mHeader.MSG_SIZE>=8192)
           {
             
@@ -615,6 +613,7 @@ namespace WSStreamProcessing
               }
             }
           }
+          
           // fallback to 1byte xor to catch with the rest of payload
           while((mPLBytesReady<mHeader.MSG_SIZE)&&((cursor)<limit))
           {
