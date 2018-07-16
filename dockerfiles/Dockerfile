@@ -39,7 +39,7 @@ RUN tar xzvf LuaJIT-2.0.5.tar.gz
 
 WORKDIR ${WORKSPACE}/LuaJIT-2.0.5
 
-RUN make all install
+RUN env CFLAGS="-pipe -Wall -pthread -O2 -fPIC -march=native -mtune=generic -mfpmath=sse -mavx -msse2avx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fno-omit-frame-pointer" make all install
 
 WORKDIR ${WORKSPACE}
 
