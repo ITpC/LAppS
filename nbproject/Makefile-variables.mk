@@ -14,14 +14,22 @@ CND_ARTIFACT_PATH_Debug=dist/Debug/GNU-Linux/lapps
 CND_PACKAGE_DIR_Debug=dist/Debug/GNU-Linux/package
 CND_PACKAGE_NAME_Debug=lapps.deb
 CND_PACKAGE_PATH_Debug=dist/Debug/GNU-Linux/package/lapps.deb
-# Release configuration
-CND_PLATFORM_Release=GNU-Linux
-CND_ARTIFACT_DIR_Release=dist/Release/GNU-Linux
-CND_ARTIFACT_NAME_Release=lapps
-CND_ARTIFACT_PATH_Release=dist/Release/GNU-Linux/lapps
-CND_PACKAGE_DIR_Release=dist/Release/GNU-Linux/package
-CND_PACKAGE_NAME_Release=lapps.tar
-CND_PACKAGE_PATH_Release=dist/Release/GNU-Linux/package/lapps.tar
+# Release.GENERIC configuration
+CND_PLATFORM_Release.GENERIC=GNU-Linux
+CND_ARTIFACT_DIR_Release.GENERIC=dist/Release.GENERIC/GNU-Linux
+CND_ARTIFACT_NAME_Release.GENERIC=lapps
+CND_ARTIFACT_PATH_Release.GENERIC=dist/Release.GENERIC/GNU-Linux/lapps
+CND_PACKAGE_DIR_Release.GENERIC=dist/Release.GENERIC/GNU-Linux/package
+CND_PACKAGE_NAME_Release.GENERIC=lapps.deb
+CND_PACKAGE_PATH_Release.GENERIC=dist/Release.GENERIC/GNU-Linux/package/lapps.deb
+# Release.AVX2 configuration
+CND_PLATFORM_Release.AVX2=GNU-Linux
+CND_ARTIFACT_DIR_Release.AVX2=dist/Release.AVX2/GNU-Linux
+CND_ARTIFACT_NAME_Release.AVX2=lapps
+CND_ARTIFACT_PATH_Release.AVX2=dist/Release.AVX2/GNU-Linux/lapps
+CND_PACKAGE_DIR_Release.AVX2=dist/Release.AVX2/GNU-Linux/package
+CND_PACKAGE_NAME_Release.AVX2=lapps.deb
+CND_PACKAGE_PATH_Release.AVX2=dist/Release.AVX2/GNU-Linux/package/lapps.deb
 #
 # include compiler specific variables
 #
