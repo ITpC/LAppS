@@ -23,7 +23,11 @@
                     <type>1</type>
                 </confElem>
                 <confElem>
-                    <name>Release</name>
+                    <name>Release.GENERIC</name>
+                    <type>1</type>
+                </confElem>
+                <confElem>
+                    <name>Release.AVX2</name>
                     <type>1</type>
                 </confElem>
             </confList>
