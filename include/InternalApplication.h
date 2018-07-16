@@ -72,7 +72,16 @@ namespace LAppS
     }
     void shutdown()
     {
+      itc::getLog()->info(__FILE__,__LINE__,"Shutdown is requested for an instance %ul  of the internal application %s",mInstanceID, mContext.getName().c_str());
       mContext.stop();
+      
+      itc::sys::Nap waithere;
+      
+      while(!mContext.mCanStop.load())
+      {
+        waithere.usleep(10000);
+      }
+
       itc::getLog()->info(__FILE__,__LINE__,"Instance %ul  of an internal application %s is down",mInstanceID, mContext.getName().c_str());
     }
   };
