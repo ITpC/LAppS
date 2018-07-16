@@ -62,9 +62,11 @@ namespace LAppS
 {
   class InternalAppContext : public ::abstract::ApplicationContext
   {
+  public:
+   std::atomic<bool> mCanStop;
   private:
     std::atomic<bool> mMustStop;
-    std::atomic<bool> mCanStop;
+    
     const bool isInternalAppValid() const
     {
       bool ret=false;
@@ -96,7 +98,7 @@ namespace LAppS
   public:
 
     InternalAppContext(const std::string& name):
-    ::abstract::ApplicationContext(name), mMustStop{false},mCanStop{false}
+    ::abstract::ApplicationContext(name), mCanStop{false}, mMustStop{false}
     {
       luaL_openlibs(mLState);
 
@@ -171,11 +173,6 @@ namespace LAppS
     ~InternalAppContext() noexcept
     {
       this->stop();
-      itc::sys::Nap waithere;
-      while(!mCanStop)
-      {
-        waithere.usleep(10000);
-      }
     }
   };
 }
