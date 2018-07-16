@@ -41,12 +41,12 @@ IOWorkers are responsible for working on IO-queue, the only thing they do is an 
 
 Services are the Lua Applications. Each service may run parallel copies of itself (instances) to achieve maximum performance. The application have a choice of two protocols for clinet-server communications: RAW and LAppS.
 
-RAW protocol behaviour does not specified and not affected by LAppS (excluding service frames, those are never sent to the Lua Applications). It is for application to define how to handle inbound requests and how to react on them.
+RAW protocol behaviour is not specified and is not affected by LAppS (excluding control frames, those are never sent to the Lua Applications). It is for application to define how to handle inbound requests and how to react on them.
 
 An optional [LAppS protocol](https://github.com/ITpC/LAppS/blob/master/LAppS_Protocol_Specification.md) defines a framework similar to JSON-RPC or gRPC, with following key differences:
   * Transport is the WebSockets
   * Exchange between server and client is encoded with CBOR
-  * There are  Out of Order Notifications (OON) available to serve as a server originated events. This makes it very easy to implement any kind of subscribe-observe mechanisms or the broadcasts.
+  * There are  Out of Order Notifications (OON) available to serve as a server originated events. This makes it very easy to implement any kind of PUB/SUB services or the broadcasts.
   * LAppS defines channels as a means to distinguish type of the event streams for purposes of multiplexing data streams within WebSocket stream. For example channel 0 (CCH) is reserved for request-response stream. All other channels are defined by application and may or may not be synchron/asynchron, ordered or unordered (see the examples for OON primer with broadcast)
 
 # Conformance (and regression test results)
@@ -58,6 +58,9 @@ An optional [LAppS protocol](https://github.com/ITpC/LAppS/blob/master/LAppS_Pro
 
 Please see the [Project Page](https://github.com/ITpC/LAppS/projects/1) to glimpse on what is going on with the project.
 
+Please use branch 0.6.3, the upstream is not yet fully functioning.
+
 Right now the experimental branch 0.7.0 with significant performance improvements is in development.
 
-Please use branch 0.6.3, the upstream is not yet fully functioning.
+Prelimenary builds of 0.7.0 are available now. Build separation has allowd me to provide 2 different deb packages, generic one (CPU required to support SSSE3 instructions or above) and the AVX2 build for CPUs with AVX2 or AVX512 support.
+
