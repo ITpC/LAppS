@@ -129,7 +129,7 @@ namespace LAppS
      std::ofstream lapps_config_file(mEnv["LAPPS_CONF_DIR"]+"/"+mEnv["LAPPS_CONFIG"]);
      if(lapps_config_file)
      {
-        lapps_config_file << lapps_config;
+        lapps_config_file << lapps_config.dump(2);
         lapps_config_file.close();
      }
    }
