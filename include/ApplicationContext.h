@@ -218,7 +218,7 @@ namespace LAppS
         );
       }
       
-      event.websocket->returnBuffer(event.message);
+      event.websocket->returnBuffer(std::move(event.message));
       
       if(lua_isboolean(mLState,argc))
       {
