@@ -117,7 +117,6 @@ namespace WSStreamProcessing
   class WSStreamParser
   {
    private:
-    State                                   mState;
     size_t                                  mPLBytesReady;
     size_t                                  cursor;
     size_t                                  mMaxMSGSize;
@@ -132,7 +131,10 @@ namespace WSStreamProcessing
     
     itc::sys::AtomicMutex                   mBQMutex;
     
+    State                                   mState;
+    
     uint64_t                                MASK;
+    
     
     void reset()
     {
@@ -758,9 +760,11 @@ namespace WSStreamProcessing
     
    public:
     explicit WSStreamParser(const size_t& presz)
-    : mState{State::INIT},mPLBytesReady{0},cursor{0},mMaxMSGSize{0},mOutMSGPreSize{presz},
-    mHeader{0},opcodes(),message(std::make_shared<std::vector<uint8_t>>(presz)),
-    messageFrames(std::make_shared<std::vector<uint8_t>>(presz)),mBufferQueue(),mBQMutex()
+    : mPLBytesReady{0},cursor{0},mMaxMSGSize{0},
+      mOutMSGPreSize{presz},mHeader{0},opcodes(),
+      message(std::make_shared<std::vector<uint8_t>>(presz)),
+      messageFrames(std::make_shared<std::vector<uint8_t>>(presz)),
+      mBufferQueue(),mBQMutex(),mState{State::INIT},MASK{0}
     {
     }
     
