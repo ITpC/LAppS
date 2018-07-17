@@ -373,7 +373,6 @@ private:
       case WebSocketProtocol::TEXT:
         if(streamProcessor.isValidUtf8(ref.message->data(),ref.message->size()))
         {
-         
           getApplication()->enqueue(
             std::move(
               abstract::AppInEvent{
