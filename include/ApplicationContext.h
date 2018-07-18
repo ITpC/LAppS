@@ -45,6 +45,7 @@ extern "C" {
 #include <modules/pam_auth.h>
 #include <modules/murmur.h>
 #include <modules/time_now.h>
+#include <modules/mqr.h>
 
 #include <Config.h>
 
@@ -233,7 +234,7 @@ namespace LAppS
       // allocate UDJSPTR and store its address to allocated block
       (*udjsptr)=new UDJSPTR(SHARED_PTR,new JSPTR());
       // make JSPTR by parsing the string and store it to *(Userdata->ptr);
-      *((*udjsptr)->ptr)=request;
+      *((*udjsptr)->ptr)=std::move(request);
       luaL_getmetatable(mLState, "nljson");
       lua_pushcfunction(mLState, destroy);
       lua_setfield(mLState, -2, "__gc");
@@ -333,6 +334,10 @@ public:
           {
             luaopen_murmur(mLState);
             lua_setfield(mLState,LUA_GLOBALSINDEX,"murmur");
+          }else if(module == "mqr")
+          {
+            luaopen_mqr(mLState);
+            lua_setfield(mLState,LUA_GLOBALSINDEX,"mqr");
           }else{
             itc::getLog()->error(__FILE__,__LINE__,"No such module %s", module.c_str());
           }
