@@ -82,7 +82,7 @@ namespace LAppS
         try {
           auto inbound_connection=mInbound.recv();
 
-          if(mWorkersCache.size()==0)
+          if(mWorkersCache.size()!=itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>::getInstance()->size())
             itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>::getInstance()->getWorkers(mWorkersCache);
 
           if(mWorkersCache.size()>0)
