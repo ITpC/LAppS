@@ -226,15 +226,10 @@ namespace LAppS
             itc::getLog()->error(__FILE__,__LINE__,"workers.auto_fragment option is not set or of inappropriate type, using default value: false");
           }
         }
-        size_t preads=1;
-        auto preads_found=found.value().find("preads");
-        if((preads_found!=found.value().end())&&(preads_found.value().is_number_unsigned()))
-        {
-          preads=preads_found.value();
-        }
+        
         for(size_t i=0;i<mWorkers;++i)
         {
-          WorkersPool::getInstance()->spawn(max_connections,auto_fragment,preads);
+          WorkersPool::getInstance()->spawn(max_connections,auto_fragment);
         }
         startListeners();
     };
