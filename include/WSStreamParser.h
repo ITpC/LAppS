@@ -585,7 +585,7 @@ namespace WSStreamProcessing
           if(mPLBytesReady == 0)
             message->resize(mHeader.MSG_SIZE);
 
-          if(mHeader.MSG_SIZE>=8192)
+          if(mHeader.MSG_SIZE>=48)
           {
             
             if((limit-cursor)>=16)
@@ -662,7 +662,7 @@ namespace WSStreamProcessing
           
           const size_t used=messageFrames->size()-mHeader.MSG_SIZE;
           
-          if(mHeader.MSG_SIZE>=8192)
+          if(mHeader.MSG_SIZE>=48)
           {
             
             if((limit-cursor)>=16)
