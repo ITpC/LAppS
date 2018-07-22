@@ -1,11 +1,11 @@
 {
-  "name" : "console",
+  "name" : "echo_lapps",
   "auto_start": true,
-  "instances": 1,
+  "instances": 2,
   "internal": false,
   "max_inbound_message_size": 2097152,
   "protocol": "LAppS",
-  "request_target": "/console",
+  "request_target": "/echo_lapps",
   "acl" : {
     "policy" : "deny",
     "exclude": [ "192.168.13.0/24" ]
