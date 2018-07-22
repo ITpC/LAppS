@@ -827,7 +827,8 @@ extern "C" {
 
     return 1;
   }
-
+  
+   
   LUA_API int luaopen_nljson(lua_State *L)
   {
     static const struct luaL_reg functions[]= {
