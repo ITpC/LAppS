@@ -93,6 +93,8 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   size_t                              mOutCursor;
   
   bool                                mAutoFragment;
+  
+  itc::sys::AtomicMutex               mMutex;
       
   void init(const itc::utils::Bool2Type<true> tls_is_enabled)
   {
@@ -260,6 +262,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   
   int recv(std::vector<uint8_t>& buff)
   {
+    AtomicLock sync(mMutex);
     if(mState != State::CLOSED)
     {
       return this->recv(buff,enableTLS);
@@ -269,6 +272,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
 
   const int send(const std::vector<uint8_t>& buff)
   {
+    AtomicLock sync(mMutex);
     if(mState != State::CLOSED)
     {
       const size_t bsize=buff.size();
