@@ -44,10 +44,10 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WSWorkersPool
   WSWorkersPool(const WSWorkersPool&)=delete;
   WSWorkersPool(WSWorkersPool&)=delete;
   
-  void spawn(const size_t maxC, const bool auto_fragment, const size_t preads)
+  void spawn(const size_t maxC, const bool auto_fragment)
   {
     SyncLock sync(mMutex);
-    auto worker=std::make_shared<WorkerType>(mWorkers.size(),maxC, auto_fragment,preads);
+    auto worker=std::make_shared<WorkerType>(mWorkers.size(),maxC, auto_fragment);
     mWorkers.push_back(
       std::make_shared<WorkerThread>(std::move(worker))
     );
@@ -99,6 +99,17 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WSWorkersPool
     mAllStats.mInCMASize/=mWorkers.size();
     return mAllStats;
   }
+  
+  const WorkerStats getStats(const size_t id) const
+  {
+    return mWorkers[id]->getRunnable()->getStats();
+  }
+  
+  const size_t size() const
+  {
+    return mWorkers.size();
+  }
+  
   auto get(const size_t& wid)
   {
     SyncLock sync(mMutex);
