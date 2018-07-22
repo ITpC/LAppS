@@ -32,7 +32,6 @@
 #include <abstract/Worker.h>
 #include <sys/atomic_mutex.h>
 #include <ServiceProperties.h>
-#include <Reader.h>
 
 
 namespace LAppS
@@ -43,10 +42,6 @@ namespace LAppS
     public:
       typedef WebSocket<TLSEnable,StatsEnable>        WSType;
       typedef std::shared_ptr<WSType>                 WSSPtr;
-      typedef ::LAppS::Reader<TLSEnable,StatsEnable>  ReaderType;
-      typedef itc::sys::CancelableThread<ReaderType>  ReaderThreadType;
-      typedef std::shared_ptr<ReaderThreadType>       ReaderSharedThreadType;
-      typedef std::vector<ReaderSharedThreadType>     ReadersVector;
       
     private:
       itc::utils::Bool2Type<TLSEnable>          enableTLS;
@@ -75,9 +70,6 @@ namespace LAppS
       std::atomic<bool>                         haveNewConnections;
       std::atomic<bool>                         haveDisconnects;
       
-      ReadersVector                             mReaders;
-      size_t                                    readersIndex;
-      size_t                                    mMaxReaders;
       
       bool error_bit(const uint32_t event) const
       {
@@ -90,27 +82,14 @@ namespace LAppS
       
     public:
      
-    explicit IOWorker(const size_t id, const size_t maxConnections,const bool auto_fragment, const size_t preads)
+    explicit IOWorker(const size_t id, const size_t maxConnections,const bool auto_fragment)
     : Worker(id,maxConnections,auto_fragment), enableTLS(),  enableStatsUpdate(), 
       mMayRun{true}, mCanStop{false}, mConnectionsMutex(),  mInboundMutex(), 
       mDCQMutex(), mShakespeer(), mEPoll(std::make_shared<ePoll>()),
       mInboundConnections(), mConnections(), mDCQueue(), mEvents(1000),
-      mNap(), haveConnections{false},haveNewConnections{false},haveDisconnects{false},
-      readersIndex(0),mMaxReaders(preads)
+      mNap(), haveConnections{false},haveNewConnections{false},haveDisconnects{false}
     {
       mConnections.clear();
-      for(size_t i=0;i<mMaxReaders;++i)
-      {
-        mReaders.push_back(
-          std::move(
-            std::make_shared<ReaderThreadType>(
-              std::move(
-                std::make_shared<ReaderType>(this)
-              )
-            )
-          )
-        );  
-      }
     }
     
     IOWorker()=delete;
@@ -193,12 +172,14 @@ namespace LAppS
                   processIO(mEvents[i].data.fd);
                 }
               }
+              /*
               size_t eqsz=0;
               for(size_t i=0;i<mMaxReaders;++i)
               {
                 eqsz+=mReaders[i]->getRunnable()->getQSize();
               }
               mStats.mEventQSize=eqsz;
+              */
             }
           }catch(const std::exception& e)
           {
@@ -306,9 +287,25 @@ namespace LAppS
                 }
             break;
             case WSType::MESSAGING:
+              /*
                 mReaders[readersIndex]->getRunnable()->enqueue(current);
                 if((++readersIndex) == mMaxReaders)
                   readersIndex=0;
+                */
+                  try {
+                    int ret=current->handleInput();
+                    if(ret == -1)
+                    {
+                      itc::getLog()->info(__FILE__,__LINE__,"Disconnected: %s",current->getPeerAddress().c_str());
+                      deleteConnection(fd);
+                    }
+                  }
+                  catch(const std::exception& e)
+                  {
+                    itc::getLog()->info(__FILE__,__LINE__,"Application is going down [Exception: %s], socket with fd %d must be disconnected ", e.what(),current->getfd());
+                    deleteConnection(fd);
+                  }
+
             break;
             case WSType::CLOSED:
                 deleteConnection(fd);
