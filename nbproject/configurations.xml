@@ -16,6 +16,7 @@
       <logicalFolder name="f1" displayName="modules" projectFiles="true">
         <itemPath>include/modules/UserDataAdapter.h</itemPath>
         <itemPath>include/modules/bcast.h</itemPath>
+        <itemPath>include/modules/mqr.h</itemPath>
         <itemPath>include/modules/murmur.h</itemPath>
         <itemPath>include/modules/nap.h</itemPath>
         <itemPath>include/modules/nljson.h</itemPath>
@@ -37,9 +38,9 @@
       <itemPath>include/InternalAppContext.h</itemPath>
       <itemPath>include/InternalApplication.h</itemPath>
       <itemPath>include/InternalApplicationRegistry.h</itemPath>
+      <itemPath>include/MQRegistry.h</itemPath>
       <itemPath>include/NetworkACL.h</itemPath>
       <itemPath>include/Nonce.h</itemPath>
-      <itemPath>include/Reader.h</itemPath>
       <itemPath>include/ServiceProperties.h</itemPath>
       <itemPath>include/Shakespeer.h</itemPath>
       <itemPath>include/TLSServerContext.h</itemPath>
@@ -49,7 +50,6 @@
       <itemPath>include/WSProtocol.h</itemPath>
       <itemPath>include/WSServerMessage.h</itemPath>
       <itemPath>include/WSStreamParser.h</itemPath>
-      <itemPath>include/WSStreamProcessor.h</itemPath>
       <itemPath>include/WSWorkersPool.h</itemPath>
       <itemPath>include/WebSocket.h</itemPath>
       <itemPath>include/WorkerStats.h</itemPath>
@@ -719,6 +719,36 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -761,11 +791,11 @@
             tool="3"
             flavor2="0">
       </item>
+      <item path="include/MQRegistry.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/NetworkACL.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Nonce.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/Reader.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ServiceProperties.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -784,8 +814,6 @@
       <item path="include/WSServerMessage.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WSStreamParser.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/WSStreamProcessor.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WSWorkersPool.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -815,6 +843,8 @@
       <item path="include/modules/UserDataAdapter.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/modules/bcast.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/modules/mqr.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/modules/murmur.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -1453,6 +1483,36 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -1495,11 +1555,11 @@
             tool="3"
             flavor2="0">
       </item>
+      <item path="include/MQRegistry.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/NetworkACL.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Nonce.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/Reader.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ServiceProperties.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -1518,8 +1578,6 @@
       <item path="include/WSServerMessage.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WSStreamParser.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/WSStreamProcessor.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WSWorkersPool.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -1549,6 +1607,8 @@
       <item path="include/modules/UserDataAdapter.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/modules/bcast.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/modules/mqr.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/modules/murmur.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -2187,6 +2247,36 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -2229,11 +2319,11 @@
             tool="3"
             flavor2="0">
       </item>
+      <item path="include/MQRegistry.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/NetworkACL.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Nonce.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/Reader.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ServiceProperties.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -2252,8 +2342,6 @@
       <item path="include/WSServerMessage.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WSStreamParser.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/WSStreamProcessor.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WSWorkersPool.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -2283,6 +2371,8 @@
       <item path="include/modules/UserDataAdapter.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/modules/bcast.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/modules/mqr.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/modules/murmur.h" ex="false" tool="3" flavor2="0">
       </item>

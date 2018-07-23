@@ -19,7 +19,7 @@ There are package for ubuntu xenial available in this repository:
 
 # Features
 
-* Fastest WebSocket stream parser in industry (faster then uWebSockets)
+* Fastest WebSocket stream parser in industry (faster then uWebSockets) (see the test results bellow)
 * Easy API for rapid development of backend services in lua
 * High vertical scalability for requests parallelization
 * Up to 1 million client connections on one system
@@ -75,3 +75,60 @@ Please see the [Project Page](https://github.com/ITpC/LAppS/projects/1) to glimp
 
 Prelimenary builds of 0.7.0 are available now. Build separation has allowd me to provide 2 different deb packages, [generic](https://github.com/ITpC/LAppS/raw/master/packages/lapps-0.7.0-ssse3-amd64.deb) one (CPU required to support SSSE3 instructions or above) and the [AVX2 build](https://github.com/ITpC/LAppS/raw/master/packages/lapps-0.7.0-avx2-amd64.deb) for CPUs with AVX2 or AVX512 support.
 
+
+# Prelimenary performance results for 0.7.0-avx2 build
+
+## Test layout
+
+* Test PC: 
+  * Single CPU: Intel(R) Core(TM) i7-7700 CPU @ 3.60GHz, cpu family: 158, stepping 9, microcode: 0x5e (all latest Spectre and meltdown patches are enabled) 4 cores
+  * RAM: DIMM DDR4 Synchronous Unbuffered (Unregistered) 2400 MHz (0,4 ns), Kingston KHX2400C15/16G (4 modules)
+* LAppS running with 1 worker and 1 service instance to match a single-threaded uWebSockets instance.
+* All tests are done with TLS enabled
+* Same PC was used to run clients and servers (I do not have infrastructure to run tests on separate systems)
+* [Client code for echo server with RAW WebSockets protocol](https://github.com/ITpC/LAppS/blob/master/benchmark/echo_client_tls.cpp)
+* [bash script for testruns with RAW WebSockets protocol](https://github.com/ITpC/LAppS/blob/master/benchmark/runBenchmark.sh) it calculates average rps from clients data. As longer it runs as more correct the average rps is calculated.
+* [Client code for echo server with LAppS protocol](https://github.com/ITpC/LAppS/blob/master/benchmark/lapps_ebm.cpp)
+* [bash script for testruns with LAppS protocol](https://github.com/ITpC/LAppS/blob/master/benchmark/runLAppSEBM.sh)
+* [LAppS echo-service for RAW protocol](https://github.com/ITpC/LAppS/blob/master/examples/echo/echo.lua)
+* [LAppS echo-service for LAppS protocol](https://github.com/ITpC/LAppS/tree/master/examples/echo_lapps) with running [broadcast service](https://github.com/ITpC/LAppS/blob/master/examples/time_broadcast/time_broadcast.lua)
+* Test execution for RAW WebSockets echo server (within benchmark directory): ./runBenchmark.sh NUMBER_OF_CLIENTS PAYLOAD_SIZE
+  * NOTE: LAppS or uWS_epoll must be started before you run the benchmark
+* uWebSockets library echo server source code with TLS support [altered uWS.cpp from uWebSockets distribution](https://github.com/ITpC/LAppS/blob/master/benchmark/uWS/uWS.cpp)
+* LAppS protocol echo server (very simplified) simulation with uWebSockets server [source code](https://github.com/ITpC/LAppS/blob/master/benchmark/uWS/uWSlapps.cpp) - requires [nlohmann json](https://github.com/nlohmann/json)
+
+## RAW echo server test-case
+
+| Server | Clients | Server rps | rps per client| payload (bytes)|
+|:---|:---:|:---:|:---:|---:|
+|LAppS 0.7.0| 240 | 84997 | 354.154 | 128|
+|uWebSockets (latest)| 240 | 74172.7 | 309.053 |128|
+|LAppS 0.7.0| 240 | 83627.4 | 348.447 | 512|
+|uWebSockets (latest)| 240 | 71024.4 | 295.935 | 512|
+|LAppS 0.7.0| 240 | 79270.1 | 330.292 | 1024|
+|uWebSockets (latest)| 240 | 66499.8 | 277.083 | 1024|
+|LAppS 0.7.0| 240 | 51621 | 215.087 | 8192|
+|uWebSockets (latest)| 240 | 45341.6 |  188.924| 8192|
+
+
+## LAppS protocol echo server results
+
+| Server | Clients | Server rps | rps per client| payload (bytes)|
+|:---|:---:|:---:|:---:|---:|
+|LAppS 0.7.0| 240 | 36862.4 | 153.593 | 128|
+|uWebSockets (latest)| 240 | 5830.18 | 24.2924 |128|
+
+Here i have stopped the tests. uWebSockets with some additional work (CBOR encoding/decoding) is an order of magnitude slower then LAppS.
+
+Just to show LAppS scalability on the same CPU, I ran last test with 3 IOWorker threads and 2 instances of echo_lapps service
+
+| Server | Clients | Server rps | rps per client| payload (bytes)|
+|:---|:---:|:---:|:---:|---:|
+|LAppS 0.7.0| 240 |  56449.9 | 235.208 | 128|
+
+And with 3 IOWorker threads and 3 instances of echo_lapps service (CPU is already over high load because of 6 parallel CBOR encodings/decodings - 3 on server side 3 on client side)
+
+
+| Server | Clients | Server rps | rps per client| payload (bytes)|
+|:---|:---:|:---:|:---:|---:|
+|LAppS 0.7.0| 240 | 68809.4 | 286.706 | 128|
