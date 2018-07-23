@@ -118,7 +118,7 @@ Prelimenary builds of 0.7.0 are available now. Build separation has allowd me to
 |LAppS 0.7.0| 240 | 36862.4 | 153.593 | 128|
 |uWebSockets (latest)| 240 | 5830.18 | 24.2924 |128|
 
-Here i have stopped the tests. uWebSockets with some additional work (CBOR encoding/decoding) is an order of magnitude slower then LAppS.
+Here i have stopped the tests. uWebSockets with some additional work (CBOR encoding/decoding) is an order of magnitude slower then LAppS doing less job though.
 
 Just to show LAppS scalability on the same CPU, I ran last test with 3 IOWorker threads and 2 instances of echo_lapps service
 
