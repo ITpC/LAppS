@@ -15,15 +15,27 @@ There are package for ubuntu xenial available in this repository:
 
 * [lapps-0.6.3-amd64.deb](https://github.com/ITpC/LAppS/raw/master/packages/lapps-0.6.3-amd64.deb) (stable build with decoupled apps. New available options: auto-fragmentation of outbound messages, inbound message size limit (service specific), possibility to limit amount of connections per worker)
 
+# Features
+
+* Fastest WebSocket stream parser in industry (faster then uWebSockets)
+* Easy API for rapid development of backend services in lua
+* High vertical scalability for requests parallelization
+* Up to 1 million client connections on one system
+* Higly tunable through simple JSON configuration files
+* Requests multiplexing on [application level protocol](https://github.com/ITpC/LAppS/blob/master/LAppS_Protocol_Specification.md)
++ Copy-less high performance communications between services using MQR (an embedded shared queues) within one LAppS process
+
 
 # Architecture
 
 ![LAppS-Architecture](https://github.com/ITPC/LAppS/raw/master/docs/LAppS-Architecture.png "LAppS pipline")
 
-There are several core components in LAppS:
+There are several core components of LAppS:
   * Listeners
   * Balancer
   * IOWorkers
+
+All these components are running within one LAppS process. LAppS is the only WebSocket server that uses internal balancer for load equalization on IOWorkers.
 
 ## Listeners
 
