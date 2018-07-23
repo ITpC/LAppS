@@ -13,7 +13,7 @@ Please see [LAppS wiki](https://github.com/ITpC/LAppS/wiki) on how to build and 
 
 There are package for ubuntu xenial available in this repository:
 
-* [lapps-0.6.3-amd64.deb](https://github.com/ITpC/LAppS/raw/master/packages/lapps-0.6.3-amd64.deb) 
+* [lapps-0.6.3-amd64.deb](https://github.com/ITpC/LAppS/raw/master/packages/lapps-0.6.3-amd64.deb) (stable build without perf optimizations, inter-service communications, ACLs, etc)
 * [lapps-0.7.0-ssse3-amd64.deb](https://github.com/ITpC/LAppS/raw/master/packages/lapps-0.7.0-ssse3-amd64.deb) (prelimenary build for AMD/Intel CPUs with SSSE3 and above support)
 * [lapps-0.7.0-avx2-amd64.deb](https://github.com/ITpC/LAppS/raw/master/packages/lapps-0.7.0-avx2-amd64.deb) (prelimenary build for AMD/Intel CPUs with AVX2 support)
 
@@ -26,6 +26,7 @@ There are package for ubuntu xenial available in this repository:
 * Higly tunable through simple JSON configuration files
 * Requests multiplexing on [application level protocol](https://github.com/ITpC/LAppS/blob/master/LAppS_Protocol_Specification.md)
 + Copy-less high performance communications between services using MQR (an embedded shared queues) within one LAppS process
+* Two level Network ACL: Server-wide and service-specific
 
 
 # Architecture
