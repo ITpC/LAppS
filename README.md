@@ -72,9 +72,5 @@ An optional [LAppS protocol](https://github.com/ITpC/LAppS/blob/master/LAppS_Pro
 
 Please see the [Project Page](https://github.com/ITpC/LAppS/projects/1) to glimpse on what is going on with the project.
 
-Please use branch 0.6.3, the upstream is not yet fully functioning.
-
-Right now the experimental branch 0.7.0 with significant performance improvements is in development.
-
 Prelimenary builds of 0.7.0 are available now. Build separation has allowd me to provide 2 different deb packages, [generic](https://github.com/ITpC/LAppS/raw/master/packages/lapps-0.7.0-ssse3-amd64.deb) one (CPU required to support SSSE3 instructions or above) and the [AVX2 build](https://github.com/ITpC/LAppS/raw/master/packages/lapps-0.7.0-avx2-amd64.deb) for CPUs with AVX2 or AVX512 support.
 
