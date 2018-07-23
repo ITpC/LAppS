@@ -27,6 +27,16 @@ RUN apt-get install -y libpam0g-dev
 
 RUN apt-get install -y libbz2-dev
 
+RUN apt-get install build-essential software-properties-common -y
+
+RUN add-apt-repository ppa:ubuntu-toolchain-r/test -y
+
+RUN apt-get update
+
+RUN apt-get install gcc-6 g++-6 -y
+
+RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-6 60 --slave /usr/bin/g++ g++ /usr/bin/g++-6
+
 ENV WORKSPACE /root/workspace
 
 RUN mkdir ${WORKSPACE}
