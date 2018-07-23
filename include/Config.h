@@ -50,7 +50,7 @@ namespace LAppS
       {"ip","0.0.0.0"},
       {"port",5083},
       {"lapps_config_auto_save", true },
-      {"workers",{ {"workers",2}, {"max_connections", 10000 },{"auto_fragment",false}}},
+      {"workers",{ {"workers",3}, {"max_connections", 10000 },{"auto_fragment",false}}},
       {"acl", {{"policy", "allow"},{"exclude", {} }}},
 #ifdef LAPPS_TLS_ENABLE
       {"tls",true},

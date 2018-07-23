@@ -13,3 +13,6 @@ benchmark/benchmark_tls
 benchmark/log.*
 profiling
 benchmark/benchmark_nontls
+benchmark/lapps_ebm
+benchmark/lappsbm
+

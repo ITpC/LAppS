@@ -109,7 +109,6 @@ install: build
 	mkdir -p /opt/lapps/lib
 	mkdir -p /opt/lapps/apps
 	mkdir -p /opt/lapps/share
-	
 	install -m 0755 ${CND_ARTIFACT_PATH_${CONF}} /opt/lapps/bin
 
 install-examples: install
