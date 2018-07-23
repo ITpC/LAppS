@@ -4,7 +4,7 @@ This is an attempt to provide very easy to use Lua Application Server working ov
 
 RFC 6455 is fully implemented.  See the Conformance section.
 
-RFC 7692 (compression extensions) not implemented due concerns about [BREACH attacks](https://en.wikipedia.org/wiki/BREACH). It is possible to have per-message compression on [LAppS protocol](https://github.com/ITpC/LAppS/blob/master/LAppS_Protocol_Specification.md) without being affected by BREACH attacks.
+RFC 7692 (compression extensions) not implemented due concerns about [BREACH attacks](https://en.wikipedia.org/wiki/BREACH). It is possible to have per-message compression on the [LAppS protocol](https://github.com/ITpC/LAppS/blob/master/LAppS_Protocol_Specification.md) level without being affected by BREACH attacks.
 
 LAppS is an easy way to develop low-latency web applications. Please see [LAppS wiki](https://github.com/ITpC/LAppS/wiki) on examples of how to build your own application.
 
