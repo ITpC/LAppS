@@ -126,7 +126,7 @@ Just to show LAppS scalability on the same CPU, I ran last test with 3 IOWorker 
 |:---|:---:|:---:|:---:|---:|
 |LAppS 0.7.0| 240 |  56449.9 | 235.208 | 128|
 
-And with 3 IOWorker threads and 3 instances of echo_lapps service (CPU is already over high load because of 6 parallel CBOR encodings/decodings - 3 on server side 3 on client side)
+And with 3 IOWorker threads and 3 instances of echo_lapps service (CPU is already over high load because of 6 parallel CBOR encodings/decodings - 3 on server side 3 on client side. Actually it is only 4 cores CPU so effectively only 4 parallel tasks are running)
 
 
 | Server | Clients | Server rps | rps per client| payload (bytes)|
