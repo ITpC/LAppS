@@ -2,6 +2,9 @@
 #include <thread>
 #include <stdio.h>
 #include <string.h>
+#include <memory>
+#include <vector>
+#include <unistd.h>
 
 void server_thread()
 {
@@ -9,7 +12,7 @@ void server_thread()
     uS::TLS::Context tls = uS::TLS::createContext ("./cert.pem", "./key.pem", "");
 
     h.onMessage([](uWS::WebSocket<uWS::SERVER> *ws, char *message, size_t length, uWS::OpCode opCode) {
-        ws->send(message, length, opCode);
+        ws->send((const char*)(message), length, opCode);
     });
 
     h.listen(5083,tls);
