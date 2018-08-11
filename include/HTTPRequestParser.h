@@ -78,6 +78,7 @@ private:
    
    size_t key_last=getKey(header,limit);
    std::string key(header,key_last);
+
    cursor+=(key_last+1); // skip ':'
    
    if(key.compare(0,compare_size,compare_with)==0)
@@ -95,11 +96,9 @@ private:
     }else{
 
      // ignoring useless header
-      while(
-       (cursor < limit) && 
-       ((cursor + 1) < limit) && 
-       (!isCRLF(&header[cursor]))
-      ) ++cursor;
+      while((cursor < limit)&&((header[cursor] != '\x0d')&&(header[cursor] != '\x0a'))) ++cursor;
+      
+      // skip CRLF
       while((header[cursor] == '\x0d') || (header[cursor] == '\x0a')) ++cursor;
     }
     return cursor;
@@ -130,11 +129,10 @@ private:
          cursor+=getKVPair(&headers[cursor],limit-cursor,"Sec-WebSocket",13);
        break;
        default: // ignoring useless header parts
-         while((cursor+1 < limit) && (!isCRLF(&headers[cursor])))
+         while((cursor < limit) && ((headers[cursor] != '\x0d')&&(headers[cursor] != '\x0a')))
            ++cursor;
          // Skip CRLF
-         ++cursor;
-         ++cursor;
+         while((headers[cursor] == '\x0d') || (headers[cursor] == '\x0a')) ++cursor;
          break;
      }
    }
@@ -162,8 +160,9 @@ private:
    while((i<limit) && ((header[i] == ' ')||(header[i]=='\t'))) ++i;
    
    start=i;
-   
-   for(;(i<limit)&&(header[i] != '\x0d');++i);
+ 
+   // before reaching break before \r or \n
+   while((i<limit)&&((header[i] != '\x0d')&&(header[i] != '\x0a'))) ++i;
 
    stop=i;
  }
@@ -203,19 +202,18 @@ public:
 
        cursor+=2;
 
-       mMinSize+=(RequestTarget.size()-1);
+       mMinSize+=(RequestTarget.size());
 
        throwOnMinSizeViolation(ref);
-
-       for(
-         size_t i=cursor;
-         ((i<bufflen)&&(!isCRLF((const char*)(&(ref.data()[i])))));
-         ++i
-       ){
-         HTTPVersion+=ref.data()[i];
+       
+       while((cursor < (bufflen-1))&&(ref.data()[cursor]!='\x0d')&&(ref.data()[cursor+1]!='\x0a'))
+       {
+         HTTPVersion+=ref.data()[cursor];
+         ++cursor;
        }
-       cursor+=HTTPVersion.size()+2;
-
+       
+       ++cursor;
+       
        collectHeaders((const char*)(&ref.data()[cursor]),bufflen-cursor);
        
      } else throwMalformedHTTPRequest("No space after MODE[GET]");

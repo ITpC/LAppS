@@ -150,7 +150,18 @@ namespace LAppS
        try
        {
           mHTTPRParser.parse(headerBuffer,bufflen);
-          return true;
+          bool arhap=true;
+          arhap=arhap&&(mHTTPRParser["Connection"]=="Upgrade");
+          arhap=arhap&&(mHTTPRParser["Upgrade"]=="websocket");
+          arhap=arhap&&(mHTTPRParser["Sec-WebSocket-Version"]=="13");
+          arhap=arhap&&(!mHTTPRParser["Sec-WebSocket-Key"].empty());
+          
+          if(arhap)
+            return true;
+          else
+          {
+            return false;
+          }
        }catch(const std::exception& e)
        {
          itc::getLog()->error(__FILE__,__LINE__,"Worker %p: an exception %s, in %s()",this, e.what(),__FUNCTION__);
