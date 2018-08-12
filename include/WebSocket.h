@@ -643,7 +643,7 @@ RFC 6455                 The WebSocket Protocol            December 2011
           return -1;
         }
         outCursor+=result;
-      }while(outCursor<buff.size());
+      }while(outCursor!=buff.size());
 
       return outCursor;
     }
