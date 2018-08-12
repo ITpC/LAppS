@@ -68,104 +68,34 @@ private:
    );
  }
  
- const size_t getKVPair(
-  const char *header, 
-  const size_t limit, 
-  const char *compare_with,
-  const size_t compare_size
- ){
-   size_t cursor=0;
-   
-   size_t key_last=getKey(header,limit);
-   std::string key(header,key_last);
+  void CollectHeaders(const char* buff, const size_t sz, const size_t ini_idx)
+  {
+    size_t index=ini_idx;
+    
+    while(index < sz)
+    {
+      std::string key;
+      std::string value;
 
-   cursor+=(key_last+1); // skip ':'
-   
-   if(key.compare(0,compare_size,compare_with)==0)
-   {
-      size_t val_start=0;
-      size_t val_end=0;
-      getValue(&header[cursor],limit-cursor,val_start,val_end);
-      std::string value(&header[cursor+val_start],val_end-val_start);
-      cursor+=val_end;
-      
-      // Skip CRLF
-      ++cursor;
-      ++cursor;
-      mHeaders.emplace(key,value);
-    }else{
+      while((index<sz)&&(buff[index] != ' ')&&(buff[index] != '\r')&&(buff[index] != '\n')&&(buff[index] != ':'))
+      {
+        key.append(1,buff[index]);
+        ++index;
+      }
 
-     // ignoring useless header
-      while((cursor < limit)&&((header[cursor] != '\x0d')&&(header[cursor] != '\x0a'))) ++cursor;
-      
-      // skip CRLF
-      while((header[cursor] == '\x0d') || (header[cursor] == '\x0a')) ++cursor;
+      while((index<sz)&&((buff[index] == ' ')||(buff[index] == '\r')||(buff[index] == '\n')||(buff[index] == ':'))) ++index;
+
+      while((index<sz)&&(buff[index] != ' ')&&(buff[index] != '\r')&&(buff[index] != '\n'))
+      {
+        value.append(1,buff[index]);
+        ++index;
+      }
+
+      while((index<sz)&&((buff[index] == ' ')||(buff[index] == '\r')||(buff[index] == '\n')||(buff[index] == ':'))) ++index;
+
+      mHeaders.emplace(std::move(key),std::move(value));
     }
-    return cursor;
   }
- 
- // collect minimum required headers for WebSockets, ignore the rest
- size_t collectHeaders(const char* headers,const size_t limit)
- {
-   size_t cursor=0;
-   while(cursor < limit && headers[cursor])
-   {
-     // decide if to skip this key value
-     switch(headers[cursor])
-     {
-       case 'C': // Connect
-         cursor+=getKVPair(&headers[cursor],limit-cursor,"Connection",10);
-       break;
-       case 'H': // Host
-         cursor+=getKVPair(&headers[cursor],limit-cursor,"Host",4);
-       break;
-       case 'O': // Origin
-         cursor+=getKVPair(&headers[cursor],limit-cursor,"Origin",6);
-       break;
-       case 'U': // Upgrade
-         cursor+=getKVPair(&headers[cursor],limit-cursor,"Upgrade",7);
-       break;
-       case 'S': // Sec-WebSocket-*
-         cursor+=getKVPair(&headers[cursor],limit-cursor,"Sec-WebSocket",13);
-       break;
-       default: // ignoring useless header parts
-         while((cursor < limit) && ((headers[cursor] != '\x0d')&&(headers[cursor] != '\x0a')))
-           ++cursor;
-         // Skip CRLF
-         while((headers[cursor] == '\x0d') || (headers[cursor] == '\x0a')) ++cursor;
-         break;
-     }
-   }
-   return cursor;
- }
- size_t getKey(const char* header, const size_t limit)
- {
-   size_t i=0;
-   while((i<limit) && (header[i] != ':'))
-   {
-       ++i;
-   }
-   if(i<limit)
-   {
-     return i;
-   }
-   throwMalformedHTTPRequest();
-   return 0; // relax the compiler warnings
- }
- void getValue(const char* header, const size_t limit, size_t& start, size_t& stop)
- {
-   size_t i=0;
-   // skip leading whitespaces
-   
-   while((i<limit) && ((header[i] == ' ')||(header[i]=='\t'))) ++i;
-   
-   start=i;
- 
-   // before reaching break before \r or \n
-   while((i<limit)&&((header[i] != '\x0d')&&(header[i] != '\x0a'))) ++i;
-
-   stop=i;
- }
  
 public:
  
@@ -183,7 +113,6 @@ public:
    throwOnMinSizeViolation(ref);
    
    // CRLF at start? Ignoring RFC 7230 if there is no CRLF at start.
-   // (uWebSockets sends malformed requests)
    if(isCRLF((const char*)(ref.data()))) cursor+=2;
    
    
@@ -194,27 +123,32 @@ public:
      if(ref.data()[cursor+3] == ' ')
      {
        // target
-       for(size_t i=cursor+4;(i<bufflen&&(ref.data()[i]!=' '));++i)
+       cursor=4;
+       while((cursor<bufflen)&&(ref[cursor]!=' ')&&(ref[cursor]!='\t'))
        {
-         RequestTarget+=ref.data()[i];
-         cursor=i;
-       }
-
-       cursor+=2;
-
-       mMinSize+=(RequestTarget.size());
-
-       throwOnMinSizeViolation(ref);
-       
-       while((cursor < (bufflen-1))&&(ref.data()[cursor]!='\x0d')&&(ref.data()[cursor+1]!='\x0a'))
-       {
-         HTTPVersion+=ref.data()[cursor];
+         RequestTarget+=ref[cursor];
          ++cursor;
        }
        
-       ++cursor;
+       // skip spaces
        
-       collectHeaders((const char*)(&ref.data()[cursor]),bufflen-cursor);
+       while((cursor<bufflen)&&((ref[cursor]==' ')||(ref[cursor]=='\t'))) ++cursor;
+       
+       // HTTP Version
+       while((cursor < bufflen)&&(ref[cursor]!='\r')&&(ref[cursor]!='\n')&&(ref[cursor]!=' ')&&(ref[cursor]!='\t'))
+       {
+         HTTPVersion+=ref[cursor];
+         ++cursor;
+       }
+       
+       // skip trailing spaces and CRLF 
+       
+       while((cursor < bufflen)&&((ref[cursor]=='\r')||(ref[cursor]=='\n')||(ref[cursor]==' ')||(ref[cursor]=='\t'))) ++cursor;
+       
+       CollectHeaders((const char*)(ref.data()),bufflen,cursor);
+       
+       if(mHeaders.empty())
+         throw std::system_error(EBADMSG, std::system_category(), "HTTPRequestParser::parse() - malformed or unsupported GET Request");
        
      } else throwMalformedHTTPRequest("No space after MODE[GET]");
    } else throwMalformedHTTPRequest("Only GET requests are accepted");
