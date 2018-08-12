@@ -83,9 +83,9 @@ private:
         ++index;
       }
 
-      while((index<sz)&&((buff[index] == ' ')||(buff[index] == '\r')||(buff[index] == '\n')||(buff[index] == ':'))) ++index;
+      while((index<sz)&&((buff[index] == ' ')||(buff[index] == ':'))) ++index;
 
-      while((index<sz)&&(buff[index] != ' ')&&(buff[index] != '\r')&&(buff[index] != '\n'))
+      while((index<sz)&&(buff[index] != '\r')&&(buff[index] != '\n'))
       {
         value.append(1,buff[index]);
         ++index;
@@ -149,7 +149,6 @@ public:
        
        if(mHeaders.empty())
          throw std::system_error(EBADMSG, std::system_category(), "HTTPRequestParser::parse() - malformed or unsupported GET Request");
-       
      } else throwMalformedHTTPRequest("No space after MODE[GET]");
    } else throwMalformedHTTPRequest("Only GET requests are accepted");
  }

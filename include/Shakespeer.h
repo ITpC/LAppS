@@ -73,10 +73,11 @@ namespace LAppS
         {
           if(static_cast<size_t>(received) < headerBuffer.size())
             headerBuffer[received]=0;
-
+          
           if(parseHeader(received))
           {
             prepareOKResponse(response);
+            
             int sent=wssocket->send(response);
             try {
               if(sent > 0)
@@ -177,7 +178,7 @@ namespace LAppS
         memcpy(response.data(),okResponse.data(),okResponse.length());
 
         std::string replykey(mHTTPRParser["Sec-WebSocket-Key"]+UID);
-
+        
         byte digest[CryptoPP::SHA1::DIGESTSIZE];
         sha1.CalculateDigest( digest, (const byte*)(replykey.c_str()),replykey.length());
 
@@ -189,9 +190,7 @@ namespace LAppS
         response.resize(response.size()+response_size);
         b64.Get(response.data()+okResponse.length(),response_size);
 
-        response.resize(response.size()+3);
-        response[response.size()-4]=13;
-        response[response.size()-3]=10;
+        response.resize(response.size()+2);
         response[response.size()-2]=13;
         response[response.size()-1]=10;
       }
