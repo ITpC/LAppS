@@ -171,7 +171,7 @@ namespace LAppS
       void prepareOKResponse(std::vector<uint8_t>& response)
       {
         static const std::string  UID("258EAFA5-E914-47DA-95CA-C5AB0DC85B11");
-        static const std::string  okResponse("HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ");
+        static const std::string  okResponse("HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nServer: LAppS/0.7.0\r\nSec-WebSocket-Accept: ");
         response.resize(okResponse.length());
 
         memcpy(response.data(),okResponse.data(),okResponse.length());
