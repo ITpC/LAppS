@@ -244,7 +244,8 @@ namespace WebSocketProtocol
 
     static void putLength(const size_t pllength, std::vector<uint8_t>& out)
     {
-      if(pllength > std::numeric_limits<uint16_t>::max())
+      static uint16_t max_uint16_t_value=std::numeric_limits<uint16_t>::max();
+      if(pllength > max_uint16_t_value)
       {
         uint64_t sz=htobe64(pllength);
         const uint8_t *ptr=reinterpret_cast<const uint8_t*>(&sz);
