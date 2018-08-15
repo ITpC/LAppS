@@ -76,13 +76,36 @@ namespace LAppS
           
           if(parseHeader(received))
           {
+            auto app=anAppRegistry.getByTarget(mHTTPRParser.getRequestTarget());
+            
             prepareOKResponse(response);
+            
+            auto app_name=app->getName();
+            auto it=LAppSConfig::getInstance()->getLAppSConfig()["services"][app_name].find("extra_headers");
+            if(it!=LAppSConfig::getInstance()->getLAppSConfig()["services"][app_name].end())
+            {
+              auto extra_headers_it=it.value().begin();
+              while(extra_headers_it != it.value().end())
+              {
+                std::string key=extra_headers_it.key();
+                std::string value=extra_headers_it.value();
+                
+                std::string header=key+std::string(": ")+value+"\r\n";
+                
+                size_t offset=response.size();
+                
+                response.resize(offset+header.length());
+                
+                memcpy(response.data()+offset,header.data(),header.length());
+                ++extra_headers_it;
+              }
+            }
             
             int sent=wssocket->send(response);
             try {
               if(sent > 0)
               {
-                auto app=anAppRegistry.getByTarget(mHTTPRParser.getRequestTarget());
+                
                 
                 if(app->filter(wssocket->getPeerIP()))
                 {
