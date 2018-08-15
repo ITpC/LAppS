@@ -101,6 +101,31 @@ namespace LAppS
               }
             }
             
+            std::string allow_protocols("Sec-WebSocket-Protocol: ");
+            auto proto=app->getProtocol();
+            switch(proto)
+            {
+              case ::abstract::Application::Protocol::RAW:
+                allow_protocols.append("raw");
+                break;
+              case ::abstract::Application::Protocol::LAPPS:
+                allow_protocols.append("LAppS");
+                break;
+            }
+            
+            it=LAppSConfig::getInstance()->getLAppSConfig()["services"][app_name].find("proto_alias");
+            
+            if(it!=LAppSConfig::getInstance()->getLAppSConfig()["services"][app_name].end())
+            {
+              std::string proto_alias=it.value();
+              allow_protocols.append(", ");
+              allow_protocols.append(proto_alias);
+              allow_protocols.append("\r\n");
+            }
+            size_t offset=response.size();
+            response.resize(offset+allow_protocols.length());
+            memcpy(response.data()+offset,allow_protocols.c_str(),allow_protocols.length());
+            
             int sent=wssocket->send(response);
             try {
               if(sent > 0)
