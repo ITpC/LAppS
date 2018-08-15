@@ -83,7 +83,7 @@ private:
         ++index;
       }
 
-      while((index<sz)&&((buff[index] == ' ')||(buff[index] == ':'))) ++index;
+      while((index<sz)&&((buff[index] == ' ')||(buff[index] == ':')||(buff[index] == '\t'))) ++index;
 
       while((index<sz)&&(buff[index] != '\r')&&(buff[index] != '\n'))
       {
@@ -91,7 +91,7 @@ private:
         ++index;
       }
 
-      while((index<sz)&&((buff[index] == ' ')||(buff[index] == '\r')||(buff[index] == '\n')||(buff[index] == ':'))) ++index;
+      while((index<sz)&&((buff[index] == ' ')||(buff[index] == '\r')||(buff[index] == '\n'))) ++index;
 
       mHeaders.emplace(std::move(key),std::move(value));
     }
