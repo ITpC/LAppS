@@ -78,60 +78,12 @@ namespace LAppS
           {
             auto app=anAppRegistry.getByTarget(mHTTPRParser.getRequestTarget());
             
-            prepareOKResponse(response);
-            
-            auto app_name=app->getName();
-            auto it=LAppSConfig::getInstance()->getLAppSConfig()["services"][app_name].find("extra_headers");
-            if(it!=LAppSConfig::getInstance()->getLAppSConfig()["services"][app_name].end())
-            {
-              auto extra_headers_it=it.value().begin();
-              while(extra_headers_it != it.value().end())
-              {
-                std::string key=extra_headers_it.key();
-                std::string value=extra_headers_it.value();
-                
-                std::string header=key+std::string(": ")+value+"\r\n";
-                
-                size_t offset=response.size();
-                
-                response.resize(offset+header.length());
-                
-                memcpy(response.data()+offset,header.data(),header.length());
-                ++extra_headers_it;
-              }
-            }
-            
-            std::string allow_protocols("Sec-WebSocket-Protocol: ");
-            auto proto=app->getProtocol();
-            switch(proto)
-            {
-              case ::abstract::Application::Protocol::RAW:
-                allow_protocols.append("raw");
-                break;
-              case ::abstract::Application::Protocol::LAPPS:
-                allow_protocols.append("LAppS");
-                break;
-            }
-            
-            it=LAppSConfig::getInstance()->getLAppSConfig()["services"][app_name].find("proto_alias");
-            
-            if(it!=LAppSConfig::getInstance()->getLAppSConfig()["services"][app_name].end())
-            {
-              std::string proto_alias=it.value();
-              allow_protocols.append(", ");
-              allow_protocols.append(proto_alias);
-              allow_protocols.append("\r\n");
-            }
-            size_t offset=response.size();
-            response.resize(offset+allow_protocols.length());
-            memcpy(response.data()+offset,allow_protocols.c_str(),allow_protocols.length());
+            prepareOKResponse(response,app->getName(),app->getProtocol());
             
             int sent=wssocket->send(response);
             try {
               if(sent > 0)
               {
-                
-                
                 if(app->filter(wssocket->getPeerIP()))
                 {
                   wssocket->send(forbidden);
@@ -217,10 +169,55 @@ namespace LAppS
          return false;
        }
       }
-      void prepareOKResponse(std::vector<uint8_t>& response)
+      void prepareOKResponse(std::vector<uint8_t>& response, const std::string& app_name, const abstract::Application::Protocol& proto)
       {
         static const std::string  UID("258EAFA5-E914-47DA-95CA-C5AB0DC85B11");
-        static const std::string  okResponse("HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nServer: LAppS/0.7.0\r\nSec-WebSocket-Accept: ");
+        std::string  okResponse("HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nServer: LAppS/0.7.0\r\n");
+        
+        auto it=LAppSConfig::getInstance()->getLAppSConfig()["services"][app_name].find("extra_headers");
+        if(it!=LAppSConfig::getInstance()->getLAppSConfig()["services"][app_name].end())
+        {
+          auto extra_headers_it=it.value().begin();
+          while(extra_headers_it != it.value().end())
+          {
+            std::string key=extra_headers_it.key();
+            std::string value=extra_headers_it.value();
+
+            okResponse.append(key);
+            okResponse.append(": ");
+            okResponse.append(value);
+            okResponse.append("\r\n");
+            
+            ++extra_headers_it;
+          }
+        }
+
+        std::string allow_protocols("Sec-WebSocket-Protocol: ");
+        
+        switch(proto)
+        {
+          case ::abstract::Application::Protocol::RAW:
+            allow_protocols.append("raw");
+            break;
+          case ::abstract::Application::Protocol::LAPPS:
+            allow_protocols.append("LAppS");
+            break;
+        }
+
+        it=LAppSConfig::getInstance()->getLAppSConfig()["services"][app_name].find("proto_alias");
+
+        if(it!=LAppSConfig::getInstance()->getLAppSConfig()["services"][app_name].end())
+        {
+          allow_protocols="Sec-WebSocket-Protocol: ";
+          std::string proto_alias=it.value();
+          allow_protocols.append(proto_alias);
+          allow_protocols.append("\r\n");
+        }
+        
+        okResponse.append(allow_protocols);
+        
+        okResponse.append("Sec-WebSocket-Accept: ");
+            
         response.resize(okResponse.length());
 
         memcpy(response.data(),okResponse.data(),okResponse.length());
@@ -234,11 +231,13 @@ namespace LAppS
         b64.Put(digest, CryptoPP::SHA1::DIGESTSIZE);
         b64.MessageEnd();
 
-        size_t response_size=b64.MaxRetrievable();
+        size_t response_size=b64.MaxRetrievable()-1; //skip trailing \n
         response.resize(response.size()+response_size);
         b64.Get(response.data()+okResponse.length(),response_size);
 
-        response.resize(response.size()+2);
+        response.resize(response.size()+4);
+        response[response.size()-4]=13;
+        response[response.size()-3]=10;
         response[response.size()-2]=13;
         response[response.size()-1]=10;
       }
