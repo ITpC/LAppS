@@ -423,8 +423,20 @@ namespace WSStreamProcessing
       };
     }
     
-    
-    
+    auto getBuffer()
+    {
+      AtomicLock sync(mBQMutex);
+      if(mBufferQueue.empty())
+      {
+        return std::make_shared<MSGBufferType>(mOutMSGPreSize);
+      }else{
+        auto tmp=std::move(mBufferQueue.front());
+        tmp->resize(mOutMSGPreSize);
+        mBufferQueue.pop();
+        return tmp;
+      }
+    }
+  
    public:
     explicit WSStreamParser(const size_t& presz)
     : mPLBytesReady{0},cursor{0},mMaxMSGSize{0},
@@ -438,6 +450,12 @@ namespace WSStreamProcessing
     WSStreamParser()=delete;
     WSStreamParser(const WSStreamParser&)=delete;
     WSStreamParser(WSStreamParser&)=delete;
+
+    void returnBuffer(std::remove_reference<const std::shared_ptr<MSGBufferType>&>::type buff)
+    {
+      AtomicLock sync(mBQMutex);
+      mBufferQueue.push(std::move(buff));
+    }
 
     void setMaxMSGSize(const size_t& mms)
     {
