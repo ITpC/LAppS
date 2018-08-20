@@ -36,7 +36,7 @@
 
 #include <WSEvent.h>
 #include <abstract/Application.h>
-#include <WSStreamParser.h>
+#include <WSStreamServerParser.h>
 #include <WSServerMessage.h>
 #include <ePoll.h>
 #include <Config.h>
@@ -82,7 +82,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   uint32_t                            mPeerIP;
   std::string                         mPeerAddress;
   
-  WSStreamProcessing::WSStreamParser  streamProcessor;
+  WSStreamProcessing::WSStreamServerParser  streamProcessor;
   
   ApplicationSPtr                     mApplication;
   
