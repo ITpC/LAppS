@@ -286,26 +286,9 @@ namespace WSStreamProcessing
       throw std::logic_error("WSStreamParser::decideOnDone() switch is out of options, never should have happened. Blame the programmer");
     }
     
-    auto getBuffer()
-    {
-      AtomicLock sync(mBQMutex);
-      if(mBufferQueue.empty())
-      {
-        return std::make_shared<MSGBufferType>(mOutMSGPreSize);
-      }else{
-        auto tmp=std::move(mBufferQueue.front());
-        tmp->resize(mOutMSGPreSize);
-        mBufferQueue.pop();
-        return tmp;
-      }
-    }
   public:
-    void returnBuffer(std::remove_reference<const std::shared_ptr<MSGBufferType>&>::type buff)
-    {
-      AtomicLock sync(mBQMutex);
-      mBufferQueue.push(std::move(buff));
-    }
-    const Result parse(const uint8_t* stream, const size_t& limit, const size_t& offset)
+
+   const Result parse(const uint8_t* stream, const size_t& limit, const size_t& offset)
     {
       cursor=offset;
       
