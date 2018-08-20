@@ -40,6 +40,7 @@
 #include <ePoll.h>
 #include <Config.h>
 #include <ApplicationRegistry.h>
+#include <missing.h>
 
 static const std::vector<uint8_t> forbidden{'H','T','T','P','/','1','.','1',' ','4','0','3',' ','F','o','r','b','i','d','d','e','n'};
 
@@ -152,8 +153,8 @@ namespace LAppS
        {
           mHTTPRParser.parse(headerBuffer,bufflen);
           bool arhap=true;
-          arhap=arhap&&(mHTTPRParser["Connection"]=="Upgrade");
-          arhap=arhap&&(mHTTPRParser["Upgrade"]=="websocket");
+          arhap=arhap&&(itc::utils::toupper(mHTTPRParser["Connection"])==itc::utils::toupper("UPGRADE"));
+          arhap=arhap&&(itc::utils::toupper(mHTTPRParser["Upgrade"])==itc::utils::toupper("WEBSOCKET"));
           arhap=arhap&&(mHTTPRParser["Sec-WebSocket-Version"]=="13");
           arhap=arhap&&(!mHTTPRParser["Sec-WebSocket-Key"].empty());
           
@@ -212,9 +213,8 @@ namespace LAppS
           std::string proto_alias=it.value();
           allow_protocols.append(proto_alias);
           allow_protocols.append("\r\n");
+          okResponse.append(allow_protocols);
         }
-        
-        okResponse.append(allow_protocols);
         
         okResponse.append("Sec-WebSocket-Accept: ");
             
