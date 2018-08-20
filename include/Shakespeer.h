@@ -153,8 +153,8 @@ namespace LAppS
        {
           mHTTPRParser.parse(headerBuffer,bufflen);
           bool arhap=true;
-          arhap=arhap&&(itc::utils::toupper(mHTTPRParser["Connection"])==itc::utils::toupper("UPGRADE"));
-          arhap=arhap&&(itc::utils::toupper(mHTTPRParser["Upgrade"])==itc::utils::toupper("WEBSOCKET"));
+          arhap=arhap&&(itc::utils::toupper(mHTTPRParser["Connection"])=="UPGRADE");
+          arhap=arhap&&(itc::utils::toupper(mHTTPRParser["Upgrade"])=="WEBSOCKET");
           arhap=arhap&&(mHTTPRParser["Sec-WebSocket-Version"]=="13");
           arhap=arhap&&(!mHTTPRParser["Sec-WebSocket-Key"].empty());
           
