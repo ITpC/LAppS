@@ -80,6 +80,21 @@ static inline json& ud2json(void* ptr)
   }
 }
 
+auto udptr2jsptr(void* ptr)
+{
+  if((*static_cast<UDJSON**>(ptr))->type == SHARED_PTR)
+  {
+    auto udptr=static_cast<UDJSPTR**>(ptr);
+    return *((*udptr)->ptr); // std::shared_ptr<json>*
+  }
+  else
+  {
+    auto udptr=static_cast<UDJSON**>(ptr);
+    auto jsptr=(*udptr)->ptr; // json*
+    return std::make_shared<json>(*jsptr);
+  }
+}
+
 const json& get_userdata_value(lua_State *L, int index)
 {
   auto valptr=luaL_checkudata(L, index, "nljson");
