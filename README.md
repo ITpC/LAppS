@@ -132,3 +132,56 @@ And with 3 IOWorker threads and 3 instances of echo_lapps service (CPU is alread
 | Server | Clients | Server rps | rps per client| payload (bytes)|
 |:---|:---:|:---:|:---:|---:|
 |LAppS 0.7.0| 240 | 68809.4 | 286.706 | 128|
+
+
+# Upstream (since 523a991cc692d804a6ba405466aba6b393fab4d4) performance
+
+There is a WebSocket client implementation available in LAppS now. It is available as a **cws** module for preloading into your services.
+
+Performance tests with this module shows much more significant performance improvment.
+
+## Test layout
+
+* Same PC as in above test.
+* LAppS running in TLS mode with **echo** service enabled
+* Benchmarking is implemented as an internal service [benchmark](https://github.com/ITpC/LAppS/blob/master/apps/benchmark/benchmark.lua), as you may see this service sends 1024 byte messages each time it receives a message from server side (the **echo** service).
+  * Configuration for this service (paste within **services** section of the **lapps.conf**):
+  ```json
+  "benchmark" : {
+      "auto_start" : true,
+      "instances": 4,
+      "internal": true,
+      "preload" : [ "cws", "time" ]
+    }
+  ```
+* echo-service configuration (again paste it within **services** section of **lapps.conf**):
+  * ```json
+    "echo": {
+      "auto_start": true,
+      "instances": 2,
+      "internal": false,
+      "max_inbound_message_size": 16777216,
+      "preload": null,
+      "protocol": "raw",
+      "request_target": "/echo",
+      "extra_headers" : {
+        "Service" : "echo",
+        "Strict-Transport-Security" : "max-age=31536000; includeSubDomains"
+      }
+    }
+    ```
+## Collect the results
+  The instances of the **benchmark** service are printing measurements once per second on stdout. Let the service run for a while (several minutes), then stop the LAppS.
+  Copy lines those looks like: "63267 messages receved per 1000ms" into separate file. Let suppose you called it a **stats**
+  There will be 4 such lines per second (each **benchmark** service prints its own results)
+  Count the average rps (average messages received by all 4 **benchmark** services):
+  ```bash
+    awk -v avg=0 "{avg+=\$1}END{print (avg/$(wc -l stats))*4}" stats
+  ```
+## Results:
+
+| Server | Clients | Server rps | rps per client| payload (bytes)|
+|:---|:---:|:---:|:---:|---:|
+|LAppS 0.7.0-523a991cc692d804a6ba405466aba6b393fab4d4| 400 | 257828 | 644.57 | 1024 |
+
+This makes it 4.4Gbit/s network utilization. Further improvements on single CPU machines may be reached by using **dpkg**.
