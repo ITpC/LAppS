@@ -43,10 +43,7 @@ namespace abstract
     
     void cleanLuaStack()
     {
-      while(lua_gettop(mLState))
-      {
-        lua_pop(mLState,1);
-      }
+      lua_pop(mLState,lua_gettop(mLState));
     }
     
     const bool require(const std::string& module_name)
@@ -77,14 +74,18 @@ namespace abstract
         switch(ret)
         {
           case LUA_ERRRUN:
+            itc::getLog()->flush();
             throw std::runtime_error(std::string("Lua runtime error on "+on+" "+module_or_method+": ")+std::string(lua_tostring(mLState,lua_gettop(mLState))));
             break;
           case LUA_ERRMEM:
+            itc::getLog()->flush();
             throw std::system_error(ENOMEM,std::system_category(),"Not enough memory to "+on+" "+module_or_method+": "+std::string(lua_tostring(mLState,lua_gettop(mLState))));
           case LUA_ERRERR:
+            itc::getLog()->flush();
             throw std::logic_error("Error in lua error handler on "+on+" "+module_or_method+": "+std::string(lua_tostring(mLState,lua_gettop(mLState))));
             break;
           default:
+            itc::getLog()->flush();
             throw std::system_error(EINVAL,std::system_category(),"Unknown error on lua_pcall()");
         }
       }
