@@ -31,6 +31,54 @@ namespace WSStreamProcessing
   class WSStreamServerParser : public WSStreamParser
   {
   private:
+    const Result getHeader2ndByte(const uint8_t* stream, const size_t& limit, const size_t& offset)
+    {
+      cursor=offset;
+      if(cursor < limit)
+      {
+        mHeader.MASKFLAG=(stream[cursor]&128) >> 7;
+        // client may not send unmasked data
+        if(mHeader.MASKFLAG == 0)
+        {
+          return { 
+            cursor, WSStreamProcessing::Directive::CLOSE_WITH_CODE, 
+            WebSocketProtocol::PROTOCOL_VIOLATION
+          };
+        }
+
+        mHeader.SMALL_SIZE=stream[cursor]&127;
+
+        if(mHeader.SMALL_SIZE<126)
+        {
+          mHeader.SIZE_TYPE=WSFrameSizeType::MIN;
+          mHeader.MSG_SIZE=mHeader.SMALL_SIZE;
+          mState=State::READ_MASK_0;
+        }else if(mHeader.SMALL_SIZE == 126)
+        {
+          mHeader.SIZE_TYPE=WSFrameSizeType::SHORT;
+          mState=State::READ_SHORT_SIZE_0;
+        }
+        else 
+        {
+          mHeader.SIZE_TYPE=WSFrameSizeType::LONG;
+          mState=State::READ_LONG_SIZE_0;
+        }
+        ++cursor;
+
+        return { 
+          cursor, WSStreamProcessing::Directive::CONTINUE, 
+          WebSocketProtocol::NORMAL
+        };
+        
+      }else{
+        cursor=0;
+        return { 
+          cursor, WSStreamProcessing::Directive::MORE, 
+          WebSocketProtocol::NORMAL
+        };
+      }
+      
+    }
     const Result readMASK(const uint8_t* stream, const size_t& limit, const size_t& offset)
     {
       cursor=offset;

@@ -117,54 +117,6 @@ namespace WSStreamProcessing
       }
     }
     
-    const Result getHeader2ndByte(const uint8_t* stream, const size_t& limit, const size_t& offset)
-    {
-      cursor=offset;
-      if(cursor < limit)
-      {
-        mHeader.MASKFLAG=(stream[cursor]&128) >> 7;
-        if(mHeader.MASKFLAG == 0)
-        {
-          return { 
-            cursor, WSStreamProcessing::Directive::CLOSE_WITH_CODE, 
-            WebSocketProtocol::PROTOCOL_VIOLATION
-          };
-        }
-
-        mHeader.SMALL_SIZE=stream[cursor]&127;
-
-        if(mHeader.SMALL_SIZE<126)
-        {
-          mHeader.SIZE_TYPE=WSFrameSizeType::MIN;
-          mHeader.MSG_SIZE=mHeader.SMALL_SIZE;
-          mState=State::READ_MASK_0;
-        }else if(mHeader.SMALL_SIZE == 126)
-        {
-          mHeader.SIZE_TYPE=WSFrameSizeType::SHORT;
-          mState=State::READ_SHORT_SIZE_0;
-        }
-        else 
-        {
-          mHeader.SIZE_TYPE=WSFrameSizeType::LONG;
-          mState=State::READ_LONG_SIZE_0;
-        }
-        ++cursor;
-
-        return { 
-          cursor, WSStreamProcessing::Directive::CONTINUE, 
-          WebSocketProtocol::NORMAL
-        };
-        
-      }else{
-        cursor=0;
-        return { 
-          cursor, WSStreamProcessing::Directive::MORE, 
-          WebSocketProtocol::NORMAL
-        };
-      }
-      
-    }
-    
     const Result readSIZE(const uint8_t* stream, const size_t& limit, const size_t& offset)
     {
       cursor=offset;
@@ -474,7 +426,7 @@ namespace WSStreamProcessing
      * Optimized for predominantly 7-bit content by Alex Hultman, 2016
      * Licensed as Zlib.
      **/
-    bool isValidUtf8(uint8_t *cs, const size_t length)
+    static const bool isValidUtf8(uint8_t *cs, const size_t length)
     {
       uint8_t *s=cs;
       for(const uint8_t *e = s + length; s != e;)
