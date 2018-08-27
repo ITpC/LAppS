@@ -156,7 +156,7 @@ namespace LAppS
           arhap=arhap&&(itc::utils::toupper(mHTTPRParser["Connection"])=="UPGRADE");
           arhap=arhap&&(itc::utils::toupper(mHTTPRParser["Upgrade"])=="WEBSOCKET");
           arhap=arhap&&(mHTTPRParser["Sec-WebSocket-Version"]=="13");
-          arhap=arhap&&(!mHTTPRParser["Sec-WebSocket-Key"].empty());
+          arhap=arhap&&(!(mHTTPRParser["Sec-WebSocket-Key"].empty()));
           
           if(arhap)
             return true;
