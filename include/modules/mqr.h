@@ -34,21 +34,6 @@
 #include <modules/UserDataAdapter.h>
 #include <ext/json.hpp>
 
-auto udptr2jsptr(void* ptr)
-{
-  if((*static_cast<UDJSON**>(ptr))->type == SHARED_PTR)
-  {
-    auto udptr=static_cast<UDJSPTR**>(ptr);
-    return *((*udptr)->ptr); // std::shared_ptr<json>*
-  }
-  else
-  {
-    auto udptr=static_cast<UDJSON**>(ptr);
-    auto jsptr=(*udptr)->ptr; // json*
-    return std::make_shared<json>(*jsptr);
-  }
-}
-
 extern "C" {
 #include <lua.h>
 #include <lualib.h>
@@ -65,7 +50,7 @@ extern "C" {
     return ptr;
   }
   
-  LUA_API int destroy_nljson(lua_State *L)
+  LUA_API int destroy_nljson_object(lua_State *L)
   {
     auto ptr=checktype_nljson(L,1); // Userdata<T>**
 
@@ -173,7 +158,7 @@ extern "C" {
             if(queue->tryRecv(*((*udjsptr)->ptr)))
             {
               luaL_getmetatable(L, "nljson");
-              lua_pushcfunction(L, destroy_nljson);
+              lua_pushcfunction(L, destroy_nljson_object);
               lua_setfield(L, -2, "__gc");
               lua_setmetatable(L, -2);
               return 1;
@@ -225,7 +210,7 @@ extern "C" {
             (*((*udjsptr)->ptr))=std::move(queue->recv());
             
               luaL_getmetatable(L, "nljson");
-              lua_pushcfunction(L, destroy_nljson);
+              lua_pushcfunction(L, destroy_nljson_object);
               lua_setfield(L, -2, "__gc");
               lua_setmetatable(L, -2);
               return 1;
