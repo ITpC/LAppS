@@ -39,7 +39,13 @@ extern "C" {
 }
 
 #include <modules/nljson.h>
+#include <modules/wsSend.h>
 #include <modules/bcast.h>
+#include <modules/pam_auth.h>
+#include <modules/murmur.h>
+#include <modules/time_now.h>
+#include <modules/mqr.h>
+#include <modules/cws.h>
 #include <modules/nap.h>
 
 static thread_local std::atomic<bool>* mustStop=nullptr; // per instance
@@ -114,8 +120,47 @@ namespace LAppS
       lua_setfield(mLState,LUA_GLOBALSINDEX,"nap");
       cleanLuaStack();
       
+      try{
+        json& modules=LAppSConfig::getInstance()->getLAppSConfig()["services"][name]["preload"];
+        
+        for(const std::string& module: modules)
+        {
+          if(module == "pam_auth")
+          {
+            luaopen_pam_auth(mLState);
+            lua_setfield(mLState,LUA_GLOBALSINDEX,"pam_auth");
+            
+          }else if(module == "time")
+          {
+            luaopen_time(mLState);
+            lua_setfield(mLState,LUA_GLOBALSINDEX,"time");
+          }else if(module == "murmur")
+          {
+            luaopen_murmur(mLState);
+            lua_setfield(mLState,LUA_GLOBALSINDEX,"murmur");
+          }else if(module == "mqr")
+          {
+            luaopen_mqr(mLState);
+            lua_setfield(mLState,LUA_GLOBALSINDEX,"mqr");
+          }else if(module == "cws")
+          {
+           luaopen_cws(mLState) ;
+           lua_setfield(mLState,LUA_GLOBALSINDEX,"cws");
+          }else{
+            itc::getLog()->error(__FILE__,__LINE__,"No such module %s", module.c_str());
+          }
+        }
+      }catch(const std::exception& e)
+      {
+        itc::getLog()->error(__FILE__,__LINE__,"An exception %s is risen on modules preload for service %s", e.what(), name.c_str());
+      }
+      
+      cleanLuaStack();
+      
       lua_pushcfunction(mLState,must_stop);
       lua_setglobal(mLState,"must_stop");
+      
+      
       
       if(require(mName))
       {

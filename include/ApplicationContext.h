@@ -46,6 +46,8 @@ extern "C" {
 #include <modules/murmur.h>
 #include <modules/time_now.h>
 #include <modules/mqr.h>
+#include <modules/cws.h>
+#include <modules/nap.h>
 
 #include <Config.h>
 
@@ -338,6 +340,10 @@ public:
           {
             luaopen_mqr(mLState);
             lua_setfield(mLState,LUA_GLOBALSINDEX,"mqr");
+          }else if(module == "cws")
+          {
+           luaopen_cws(mLState) ;
+           lua_setfield(mLState,LUA_GLOBALSINDEX,"cws");
           }else{
             itc::getLog()->error(__FILE__,__LINE__,"No such module %s", module.c_str());
           }
