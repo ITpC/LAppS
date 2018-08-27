@@ -155,7 +155,7 @@ Performance tests with this module shows much more significant performance impro
     }
   ```
 * echo-service configuration (again paste it within **services** section of **lapps.conf**):
-  * ```json
+  ```json
     "echo": {
       "auto_start": true,
       "instances": 2,
