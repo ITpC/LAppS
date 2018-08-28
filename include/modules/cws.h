@@ -352,7 +352,6 @@ extern "C" {
           switch(client_ws->handleInput())
           {
             case LAppS::WSClient::InputStatus::FORCE_CLOSE:
-              std::cout << "force close on fd: " << event.data.fd << std::endl;
               callOnClose(L,event.data.fd);
               cws_remove_handler(L,event.data.fd);
               WSCPool.remove(event.data.fd);
@@ -379,7 +378,6 @@ extern "C" {
               WSCPool.mod_in(event.data.fd);
             }
             case LAppS::WSClient::InputStatus::CALL_ONCE_MORE:
-              std::cout << "call_once_more" << std::endl;
               goto again;
             break;
             case LAppS::WSClient::InputStatus::UPGRADED:
