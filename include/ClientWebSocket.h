@@ -54,9 +54,10 @@
 namespace LAppS
 {
   
-  static thread_local CryptoPP::AutoSeededRandomPool RNG;
+  static thread_local CryptoPP::AutoSeededRandomPool RNG(true);
   static thread_local CryptoPP::Base64Encoder        BASE64;
   static thread_local CryptoPP::SHA1                 SHA1;
+  static thread_local itc::sys::Nap                  NAP;
   
   static thread_local std::vector<uint8_t> recvBuffer(8192,0);
   
@@ -103,7 +104,7 @@ namespace LAppS
       
       tls_config_set_protocols(TLSConfig,TLS_PROTOCOL_TLSv1_2);
       
-      tls_config_prefer_ciphers_client(TLSConfig);
+      tls_config_prefer_ciphers_server(TLSConfig);
       
       if(noverifycert)
       {
@@ -641,8 +642,10 @@ namespace LAppS
         uint8_t   byte_mask[8];
       } double_mask;
       
-      uint32_t single_mask;
+      uint32_t single_mask=0;
+      
       RNG.GenerateBlock((byte*)(&single_mask),sizeof(single_mask));
+      
       double_mask.mask=(static_cast<uint64_t>(single_mask)<<32)|single_mask;
       
       std::vector<uint8_t> out;
