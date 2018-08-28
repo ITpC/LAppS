@@ -274,9 +274,7 @@ extern "C" {
       lua_pushvalue(L,3);
       lua_setfield(L,-2,std::to_string(*udptr).c_str());
       lua_setmetatable(L, -2);
-
       return 1;
-
     }
     catch(const std::exception& e)
     {
