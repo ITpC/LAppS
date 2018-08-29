@@ -346,45 +346,52 @@ extern "C" {
         if(it!=WSCPool.end())
         {
           auto client_ws=it->second;
-          again:
-          switch(client_ws->handleInput())
+          
+          LAppS::WSClient::InputStatus directive=LAppS::WSClient::InputStatus::ERROR;
+          
+          do
           {
-            case LAppS::WSClient::InputStatus::FORCE_CLOSE:
-              callOnClose(L,event.data.fd);
-              cws_remove_handler(L,event.data.fd);
-              WSCPool.remove(event.data.fd);
-            break;
-            case LAppS::WSClient::InputStatus::ERROR:
-              callOnError(L,event.data.fd,"Communication error on read from socket, - it is already closed");
-              cws_remove_handler(L,event.data.fd);
-              WSCPool.remove(event.data.fd);
-            break;
-            case LAppS::WSClient::InputStatus::NEED_MORE_DATA:
-              WSCPool.mod_in(event.data.fd);
-            break;
-            case LAppS::WSClient::InputStatus::MESSAGE_READY_BUFFER_IS_EMPTY:
+            directive=client_ws->handleInput();
+            
+            switch(directive)
             {
-              auto wsevent{client_ws->getMessage()};
-              onEvent(L,client_ws,wsevent);
-              WSCPool.mod_in(event.data.fd);
+              case LAppS::WSClient::InputStatus::FORCE_CLOSE: 
+                // force closing the socket, do not wait for response.
+                callOnClose(L,event.data.fd);
+                cws_remove_handler(L,event.data.fd);
+                WSCPool.remove(event.data.fd);
+              break;
+              case LAppS::WSClient::InputStatus::ERROR:
+                callOnError(L,event.data.fd,"Communication error on read from socket, - it is already closed");
+                cws_remove_handler(L,event.data.fd);
+                WSCPool.remove(event.data.fd);
+              break;
+              case LAppS::WSClient::InputStatus::NEED_MORE_DATA:
+                WSCPool.mod_in(event.data.fd);
+              break;
+              case LAppS::WSClient::InputStatus::MESSAGE_READY_BUFFER_IS_EMPTY:
+              {
+                auto wsevent{client_ws->getMessage()};
+                onEvent(L,client_ws,wsevent);
+                WSCPool.mod_in(event.data.fd);
+              }
+              break;
+              case LAppS::WSClient::InputStatus::MESSAGE_READY_BUFFER_IS_NOT_EMPTY:
+              {
+                auto wsevent{client_ws->getMessage()};
+                onEvent(L,client_ws,wsevent);
+                WSCPool.mod_in(event.data.fd);
+              }
+              case LAppS::WSClient::InputStatus::UPGRADED:
+              {
+                callOnOpen(L,event.data.fd);
+                WSCPool.mod_in(event.data.fd);
+              }
+              break;
+              case LAppS::WSClient::InputStatus::CALL_ONCE_MORE:
+              break;
             }
-            break;
-            case LAppS::WSClient::InputStatus::MESSAGE_READY_BUFFER_IS_NOT_EMPTY:
-            {
-              auto wsevent{client_ws->getMessage()};
-              onEvent(L,client_ws,wsevent);
-              WSCPool.mod_in(event.data.fd);
-            }
-            case LAppS::WSClient::InputStatus::CALL_ONCE_MORE:
-              goto again;
-            break;
-            case LAppS::WSClient::InputStatus::UPGRADED:
-            {
-              callOnOpen(L,event.data.fd);
-              WSCPool.mod_in(event.data.fd);
-            }
-            break;
-          }
+          } while (directive == LAppS::WSClient::InputStatus::CALL_ONCE_MORE);
         }
       }
     }
