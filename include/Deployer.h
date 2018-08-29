@@ -62,6 +62,15 @@ namespace LAppS
         itc::getLog()->info(__FILE__,__LINE__,"Deploying: %s",entry.path().u8string().c_str());
         try{
           deploy_archive(entry.path());
+          std::error_code ec;
+          if(!fs::remove(entry.path(),ec))
+          {
+            itc::getLog()->info(__FILE__,__LINE__,"Archive %s is not removed, because of an error[%d]: %s",entry.path().c_str(),ec.value(),ec.message().c_str());
+          }
+          else
+          {
+            itc::getLog()->info(__FILE__,__LINE__,"Archive %s is removed",entry.path().c_str());
+          }
         }catch(const std::exception& e)
         {
           itc::getLog()->info(__FILE__,__LINE__,"Archive %s was not deployed. Reason: %s",entry.path().u8string().c_str(),e.what());
@@ -129,7 +138,6 @@ namespace LAppS
         }else{
           throw std::system_error(EINVAL,std::system_category(),std::string("Exception: ")+std::string(archive_name.u8string().c_str())+std::string(" does not have an extension .lar"));
         }
-        fs::remove(archive_name);
       }
       else {
         throw std::system_error(EINVAL,std::system_category(),std::string(archive_name.u8string().c_str())+std::string(" is not a regular file"));
@@ -429,7 +437,20 @@ namespace LAppS
         
         auto p=(inotify_event*)(buffer.data());
         std::string name(p->name,p->len);
-        restart_service(deploy_archive(mDeployDir / name));
+        fs::path archive_name=mDeployDir / name;
+        restart_service(deploy_archive(archive_name));
+        if(fs::is_regular_file(archive_name))
+        {
+          std::error_code ec;
+          if(!fs::remove(archive_name,ec))
+          {
+            itc::getLog()->info(__FILE__,__LINE__,"Archive %s is not removed, because of an error[%d]: %s",archive_name.c_str(),ec.value(),ec.message().c_str());
+          }
+          else
+          {
+            itc::getLog()->info(__FILE__,__LINE__,"Archive %s is removed",archive_name.c_str());
+          }          
+        }
         buffer.resize(buffer_size);
       }
     }
