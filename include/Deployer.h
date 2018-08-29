@@ -129,6 +129,7 @@ namespace LAppS
         }else{
           throw std::system_error(EINVAL,std::system_category(),std::string("Exception: ")+std::string(archive_name.u8string().c_str())+std::string(" does not have an extension .lar"));
         }
+        fs::remove(archive_name);
       }
       else {
         throw std::system_error(EINVAL,std::system_category(),std::string(archive_name.u8string().c_str())+std::string(" is not a regular file"));
@@ -180,6 +181,10 @@ namespace LAppS
             LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["internal"]=internal;
             LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["instances"]=instances;
             LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["auto_start"]=auto_start;
+            if(service_config.find("preload") != service_config.end())
+            {
+              LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["preload"]=service_config["preload"];
+            }
           }else{
             json sconfig{{ service_name , {
               {"internal",internal},
@@ -187,6 +192,10 @@ namespace LAppS
               {"auto_start",auto_start}
             }}};
             LAppSConfig::getInstance()->getLAppSConfig()["services"].insert(sconfig.begin(),sconfig.end());
+            if(service_config.find("preload") != service_config.end())
+            {
+              LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["preload"]=service_config["preload"];
+            }
           }
           fs::rename(dir,service_path);          
         }
@@ -213,6 +222,10 @@ namespace LAppS
             {
               LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["preload"]=service_config["preload"];
             }
+            if(service_config.find("extra_headers") != service_config.end())
+            {
+              LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["extra_headers"]=service_config["preload"];
+            }
           }
           else
           {
@@ -227,6 +240,10 @@ namespace LAppS
               }
             }};
             LAppSConfig::getInstance()->getLAppSConfig()["services"].insert(sconfig.begin(),sconfig.end());
+            if(service_config.find("preload") != service_config.end())
+            {
+              LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["preload"]=service_config["preload"];
+            }
           }
           
           fs::rename(dir, service_path);
