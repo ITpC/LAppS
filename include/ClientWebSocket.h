@@ -104,7 +104,7 @@ namespace LAppS
       
       tls_config_set_protocols(TLSConfig,TLS_PROTOCOL_TLSv1_2);
       
-      tls_config_prefer_ciphers_server(TLSConfig);
+      tls_config_prefer_ciphers_client(TLSConfig);
       
       if(noverifycert)
       {
@@ -741,6 +741,7 @@ namespace LAppS
                   cursor=0;
                   return WSClient::InputStatus::MESSAGE_READY_BUFFER_IS_EMPTY;
                 }
+              break;
               case WSStreamProcessing::Directive::CLOSE_WITH_CODE:
                 cursor=0;
                 closeSocket(state.cCode);
