@@ -31,7 +31,22 @@ extern "C" {
 #include <lualib.h>
 #include <lauxlib.h>
 #include <stdexcept>
+
 }
+
+#include <modules/nljson.h>
+#include <modules/wsSend.h>
+#include <modules/bcast.h>
+#include <modules/pam_auth.h>
+#include <modules/murmur.h>
+#include <modules/time_now.h>
+#include <modules/mqr.h>
+#include <modules/cws.h>
+#include <modules/nap.h>
+//#include <modules/cppstring.h>
+//#include <modules/cppsvector.h>
+
+#include <Config.h>
 
 namespace abstract
 {
@@ -96,7 +111,56 @@ namespace abstract
     ApplicationContext(ApplicationContext&)=delete;
     explicit ApplicationContext(const std::string& name)
     : mName(name),mLState(luaL_newstate())
-    {}
+    {
+      luaL_openlibs(mLState);
+
+      luaopen_nljson(mLState);
+      lua_setfield(mLState,LUA_GLOBALSINDEX,"nljson");
+      cleanLuaStack();
+
+      luaopen_nap(mLState);
+      lua_setfield(mLState,LUA_GLOBALSINDEX,"nap");
+      cleanLuaStack();
+      
+      try{
+        json& modules=LAppSConfig::getInstance()->getLAppSConfig()["services"][name]["preload"];
+        
+        for(const std::string& module: modules)
+        {
+          if(module == "pam_auth")
+          {
+            luaopen_pam_auth(mLState);
+            lua_setfield(mLState,LUA_GLOBALSINDEX,"pam_auth");
+            cleanLuaStack();
+          }else if(module == "time")
+          {
+            luaopen_time(mLState);
+            lua_setfield(mLState,LUA_GLOBALSINDEX,"time");
+            cleanLuaStack();
+          }else if(module == "murmur")
+          {
+            luaopen_murmur(mLState);
+            lua_setfield(mLState,LUA_GLOBALSINDEX,"murmur");
+            cleanLuaStack();
+          }else if(module == "mqr")
+          {
+            luaopen_mqr(mLState);
+            lua_setfield(mLState,LUA_GLOBALSINDEX,"mqr");
+            cleanLuaStack();
+          }else if(module == "cws")
+          {
+            luaopen_cws(mLState);
+            lua_setfield(mLState,LUA_GLOBALSINDEX,"cws");
+            cleanLuaStack();
+          }else{
+            itc::getLog()->error(__FILE__,__LINE__,"No such module %s", module.c_str());
+          }
+        }
+      }catch(const std::exception& e)
+      {
+        itc::getLog()->error(__FILE__,__LINE__,"An exception %s is risen on modules preload for service %s", e.what(), name.c_str());
+      }
+    }
     const std::string& getName() const {
       return mName;
     }

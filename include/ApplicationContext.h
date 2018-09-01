@@ -39,19 +39,6 @@ extern "C" {
 #include <abstract/Worker.h>
 #include <abstract/ApplicationContext.h>
 
-#include <modules/nljson.h>
-#include <modules/wsSend.h>
-#include <modules/bcast.h>
-#include <modules/pam_auth.h>
-#include <modules/murmur.h>
-#include <modules/time_now.h>
-#include <modules/mqr.h>
-#include <modules/cws.h>
-#include <modules/nap.h>
-
-#include <Config.h>
-
-
 using json = nlohmann::json;
 
 
@@ -310,49 +297,6 @@ public:
     explicit ApplicationContext(const std::string& appname, abstract::Application* parent)
     : ::abstract::ApplicationContext(appname), mParent(parent),mustStop{false}
     {
-      luaL_openlibs(mLState);
-      
-      luaopen_nljson(mLState);
-      lua_setfield(mLState,LUA_GLOBALSINDEX,"nljson");
-      
-      luaopen_wssend(mLState);
-      lua_setfield(mLState,LUA_GLOBALSINDEX,"ws");
-      
-      try{
-        json& modules=LAppSConfig::getInstance()->getLAppSConfig()["services"][appname]["preload"];
-        
-        for(const std::string& module: modules)
-        {
-          if(module == "pam_auth")
-          {
-            luaopen_pam_auth(mLState);
-            lua_setfield(mLState,LUA_GLOBALSINDEX,"pam_auth");
-            
-          }else if(module == "time")
-          {
-            luaopen_time(mLState);
-            lua_setfield(mLState,LUA_GLOBALSINDEX,"time");
-          }else if(module == "murmur")
-          {
-            luaopen_murmur(mLState);
-            lua_setfield(mLState,LUA_GLOBALSINDEX,"murmur");
-          }else if(module == "mqr")
-          {
-            luaopen_mqr(mLState);
-            lua_setfield(mLState,LUA_GLOBALSINDEX,"mqr");
-          }else if(module == "cws")
-          {
-           luaopen_cws(mLState) ;
-           lua_setfield(mLState,LUA_GLOBALSINDEX,"cws");
-          }else{
-            itc::getLog()->error(__FILE__,__LINE__,"No such module %s", module.c_str());
-          }
-        }
-      }catch(const std::exception& e)
-      {
-        itc::getLog()->error(__FILE__,__LINE__,"An exception %s is risen on modules preload for service %s", e.what(), appname.c_str());
-      }
-      
       add_bcast(mProtocol);
             
       if(require(mName))
