@@ -299,85 +299,109 @@ namespace LAppS
     
     void start_service(const std::string& service_name)
     {
-      try
+      try{
+        auto already_exists=::ApplicationRegistry::getInstance()->getByName(service_name);
+        return;
+      }catch(const std::exception& e)
       {
-        const bool internal{LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["internal"]};
-        const size_t instances{LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["instances"]};
-        
-        const std::string apps_dir=LAppSConfig::getInstance()->getLAppSConfig()["directories"]["applications"];
-        
-        fs::path lua_module_path_extend{fs::path(static_cast<const std::string&>(mEnv["LAPPS_HOME"])) / apps_dir / fs::path(service_name)};
-        
-        mEnv.setEnv("LUA_PATH", mEnv["LUA_PATH"] + ";" + std::string(lua_module_path_extend.u8string().c_str()) + "/?.lua");
-        
-        itc::getLog()->info(__FILE__,__LINE__,"Starting service %s with %d instance(s)",service_name.c_str(),instances);    
-        if(internal)
-        {  
-          for(size_t i=0;i<instances;++i)
-          {
-            ::InternalAppsRegistry::getInstance()->startInstance(service_name);
-          }
-        }
-        else
+        try
         {
-          const std::string target=LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["request_target"];
-          const std::string protocol=LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["protocol"];
-          const size_t max_in_msg_size=LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["max_inbound_message_size"];
-          
-          LAppS::Network_ACL_Policy default_policy;
-          
-          json exclude_list=json::array();
-          
-          auto aclit=LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name].find("acl");
-          if(aclit != LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name].end())
+          if(LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name].find("depends") !=
+               LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name].end())
           {
-            std::string spolicy=LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["acl"]["policy"];
-            if(spolicy == "allow")
-            {
-              default_policy=LAppS::Network_ACL_Policy::ALLOW;
-            }else if(spolicy == "deny")
-            {
-              default_policy=LAppS::Network_ACL_Policy::DENY;
-            }else{
-              throw std::system_error(
-                EINVAL,std::system_category(),"Invalid network acl policy for a service "+service_name+": "+spolicy+". Only `allow' and `deny' are accepted"
-              );
-            }
-            exclude_list=LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["acl"]["exclude"];
-          }else{
-            default_policy=LAppS::Network_ACL_Policy::ALLOW;
+            std::vector<std::string> depends=LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["depends"];
+
+            std::for_each(depends.begin(),depends.end(),
+              [this,service_name](const auto& sname)
+              {
+                if(sname != service_name)
+                {
+                  itc::getLog()->info(__FILE__,__LINE__,"Service %s is depending on the service: %s.Trying to start subordinate service ...",service_name.c_str(),sname.c_str());
+                  this->start_service(sname);
+                }
+              }
+            );
           }
-          
-          for(size_t i=0;i<instances;++i)
-          {
-            if(protocol == "raw")
+
+          const bool internal{LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["internal"]};
+          const size_t instances{LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["instances"]};
+
+
+          const std::string apps_dir=LAppSConfig::getInstance()->getLAppSConfig()["directories"]["applications"];
+
+          fs::path lua_module_path_extend{fs::path(static_cast<const std::string&>(mEnv["LAPPS_HOME"])) / apps_dir / fs::path(service_name)};
+
+          mEnv.setEnv("LUA_PATH", mEnv["LUA_PATH"] + ";" + std::string(lua_module_path_extend.u8string().c_str()) + "/?.lua");
+
+          itc::getLog()->info(__FILE__,__LINE__,"Starting service %s with %d instance(s)",service_name.c_str(),instances);    
+          if(internal)
+          {  
+            for(size_t i=0;i<instances;++i)
             {
-              ::ApplicationRegistry::getInstance()->regApp(
-                  std::make_shared<RAWPROTOApp>(service_name,target,max_in_msg_size,default_policy,exclude_list),
-                  instances
-              );
+              ::InternalAppsRegistry::getInstance()->startInstance(service_name);
             }
-            else if(protocol == "LAppS")
+          }
+          else
+          {
+            const std::string target=LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["request_target"];
+            const std::string protocol=LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["protocol"];
+            const size_t max_in_msg_size=LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["max_inbound_message_size"];
+
+            LAppS::Network_ACL_Policy default_policy;
+
+            json exclude_list=json::array();
+
+            auto aclit=LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name].find("acl");
+            if(aclit != LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name].end())
             {
-              ::ApplicationRegistry::getInstance()->regApp(
-                  std::make_shared<LAppSPROTOApp>(service_name,target,max_in_msg_size,default_policy,exclude_list),
-                  instances
-              );
+              std::string spolicy=LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["acl"]["policy"];
+              if(spolicy == "allow")
+              {
+                default_policy=LAppS::Network_ACL_Policy::ALLOW;
+              }else if(spolicy == "deny")
+              {
+                default_policy=LAppS::Network_ACL_Policy::DENY;
+              }else{
+                throw std::system_error(
+                  EINVAL,std::system_category(),"Invalid network acl policy for a service "+service_name+": "+spolicy+". Only `allow' and `deny' are accepted"
+                );
+              }
+              exclude_list=LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["acl"]["exclude"];
             }else{
-              throw std::system_error(EINVAL,std::system_category(),"Unknown protocol is configured for service "+service_name);
+              default_policy=LAppS::Network_ACL_Policy::ALLOW;
+            }
+
+            for(size_t i=0;i<instances;++i)
+            {
+              if(protocol == "raw")
+              {
+                ::ApplicationRegistry::getInstance()->regApp(
+                    std::make_shared<RAWPROTOApp>(service_name,target,max_in_msg_size,default_policy,exclude_list),
+                    instances
+                );
+              }
+              else if(protocol == "LAppS")
+              {
+                ::ApplicationRegistry::getInstance()->regApp(
+                    std::make_shared<LAppSPROTOApp>(service_name,target,max_in_msg_size,default_policy,exclude_list),
+                    instances
+                );
+              }else{
+                throw std::system_error(EINVAL,std::system_category(),"Unknown protocol is configured for service "+service_name);
+              }
             }
           }
         }
-      }
-      catch(const std::exception& e)
-      {
-        itc::getLog()->error(
-          __FILE__,__LINE__,
-          "Service [%s] is configured inappropriately in %s/lapps.json, - exception: %s.",
-          service_name.c_str(),
-          mEnv["LAPPS_CONF_DIR"].c_str(),
-          e.what()
-        );
+        catch(const std::exception& e)
+        {
+          itc::getLog()->error(
+            __FILE__,__LINE__,
+            "Service [%s] is configured inappropriately in %s/lapps.json, - exception: %s.",
+            service_name.c_str(),
+            mEnv["LAPPS_CONF_DIR"].c_str(),
+            e.what()
+          );
+        }
       }
     }
     
