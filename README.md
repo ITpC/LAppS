@@ -182,6 +182,8 @@ Performance tests with this module shows much more significant performance impro
 
 | Server | Clients | Server rps | rps per client| payload (bytes)|
 |:---|:---:|:---:|:---:|---:|
-|LAppS 0.7.0-Upstream TLS| 400 | **257828** | 644.57 | 1024 |
+|LAppS 0.7.0-523a991cc692d804a6ba405466aba6b393fab4d4-TLS| 400 | **257828** | 644.57 | 1024 |
 
 This makes it more then 500k packets per second or more then 4.4Gbit/s network utilization. Further improvements on single CPU machines may be reached by using **dpkg**.
+
+NOTE: Please beware, upstream is broken for tests you can use 0.7.0 up to 523a991cc692d804a6ba405466aba6b393fab4d4 commit.
