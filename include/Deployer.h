@@ -17,7 +17,11 @@
  * $Id: Deployer.h June 19, 2018 10:54 $
  */
 
-
+//* feature request #17: in Deployer::start_service() 
+//* Checkin for "depends" attribute of a service descriptor is added.
+//* Implementation is reqursive. 
+//* If subordinate service is already started it will not be started again.
+//
 #ifndef __DEPLOYER_H__
 #define __DEPLOYER_H__
 #include <memory>
