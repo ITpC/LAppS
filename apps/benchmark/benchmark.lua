@@ -20,10 +20,13 @@ benchmark.meter=function()
 end
 
 benchmark.run=function()
+  local n=nap:new()
+  n:sleep(3);
+  print("Start");
   local array={};
   for i=0,100
   do
-    array[i]=cws:new(
+   local sock, err_msg=cws:new(
       "wss://127.0.0.1:5083/echo",
       {
         ["onopen"]=function(handler)
@@ -44,7 +47,15 @@ benchmark.run=function()
           print("WebSocket "..handler.." is closed by peer.");
         end
       });
+      if(sock == nil)
+      then
+        print("Socket is not created: "..err_msg)
+      else
+        table.insert(array,sock);
+      end
+    cws:eventLoop();
   end
+  print("Sockets connected: "..#array);
   benchmark.start_time=time.now();
   while not must_stop()
   do
