@@ -43,8 +43,6 @@ extern "C" {
 #include <modules/mqr.h>
 #include <modules/cws.h>
 #include <modules/nap.h>
-//#include <modules/cppstring.h>
-//#include <modules/cppsvector.h>
 
 #include <Config.h>
 
@@ -69,6 +67,7 @@ namespace abstract
       checkForLuaErrorsOnRequire(ret,module_name.c_str());
       lua_setfield(mLState, LUA_GLOBALSINDEX, module_name.c_str());
       cleanLuaStack();
+      itc::getLog()->info(__FILE__,__LINE__,"Application instance [%s] is initialized",mName.c_str());
       return true;
     }
     
