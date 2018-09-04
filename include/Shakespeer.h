@@ -81,12 +81,21 @@ namespace LAppS
             
             prepareOKResponse(response,app->getName(),app->getProtocol());
             
+            std::cout << response.data() << std::endl;
+            
             int sent=wssocket->send(response);
+            
             try {
               if(sent > 0)
               {
                 if(app->filter(wssocket->getPeerIP()))
                 {
+                  itc::getLog()->info(
+                    __FILE__,
+                    __LINE__,
+                    "Connection from %s to %s has been filtered according to ACL",
+                    wssocket->getPeerAddress().c_str(),app->getName().c_str()
+                  );
                   wssocket->send(forbidden);
                   wssocket->close();
                   return;
@@ -157,6 +166,7 @@ namespace LAppS
           arhap=arhap&&(itc::utils::toupper(mHTTPRParser["Upgrade"])=="WEBSOCKET");
           arhap=arhap&&(mHTTPRParser["Sec-WebSocket-Version"]=="13");
           arhap=arhap&&(!(mHTTPRParser["Sec-WebSocket-Key"].empty()));
+
           
           if(arhap)
             return true;
@@ -217,11 +227,7 @@ namespace LAppS
         }
         
         okResponse.append("Sec-WebSocket-Accept: ");
-            
-        response.resize(okResponse.length());
-
-        memcpy(response.data(),okResponse.data(),okResponse.length());
-
+        
         std::string replykey(mHTTPRParser["Sec-WebSocket-Key"]+UID);
         
         byte digest[CryptoPP::SHA1::DIGESTSIZE];
@@ -231,15 +237,17 @@ namespace LAppS
         b64.Put(digest, CryptoPP::SHA1::DIGESTSIZE);
         b64.MessageEnd();
 
-        size_t response_size=b64.MaxRetrievable()-1; //skip trailing \n
-        response.resize(response.size()+response_size);
-        b64.Get(response.data()+okResponse.length(),response_size);
+        size_t encoded_key_size=b64.MaxRetrievable();
+        size_t respsz=okResponse.size();
+        
+        okResponse.resize(respsz+encoded_key_size-1);
+        
+        b64.Get((byte*)(okResponse.data()+respsz),encoded_key_size-1);
+        okResponse.append("\r\n\r\n");
+        
+        response.resize(okResponse.size());
 
-        response.resize(response.size()+4);
-        response[response.size()-4]=13;
-        response[response.size()-3]=10;
-        response[response.size()-2]=13;
-        response[response.size()-1]=10;
+        memcpy(response.data(),okResponse.data(),okResponse.size());
       }
   };
 }
