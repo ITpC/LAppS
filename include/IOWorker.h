@@ -283,15 +283,11 @@ namespace LAppS
                 mShakespeer.handshake(current,*::ApplicationRegistry::getInstance());
                 if(current->getState() !=WSType::MESSAGING)
                 {
+                  itc::getLog()->error(__FILE__,__LINE__,"Handshake with the peer %s has been failed. Disconnecting.", current->getPeerAddress().c_str());
                   deleteConnection(fd);
                 }
             break;
             case WSType::MESSAGING:
-              /*
-                mReaders[readersIndex]->getRunnable()->enqueue(current);
-                if((++readersIndex) == mMaxReaders)
-                  readersIndex=0;
-                */
                   try {
                     int ret=current->handleInput();
                     if(ret == -1)
