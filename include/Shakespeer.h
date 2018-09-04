@@ -81,8 +81,6 @@ namespace LAppS
             
             prepareOKResponse(response,app->getName(),app->getProtocol());
             
-            std::cout << response.data() << std::endl;
-            
             int sent=wssocket->send(response);
             
             try {
