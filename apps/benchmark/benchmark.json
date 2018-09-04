@@ -3,5 +3,6 @@
   "auto_start" : true,
   "instances": 1,
   "internal": true,
-  "preload" : [ "cws", "time" ]
+  "preload" : [ "cws", "time" ],
+  "depends" : [ "echo" ]
 }
