@@ -39,6 +39,9 @@ extern "C" {
 #include <abstract/Worker.h>
 #include <abstract/ApplicationContext.h>
 
+
+#include <modules/wsSend.h>
+
 using json = nlohmann::json;
 
 
@@ -297,6 +300,11 @@ public:
     explicit ApplicationContext(const std::string& appname, abstract::Application* parent)
     : ::abstract::ApplicationContext(appname), mParent(parent),mustStop{false}
     {
+      cleanLuaStack();
+      luaopen_wssend(mLState);
+      lua_setfield(mLState,LUA_GLOBALSINDEX,"ws");
+      cleanLuaStack();
+      
       add_bcast(mProtocol);
             
       if(require(mName))
