@@ -20,40 +20,37 @@ benchmark.meter=function()
 end
 
 benchmark.run=function()
-  local n=nap:new()
-  n:sleep(3);
-  print("Start");
+  local n=nap:new();
+  n:sleep(5); -- delay for echo service to startup fully
   local array={};
-  for i=0,100
+  for i=0,400
   do
-   local sock, err_msg=cws:new(
+    local sock, err_msg=cws:new(
       "wss://127.0.0.1:5083/echo",
       {
-        ["onopen"]=function(handler)
+        onopen=function(handler)
           local result, errstr=cws:send(handler,"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",2);
           if(not result)
           then
             print("Error on websocket send at handler "..handler..": "..errstr);
           end
         end,
-        ["onmessage"]=function(handler,message,opcode)
+        onmessage=function(handler,message,opcode)
           benchmark.meter();
           cws:send(handler,message,opcode);
         end,
-        ["onerror"]=function(handler, message)
-          print(message..". Socket FD:  "..handler);
+        onerror=function(handler, message)
+          -- print("Client WebSocket connection is failed for socketfd "..handler..". Error: "..message);
         end,
-        ["onclose"]=function(handler)
-          print("WebSocket "..handler.." is closed by peer.");
+        onclose=function(handler)
         end
       });
-      if(sock == nil)
+      if(sock ~= nil)
       then
-        print("Socket is not created: "..err_msg)
-      else
         table.insert(array,sock);
+      else
       end
-    cws:eventLoop();
+      cws:eventLoop();
   end
   print("Sockets connected: "..#array);
   benchmark.start_time=time.now();
