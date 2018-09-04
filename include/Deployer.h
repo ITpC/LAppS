@@ -158,7 +158,7 @@ namespace LAppS
         std::string service_name(service_iterator.key());
         const bool auto_start=service_iterator.value()["auto_start"];
         if(auto_start)
-          restart_service(service_name);
+          start_service(service_name);
       }
     }
     
@@ -303,8 +303,15 @@ namespace LAppS
     
     void start_service(const std::string& service_name)
     {
+      if( LAppSConfig::getInstance()->getLAppSConfig()["services"].find(service_name) == 
+          LAppSConfig::getInstance()->getLAppSConfig()["services"].end()
+      ){
+        itc::getLog()->error(__FILE__,__LINE__,"Can't start service %s, - can't find the service descriptor in Config[lapps.json]",service_name.c_str());
+        return;
+      }
       try{
         auto already_exists=::ApplicationRegistry::getInstance()->getByName(service_name);
+        itc::getLog()->info(__FILE__,__LINE__,"Service %s is already started",service_name.c_str());
         return;
       }catch(const std::exception& e)
       {
@@ -320,7 +327,7 @@ namespace LAppS
               {
                 if(sname != service_name)
                 {
-                  itc::getLog()->info(__FILE__,__LINE__,"Service %s is depending on the service: %s.Trying to start subordinate service ...",service_name.c_str(),sname.c_str());
+                  itc::getLog()->info(__FILE__,__LINE__,"Service %s is depending on the service: %s. Trying to start subordinate service ...",service_name.c_str(),sname.c_str());
                   this->start_service(sname);
                 }
               }
