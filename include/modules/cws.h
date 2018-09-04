@@ -89,10 +89,6 @@ extern "C" {
         onPCallErrorCheck(L,lua_pcall(L,2,0,0),"onerror");
       }
     }
-    else
-    {
-      std::cout << "onerror is nil" << std::endl;
-    }
     clearStack(L);
   }
   
@@ -127,9 +123,6 @@ extern "C" {
           {
             onPCallErrorCheck(L,lua_pcall(L,3,0,0),"onmessage");
           }
-          else{
-            std::cout << "onmessage is nil" << std::endl;
-          }
           clearStack(L);
           return true;        
         }
@@ -153,9 +146,6 @@ extern "C" {
         if(!lua_isnil(L,3))
         {
           onPCallErrorCheck(L,lua_pcall(L,3,0,0),"onmessage");
-        }
-        else{
-          std::cout << "onmessage is nil" << std::endl;
         }
         clearStack(L);
         return true;
@@ -301,10 +291,6 @@ extern "C" {
     {
       onPCallErrorCheck(L,lua_pcall(L,1,0,0),"onclose");
     }
-    else
-    {
-      std::cout << "onclose is nil" << std::endl;
-    }
     clearStack(L);
   }
   
@@ -320,9 +306,6 @@ extern "C" {
     {
       lua_pushinteger(L,fd);
       onPCallErrorCheck(L,lua_pcall(L,1,0,0),"onopen");
-    }else
-    {
-      std::cout << "onopen is nil" << std::endl;
     }
     clearStack(L);
   }
