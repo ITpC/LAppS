@@ -87,12 +87,21 @@ namespace WSStreamProcessing
       {
         case FrameSeq::SINGLE:
         {
-          if(mPLBytesReady == 0)
+         if(mPLBytesReady == 0)
             message->resize(mHeader.MSG_SIZE);
-          
-          memcpy(message->data(),stream+cursor,limit-cursor);
-          mPLBytesReady=limit-cursor;
-          cursor=limit;
+            
+          if((mPLBytesReady+(limit-cursor))>mHeader.MSG_SIZE)
+          {
+            size_t copy_bytes= mHeader.MSG_SIZE-mPLBytesReady;
+            memcpy(message->data()+mPLBytesReady,stream+cursor,copy_bytes);
+            cursor+=copy_bytes;
+            mPLBytesReady+=copy_bytes;
+          }
+          else{
+            memcpy(message->data()+mPLBytesReady,stream+cursor,limit-cursor);
+            mPLBytesReady+=(limit-cursor);
+            cursor=limit;
+          }
           
           if(mPLBytesReady == mHeader.MSG_SIZE)
           {
@@ -104,7 +113,7 @@ namespace WSStreamProcessing
             };
           }
           
-          cursor=0;
+          if(cursor==limit) cursor=0;
           
           return { 
             cursor, 
@@ -132,10 +141,17 @@ namespace WSStreamProcessing
           
           const size_t used=messageFrames->size()-mHeader.MSG_SIZE;
           
-          
-          memcpy(messageFrames->data()+used+mPLBytesReady,stream+cursor,limit-cursor);
-          mPLBytesReady+=(limit-cursor);
-          cursor=limit;
+          if((mPLBytesReady+(limit-cursor))>mHeader.MSG_SIZE)
+          {
+            size_t copy_bytes= mHeader.MSG_SIZE-mPLBytesReady;
+            memcpy(messageFrames->data()+used+mPLBytesReady,stream+cursor,copy_bytes);
+            cursor+=copy_bytes;
+            mPLBytesReady+=copy_bytes;
+          }else{
+            memcpy(messageFrames->data()+used+mPLBytesReady,stream+cursor,limit-cursor);
+            mPLBytesReady+=(limit-cursor);
+            cursor=limit;
+          }
           
           if(mPLBytesReady == mHeader.MSG_SIZE)
           {
@@ -147,7 +163,7 @@ namespace WSStreamProcessing
             };
           }
           
-          cursor=0;
+          if(cursor == limit) cursor=0;
           
           return { 
             cursor, 
@@ -254,6 +270,8 @@ namespace WSStreamProcessing
       if(mState == WSStreamProcessing::MESSAGE_READY)
       {
         mState=WSStreamProcessing::INIT;
+      }
+      
         if(mHeader.FSEQ==WSStreamProcessing::FrameSeq::SINGLE)
         {
           MSGBufferTypeSPtr tmp(std::move(message));
@@ -266,8 +284,8 @@ namespace WSStreamProcessing
           messageFrames=getBuffer();
           return { mHeader.OPCODE, std::move(tmp)};
         }
-      }
-      throw std::logic_error("WSStreamParser::getMessage() - message is not ready yet");
+//      }
+//      throw std::logic_error("WSStreamParser::getMessage() - message is not ready yet");
     }
     
     explicit WSStreamClientParser(const size_t presize=512) : WSStreamParser(presize)

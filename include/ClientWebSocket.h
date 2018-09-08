@@ -69,7 +69,7 @@ namespace LAppS
   {
     enum URISearchDirective {LOOK_FOR_HOSTNAME,LOOK_FOR_PORT,LOOK_FOR_RTARGET,STOP_LOOKING};  
     enum State { INIT, HANDSHAKE_FAILED, COMM_ERROR, CLOSED, HANDSHAKE, MESSAGING };
-    enum InputStatus { FORCE_CLOSE=-2, ERROR=-1, NEED_MORE_DATA=1, MESSAGE_READY_BUFFER_IS_EMPTY=2, MESSAGE_READY_BUFFER_IS_NOT_EMPTY=3, CALL_ONCE_MORE=4, UPGRADED=5 };
+    enum InputStatus { FORCE_CLOSE=-2, ERROR=-1, NEED_MORE_DATA=1, MESSAGE_READY_BUFFER_IS_EMPTY=2, MESSAGE_READY_BUFFER_IS_NOT_EMPTY=3, CALL_ONCE_MORE=4, UPGRADED=5, UPGRADED_BUFF_NOT_EMPTY=6};
     typedef WSStreamProcessing::State MessageState;
   }
   
@@ -104,7 +104,7 @@ namespace LAppS
       
       tls_config_set_protocols(TLSConfig,TLS_PROTOCOL_TLSv1_2);
       
-      tls_config_prefer_ciphers_client(TLSConfig);
+      tls_config_prefer_ciphers_server(TLSConfig);
       
       if(noverifycert)
       {
@@ -276,7 +276,7 @@ namespace LAppS
     
     const bool responseOK(const char* buff, size_t sz, const std::string& required_sec_websocket_accept)
     {
-      if(sz<(34+20+19+24+16)) return false;
+      if(sz<113) return false;
       
       if(strncmp(buff,"HTTP/1.1 101 Switching Protocols\r\n",34)==0) // first line of response is correct
       {
@@ -289,11 +289,23 @@ namespace LAppS
           std::string value;
 
           // skip CRLF
+          size_t counter=0;
           while((index<sz)&&((buff[index] == '\r')||(buff[index] == '\n')))
           {
             ++index;
+            ++counter;
           }
-         
+          
+          if(counter == 4)
+          {
+            if(index != sz)
+            {
+              cursor=index;
+            }
+            else
+              cursor=0;
+            break;
+          }
           // read key
           while((index<sz)&&(buff[index] != ':'))
           {
@@ -713,7 +725,10 @@ namespace LAppS
           {
             mState=WSClient::State::MESSAGING;
             streamProcessor.setMaxMSGSize(16777216);
-            return WSClient::InputStatus::UPGRADED;
+            if(cursor == 0)
+              return WSClient::InputStatus::UPGRADED;
+            else
+              return WSClient::InputStatus::UPGRADED_BUFF_NOT_EMPTY;
           }
           else
           {
@@ -724,7 +739,16 @@ namespace LAppS
         break;
         case WSClient::State::MESSAGING:
         {
-          int received=force_recv(recvBuffer);
+          int received=0;
+          if(cursor == 0)
+          {
+            received=force_recv(recvBuffer);
+          }
+          else
+          {
+            received=recvBuffer.size();
+          }
+          
           if(received > 0)
           {
             auto state=std::move(streamProcessor.parse(recvBuffer.data(),received,cursor));
@@ -732,8 +756,10 @@ namespace LAppS
             switch(state.directive)
             {
               case WSStreamProcessing::Directive::MORE:
-                cursor=0;
-                return WSClient::InputStatus::NEED_MORE_DATA;
+                if( cursor == 0)
+                  return WSClient::InputStatus::NEED_MORE_DATA;
+                else
+                  return WSClient::InputStatus::CALL_ONCE_MORE;
               case WSStreamProcessing::Directive::TAKE_READY_MESSAGE:
                 if(state.cursor!=static_cast<size_t>(received))
                   return WSClient::InputStatus::MESSAGE_READY_BUFFER_IS_NOT_EMPTY;

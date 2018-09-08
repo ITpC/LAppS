@@ -350,25 +350,32 @@ extern "C" {
                 WSCPool.remove(event.data.fd);
               break;
               case LAppS::WSClient::InputStatus::NEED_MORE_DATA:
+              {
                 WSCPool.mod_in(event.data.fd);
+              }
               break;
               case LAppS::WSClient::InputStatus::MESSAGE_READY_BUFFER_IS_EMPTY:
               {
-                auto wsevent{client_ws->getMessage()};
-                onEvent(L,client_ws,wsevent);
+                onEvent(L,client_ws,{std::move(client_ws->getMessage())});
                 WSCPool.mod_in(event.data.fd);
               }
               break;
               case LAppS::WSClient::InputStatus::MESSAGE_READY_BUFFER_IS_NOT_EMPTY:
               {
-                auto wsevent{client_ws->getMessage()};
-                onEvent(L,client_ws,wsevent);
-                WSCPool.mod_in(event.data.fd);
+                onEvent(L,client_ws,{std::move(client_ws->getMessage())});
+                directive=LAppS::WSClient::InputStatus::CALL_ONCE_MORE;
               }
+              break;
               case LAppS::WSClient::InputStatus::UPGRADED:
               {
                 callOnOpen(L,event.data.fd);
                 WSCPool.mod_in(event.data.fd);
+              }
+              break;
+              case LAppS::WSClient::InputStatus::UPGRADED_BUFF_NOT_EMPTY:
+              {
+                callOnOpen(L,event.data.fd);
+                directive=LAppS::WSClient::InputStatus::CALL_ONCE_MORE;
               }
               break;
               case LAppS::WSClient::InputStatus::CALL_ONCE_MORE:
