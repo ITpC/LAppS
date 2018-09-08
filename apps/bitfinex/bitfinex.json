@@ -1,0 +1,7 @@
+{
+  "name" : "bitfinex",
+  "auto_start" : true,
+  "instances": 1,
+  "internal": true,
+  "preload" : [ "cws" ]
+}
