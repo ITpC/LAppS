@@ -1,25 +1,87 @@
-# 0.7.x branch changes
-
-```
+4a02211 nr of sockets changed
+a5b95f1 WebSocket client example services
+c385daf WebSocket client implementation bugfixes
+1f1eaa1 added dependencies in descriptor. minor changes in benchmark
+1e2fbc7 removed debug out
+ad3162a code cleanup
+5da4257 code cleanup
+77f575b service initialization message logging
+59196be removed commented lines. added logging for handshake failures
+b0baa4d fix: #19
+2d057f8 fix: #20
+a013bd8 fix: #17 implemented as a recursive call to Deployer::start_service()
+33dff14 service descriptor for lar is added
+e41afca benchmark minor fix
+791a521 attribute `depends\' is recognized by Deployer now. Configured in lapps.json in a service descriptor this will start subordinate services listed in `depends` array now.
+06e5c0e prefer client ciphers for TLS
+8c2cc87 moved common parts in superclass
+0806051 removed goto and replaced with do-while
+b09cc28 upstream version bump
+99249ec fix #18
+779302b fix #15
+4a63f48 fix #16
+0ca3064 removing debug output
+523a991 benchmark service which uses cws module
+ca4730e client WebSocket implementation and embeddable module for lua
+063f6c2 added () on key check, insignificant change
+cd56db0 moved common functionality to include/modules/UserDataAdapter.h, renamed __gc callback
+7b063eb moved common functionctionality from include/modules/mqr.h
+1e458df simplified lua stack clear wrapper, added log->flush before exceptions
+141d301 separation of methods for WS client and server
+099122a moved two common methods to base class
+b8dce40 comparison simplified
+ed68dd7 fixed HTTP headers case sensitivity issue, separated WSStreamParser for upcoming WSClient
+0afbe0a Moved structures common for client and server to include/WSStreamProcessingCommon.h
+12b4140 regression fix
+e3d12bb added a recognition of an optional 'proto_alias' attribute of the service and its announcement on handshake
+028c68d spacing in constructor
+6bff835 new option for services: extra_headers, to provide additional headers for clients
+8f7e0c7 constantiated a value
+c5455dd headers parsing tweaking
+6199ae5 HTTP headers parsing fix
+62f29d2 buffer range check fixed on send
+2b6f2d3 added server version in HTTP resoponse
+2c525e6 simplified the parser
+c7fcb43 potential socket exhaustion on handshake is fixed
+081304e 0.7.0 deb packages bump
+2830ed4 syntax error fix
+22bae55 fallback to g++5.4
+17e0076 g++6.0 added
+358d564 LAppS 0.7.0 defaults
+a99f907 LAppS protocol benchmark
+8d36183 LAppS protocol echo client
+c35e828 LAppS protocol simulation over uWebSockets is added
+54595a9 uWS.cpp example from benchmarking of uWebSockets is added
+f86c67f lar installation is added
+3411b09 console wip, added service descriptor to examples/echo_lapps
+1227a72 preads option is removed
+1b377d3 spaces
+5e87e72 optimized masking for packets >= 48 bytes
+2a648aa Reader is removed
+3e91d09 race condition on recv and send at the same time fixed
+812a9a3 added two new methods size and indexed get
+051f598 removed temporary Reader functionality. everything is back to IOWorker
+23188c0 Workers Cache update condition fixed
+542da44 lar dependecy was missing. fixed
+33b694a Inter-Service communications with message queues
+c282ffa buffer owenership on return
+3b0c29c formatting
+da2e6ff alignment, saving 8 bytes per WebSocket
+36ac7f1 ChangeLog.md formatting
+19ab61f ChangeLog.md bump from git log
 76d693c deployment descriptor and stop condition
 ee62516 formatting
 49ce263 auto save of the config file in pretty print
 9cbe03d control of internal services lifetime moved from InternalAppContext into InternalApplication
 080bbb1 deployment for internal apps is fixed
 04e9840 0.7.0 packages links are added
-c734f37 build separation fix
 f8caee7 comments fixed
-7e4d2e2 build separation
-b7e2606 build sequence fix
-c202894 Release separation for AVX2 and SSSE3 builds
 d2d0c3b autobahn testsuite results
 ba7e8df 0.7.0 proper. no console
 bedc0a4 64 bit-xor for fragmented messages with fragments larger 8192 bytes
-03563e1 0.7.0 prelimenary build
 454dc1f libbz2-dev was missing. fixed
 c237293 lar was missing. fixed
 0146b10 console.WIP
-e553ede bump docker infrastructure to build LAppS 0.7.0
 1132740 removed gprof linking
 2b2ce8e removed commented lines
 a493848 more optimizations
@@ -92,11 +154,6 @@ bdab8ab Merge pull request #2 from ITpC/0.7-highperf
 4f676ba (origin/0.6.3-stable) license file for nlohmann json
 0b532f0 (origin/0.7-highperf) VERSION bump
 bd32488 LAppS-0.7.0 experimental high performance branch
-```
-
-# 0.6 and before
-
-```
 00adcfd toward perfopts
 fe8f581 removed useless file
 4b81e4d Merge branch 'master' of github.com:ITpC/LAppS
@@ -121,8 +178,6 @@ f16f060 removed test line
 e249929 LAppS-0.6.2 hotfix, environment variables
 ca853e1 LAppS-0.6.2 fix: config validation
 2c29307 Config validation fixed
-8520334 shell-scripts to build and run LAppS in docker
-967c217 shell script to build docker runenv for LAppS-0.6.2
 3ff4b29 fixing dockerfile for runenv 0.6.2
 f52daba deb package for LAppS-0.6.2 is added
 ebdb3f1 broadcast_blob example added in examples installation
@@ -159,7 +214,6 @@ f2c2b2d result for nginx test has been added
 e9b0c63 location section of nginx.conf used for test
 78519e0 deb package version bump
 b5ddb07 deb package version bump
-07ecb5f auto-build
 26f3696 test results bomped
 6d34371 checking for nullptr added
 491bac8 default for listeners changed to 3
@@ -176,10 +230,6 @@ c75460a TODO moved to project's kanban
 79811ae Update issue templates
 c4b12d6 Update issue templates
 465c4ce package is bumped to lapps-0.5.1
-a840cdb build-deb postinst script added
-4f14e5b build-deb fix2
-3506bd7 build-deb fix1
-9501265 build-deb make target
 d51779f Broadcast fixed
 05433d4 fixed permission for bcast module to be available only in an application context with LAppS protocol
 329f400 comments
@@ -218,7 +268,6 @@ ac1ff45 params specification detalization
 9e67822 using 'auto' instead of type specification
 4b95cd7 fix: dereference of unassigned shared_ptr on socket close with no handshake
 f5e0b35 LAppS-protocol implemented. echo_lapps demo application is added to demonstrate LAppS stack
-7b9626c automatic build-configuration change
 abb5734 changed startup notification from log-debug to log-info level
 ddd6d35 added 2 interface methods: submitError, submitResponses (batch submission)
 192024b changed includes
@@ -244,11 +293,9 @@ bfa956e batch update impl
 d5f3ee6 corrected Makefile
 522ef0a reordering config. removed workers restriction
 9b19df8 Spec markup update
-ca514a3 Docker files for base, build and run environments
 a7f2f0d fix install target
 c6bb141 changes for default config to run within docker instance
 175b7c7 changes for default config to run within docker instance
-024f45d added targets for docker-build
 28bdb53 install and install-examples targets are added
 de1034d added TODO
 1f283e4 Refactoring. lua echo app is running now
@@ -262,8 +309,6 @@ f5991c1 excluded private from respository
 111c1e5 1. Fix: tls server context and config are required to be singletons 2. Refactoring: rename ConnectionsWorker to WSWorker
 54c9452 Modified link to Autobahn TestSuite Results
 8b8b758 Added link to Autobahn Results
-b97a243 removed build files
 a90ed89 Autobahn Testsuite Results
 d4f3602 Initial import, WebSockets Protocol Implementation, non-SSL and TLSv1.2
 d8c0f6f Initial commit
-```
