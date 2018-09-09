@@ -63,10 +63,12 @@ namespace LAppS
       {
         return 16;
       }
+      // Class C
       if((first_octet >= 192) && (first_octet < 224))
       {
         return 24;
       }
+      // Single host
       return 32;
     }
     
