@@ -23,7 +23,7 @@ benchmark.run=function()
   local n=nap:new();
   n:sleep(1); -- delay for echo service to startup fully
   local array={};
-  for i=0,149
+  for i=0,89
   do
     local sock, err_msg=cws:new(
       "wss://127.0.0.1:5083/echo",
@@ -56,6 +56,11 @@ benchmark.run=function()
   benchmark.start_time=time.now();
   while not must_stop()
   do
+    cws:eventLoop();
+  end
+  for i=1,#array
+  do
+    array[i]:close();
     cws:eventLoop();
   end
 end
