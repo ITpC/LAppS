@@ -44,6 +44,7 @@
       <itemPath>include/MQRegistry.h</itemPath>
       <itemPath>include/NetworkACL.h</itemPath>
       <itemPath>include/Nonce.h</itemPath>
+      <itemPath>include/ServerStats.h</itemPath>
       <itemPath>include/ServiceProperties.h</itemPath>
       <itemPath>include/Shakespeer.h</itemPath>
       <itemPath>include/TLSServerContext.h</itemPath>
@@ -815,6 +816,12 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -864,6 +871,8 @@
       <item path="include/NetworkACL.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Nonce.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ServerStats.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ServiceProperties.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -1651,6 +1660,12 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -1700,6 +1715,8 @@
       <item path="include/NetworkACL.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Nonce.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ServerStats.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ServiceProperties.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -2487,6 +2504,12 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -2536,6 +2559,8 @@
       <item path="include/NetworkACL.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Nonce.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ServerStats.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ServiceProperties.h" ex="false" tool="3" flavor2="0">
       </item>
