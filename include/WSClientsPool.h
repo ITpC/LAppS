@@ -38,8 +38,9 @@ namespace LAppS
    private:
     ePoll                                 mEPoll;
     std::map<int32_t,ClientWebSocketSPtr> mPool;
+    
    public:
-    explicit WSClientPool():mEPoll(),mPool() {}
+    explicit WSClientPool():mEPoll(), mPool() {}
     WSClientPool(const WSClientPool&)=delete;
     WSClientPool(WSClientPool&)=delete;
     
