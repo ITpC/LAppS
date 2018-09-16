@@ -59,8 +59,19 @@ namespace LAppS
     
     void execute()
     {
-      mContext.init();
-      mContext.run();
+      try{
+        mContext.init();
+        try{
+          mContext.run();
+        }catch(const std::exception& e)
+        {
+          itc::getLog()->error(__FILE__,__LINE__,"Runtime error in service %s: %s",mContext.getName().c_str(),e.what());
+        }
+      }catch(const std::exception& e)
+      {
+        itc::getLog()->error(__FILE__,__LINE__,"Exception on initialization of service %s: %s",mContext.getName().c_str(),e.what());
+      }
+      
     }
     ~InternalApplication()
     {
