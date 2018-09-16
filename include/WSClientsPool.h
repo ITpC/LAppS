@@ -36,12 +36,17 @@ namespace LAppS
   class WSClientPool
   {
    private:
-    std::map<int32_t,ClientWebSocketSPtr> mPool;
     ePoll                                 mEPoll;
+    std::map<int32_t,ClientWebSocketSPtr> mPool;
    public:
-    explicit WSClientPool():mPool(),mEPoll() {}
+    explicit WSClientPool():mEPoll(),mPool() {}
     WSClientPool(const WSClientPool&)=delete;
     WSClientPool(WSClientPool&)=delete;
+    
+    ~WSClientPool()
+    {
+      mPool.clear();
+    }
     
     const int32_t create(const std::string& uri)
     {
