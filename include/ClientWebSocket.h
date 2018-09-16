@@ -32,6 +32,8 @@
 #include <net/NSocket.h>
 #include <TCPSocketDef.h>
 #include <missing.h>
+#include <sys/atomic_mutex.h>
+#include <sys/synclock.h>
 
 #include <tls.h>
 
@@ -79,6 +81,8 @@ namespace LAppS
     size_t                  cursor;
     struct tls_config*      TLSConfig;
     struct tls*             TLSSocket;
+    
+    itc::sys::AtomicMutex   mMutex;
     
     bool                    noverifycert;
     bool                    noverifyname;
@@ -345,7 +349,8 @@ namespace LAppS
     {
       static const itc::utils::Bool2Type<true> TLSEnabled;
       static const itc::utils::Bool2Type<false> TLSDisabled;
-      
+     
+      AtomicLock sync(mMutex);
       if(tls)
       {
         return force_recv(buff,TLSEnabled);
@@ -359,6 +364,7 @@ namespace LAppS
       static const itc::utils::Bool2Type<true> TLSEnabled;
       static const itc::utils::Bool2Type<false> TLSDisabled;
       
+      AtomicLock sync(mMutex);
       if(tls)
       {
         return force_send(buff,TLSEnabled);
@@ -373,6 +379,7 @@ namespace LAppS
       static const itc::utils::Bool2Type<true> TLSEnabled;
       static const itc::utils::Bool2Type<false> TLSDisabled;
       
+      AtomicLock sync(mMutex);
       if(tls)
       {
         return force_send(buff,TLSEnabled);
@@ -416,8 +423,8 @@ namespace LAppS
    public:
     
     explicit ClientWebSocket(const std::string& uri, const bool _noverifycert=false, const bool _noverifyname=false)
-    : itc::ClientSocket(), cursor{0}, TLSConfig{nullptr},
-      TLSSocket{nullptr}, noverifycert{_noverifycert},noverifyname{_noverifyname},
+    : itc::ClientSocket(), cursor{0}, TLSConfig{nullptr}, TLSSocket{nullptr}, 
+      mMutex(), noverifycert{_noverifycert},noverifyname{_noverifyname},
       mState{WSClient::State::INIT}, mMSGState{WSClient::MessageState::INIT},
       streamProcessor(512)
     {
@@ -555,6 +562,13 @@ namespace LAppS
         httpUpgradeRequest.append("\r\n");
         httpUpgradeRequest.append("Sec-WebSocket-Version: 13\r\n\r\n");
         
+        // prevent SIGPIPE
+        
+        sigset_t sigsetmask;
+        sigemptyset(&sigsetmask);
+        sigaddset(&sigsetmask, SIGPIPE);
+        pthread_sigmask(SIG_BLOCK, &sigsetmask, NULL);
+        
         // handshake
 
         int ret=force_send(httpUpgradeRequest);
@@ -633,6 +647,13 @@ namespace LAppS
     
     ~ClientWebSocket()
     {
+      // prevent SIGPIPE on thread calling destructor.
+      sigset_t sigsetmask;
+      sigemptyset(&sigsetmask);
+      sigaddset(&sigsetmask, SIGPIPE);
+      pthread_sigmask(SIG_BLOCK, &sigsetmask, NULL);
+      
+      
       switch(mState)
       {
         case WSClient::State::MESSAGING:
@@ -643,7 +664,10 @@ namespace LAppS
         case WSClient::State::INIT:
         case WSClient::State::HANDSHAKE_FAILED:
         case WSClient::State::COMM_ERROR:
-            this->close();
+        {
+          AtomicLock sync(mMutex);
+          this->close();
+        }
       }
     }
     
