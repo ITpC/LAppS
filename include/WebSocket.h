@@ -145,7 +145,10 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
       case State::HANDSHAKE:
         terminate();
       case State::CLOSED:
-          mSocketSPtr->close();
+      {
+        AtomicLock sync(mMutex);
+        mSocketSPtr->close();
+      }
     }
   }
   
@@ -156,6 +159,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   
   void terminate()
   {
+    AtomicLock sync(mMutex);
     if(mState != State::CLOSED)
     {
       sigset_t sigsetmask;
