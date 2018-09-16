@@ -274,10 +274,23 @@ extern "C" {
       lua_pushstring(L,message.c_str());
       return 2;
     }
-    return 0;
+    return 0; // relax compiler
   }
 
-  
+  LUA_API int cws_close(lua_State *L)
+  {
+    const int argc=lua_gettop(L);
+    if(argc == 1)
+    {
+      auto udptr=static_cast<int32_t*>(luaL_checkudata(L,argc,"cws"));
+      
+      if(udptr!=nullptr)
+      {
+        WSCPool.remove(*udptr);
+      }
+    }
+    return 0;
+  }
   
   static void callOnClose(lua_State *L, const int32_t fd)
   {
@@ -396,6 +409,8 @@ extern "C" {
       {"send", cws_send},
       {"eventLoop",cws_eventloop},
       {"__index",cws_methods},
+      {"__gc",cws_close},
+      {"close",cws_close},
       {nullptr,nullptr}
     };
     
