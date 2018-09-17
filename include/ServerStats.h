@@ -27,6 +27,7 @@
 #include <WSWorkersPool.h>
 #include <WorkerStats.h>
 #include <Singleton.h>
+#include <ApplicationRegistry.h>
 
 
 namespace LAppS
