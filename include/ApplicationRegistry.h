@@ -61,12 +61,12 @@ namespace LAppS
       }
       mApplications.clear();
     }
-    void listApps(std::queue<std::string>& out)
+    void listApps(std::vector<std::pair<std::string, size_t>>& out)
     {
       SyncLock sync(mMutex);
       for(auto it=mApplications.begin();it!=mApplications.end();++it)
       {
-        out.push(it->first);
+        out.push_back({it->first,it->second.size()});
       }
     }
     void unRegApp(const std::string name)
