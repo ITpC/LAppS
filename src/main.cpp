@@ -27,7 +27,7 @@
 #include <sys/Nanosleep.h>
 #include <HTTPRequestParser.h>
 #include <bz2Compression.h>
-
+#include <ServiceRegistry.h>
 #include <NetworkACL.h>
 
 void startWSServer()
@@ -62,7 +62,7 @@ void startWSServer()
     {
       itc::getLog()->info(__FILE__,__LINE__,"Shutdown is initiated by signal %d, - server is going down",signo);
       itc::getLog()->flush();
-      ApplicationRegistry::getInstance()->clear();
+      LAppS::SServiceRegistry::getInstance()->clear();
 #ifdef LAPPS_TLS_ENABLE
   #ifdef STATS_ENABLE
       itc::Singleton<WSWorkersPool<true,true>>::getInstance()->clear();

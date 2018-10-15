@@ -16,62 +16,50 @@
  *  You should have received a copy of the GNU General Public License
  *  along with LAppS.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  $Id: ApplicationContext.h March 21, 2018 3:36 PM $
+ *  $Id: LuaReactiveServiceContext.h September 20, 2018 10:10 AM $
  * 
  **/
 
 
-#ifndef __APPLICATIONCONTEXT_H__
-#  define __APPLICATIONCONTEXT_H__
+#ifndef __LUAREACTIVESERVICECONTEXT_H__
+#  define __LUAREACTIVESERVICECONTEXT_H__
+
+#include <atomic>
+#include <memory>
+
+#include <Val2Type.h>
+#include <abstract/LuaServiceContext.h>
+#include <ContextTypes.h>
+#include <AppInEvent.h>
+
 #include <ext/json.hpp>
-#include <abstract/Application.h>
-
-extern "C" {
-#include <lua.h>
-#include <lualib.h>
-#include <lauxlib.h>
-#include <stdexcept>
-
-}
-
-
-#include <WebSocket.h>
-#include <abstract/Worker.h>
-#include <abstract/ApplicationContext.h>
-
-
-#include <modules/wsSend.h>
-
 using json = nlohmann::json;
+
 
 
 namespace LAppS
 {
-  template <bool TLSEnable, bool StatsEnable, ApplicationProtocol Tproto>
-  class ApplicationContext : public ::abstract::ApplicationContext
+  template <ServiceProtocol Tproto> 
+  class LuaReactiveServiceContext : public abstract::LuaServiceContext
   {
-  private:
-    typedef std::shared_ptr<::abstract::Worker> WorkerSPtrType;
-    typedef WebSocket<TLSEnable,StatsEnable> WSType;
-    typedef std::shared_ptr<WSType> WSSPtrType;
+   private:
+    enum      LAppSInMessageType { INVALID, CN, CN_WITH_PARAMS, REQUEST, REQUEST_WITH_PARAMS };
     
-    enum LAppSInMessageType { INVALID, CN, CN_WITH_PARAMS, REQUEST, REQUEST_WITH_PARAMS };
     itc::utils::Int2Type<Tproto> mProtocol;
-    abstract::Application* mParent;
-    std::atomic<bool>      mustStop;
-
+    std::atomic<bool>            mustStop;
+    
     
     void callAppOnMessage()
     {
       int ret = lua_pcall (mLState, 3, 1, 0);
       checkForLuaErrorsOnPcall(ret,"onMessage");
     }
-    
-    const bool isAppModuleValid()
+
+    const bool isServiceModuleValid()
     {
       bool ret=false;
       // validate presence of required methods: onStart,onMessage,onShutdown
-      lua_getglobal(mLState, mName.c_str());
+      lua_getglobal(mLState, this->getName().c_str());
       lua_getfield(mLState, -1, "onStart");
       ret=lua_isfunction(mLState,-1);
       if(ret){
@@ -81,7 +69,7 @@ namespace LAppS
         lua_pop(mLState,1);
         return false;
       }
-      
+
       lua_getfield(mLState, -1, "onMessage");
       ret=lua_isfunction(mLState,-1);
       if(ret){
@@ -91,8 +79,8 @@ namespace LAppS
         lua_pop(mLState,1);
         return false;
       }
-      
-      lua_getfield(mLState, -1, "onMessage");
+
+      lua_getfield(mLState, -1, "onShutdown");
       ret=lua_isfunction(mLState,-1);
       if(ret){
         lua_pop(mLState,1);
@@ -101,7 +89,7 @@ namespace LAppS
         lua_pop(mLState,1);
         return false;
       }
-      
+
       lua_getfield(mLState, -1, "onDisconnect");
       ret=lua_isfunction(mLState,-1);
       if(ret){
@@ -115,22 +103,23 @@ namespace LAppS
       return true;
     }
     
-    void shutdownApp()
+    void startService()
     {
-      lua_getglobal(mLState, mName.c_str());
-      lua_getfield(mLState, -1, "onShutdown");
-      int ret = lua_pcall (mLState, 0, 0, 0);
-      checkForLuaErrorsOnPcall(ret,"onShutdown");
-    }
-    
-    void startApp()
-    {
-      lua_getglobal(mLState, mName.c_str());
+      lua_getglobal(mLState, this->getName().c_str());
       lua_getfield(mLState, -1, "onStart");
       int ret = lua_pcall (mLState, 0, 0, 0);
       checkForLuaErrorsOnPcall(ret,"onStart");
       cleanLuaStack();
     }
+    
+    void shutdownService()
+    {
+      lua_getglobal(mLState, this->getName().c_str());
+      lua_getfield(mLState, -1, "onShutdown");
+      int ret = lua_pcall (mLState, 0, 0, 0);
+      checkForLuaErrorsOnPcall(ret,"onShutdown");
+    }
+    
     static const LAppSInMessageType getLAppSInMessageType(const json& msg)
     {
       auto lapps=msg.find("lapps");
@@ -186,12 +175,28 @@ namespace LAppS
       }
       else return INVALID;
     }
-  
-    const bool onMessage(const abstract::AppInEvent& event, const itc::utils::Int2Type<ApplicationProtocol::RAW>& protocol_is_raw)
+    
+    
+    void init_bcast_module(const itc::utils::Int2Type<ServiceProtocol::LAPPS>& protocol_is_lapps)
+    {
+      ::init_bcast_module(mLState);
+    }
+    
+    void init_bcast_module(const itc::utils::Int2Type<ServiceProtocol::RAW>& protocol_is_raw)
+    {
+    }
+    
+    void init_bcast_module(const itc::utils::Int2Type<ServiceProtocol::INTERNAL>& protocol_is_internal)
+    {
+    }
+    
+    
+    
+    const bool onMessage(const AppInEvent& event, const itc::utils::Int2Type<ServiceProtocol::RAW>& protocol_is_raw)
     {
       cleanLuaStack();
       
-      lua_getfield(mLState, LUA_GLOBALSINDEX, mName.c_str());
+      lua_getfield(mLState, LUA_GLOBALSINDEX, this->getName().c_str());
       lua_getfield(mLState,-1,"onMessage");
       
       lua_pushinteger(mLState, (lua_Integer)(event.websocket.get()));
@@ -206,7 +211,7 @@ namespace LAppS
       {
         throw std::system_error(
           EINVAL,std::system_category(),
-          mName+"::onMessage() is returned "+std::to_string(argc-1)+
+          this->getName()+"::onMessage() is returned "+std::to_string(argc-1)+
           " values, but only one boolean value is expected"
         );
       }
@@ -233,7 +238,7 @@ namespace LAppS
       lua_setmetatable(mLState, -2);
     }
     
-    const bool onMessage(const abstract::AppInEvent& event, const itc::utils::Int2Type<ApplicationProtocol::LAPPS>& protocol_is_lapps)
+    const bool onMessage(const AppInEvent& event, const itc::utils::Int2Type<ServiceProtocol::LAPPS>& protocol_is_lapps)
     {
       // exceptions from json and from lua stack MUST be handled in the Application class
       // We must prevent possibility to kill app with inappropriate message, therefore 
@@ -253,7 +258,7 @@ namespace LAppS
       if(msg_type == INVALID)
         return false;
 
-      lua_getfield(mLState, LUA_GLOBALSINDEX, mName.c_str());
+      lua_getfield(mLState, LUA_GLOBALSINDEX, this->getName().c_str());
       lua_getfield(mLState,-1,"onMessage");
 
       lua_pushinteger(mLState,(lua_Integer)(event.websocket.get())); // socket handler for ws::send
@@ -270,7 +275,7 @@ namespace LAppS
       {
         throw std::system_error(
           EINVAL,std::system_category(),
-          mName+"::onMessage() is returned "+std::to_string(argc)+
+          this->getName()+"::onMessage() is returned "+std::to_string(argc)+
           " values, but only one boolean value is expected"
         );
       }
@@ -283,82 +288,77 @@ namespace LAppS
       }
       return false;
     }
-    void add_bcast(const itc::utils::Int2Type<ApplicationProtocol::LAPPS>& protocol_is_lapps)
-    {
-      luaopen_bcast(mLState);
-      lua_setfield(mLState,LUA_GLOBALSINDEX,"bcast");
-      cleanLuaStack();
-    }
-    void add_bcast(const itc::utils::Int2Type<ApplicationProtocol::RAW>& protocol_is_raw)
-    {
-    }
     
-public:
-    ApplicationContext(const ApplicationContext&)=delete;
-    ApplicationContext(ApplicationContext&)=delete;
-    
-    explicit ApplicationContext(const std::string& appname, abstract::Application* parent)
-    : ::abstract::ApplicationContext(appname), mParent(parent),mustStop{false}
+    const bool onMessage(const AppInEvent& event, const itc::utils::Int2Type<ServiceProtocol::INTERNAL>& protocol_is_internal)
     {
-      cleanLuaStack();
-      luaopen_wssend(mLState);
-      lua_setfield(mLState,LUA_GLOBALSINDEX,"ws");
-      cleanLuaStack();
+      itc::getLog()->error(__FILE__,__LINE__,"Internal protocol is not allowed for Reactive Services");
+      return false;
+    }
+    void init()
+    {
+       init_ws_module(mLState);
       
-      add_bcast(mProtocol);
-            
-      if(require(mName))
+      init_bcast_module(mProtocol);
+      
+      
+      if(require(this->getName()))
       {
-        itc::getLog()->info(__FILE__,__LINE__,"Lua module %s is registered",mName.c_str());
-        if(isAppModuleValid())
+        itc::getLog()->info(__FILE__,__LINE__,"Lua module %s is registered",this->getName().c_str());
+        if(isServiceModuleValid())
         {
           itc::getLog()->info(
             __FILE__,__LINE__,
             "Lua module %s is a valid application (e.a. provides required methods, though there is no warranty it works properly)",
-            mName.c_str()
+            this->getName().c_str()
           );
           try {
-            this->startApp();
+            this->startService();
           }catch(const std::exception& e)
           {
             itc::getLog()->error(
               __FILE__,__LINE__,
               "Unable to start application %s, because of an exception: %s",
-              mName.c_str(),e.what()
+              this->getName().c_str(),e.what()
             );
             throw;
           }
         }
         else
         {
-          itc::getLog()->error(__FILE__,__LINE__,"Lua module %s is not a valid LAppS application",mName.c_str());
-          throw std::logic_error("Invalid application "+mName);
+          itc::getLog()->error(__FILE__,__LINE__,"Lua module %s is not a valid LAppS application",this->getName().c_str());
+          throw std::logic_error("Invalid application "+this->getName());
         }
       }
       cleanLuaStack();
     }
+    
     void shutdown()
     {
       if(mLState)
       {
         try{
-          shutdownApp();
+          shutdownService();
+          itc::getLog()->info(__FILE__,__LINE__,"Service-module %s is down",this->getName().c_str());
         }catch(const std::exception& e){
-          itc::getLog()->error(__FILE__,__LINE__,"Exception: %s",e.what());
+          itc::getLog()->error(__FILE__,__LINE__,"Can't stop Service-module [%s], exception: %s",this->getName().c_str(),e.what());
         }
-        lua_close(mLState);
-        mLState=nullptr;
       }
     }
     
-    virtual ~ApplicationContext() noexcept
+   public:
+    LuaReactiveServiceContext()=delete;
+    LuaReactiveServiceContext(LuaReactiveServiceContext&)=delete;
+    LuaReactiveServiceContext(const LuaReactiveServiceContext&)=delete;
+    
+    explicit LuaReactiveServiceContext(
+      const std::string& name
+    ) : abstract::LuaServiceContext(name), mustStop{false}
     {
-      if(mLState)
-      {
-        this->shutdown();
-      }
+      static_assert(Tproto != ServiceProtocol::INTERNAL, "LuaReactiveServiceContext does not supports INTERNAL protocol");
+      this->init();
     }
-    const bool onMessage(const abstract::AppInEvent& event)
+    
+    const bool onMessage(const AppInEvent& event)
     {
       if(mustStop) return false;
       return onMessage(std::move(event),mProtocol);
@@ -368,15 +368,25 @@ public:
     {
       this->cleanLuaStack();
       
-      lua_getfield(mLState, LUA_GLOBALSINDEX, mName.c_str());
+      lua_getfield(mLState, LUA_GLOBALSINDEX, this->getName().c_str());
       lua_getfield(mLState,-1,"onDisconnect");
       lua_pushinteger(mLState,(lua_Integer)(ws.get()));
       
       int ret = lua_pcall (mLState, 1, 0, 0);
       checkForLuaErrorsOnPcall(ret,"onDisconnect");
     }
+    
+    ~LuaReactiveServiceContext() noexcept
+    {
+      this->shutdown();
+    }
+    
+    const ServiceProtocol getProtocol() const
+    {
+      return Tproto;
+    }
   };
 }
 
-#endif /* __APPLICATIONCONTEXT_H__ */
+#endif /* __LUAREACTIVESERVICECONTEXT_H__ */
 

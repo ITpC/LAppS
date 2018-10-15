@@ -35,21 +35,22 @@
 #include <Val2Type.h>
 
 #include <WSEvent.h>
-#include <abstract/Application.h>
 #include <WSStreamServerParser.h>
 #include <WSServerMessage.h>
 #include <ePoll.h>
 #include <Config.h>
 
-// LibreSSL
-#include <tls.h>
-
 #include <WSConnectionStats.h>
-
 #include <abstract/WebSocket.h>
 #include <abstract/Worker.h>
 
-#include <ApplicationRegistry.h>
+#include <ServiceRegistry.h>
+#include <AppInEvent.h>
+
+
+// LibreSSL
+#include <tls.h>
+
 
 static thread_local std::vector<uint8_t> anInBuffer(16384);
 
@@ -84,7 +85,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   
   WSStreamProcessing::WSStreamServerParser  streamProcessor;
   
-  ApplicationSPtr                     mApplication;
+  ::LAppS::ServiceSPtrType            mApplication;
   
   SharedEPollType                     mEPoll;
   
@@ -227,7 +228,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   }
     
 
-  void setApplication(const ApplicationSPtr ptr)
+  void setApplication(const LAppS::ServiceSPtrType& ptr)
   {
     mApplication=ptr;
     if(mApplication)
@@ -237,7 +238,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
     }
   }
   
-  const ApplicationSPtr& getApplication() const
+  const LAppS::ServiceSPtrType& getApplication() const
   {
     return mApplication;
   }
@@ -383,7 +384,7 @@ private:
         {
           getApplication()->enqueue(
             std::move(
-              abstract::AppInEvent{
+              LAppS::AppInEvent{
                 WebSocketProtocol::TEXT,
                 this->get_shared(),
                 std::move(ref.message)
@@ -401,7 +402,7 @@ private:
       {
         getApplication()->enqueue(
           std::move(
-            abstract::AppInEvent{
+            LAppS::AppInEvent{
               WebSocketProtocol::OpCode::BINARY,
               this->get_shared(),
               std::move(ref.message)
@@ -451,7 +452,7 @@ private:
       WebSocketProtocol::ServerCloseMessage(*outBuffer,ccode);
       
       getApplication()->enqueue(std::move(
-          abstract::AppInEvent{
+          LAppS::AppInEvent{
             WebSocketProtocol::OpCode::CLOSE,
             this->get_shared(),
             outBuffer
@@ -543,7 +544,7 @@ RFC 6455                 The WebSocket Protocol            December 2011
       event.message
     );
     getApplication()->enqueue(std::move(
-        abstract::AppInEvent{
+        LAppS::AppInEvent{
           WebSocketProtocol::OpCode::PONG,
           this->get_shared(),
           outBuffer
