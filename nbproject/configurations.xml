@@ -32,9 +32,6 @@
         <itemPath>include/modules/wsSend.h</itemPath>
       </logicalFolder>
       <itemPath>include/AppInEvent.h</itemPath>
-      <itemPath>include/Application.h</itemPath>
-      <itemPath>include/ApplicationContext.h</itemPath>
-      <itemPath>include/ApplicationRegistry.h</itemPath>
       <itemPath>include/Balancer.h</itemPath>
       <itemPath>include/Broadcast.h</itemPath>
       <itemPath>include/Broadcasts.h</itemPath>
@@ -45,9 +42,6 @@
       <itemPath>include/Env.h</itemPath>
       <itemPath>include/HTTPRequestParser.h</itemPath>
       <itemPath>include/IOWorker.h</itemPath>
-      <itemPath>include/InternalAppContext.h</itemPath>
-      <itemPath>include/InternalApplication.h</itemPath>
-      <itemPath>include/InternalApplicationRegistry.h</itemPath>
       <itemPath>include/LuaReactiveService.h</itemPath>
       <itemPath>include/LuaReactiveServiceContext.h</itemPath>
       <itemPath>include/LuaStandaloneService.h</itemPath>
@@ -883,6 +877,12 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -895,12 +895,6 @@
       <item path="LAppS_Protocol_Specification.md" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/AppInEvent.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/Application.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/ApplicationContext.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/ApplicationRegistry.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Balancer.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -921,15 +915,6 @@
       <item path="include/HTTPRequestParser.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/IOWorker.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/InternalAppContext.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/InternalApplication.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/InternalApplicationRegistry.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
       </item>
       <item path="include/LuaReactiveService.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -1813,6 +1798,12 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -1825,12 +1816,6 @@
       <item path="LAppS_Protocol_Specification.md" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/AppInEvent.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/Application.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/ApplicationContext.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/ApplicationRegistry.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Balancer.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -1851,15 +1836,6 @@
       <item path="include/HTTPRequestParser.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/IOWorker.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/InternalAppContext.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/InternalApplication.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/InternalApplicationRegistry.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
       </item>
       <item path="include/LuaReactiveService.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -2743,6 +2719,12 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -2755,12 +2737,6 @@
       <item path="LAppS_Protocol_Specification.md" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/AppInEvent.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/Application.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/ApplicationContext.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/ApplicationRegistry.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Balancer.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -2781,15 +2757,6 @@
       <item path="include/HTTPRequestParser.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/IOWorker.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/InternalAppContext.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/InternalApplication.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/InternalApplicationRegistry.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
       </item>
       <item path="include/LuaReactiveService.h" ex="false" tool="3" flavor2="0">
       </item>
