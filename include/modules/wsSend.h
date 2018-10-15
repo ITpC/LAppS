@@ -29,6 +29,7 @@
 #include <memory>
 #include <vector>
 
+#include <abstract/WebSocket.h>
 #include <abstract/Worker.h>
 #include <modules/UserDataAdapter.h>
 #include <WSServerMessage.h>

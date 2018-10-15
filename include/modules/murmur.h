@@ -51,9 +51,9 @@ extern "C" {
 
         long long unsigned int digest=std::hash<std::string>{}(std::move(tmp));
         
-        std::string result(16,'\0');
+        std::string result(17,'\0');
         
-        snprintf((char*)(result.c_str()),16,"%016llx",digest);
+        snprintf((char*)(result.c_str()),17,"%016llx",digest);
         lua_pushlstring(L,result.c_str(),result.length());
       }
       break;
@@ -63,9 +63,9 @@ extern "C" {
         
         long long unsigned int digest=std::hash<std::size_t>{}(tmp);
         
-        std::string result(16,'\0');
+        std::string result(17,'\0');
         
-        snprintf((char*)(result.c_str()),16,"%016llx",digest);
+        snprintf((char*)(result.c_str()),17,"%016llx",digest);
         lua_pushlstring(L,result.c_str(),result.length());
       }
       break;

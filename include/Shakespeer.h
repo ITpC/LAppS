@@ -39,8 +39,12 @@
 #include <Val2Type.h>
 #include <ePoll.h>
 #include <Config.h>
-#include <ApplicationRegistry.h>
 #include <missing.h>
+
+#include <ContextTypes.h>
+#include <ServiceRegistry.h>
+
+#include "modules/nljson.h"
 
 static const std::vector<uint8_t> forbidden{'H','T','T','P','/','1','.','1',' ','4','0','3',' ','F','o','r','b','i','d','d','e','n'};
 
@@ -66,7 +70,7 @@ namespace LAppS
         wssocket->close();
       }
       
-      void handshake(const WSSPtr& wssocket,LAppS::ApplicationRegistry& anAppRegistry)
+      void handshake(const WSSPtr& wssocket,const ServiceRegistry& anAppRegistry)
       {
         mHTTPRParser.clear();
         int received=wssocket->recv(headerBuffer);
@@ -77,7 +81,7 @@ namespace LAppS
           
           if(parseHeader(received))
           {
-            auto app=anAppRegistry.getByTarget(mHTTPRParser.getRequestTarget());
+            auto app=anAppRegistry.findByTarget(mHTTPRParser.getRequestTarget());
             
             prepareOKResponse(response,app->getName(),app->getProtocol());
             
@@ -86,7 +90,7 @@ namespace LAppS
             try {
               if(sent > 0)
               {
-                if(app->filter(wssocket->getPeerIP()))
+                if(app->filterIP(wssocket->getPeerIP()))
                 {
                   itc::getLog()->info(
                     __FILE__,
@@ -178,7 +182,7 @@ namespace LAppS
          return false;
        }
       }
-      void prepareOKResponse(std::vector<uint8_t>& response, const std::string& app_name, const abstract::Application::Protocol& proto)
+      void prepareOKResponse(std::vector<uint8_t>& response, const std::string& app_name, const LAppS::ServiceProtocol& proto)
       {
         static const std::string  UID("258EAFA5-E914-47DA-95CA-C5AB0DC85B11");
         std::string  okResponse("HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nServer: LAppS/0.7.0\r\n");
@@ -205,11 +209,14 @@ namespace LAppS
         
         switch(proto)
         {
-          case ::abstract::Application::Protocol::RAW:
+          case ::LAppS::ServiceProtocol::RAW:
             allow_protocols.append("raw");
             break;
-          case ::abstract::Application::Protocol::LAPPS:
+          case ::LAppS::ServiceProtocol::LAPPS:
             allow_protocols.append("LAppS");
+            break;
+          default:
+            itc::getLog()->error(__FILE__,__LINE__,"Shakespeer::prepareOKResponse(proto), - proto is invalid. Must be one or two: RAW, LAPPS");
             break;
         }
 
@@ -228,8 +235,8 @@ namespace LAppS
         
         std::string replykey(mHTTPRParser["Sec-WebSocket-Key"]+UID);
         
-        byte digest[CryptoPP::SHA1::DIGESTSIZE];
-        sha1.CalculateDigest( digest, (const byte*)(replykey.c_str()),replykey.length());
+        CryptoPP::byte digest[CryptoPP::SHA1::DIGESTSIZE];
+        sha1.CalculateDigest( digest, (const CryptoPP::byte*)(replykey.c_str()),replykey.length());
 
         CryptoPP::Base64Encoder b64;
         b64.Put(digest, CryptoPP::SHA1::DIGESTSIZE);
@@ -240,7 +247,7 @@ namespace LAppS
         
         okResponse.resize(respsz+encoded_key_size-1);
         
-        b64.Get((byte*)(okResponse.data()+respsz),encoded_key_size-1);
+        b64.Get((CryptoPP::byte*)(okResponse.data()+respsz),encoded_key_size-1);
         okResponse.append("\r\n\r\n");
         
         response.resize(okResponse.size());

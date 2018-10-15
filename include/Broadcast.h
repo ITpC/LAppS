@@ -36,7 +36,7 @@ namespace LAppS
   template <bool TLSEnable=true,bool StatsEnable=true> class Broadcast
   {
    public:
-    typedef std::forward_list<std::shared_ptr<abstract::WebSocket>>  BCastSubscribers;
+    typedef std::forward_list<std::shared_ptr<::abstract::WebSocket>>  BCastSubscribers;
    private:
     itc::sys::AtomicMutex     sMutex;
     itc::sys::AtomicMutex     uMutex;
@@ -104,12 +104,12 @@ namespace LAppS
       return ChannelID;
     }
     
-    void subscribe(abstract::WebSocket* handler)
+    void subscribe(::abstract::WebSocket* handler)
     {
       AtomicLock sync(sMutex);
       mSubscribers.push_front(std::move(handler->get_shared()));
     }
-    void unsubscribe(abstract::WebSocket* handler)
+    void unsubscribe(::abstract::WebSocket* handler)
     {
       AtomicLock sync(uMutex);
       mUnsubscribers.push_front(std::move(handler->get_shared()));

@@ -63,7 +63,7 @@ namespace LAppS
       }
     }
     
-    const bool match(const uint32_t address)
+    const bool match(const uint32_t address) const
     {
       const LAppS::addrinfo tmp(address);
       
@@ -75,7 +75,7 @@ namespace LAppS
       return (it!=mExcludeAddresses.end());
     }
     
-    const bool match(const addrinfo& address)
+    const bool match(const addrinfo& address) const
     {
         auto it=mExcludeNetworks.lower_bound(address);
         if(it!=mExcludeNetworks.end())
