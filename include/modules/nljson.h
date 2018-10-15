@@ -43,6 +43,14 @@ extern "C" {
 
 #include <modules/UserDataAdapter.h>
 
+#include <TSLog.h>
+
+namespace itc
+{
+  const std::shared_ptr<CurrentLogType>& getLog();
+}
+
+
 static inline auto checktype_nljson(lua_State *L,const int lvl)
 {
     auto udptr=luaL_checkudata(L, lvl, "nljson");
@@ -285,7 +293,7 @@ extern "C" {
       return 1;
     }catch(const std::exception& e)
     {
-      itc::getLog()->error(
+      ::itc::getLog()->error(
         __FILE__,__LINE__,
         "Caught an exception in lua[nljson.typename()]: %s",e.what()
       );
@@ -852,6 +860,7 @@ extern "C" {
       {"__tostring",encode},
       {"__index",getval},
       {"__newindex",setval},
+      {"__gc",destroy},
       {nullptr,nullptr}
     };
     luaL_newmetatable(L,"nljson");

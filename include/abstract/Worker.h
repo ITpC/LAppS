@@ -27,10 +27,10 @@
 #include <string>
 #include <memory>
 #include <abstract/Runnable.h>
+#include <TCPListener.h>
 #include <WorkerStats.h>
-#include <abstract/Application.h>
 #include <WSEvent.h>
-#include <ServiceProperties.h>
+
 
 namespace abstract
 {

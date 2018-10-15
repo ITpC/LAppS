@@ -24,14 +24,12 @@
 #ifndef __IOWORKER_H__
 #  define __IOWORKER_H__
 
-#include <Application.h>
 #include <ePoll.h>
 #include <abstract/IView.h>
 #include <WebSocket.h>
 #include <Shakespeer.h>
 #include <abstract/Worker.h>
 #include <sys/atomic_mutex.h>
-#include <ServiceProperties.h>
 
 
 namespace LAppS
@@ -280,7 +278,7 @@ namespace LAppS
           switch(current->getState())
           {
             case WSType::HANDSHAKE:
-                mShakespeer.handshake(current,*::ApplicationRegistry::getInstance());
+                mShakespeer.handshake(current,*LAppS::SServiceRegistry::getInstance());
                 if(current->getState() !=WSType::MESSAGING)
                 {
                   itc::getLog()->error(__FILE__,__LINE__,"Handshake with the peer %s has been failed. Disconnecting.", current->getPeerAddress().c_str());
