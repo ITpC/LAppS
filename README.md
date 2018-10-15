@@ -184,6 +184,6 @@ Performance tests with this module shows much more significant performance impro
 |:---|:---:|:---:|:---:|---:|
 |LAppS 0.7.0-TLS (upstream)| 400 | **257828** | 644.57 | 1024 |
 
-This makes it more then 500k packets per second or more then 4.4Gbit/s network utilization. Further improvements on single CPU machines may be reached by using **dpkg**.
+This makes it more then 500k packets per second or more then 4.4Gbit/s network utilization. Further improvements on single CPU machines may be reached by using **dpdk**.
 
 WebSocket client (cws module) may be considered stable since commit c385daf1fafa5f74f43588dc0247c67a05767cd3

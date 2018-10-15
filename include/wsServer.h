@@ -51,10 +51,6 @@
 #include <Config.h>
 #include <TLSServerContext.h>
 #include <abstract/Worker.h>
-#include <abstract/Application.h>
-#include <ApplicationRegistry.h>
-#include <InternalApplicationRegistry.h>
-#include <Application.h>
 #include <IOWorker.h>
 #include <Balancer.h>
 #include <Deployer.h>

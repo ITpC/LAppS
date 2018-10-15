@@ -7,6 +7,11 @@
       <logicalFolder name="f2" displayName="abstract" projectFiles="true">
         <itemPath>include/abstract/Application.h</itemPath>
         <itemPath>include/abstract/ApplicationContext.h</itemPath>
+        <itemPath>include/abstract/LuaServiceContext.h</itemPath>
+        <itemPath>include/abstract/ReactiveService.h</itemPath>
+        <itemPath>include/abstract/Service.h</itemPath>
+        <itemPath>include/abstract/ServiceContext.h</itemPath>
+        <itemPath>include/abstract/StandaloneService.h</itemPath>
         <itemPath>include/abstract/WebSocket.h</itemPath>
         <itemPath>include/abstract/Worker.h</itemPath>
       </logicalFolder>
@@ -26,6 +31,7 @@
         <itemPath>include/modules/time_now.h</itemPath>
         <itemPath>include/modules/wsSend.h</itemPath>
       </logicalFolder>
+      <itemPath>include/AppInEvent.h</itemPath>
       <itemPath>include/Application.h</itemPath>
       <itemPath>include/ApplicationContext.h</itemPath>
       <itemPath>include/ApplicationRegistry.h</itemPath>
@@ -34,6 +40,7 @@
       <itemPath>include/Broadcasts.h</itemPath>
       <itemPath>include/ClientWebSocket.h</itemPath>
       <itemPath>include/Config.h</itemPath>
+      <itemPath>include/ContextTypes.h</itemPath>
       <itemPath>include/Deployer.h</itemPath>
       <itemPath>include/Env.h</itemPath>
       <itemPath>include/HTTPRequestParser.h</itemPath>
@@ -41,11 +48,17 @@
       <itemPath>include/InternalAppContext.h</itemPath>
       <itemPath>include/InternalApplication.h</itemPath>
       <itemPath>include/InternalApplicationRegistry.h</itemPath>
+      <itemPath>include/LuaReactiveService.h</itemPath>
+      <itemPath>include/LuaReactiveServiceContext.h</itemPath>
+      <itemPath>include/LuaStandaloneService.h</itemPath>
+      <itemPath>include/LuaStandaloneServiceContext.h</itemPath>
       <itemPath>include/MQRegistry.h</itemPath>
       <itemPath>include/NetworkACL.h</itemPath>
       <itemPath>include/Nonce.h</itemPath>
       <itemPath>include/ServerStats.h</itemPath>
+      <itemPath>include/ServiceFactory.h</itemPath>
       <itemPath>include/ServiceProperties.h</itemPath>
+      <itemPath>include/ServiceRegistry.h</itemPath>
       <itemPath>include/Shakespeer.h</itemPath>
       <itemPath>include/TLSServerContext.h</itemPath>
       <itemPath>include/TaggedEvent.h</itemPath>
@@ -822,6 +835,54 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -832,6 +893,8 @@
         </packInfoList>
       </packaging>
       <item path="LAppS_Protocol_Specification.md" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/AppInEvent.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Application.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -848,6 +911,8 @@
       <item path="include/ClientWebSocket.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ContextTypes.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Deployer.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -866,6 +931,20 @@
             tool="3"
             flavor2="0">
       </item>
+      <item path="include/LuaReactiveService.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/LuaReactiveServiceContext.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="include/LuaStandaloneService.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/LuaStandaloneServiceContext.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
       <item path="include/MQRegistry.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/NetworkACL.h" ex="false" tool="3" flavor2="0">
@@ -874,7 +953,11 @@
       </item>
       <item path="include/ServerStats.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/ServiceFactory.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/ServiceProperties.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ServiceRegistry.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Shakespeer.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -909,6 +992,22 @@
       <item path="include/abstract/Application.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/abstract/ApplicationContext.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="include/abstract/LuaServiceContext.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="include/abstract/ReactiveService.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/abstract/Service.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/abstract/ServiceContext.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/abstract/StandaloneService.h"
             ex="false"
             tool="3"
             flavor2="0">
@@ -1666,6 +1765,54 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -1676,6 +1823,8 @@
         </packInfoList>
       </packaging>
       <item path="LAppS_Protocol_Specification.md" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/AppInEvent.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Application.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -1692,6 +1841,8 @@
       <item path="include/ClientWebSocket.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ContextTypes.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Deployer.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -1710,6 +1861,20 @@
             tool="3"
             flavor2="0">
       </item>
+      <item path="include/LuaReactiveService.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/LuaReactiveServiceContext.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="include/LuaStandaloneService.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/LuaStandaloneServiceContext.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
       <item path="include/MQRegistry.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/NetworkACL.h" ex="false" tool="3" flavor2="0">
@@ -1718,7 +1883,11 @@
       </item>
       <item path="include/ServerStats.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/ServiceFactory.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/ServiceProperties.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ServiceRegistry.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Shakespeer.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -1753,6 +1922,22 @@
       <item path="include/abstract/Application.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/abstract/ApplicationContext.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="include/abstract/LuaServiceContext.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="include/abstract/ReactiveService.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/abstract/Service.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/abstract/ServiceContext.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/abstract/StandaloneService.h"
             ex="false"
             tool="3"
             flavor2="0">
@@ -2510,6 +2695,54 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -2520,6 +2753,8 @@
         </packInfoList>
       </packaging>
       <item path="LAppS_Protocol_Specification.md" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/AppInEvent.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Application.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -2536,6 +2771,8 @@
       <item path="include/ClientWebSocket.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ContextTypes.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Deployer.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -2554,6 +2791,20 @@
             tool="3"
             flavor2="0">
       </item>
+      <item path="include/LuaReactiveService.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/LuaReactiveServiceContext.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="include/LuaStandaloneService.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/LuaStandaloneServiceContext.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
       <item path="include/MQRegistry.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/NetworkACL.h" ex="false" tool="3" flavor2="0">
@@ -2562,7 +2813,11 @@
       </item>
       <item path="include/ServerStats.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/ServiceFactory.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/ServiceProperties.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ServiceRegistry.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Shakespeer.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -2597,6 +2852,22 @@
       <item path="include/abstract/Application.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/abstract/ApplicationContext.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="include/abstract/LuaServiceContext.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="include/abstract/ReactiveService.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/abstract/Service.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/abstract/ServiceContext.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/abstract/StandaloneService.h"
             ex="false"
             tool="3"
             flavor2="0">

@@ -397,9 +397,9 @@ namespace LAppS
       {
         std::string accept_key_src(mSecWebSocketKey+"258EAFA5-E914-47DA-95CA-C5AB0DC85B11");
 
-        byte digest[CryptoPP::SHA1::DIGESTSIZE];
+        CryptoPP::byte digest[CryptoPP::SHA1::DIGESTSIZE];
 
-        SHA1.CalculateDigest(digest,(const byte*)(accept_key_src.data()),accept_key_src.length());
+        SHA1.CalculateDigest(digest,(const CryptoPP::byte*)(accept_key_src.data()),accept_key_src.length());
 
         BASE64.Initialize();
         BASE64.Put(digest, CryptoPP::SHA1::DIGESTSIZE);
@@ -409,7 +409,7 @@ namespace LAppS
 
         std::string required_accept_key(accept_key_length,'\0');
 
-        BASE64.Get((byte*)(required_accept_key.data()),accept_key_length);
+        BASE64.Get((CryptoPP::byte*)(required_accept_key.data()),accept_key_length);
 
         return responseOK((const char*)(recvBuffer.data()),ret,required_accept_key);
       }
@@ -544,7 +544,7 @@ namespace LAppS
         
         mSecWebSocketKey.resize(base64_str_size,'\0');
         
-        BASE64.Get((byte*)(mSecWebSocketKey.data()),base64_str_size);
+        BASE64.Get((CryptoPP::byte*)(mSecWebSocketKey.data()),base64_str_size);
         
         httpUpgradeRequest.append(mSecWebSocketKey);
         httpUpgradeRequest.append("\r\n");
@@ -680,7 +680,7 @@ namespace LAppS
       
       uint32_t single_mask=0;
       
-      RNG.GenerateBlock((byte*)(&single_mask),sizeof(single_mask));
+      RNG.GenerateBlock((CryptoPP::byte*)(&single_mask),sizeof(single_mask));
       
       double_mask.mask=(static_cast<uint64_t>(single_mask)<<32)|single_mask;
       

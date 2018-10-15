@@ -33,11 +33,15 @@
 #include <experimental/filesystem>
 #include <Config.h>
 #include <Env.h>
+/**
 #include <abstract/Application.h>
 #include <Application.h>
 #include <ApplicationRegistry.h>
 #include <InternalApplication.h>
 #include <InternalApplicationRegistry.h>
+ **/
+#include <ServiceFactory.h>
+#include <ServiceRegistry.h>
 #include <LAR.h>
 #include <ext/json.hpp>
 
@@ -48,9 +52,6 @@ namespace LAppS
 {
   template <bool TLSEnable=true, bool StatsEnable=true> class Deployer : itc::abstract::IRunnable
   {
-  public:
-    typedef ::LAppS::Application<TLSEnable,StatsEnable,::abstract::Application::Protocol::LAPPS> LAppSPROTOApp;
-    typedef ::LAppS::Application<TLSEnable,StatsEnable,::abstract::Application::Protocol::RAW>   RAWPROTOApp;
   private:
     std::atomic<bool>           mMayRun;
     std::mutex                  mMutex;
@@ -282,13 +283,7 @@ namespace LAppS
     void stop_service(const std::string& service_name)
     {
       try{
-        const bool internal{LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["internal"]};
-        if(internal)
-        {
-          ::InternalAppsRegistry::getInstance()->stopInstances(service_name);
-        }else{
-          ::ApplicationRegistry::getInstance()->unRegApp(service_name);
-        }
+        SServiceRegistry::getInstance()->unreg(service_name);
       }
       catch(const std::exception& e)
       {
@@ -310,7 +305,7 @@ namespace LAppS
         return;
       }
       try{
-        auto already_exists=::ApplicationRegistry::getInstance()->getByName(service_name);
+        SServiceRegistry::getInstance()->findByName(service_name);
         itc::getLog()->info(__FILE__,__LINE__,"Service %s is already started",service_name.c_str());
         return;
       }catch(const std::exception& e)
@@ -349,7 +344,7 @@ namespace LAppS
           {  
             for(size_t i=0;i<instances;++i)
             {
-              ::InternalAppsRegistry::getInstance()->startInstance(service_name);
+              SServiceRegistry::getInstance()->reg(ServiceFactory::get(ServiceLanguage::LUA,service_name));
             }
           }
           else
@@ -381,25 +376,31 @@ namespace LAppS
             }else{
               default_policy=LAppS::Network_ACL_Policy::ALLOW;
             }
-
+            
+            ServiceProtocol proto;
+            if(protocol == "raw")
+            {
+              proto=ServiceProtocol::RAW;
+            }else if(protocol == "LAppS")
+            {
+              proto=ServiceProtocol::LAPPS;
+            }else{
+              itc::getLog()->error(__FILE__,__LINE__,"Inappropriate protocol %s is configured for service %s",protocol.c_str(),service_name.c_str());
+              throw std::system_error(EINVAL,std::system_category(),"Unknown protocol is configured for service "+service_name);
+            }
+            
+            
             for(size_t i=0;i<instances;++i)
             {
-              if(protocol == "raw")
-              {
-                ::ApplicationRegistry::getInstance()->regApp(
-                    std::make_shared<RAWPROTOApp>(service_name,target,max_in_msg_size,default_policy,exclude_list),
-                    instances
-                );
-              }
-              else if(protocol == "LAppS")
-              {
-                ::ApplicationRegistry::getInstance()->regApp(
-                    std::make_shared<LAppSPROTOApp>(service_name,target,max_in_msg_size,default_policy,exclude_list),
-                    instances
-                );
-              }else{
-                throw std::system_error(EINVAL,std::system_category(),"Unknown protocol is configured for service "+service_name);
-              }
+              SServiceRegistry::getInstance()->reg(
+                ServiceFactory::get(
+                  proto,
+                  ServiceLanguage::LUA,
+                  service_name,
+                  target,max_in_msg_size,
+                  default_policy,exclude_list
+                )
+              );
             }
           }
         }
