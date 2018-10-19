@@ -27,12 +27,12 @@
 #include <WSWorkersPool.h>
 #include <WorkerStats.h>
 #include <Singleton.h>
-#include <ApplicationRegistry.h>
+#include <ServiceRegistry.h>
 
 
 namespace LAppS
 {
-  template <const bool TLSEnable=true,const bool StatsEnable> class ServerStats
+  template <const bool TLSEnable=true,const bool StatsEnable=true> class ServerStats
   {
     
   };
