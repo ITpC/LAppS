@@ -135,8 +135,7 @@ There are several notes to think on:
      3.91%  lapps.avx2.nost  libluajit-5.1.so.2.0.5    [.] lj_BC_TGETS
 ```
 
-  3. In the same time in the above test results LAppS is slower only on about 7.5%
+  3. In the same time in the above test results LAppS is slower only on about 7.5%. **This makes LAppS WebSockets stack most performant in the industry.**
   4. The total number of packets on the host machine in test-runtime in both cases is a factor of two higher then the RPS of the server (benchmark shows only amount of packets, received by the clients)
 
 
-**This makes LAppS WebSockets stack most performant in the industry.**
