@@ -124,7 +124,8 @@ How the tests were running:
 There are several notes to think on:
 
   1. WebSocket Clients are agressively using RNG so there are some blockings on /dev/urandom are involved
-  2. According to perf Lua footprint in LAppS takes about 10% of performance 
+  2. According to perf the Lua footprint in LAppS takes about 10% of performance 
+
     * First and last strings in following snippet:
 ```text
      6.11%  lapps.avx2.nost  libluajit-5.1.so.2.0.5    [.] lj_str_new
@@ -133,6 +134,7 @@ There are several notes to think on:
      4.09%  lapps.avx2.nost  lapps.avx2.nostats.notls  [.] LAppS::LuaReactiveService<(LAppS::ServiceProtocol)0>::execute
      3.91%  lapps.avx2.nost  libluajit-5.1.so.2.0.5    [.] lj_BC_TGETS
 ```
+
   3. In the same time in the above test results LAppS is slower only on about 7.5%
   4. The total number of packets on the host machine in test-runtime in both cases is a factor of two higher then the RPS of the server (benchmark shows only amount of packets, received by the clients)
 
