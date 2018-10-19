@@ -48,7 +48,7 @@ namespace LAppS
       std::atomic<bool>                         mMayRun;
       std::atomic<bool>                         mCanStop;
       
-      itc::sys::AtomicMutex                     mConnectionsMutex;
+      mutable itc::sys::AtomicMutex             mConnectionsMutex;
       itc::sys::AtomicMutex                     mInboundMutex;
       itc::sys::AtomicMutex                     mSSQMutex;
       itc::sys::AtomicMutex                     mDCQMutex;
@@ -98,7 +98,7 @@ namespace LAppS
     {
       AtomicLock sync(mInboundMutex);
       mInboundConnections.push(std::move(socketsptr));
-      mStats.mConnections=mConnections.size()+mInboundConnections.size();
+      updateStats();
       haveNewConnections.store(true);
     }
     
@@ -109,7 +109,7 @@ namespace LAppS
       {
         mInboundConnections.push(std::move(socketsptr[i]));
       }
-      mStats.mConnections=mConnections.size()+mInboundConnections.size();
+      updateStats();
       haveNewConnections.store(true);
     }
     
@@ -128,6 +128,40 @@ namespace LAppS
     const bool  isTLSEnabled() const
     {
       return TLSEnable;
+    }
+    
+    void gatherStats(const itc::utils::Bool2Type<false> stats_disabled)
+    {
+    }
+    
+    void gatherStats(const itc::utils::Bool2Type<true> stats_enabled)
+    {
+      AtomicLock sync(mConnectionsMutex);
+      mStats.mInMessageCount=0;
+      mStats.mOutMessageCount=0;
+      mStats.mInCMASize=0;
+      size_t counter=0;
+
+      for(const auto& connection : mConnections)
+      {
+        const auto sock_stats=std::move(connection.second->getStats());
+        mStats.mInMessageCount+=sock_stats.mInMessageCount;
+        mStats.mOutMessageCount+=sock_stats.mOutMessageCount;
+
+        if(mStats.mInMessageMaxSize<sock_stats.mInMessageMaxSize)
+          mStats.mInMessageMaxSize=sock_stats.mInMessageMaxSize;
+
+        if(mStats.mOutMessageMaxSize<sock_stats.mOutMessageMaxSize)
+          mStats.mOutMessageMaxSize=sock_stats.mOutMessageMaxSize;
+
+        mStats.mInCMASize+=sock_stats.mInCMASize;
+        mStats.mOutCMASize+=sock_stats.mOutCMASize;
+      }
+      if(counter>0)
+      {
+        mStats.mInCMASize=mStats.mInCMASize/counter;
+        mStats.mOutCMASize=mStats.mOutCMASize/counter;
+      }
     }
     void execute()
     {
@@ -170,15 +204,8 @@ namespace LAppS
                   processIO(mEvents[i].data.fd);
                 }
               }
-              /*
-              size_t eqsz=0;
-              for(size_t i=0;i<mMaxReaders;++i)
-              {
-                eqsz+=mReaders[i]->getRunnable()->getQSize();
-              }
-              mStats.mEventQSize=eqsz;
-              */
             }
+            gatherStats(enableStatsUpdate);
           }catch(const std::exception& e)
           {
             itc::getLog()->error(__FILE__,__LINE__,"Exception on ePoll::poll(): ", e.what());
@@ -209,8 +236,9 @@ namespace LAppS
       if(!mCanStop) this->shutdown();
     }
     
-    const WorkerStats& getStats() const
+    const WorkerStats getStats() const
     {
+      AtomicLock sync(mConnectionsMutex);
       return mStats;
     }
     

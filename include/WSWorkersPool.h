@@ -72,7 +72,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WSWorkersPool
   }
   const WorkerStats getStats()
   {
-    WorkerStats mAllStats;
+    WorkerStats mAllStats{0};
     
     for(auto it=mWorkers.begin();it!=mWorkers.end();++it)
     {
@@ -92,8 +92,6 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WSWorkersPool
       }
       mAllStats.mOutCMASize+=stats.mOutCMASize;
       mAllStats.mInCMASize+=stats.mInCMASize;
-      
-      
     }
     mAllStats.mOutCMASize/=mWorkers.size();
     mAllStats.mInCMASize/=mWorkers.size();
