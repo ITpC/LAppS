@@ -15,7 +15,7 @@ ENV WORKSPACE /tmp
 
 WORKDIR ${WORKSPACE}
 
-ADD https://github.com/ITpC/LAppS/raw/master/packages/lapps-0.7.1-generic-amd64.deb ${WORKSPACE}/
+ADD https://github.com/ITpC/LAppS/raw/master/packages/bionic/lapps-0.7.1-generic-amd64.deb ${WORKSPACE}/
 
 WORKDIR ${WORKSPACE}
 
