@@ -80,7 +80,7 @@ namespace abstract
       return ID;
     }
     
-    virtual const WorkerStats& getStats() const=0;
+    virtual const WorkerStats getStats() const=0;
     virtual void updateStats()=0;
     virtual void deleteConnection(const int32_t)=0;
     virtual void disconnect(const int32_t)=0;
