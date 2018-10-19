@@ -175,34 +175,30 @@ namespace WSStreamProcessing
           if(mPLBytesReady == 0)
             message->resize(mHeader.MSG_SIZE);
 
-          if(mHeader.MSG_SIZE>=48)
+          if((limit-cursor)>=16)
           {
-            
-            if((limit-cursor)>=16)
+            // align to mask
+            while((mPLBytesReady<mHeader.MSG_SIZE)&&((cursor)<limit)&&(mPLBytesReady%4))
             {
-              // align to mask
-              while((mPLBytesReady<mHeader.MSG_SIZE)&&((cursor)<limit)&&(mPLBytesReady%4))
-              {
-                (message->data())[mPLBytesReady]=stream[cursor]^mHeader.MASK[mPLBytesReady%4];
-                ++cursor;
-                ++mPLBytesReady;
-              }
-            
-              uint8_t *dst_s_ptr=&(message->data()[mPLBytesReady]);
-              const uint8_t *src_s_ptr=&stream[cursor];
+              (message->data())[mPLBytesReady]=stream[cursor]^mHeader.MASK[mPLBytesReady%4];
+              ++cursor;
+              ++mPLBytesReady;
+            }
 
-              uint64_t *dst_ptr=(uint64_t*)(dst_s_ptr);
-              const uint64_t *src_ptr=(const uint64_t*)(src_s_ptr);
+            uint8_t *dst_s_ptr=&(message->data()[mPLBytesReady]);
+            const uint8_t *src_s_ptr=&stream[cursor];
 
-              while(((mPLBytesReady+8)<=mHeader.MSG_SIZE)&&((cursor+8)<=limit))
-              {
-                *dst_ptr = (*src_ptr)^MASK;
-                ++dst_ptr;
-                ++src_ptr;
+            uint64_t *dst_ptr=(uint64_t*)(dst_s_ptr);
+            const uint64_t *src_ptr=(const uint64_t*)(src_s_ptr);
 
-                cursor+=8;
-                mPLBytesReady+=8;
-              }
+            while(((mPLBytesReady+8)<=mHeader.MSG_SIZE)&&((cursor+8)<=limit))
+            {
+              *dst_ptr = (*src_ptr)^MASK;
+              ++dst_ptr;
+              ++src_ptr;
+
+              cursor+=8;
+              mPLBytesReady+=8;
             }
           }
           
@@ -252,39 +248,34 @@ namespace WSStreamProcessing
           
           const size_t used=messageFrames->size()-mHeader.MSG_SIZE;
           
-          if(mHeader.MSG_SIZE>=48)
+          if((limit-cursor)>=16)
           {
-            
-            if((limit-cursor)>=16)
+            // align to mask
+            while((mPLBytesReady<mHeader.MSG_SIZE)&&((cursor)<limit)&&(mPLBytesReady%4))
             {
-              // align to mask
-              while((mPLBytesReady<mHeader.MSG_SIZE)&&((cursor)<limit)&&(mPLBytesReady%4))
-              {
-                (messageFrames->data())[used+mPLBytesReady]=stream[cursor]^mHeader.MASK[mPLBytesReady%4];
-                ++cursor;
-                ++mPLBytesReady;
-              }
-            
-              uint8_t *dst_s_ptr=&(messageFrames->data()[used+mPLBytesReady]);
-              const uint8_t *src_s_ptr=&stream[cursor];
+              (messageFrames->data())[used+mPLBytesReady]=stream[cursor]^mHeader.MASK[mPLBytesReady%4];
+              ++cursor;
+              ++mPLBytesReady;
+            }
 
-              uint64_t *dst_ptr=(uint64_t*)(dst_s_ptr);
-              const uint64_t *src_ptr=(const uint64_t*)(src_s_ptr);
+            uint8_t *dst_s_ptr=&(messageFrames->data()[used+mPLBytesReady]);
+            const uint8_t *src_s_ptr=&stream[cursor];
 
-              while(((mPLBytesReady+8)<=mHeader.MSG_SIZE)&&((cursor+8)<=limit))
-              {
-                *dst_ptr = (*src_ptr)^MASK;
-                ++dst_ptr;
-                ++src_ptr;
+            uint64_t *dst_ptr=(uint64_t*)(dst_s_ptr);
+            const uint64_t *src_ptr=(const uint64_t*)(src_s_ptr);
 
-                cursor+=8;
-                mPLBytesReady+=8;
-              }
+            while(((mPLBytesReady+8)<=mHeader.MSG_SIZE)&&((cursor+8)<=limit))
+            {
+              *dst_ptr = (*src_ptr)^MASK;
+              ++dst_ptr;
+              ++src_ptr;
+
+              cursor+=8;
+              mPLBytesReady+=8;
             }
           }
           
-          // fallback to 1byte xor to catch with the rest of payload or process small frames in 8bit xor 
-          // which is faster then 64bit or 32bit xor on modern CPUs, probably because of g++ optimizations.
+          // fallback to 1byte xor to catch with the rest of payload 
           while((mPLBytesReady<mHeader.MSG_SIZE)&&(cursor<limit))
           {
             (messageFrames->data())[used+mPLBytesReady]=stream[cursor]^mHeader.MASK[mPLBytesReady%4];

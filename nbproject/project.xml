@@ -30,6 +30,22 @@
                     <name>Release.AVX2</name>
                     <type>1</type>
                 </confElem>
+                <confElem>
+                    <name>Release.GENERIC.NO_STATS</name>
+                    <type>1</type>
+                </confElem>
+                <confElem>
+                    <name>Release.GENERIC.NO_STATS.NO_TLS</name>
+                    <type>1</type>
+                </confElem>
+                <confElem>
+                    <name>Release.AVX2.NO_STATS</name>
+                    <type>1</type>
+                </confElem>
+                <confElem>
+                    <name>Release.AVX2.NO_STATS.NO_TLS</name>
+                    <type>1</type>
+                </confElem>
             </confList>
             <formatting>
                 <project-formatting-style>false</project-formatting-style>

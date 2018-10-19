@@ -76,114 +76,65 @@ Please see the [Project Page](https://github.com/ITpC/LAppS/projects/1) to glimp
 Prelimenary builds of 0.7.0 are available now. Build separation has allowd me to provide 2 different deb packages, [generic](https://github.com/ITpC/LAppS/raw/master/packages/lapps-0.7.0-ssse3-amd64.deb) one (CPU required to support SSSE3 instructions or above) and the [AVX2 build](https://github.com/ITpC/LAppS/raw/master/packages/lapps-0.7.0-avx2-amd64.deb) for CPUs with AVX2 or AVX512 support.
 
 
-# Prelimenary performance results for 0.7.0-avx2 build
+# Test results for 0.7.1 branch
 
 ## Test layout
 
 * Test PC: 
   * Single CPU: Intel(R) Core(TM) i7-7700 CPU @ 3.60GHz, cpu family: 158, stepping 9, microcode: 0x5e (all latest Spectre and meltdown patches are enabled) 4 cores
   * RAM: DIMM DDR4 Synchronous Unbuffered (Unregistered) 2400 MHz (0,4 ns), Kingston KHX2400C15/16G (4 modules)
-* LAppS running with 1 worker and 1 service instance to match a single-threaded uWebSockets instance.
-* All tests are done with TLS enabled
-* Same PC was used to run clients and servers (I do not have infrastructure to run tests on separate systems)
-* [Client code for echo server with RAW WebSockets protocol](https://github.com/ITpC/LAppS/blob/master/benchmark/echo_client_tls.cpp)
-* [bash script for testruns with RAW WebSockets protocol](https://github.com/ITpC/LAppS/blob/master/benchmark/runBenchmark.sh) it calculates average rps from clients data. As longer it runs as more correct the average rps is calculated.
-* [Client code for echo server with LAppS protocol](https://github.com/ITpC/LAppS/blob/master/benchmark/lapps_ebm.cpp)
-* [bash script for testruns with LAppS protocol](https://github.com/ITpC/LAppS/blob/master/benchmark/runLAppSEBM.sh)
-* [LAppS echo-service for RAW protocol](https://github.com/ITpC/LAppS/blob/master/examples/echo/echo.lua)
-* [LAppS echo-service for LAppS protocol](https://github.com/ITpC/LAppS/tree/master/examples/echo_lapps) with running [broadcast service](https://github.com/ITpC/LAppS/blob/master/examples/time_broadcast/time_broadcast.lua)
-* Test execution for RAW WebSockets echo server (within benchmark directory): ./runBenchmark.sh NUMBER_OF_CLIENTS PAYLOAD_SIZE
-  * NOTE: LAppS or uWS_epoll must be started before you run the benchmark
-* uWebSockets library echo server source code with TLS support [altered uWS.cpp from uWebSockets distribution](https://github.com/ITpC/LAppS/blob/master/benchmark/uWS/uWS.cpp)
-* LAppS protocol echo server (very simplified) simulation with uWebSockets server [source code](https://github.com/ITpC/LAppS/blob/master/benchmark/uWS/uWSlapps.cpp) - requires [nlohmann json](https://github.com/nlohmann/json)
+* NOTE: for these tests TLS support in LAppS is disabled. The iptables is disabled on host machine as well.
+* LAppS was ran with 3 workers and 2 echo service instances
+* uWebSockets was ran with 4 threads.
+* LAppS Server side:
+  * [LAppS echo-service for RAW protocol](https://github.com/ITpC/LAppS/blob/master/examples/echo/echo.lua) 
+* uWebSockets Server side:
+  * [multithreaded_echo.cpp](https://github.com/ITpC/LAppS/blob/master/benchmark/uWS/multithreaded_echo.cpp)
+* Client Side:
+  * [LappS benchmark service](https://github.com/ITpC/LAppS/blob/master/apps/benchmark/benchmark.lua)
+  * 4 Client instances were running in both cases.
+* Payload in both cases: 64 bytes
 
-## RAW echo server test-case
+How the tests were running:
 
-| Server | Clients | Server rps | rps per client| payload (bytes)|
-|:---|:---:|:---:|:---:|---:|
-|LAppS 0.7.0| 240 | 84997 | 354.154 | 128|
-|uWebSockets (latest)| 240 | 74172.7 | 309.053 |128|
-|LAppS 0.7.0| 240 | 83627.4 | 348.447 | 512|
-|uWebSockets (latest)| 240 | 71024.4 | 295.935 | 512|
-|LAppS 0.7.0| 240 | 79270.1 | 330.292 | 1024|
-|uWebSockets (latest)| 240 | 66499.8 | 277.083 | 1024|
-|LAppS 0.7.0| 240 | 51621 | 215.087 | 8192|
-|uWebSockets (latest)| 240 | 45341.6 |  188.924| 8192|
+  In both cases, client and server were running on the same phisical host and the same CPU. In benchmark.lua parameters for amount of clients as well as the URL pointing to the servers endpoint are hardcoded. Amount of clients is set in a for loop on line 26 (for i=0,99). This gives 400 client connections (remember 4 client instnaces of benchmark.lua were running)
+  The URL have to be changed as well. LAppS URL: ws://localhost:5083/echo and uWebSockets URL ws://localhost:5080
 
+  Saving results into file:
 
-## LAppS protocol echo server results
+```bash
+ export RESULT_FILE=out.lapps.nostats.notls.noiptables.3w.2e 
+```
 
-| Server | Clients | Server rps | rps per client| payload (bytes)|
-|:---|:---:|:---:|:---:|---:|
-|LAppS 0.7.0| 240 | 36862.4 | 153.593 | 128|
-|uWebSockets (latest)| 240 | 5830.18 | 24.2924 |128|
+  Performing the test (from within build directory)
 
-Here i have stopped the tests. uWebSockets with some additional work (CBOR encoding/decoding, doing less job then LAppS though) is an order of magnitude slower then LAppS.
+```bash
+./dist/Release.AVX2.NO_STATS.NO_TLS/GNU-Linux/lapps.avx2.nostats.notls >  ${RESULT_FILE} ; egrep "^[1-9]" ${RESULT_FILE} | sed -e 's/ms[1-9]/ms\n$/g' | sed -e '/^$/d' > ${RESULT_FILE}.flt; tail -n $(( $(wc -l ${RESULT_FILE}.flt | awk '{print $1}') - 8 )) ${RESULT_FILE}.flt > ${RESULT_FILE}; awk -v avg=0 "{avg+=\$1}END{print \"Server average RPS: \" (avg/$(wc -l ${RESULT_FILE}|awk '{print $1}'))*4}" ${RESULT_FILE}
+``` 
 
-Just to show LAppS scalability on the same CPU, I ran last test with 3 IOWorker threads and 2 instances of echo_lapps service
+  After several minutes of runnnung press Ctrl-C to stop the test and see the results.
 
-| Server | Clients | Server rps | rps per client| payload (bytes)|
-|:---|:---:|:---:|:---:|---:|
-|LAppS 0.7.0| 240 |  56449.9 | 235.208 | 128|
-
-And with 3 IOWorker threads and 3 instances of echo_lapps service (CPU is already over high load because of 6 parallel CBOR encodings/decodings - 3 on server side 3 on client side. Actually it is only 4 cores CPU so effectively only 4 parallel tasks are running)
-
-
-| Server | Clients | Server rps | rps per client| payload (bytes)|
-|:---|:---:|:---:|:---:|---:|
-|LAppS 0.7.0| 240 | 68809.4 | 286.706 | 128|
-
-
-# Upstream (since 523a991cc692d804a6ba405466aba6b393fab4d4) performance
-
-There is a WebSocket client implementation available in LAppS now. It is available as a **cws** module for preloading into your services.
-
-Performance tests with this module shows much more significant performance improvment.
-
-## Test layout
-
-* Same PC as in above test.
-* LAppS running in TLS mode with **echo** service enabled
-* Benchmarking is implemented as an internal service [benchmark](https://github.com/ITpC/LAppS/blob/master/apps/benchmark/benchmark.lua), as you may see this service sends 1024 byte messages each time it receives a message from server side (the **echo** service).
-  * Configuration for this service (paste within **services** section of the **lapps.conf**):
-  ```json
-  "benchmark" : {
-      "auto_start" : true,
-      "instances": 4,
-      "internal": true,
-      "preload" : [ "cws", "time" ]
-    }
-  ```
-* echo-service configuration (again paste it within **services** section of **lapps.conf**):
-  ```json
-    "echo": {
-      "auto_start": true,
-      "instances": 2,
-      "internal": false,
-      "max_inbound_message_size": 16777216,
-      "preload": null,
-      "protocol": "raw",
-      "request_target": "/echo",
-      "extra_headers" : {
-        "Service" : "echo",
-        "Strict-Transport-Security" : "max-age=31536000; includeSubDomains"
-      }
-    }
-    ```
-## Collect the results
-  The instances of the **benchmark** service are printing measurements once per second on stdout. Let the service run for a while (several minutes), then stop the LAppS.
-  Copy lines those looks like: "63267 messages receved per 1000ms" into separate file. Let suppose you called it a **stats**
-  There will be 4 such lines per second (each **benchmark** service prints its own results)
-  Count the average rps (average messages received by all 4 **benchmark** services):
-  ```bash
-    awk -v avg=0 "{avg+=\$1}END{print (avg/$(wc -l stats))*4}" stats
-  ```
 ## Results:
 
 | Server | Clients | Server rps | rps per client| payload (bytes)|
 |:---|:---:|:---:|:---:|---:|
-|LAppS 0.7.0-TLS (upstream)| 400 | **257828** | 644.57 | 1024 |
+|LAppS 0.7.1 - 3 workers, 2 echo services| 400 | **693927** | 1734.81  | 64 |
+|uWebSockets-latest  - 4 threads | 400 | **750351** | 1875.87 | 64 |
 
-This makes it more then 500k packets per second or more then 4.4Gbit/s network utilization. Further improvements on single CPU machines may be reached by using **dpdk**.
+There are several notes to think on:
 
-WebSocket client (cws module) may be considered stable since commit c385daf1fafa5f74f43588dc0247c67a05767cd3
+  1. WebSocket Clients are agressively using RNG so there are some blockings on /dev/urandom are involved
+  2. According to perf Lua footprint in LAppS takes about 10% of performance 
+    * First and last strings in following snippet:
+```text
+     6.11%  lapps.avx2.nost  libluajit-5.1.so.2.0.5    [.] lj_str_new
+     5.51%  lapps.avx2.nost  lapps.avx2.nostats.notls  [.] LAppS::IOWorker<false, false>::execute
+     4.72%  lapps.avx2.nost  lapps.avx2.nostats.notls  [.] cws_eventloop
+     4.09%  lapps.avx2.nost  lapps.avx2.nostats.notls  [.] LAppS::LuaReactiveService<(LAppS::ServiceProtocol)0>::execute
+     3.91%  lapps.avx2.nost  libluajit-5.1.so.2.0.5    [.] lj_BC_TGETS
+```
+  3. In the same time in the above test results LAppS is slower only on about 7.5%
+  4. The total number of packets on the host machine in test-runtime in both cases is a factor of two higher then the RPS of the server (benchmark shows only amount of packets, received by the clients)
+
+
+This makes LAppS WenSockets stack most performant in the industry.

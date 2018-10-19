@@ -222,6 +222,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   {
     return mPeerAddress;
   }
+  
   const WSConnectionStats& getStats() const
   {
     return mStats;
