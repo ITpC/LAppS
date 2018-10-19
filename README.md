@@ -16,12 +16,12 @@ There are package for ubuntu xenial available in this repository:
 
   **Ubuntu xenial**
 
-* [lapps-0.7.1-ssse3-amd64.deb](https://github.com/ITpC/LAppS/raw/master/packages/xenial/lapps-0.7.1-ssse3-amd64.deb) (build for AMD/Intel CPUs with SSSE3 and above support)
+* [lapps-0.7.1-generic-amd64.deb](https://github.com/ITpC/LAppS/raw/master/packages/xenial/lapps-0.7.1-generic-amd64.deb) (build for AMD/Intel CPUs with SSSE3 and above support)
 * [lapps-0.7.1-avx2-amd64.deb](https://github.com/ITpC/LAppS/raw/master/packages/xenial/lapps-0.7.1-avx2-amd64.deb) (build for AMD/Intel CPUs with AVX2 support)
 
   **Ubuntu bionic**
 
-* [lapps-0.7.1-ssse3-amd64.deb](https://github.com/ITpC/LAppS/raw/master/packages/bionic/lapps-0.7.1-ssse3-amd64.deb) (build for AMD/Intel CPUs with SSSE3 and above support)
+* [lapps-0.7.1-generic-amd64.deb](https://github.com/ITpC/LAppS/raw/master/packages/bionic/lapps-0.7.1-generic-amd64.deb) (build for AMD/Intel CPUs with SSSE3 and above support)
 * [lapps-0.7.1-avx2-amd64.deb](https://github.com/ITpC/LAppS/raw/master/packages/bionic/lapps-0.7.1-avx2-amd64.deb) (build for AMD/Intel CPUs with AVX2 support)
 
 # Features
