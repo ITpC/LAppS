@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <iostream>
 
- uS::TLS::Context tls = uS::TLS::createContext ("./cert.pem", "./key.pem", "");
+// uS::TLS::Context tls = uS::TLS::createContext ("./cert.pem", "./key.pem", "");
 
 int main() {
     std::vector<std::thread *> threads(4);
@@ -18,7 +18,8 @@ int main() {
             // This makes use of the SO_REUSEPORT of the Linux kernel
             // Other solutions include listening to one port per thread
             // with or without some kind of proxy inbetween
-            if (!h.listen(5083, tls, uS::ListenOptions::REUSE_PORT)) {
+            //if (!h.listen(5083, tls, uS::ListenOptions::REUSE_PORT)) {
+            if (!h.listen(5080, nullptr, uS::ListenOptions::REUSE_PORT)) {
                 std::cout << "Failed to listen" << std::endl;
             }
             h.run();
