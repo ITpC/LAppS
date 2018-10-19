@@ -24,9 +24,8 @@
 #ifndef __SERVERSTATS_H__
 #  define __SERVERSTATS_H__
 
-#include <WSWorkersPool.h>
-#include <WorkerStats.h>
 #include <Singleton.h>
+#include <WSWorkersPool.h>
 #include <ServiceRegistry.h>
 
 

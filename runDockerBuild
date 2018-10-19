@@ -1,0 +1,44 @@
+#!/bin/bash
+
+if [ -f ./common.sh ]
+then
+  source ./common.sh
+  export MANDATORY="UBUNTU BUILD"
+
+  chk_args "$@"
+
+  export UBUNTU_VERSION_CHOSEN=0
+
+  for i in xenial bionic
+  do
+    if [ "${UBUNTU}" == "${i}" ]
+    then
+      export UBUNTU_VERSION_CHOSEN=1
+    fi
+  done
+
+  export BUILD_TYPE_CHOSEN=0
+
+  for i in avx2 generic
+  do
+    if [ "${BUILD}" == "${i}" ]
+    then
+      export BUILD_TYPE_CHOSEN=1
+    fi
+  done
+
+  [ ${UBUNTU_VERSION_CHOSEN} ] || die "Use --ubuntu {xenial|bionic} - only these two ubuntu versions are supported"
+  [ ${BUILD_TYPE_CHOSEN} || die "Use --build {avx2|generic} - only these two build types are supported"
+
+
+  [ -f ./VERSION ] || die "No VERSION file in current directory"
+
+  export VERSION=$(cat ./VERSION)
+
+  docker build -t lapps:${UBUNTU}-${BUILD} -f dockerfiles/Dockerfile.${UBUNTU}.${BUILD} --force-rm . || die "Dockerfile for specified build is missing"
+  docker run -it --rm --name myldev -h ldev -v /opt/lapps-builds/latest:/opt/lapps lapps:${UBUNTU}-${BUILD} ./inDockerPackage.${BUILD}.sh || die "Something went wrong: build has failed"
+  mv /opt/lapps/packages/lapps-${VERSION}-{$BUILD}-amd64.deb packages/${UBUNTU}/
+else
+  echo "This script have to be started from within LAppS root build directory (clone of https://github.com/ITpC/LAppS.git)"
+fi
+
