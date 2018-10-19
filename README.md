@@ -137,4 +137,4 @@ There are several notes to think on:
   4. The total number of packets on the host machine in test-runtime in both cases is a factor of two higher then the RPS of the server (benchmark shows only amount of packets, received by the clients)
 
 
-This makes LAppS WenSockets stack most performant in the industry.
+**This makes LAppS WebSockets stack most performant in the industry.**
