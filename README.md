@@ -10,12 +10,12 @@ LAppS is an easy way to develop low-latency web applications. Please see [LAppS 
 
 Please see [LAppS wiki](https://github.com/ITpC/LAppS/wiki) on how to build and run LAppS from sources. 
 
+Release 0.7.1 is considered stable.
 
 There are package for ubuntu xenial available in this repository:
 
-* [lapps-0.6.3-amd64.deb](https://github.com/ITpC/LAppS/raw/master/packages/lapps-0.6.3-amd64.deb) (stable build without perf optimizations, inter-service communications, ACLs, etc)
-* [lapps-0.7.0-ssse3-amd64.deb](https://github.com/ITpC/LAppS/raw/master/packages/lapps-0.7.0-ssse3-amd64.deb) (prelimenary build for AMD/Intel CPUs with SSSE3 and above support)
-* [lapps-0.7.0-avx2-amd64.deb](https://github.com/ITpC/LAppS/raw/master/packages/lapps-0.7.0-avx2-amd64.deb) (prelimenary build for AMD/Intel CPUs with AVX2 support)
+* [lapps-0.7.1-ssse3-amd64.deb](https://github.com/ITpC/LAppS/raw/master/packages/lapps-0.7.1-ssse3-amd64.deb) (build for AMD/Intel CPUs with SSSE3 and above support)
+* [lapps-0.7.1-avx2-amd64.deb](https://github.com/ITpC/LAppS/raw/master/packages/lapps-0.7.1-avx2-amd64.deb) (build for AMD/Intel CPUs with AVX2 support)
 
 # Features
 
