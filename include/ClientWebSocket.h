@@ -59,7 +59,6 @@ namespace LAppS
   static thread_local CryptoPP::AutoSeededRandomPool RNG(true);
   static thread_local CryptoPP::Base64Encoder        BASE64;
   static thread_local CryptoPP::SHA1                 SHA1;
-  static thread_local itc::sys::Nap                  NAP;
   
   static thread_local std::vector<uint8_t> recvBuffer(8192,0);
   
@@ -397,13 +396,8 @@ namespace LAppS
       {
         std::string accept_key_src(mSecWebSocketKey+"258EAFA5-E914-47DA-95CA-C5AB0DC85B11");
 
-#if __GNUC_PREREQ(7,0)
-        CryptoPP::byte digest[CryptoPP::SHA1::DIGESTSIZE];
-        SHA1.CalculateDigest(digest,(const CryptoPP::byte*)(accept_key_src.data()),accept_key_src.length());
-#else
         byte digest[CryptoPP::SHA1::DIGESTSIZE];
         SHA1.CalculateDigest(digest,(const byte*)(accept_key_src.data()),accept_key_src.length());
-#endif
 
         BASE64.Initialize();
         BASE64.Put(digest, CryptoPP::SHA1::DIGESTSIZE);
@@ -412,11 +406,7 @@ namespace LAppS
         size_t accept_key_length=BASE64.MaxRetrievable()-1; // skip trailing \n
 
         std::string required_accept_key(accept_key_length,'\0');
-#if __GNUC_PREREQ(7,0)
-        BASE64.Get((CryptoPP::byte*)(required_accept_key.data()),accept_key_length);
-#else
         BASE64.Get((byte*)(required_accept_key.data()),accept_key_length);
-#endif
 
         return responseOK((const char*)(recvBuffer.data()),ret,required_accept_key);
       }
@@ -550,11 +540,7 @@ namespace LAppS
         size_t base64_str_size=BASE64.MaxRetrievable()-1; // remove trailing \n
         
         mSecWebSocketKey.resize(base64_str_size,'\0');
-#if __GNUC_PREREQ(7,0)
-        BASE64.Get((CryptoPP::byte*)(mSecWebSocketKey.data()),base64_str_size);
-#else
         BASE64.Get((byte*)(mSecWebSocketKey.data()),base64_str_size);
-#endif
         
         httpUpgradeRequest.append(mSecWebSocketKey);
         httpUpgradeRequest.append("\r\n");
@@ -689,12 +675,7 @@ namespace LAppS
       } double_mask;
       
       uint32_t single_mask=0;
-#if __GNUC_PREREQ(7,0)
-      RNG.GenerateBlock((CryptoPP::byte*)(&single_mask),sizeof(single_mask));
-#else
       RNG.GenerateBlock((byte*)(&single_mask),sizeof(single_mask));
-#endif
-      
       double_mask.mask=(static_cast<uint64_t>(single_mask)<<32)|single_mask;
       
       std::vector<uint8_t> out;

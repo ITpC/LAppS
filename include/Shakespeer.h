@@ -235,13 +235,8 @@ namespace LAppS
         
         std::string replykey(mHTTPRParser["Sec-WebSocket-Key"]+UID);
         
-#if __GNUC_PREREQ(7,0)        
-        CryptoPP::byte digest[CryptoPP::SHA1::DIGESTSIZE];
-        sha1.CalculateDigest( digest, (const CryptoPP::byte*)(replykey.c_str()),replykey.length());
-#else
         byte digest[CryptoPP::SHA1::DIGESTSIZE];
         sha1.CalculateDigest( digest, (const byte*)(replykey.c_str()),replykey.length());
-#endif
 
         CryptoPP::Base64Encoder b64;
         b64.Put(digest, CryptoPP::SHA1::DIGESTSIZE);
@@ -252,11 +247,8 @@ namespace LAppS
         
         okResponse.resize(respsz+encoded_key_size-1);
 
-#if __GNUC_PREREQ(7,0)
-        b64.Get((CryptoPP::byte*)(okResponse.data()+respsz),encoded_key_size-1);
-#else
         b64.Get((byte*)(okResponse.data()+respsz),encoded_key_size-1);
-#endif
+
         okResponse.append("\r\n\r\n");
         
         response.resize(okResponse.size());
