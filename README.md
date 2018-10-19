@@ -12,14 +12,14 @@ Please see [LAppS wiki](https://github.com/ITpC/LAppS/wiki) on how to build and 
 
 Release 0.7.1 is considered stable.
 
-There are package for ubuntu xenial available in this repository:
+There are package available for ubuntu xenial and bionicy:
 
-  **Ubuntu xenial**
+**Ubuntu xenial**
 
 * [lapps-0.7.1-generic-amd64.deb](https://github.com/ITpC/LAppS/raw/master/packages/xenial/lapps-0.7.1-generic-amd64.deb) (build for AMD/Intel CPUs with SSSE3 and above support)
 * [lapps-0.7.1-avx2-amd64.deb](https://github.com/ITpC/LAppS/raw/master/packages/xenial/lapps-0.7.1-avx2-amd64.deb) (build for AMD/Intel CPUs with AVX2 support)
 
-  **Ubuntu bionic**
+**Ubuntu bionic**
 
 * [lapps-0.7.1-generic-amd64.deb](https://github.com/ITpC/LAppS/raw/master/packages/bionic/lapps-0.7.1-generic-amd64.deb) (build for AMD/Intel CPUs with SSSE3 and above support)
 * [lapps-0.7.1-avx2-amd64.deb](https://github.com/ITpC/LAppS/raw/master/packages/bionic/lapps-0.7.1-avx2-amd64.deb) (build for AMD/Intel CPUs with AVX2 support)
