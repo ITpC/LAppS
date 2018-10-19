@@ -3,4 +3,4 @@ Version: 0.7.1
 Maintainer: Pavel Kraynyukhov <pk@new-web.co>
 Architecture: amd64
 Description: Lua Application Server for micro-service architecture.
-Depends: libcrypto++ (>=5.6.1)
+Depends: libcrypto++9v5 (>=5.6.1) || libcrypto++6 (>=5.6.4)
