@@ -35,8 +35,7 @@ then
 
   export VERSION=$(cat ./VERSION)
 
-  rm -rf /opt/lapps-builds/latest/*
-  mkdir -p /opt/lapps-builds/latest/bin
+  sudo rm -rf /opt/lapps-builds/latest/*
 
   docker build -t lapps:${UBUNTU}-${BUILD} -f dockerfiles/Dockerfile.${UBUNTU}.${BUILD} --force-rm . || die "Dockerfile for specified build is missing"
   docker run -it --rm --name myldev -h ldev -v /opt/lapps-builds/latest:/opt/lapps lapps:${UBUNTU}-${BUILD} ./inDockerPackage.${BUILD}.sh || die "Something went wrong: build has failed"
