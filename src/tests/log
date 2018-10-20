@@ -1,0 +1,4 @@
+LuaServicesTest.cpp: В функции «int main()»:
+LuaServicesTest.cpp:64:7: предупреждение: unused variable «c» [-Wunused-variable]
+   int c=getchar();
+       ^
