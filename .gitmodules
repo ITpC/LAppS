@@ -1,3 +1,0 @@
-[submodule "packages"]
-	path = packages
-	url = git@github.com:ITpC/LAppS.builds.git
