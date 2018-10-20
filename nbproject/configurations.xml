@@ -1072,6 +1072,7 @@
           </preprocessorList>
         </ccTool>
         <linkerTool>
+          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.generic</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>../libressl/lib</pElem>
@@ -2924,7 +2925,7 @@
           </preprocessorList>
         </ccTool>
         <linkerTool>
-          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.nostats</output>
+          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.nostats.generic</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>../libressl/lib</pElem>
@@ -3849,7 +3850,7 @@
           </preprocessorList>
         </ccTool>
         <linkerTool>
-          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.nostats.notls</output>
+          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.nostats.notls.generic</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>../libressl/lib</pElem>
