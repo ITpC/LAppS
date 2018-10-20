@@ -33,16 +33,16 @@ CND_PACKAGE_PATH_Release.AVX2=dist/Release.AVX2/GNU-Linux/package/lapps.deb
 # Release.GENERIC.NO_STATS configuration
 CND_PLATFORM_Release.GENERIC.NO_STATS=GNU-Linux
 CND_ARTIFACT_DIR_Release.GENERIC.NO_STATS=dist/Release.GENERIC.NO_STATS/GNU-Linux
-CND_ARTIFACT_NAME_Release.GENERIC.NO_STATS=lapps.nostats.generic
-CND_ARTIFACT_PATH_Release.GENERIC.NO_STATS=dist/Release.GENERIC.NO_STATS/GNU-Linux/lapps.nostats.generic
+CND_ARTIFACT_NAME_Release.GENERIC.NO_STATS=lapps.generic.nostats
+CND_ARTIFACT_PATH_Release.GENERIC.NO_STATS=dist/Release.GENERIC.NO_STATS/GNU-Linux/lapps.generic.nostats
 CND_PACKAGE_DIR_Release.GENERIC.NO_STATS=dist/Release.GENERIC.NO_STATS/GNU-Linux/package
 CND_PACKAGE_NAME_Release.GENERIC.NO_STATS=lapps.deb
 CND_PACKAGE_PATH_Release.GENERIC.NO_STATS=dist/Release.GENERIC.NO_STATS/GNU-Linux/package/lapps.deb
 # Release.GENERIC.NO_STATS.NO_TLS configuration
 CND_PLATFORM_Release.GENERIC.NO_STATS.NO_TLS=GNU-Linux
 CND_ARTIFACT_DIR_Release.GENERIC.NO_STATS.NO_TLS=dist/Release.GENERIC.NO_STATS.NO_TLS/GNU-Linux
-CND_ARTIFACT_NAME_Release.GENERIC.NO_STATS.NO_TLS=lapps.nostats.notls.generic
-CND_ARTIFACT_PATH_Release.GENERIC.NO_STATS.NO_TLS=dist/Release.GENERIC.NO_STATS.NO_TLS/GNU-Linux/lapps.nostats.notls.generic
+CND_ARTIFACT_NAME_Release.GENERIC.NO_STATS.NO_TLS=lapps.generic.nostats.notls
+CND_ARTIFACT_PATH_Release.GENERIC.NO_STATS.NO_TLS=dist/Release.GENERIC.NO_STATS.NO_TLS/GNU-Linux/lapps.generic.nostats.notls
 CND_PACKAGE_DIR_Release.GENERIC.NO_STATS.NO_TLS=dist/Release.GENERIC.NO_STATS.NO_TLS/GNU-Linux/package
 CND_PACKAGE_NAME_Release.GENERIC.NO_STATS.NO_TLS=lapps.deb
 CND_PACKAGE_PATH_Release.GENERIC.NO_STATS.NO_TLS=dist/Release.GENERIC.NO_STATS.NO_TLS/GNU-Linux/package/lapps.deb
