@@ -893,6 +893,12 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -1154,6 +1160,12 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -2747,6 +2759,12 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -2925,7 +2943,7 @@
           </preprocessorList>
         </ccTool>
         <linkerTool>
-          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.nostats.generic</output>
+          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.generic.nostats</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>../libressl/lib</pElem>
@@ -3007,6 +3025,12 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -3850,7 +3874,7 @@
           </preprocessorList>
         </ccTool>
         <linkerTool>
-          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.nostats.notls.generic</output>
+          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.generic.nostats.notls</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>../libressl/lib</pElem>
@@ -3932,6 +3956,12 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -5524,6 +5554,12 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -5783,6 +5819,12 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
