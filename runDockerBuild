@@ -35,9 +35,12 @@ then
 
   export VERSION=$(cat ./VERSION)
 
+  mkdir -p /opt/lapps-builds/latest
+  rm -f /opt/lapps-builds/latest/*
+
   docker build -t lapps:${UBUNTU}-${BUILD} -f dockerfiles/Dockerfile.${UBUNTU}.${BUILD} --force-rm . || die "Dockerfile for specified build is missing"
   docker run -it --rm --name myldev -h ldev -v /opt/lapps-builds/latest:/opt/lapps lapps:${UBUNTU}-${BUILD} ./inDockerPackage.${BUILD}.sh || die "Something went wrong: build has failed"
-  mv /opt/lapps/packages/lapps-${VERSION}-${BUILD}-amd64.deb packages/${UBUNTU}/
+  mv /opt/lapps-builds/latest/packages/lapps-${VERSION}-${BUILD}-amd64.deb packages/${UBUNTU}/
 else
   echo "This script have to be started from within LAppS root build directory (clone of https://github.com/ITpC/LAppS.git)"
 fi
