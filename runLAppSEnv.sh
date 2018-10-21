@@ -4,7 +4,7 @@ if [ -f ./common.sh ]
 then
   source ./common.sh
 
-  export MANDATORY="UBUNTU BUILD"
+  export MANDATORY="CPREFIX UBUNTU BUILD"
 
   chk_args "$@"
 
@@ -36,7 +36,7 @@ then
 
   export VERSION=$(cat ./VERSION)
 
-  docker run -it --rm --name runenv.${VERSION}.${UBUNTU}.${BUILD} -h lapps --network=host lapps:runenv.${VERSION}.${UBUNTU}.${BUILD} bash
+  docker run -it --rm --name ${CPREFIX}.${VERSION}.${UBUNTU}.${BUILD} -h lapps --network=host lapps:runenv.${VERSION}.${UBUNTU}.${BUILD} bash
 
 else
   echo "This file is supposed to be executed from within the LAppS build directory (clone of https://github.com/ITpC/LAppS.git)"
