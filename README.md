@@ -101,7 +101,7 @@ How the tests were running:
   Performing the test (from within build directory)
 
 ```bash
-./dist/Release.AVX2.NO_STATS.NO_TLS/GNU-Linux/lapps.avx2.nostats.notls >  ${RESULT_FILE} ; egrep "^[1-9]" ${RESULT_FILE} | sed -e 's/ms[1-9]/ms\n$/g' | sed -e '/^$/d' > ${RESULT_FILE}.flt; tail -n $(( $(wc -l ${RESULT_FILE}.flt | awk '{print $1}') - 8 )) ${RESULT_FILE}.flt > ${RESULT_FILE}; awk -v avg=0 "{avg+=\$1}END{print \"Server average RPS: \" (avg/$(wc -l ${RESULT_FILE}|awk '{print $1}'))*4}" ${RESULT_FILE}
+./dist/Release.AVX2.NO_STATS.NO_TLS/GNU-Linux/lapps.avx2.nostats.notls >  ${RESULT_FILE} ; egrep "^[1-9]" ${RESULT_FILE} | sed -e 's/ms[1-9]/ms\n/g' | sed -e '/^$/d' > ${RESULT_FILE}.flt; tail -n $(( $(wc -l ${RESULT_FILE}.flt | awk '{print $1}') - 8 )) ${RESULT_FILE}.flt > ${RESULT_FILE}; awk -v avg=0 "{avg+=\$1}END{print \"Server average RPS: \" (avg/$(wc -l ${RESULT_FILE}|awk '{print $1}'))*4}" ${RESULT_FILE}
 ``` 
 
   After several minutes of runnnung press Ctrl-C to stop the test and see the results.

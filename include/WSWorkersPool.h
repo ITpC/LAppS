@@ -35,8 +35,45 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WSWorkersPool
   mutable std::mutex            mMutex;
   std::vector<WorkerThreadSPtr> mWorkers;
   size_t                        mCursor;
+  
+  const std::shared_ptr<json> getStats(itc::utils::Bool2Type<false> stats_disabled)
+  {
+    std::shared_ptr<json> wstats=std::make_shared<json>(json::object());
+    for(const auto& worker : mWorkers)
+    {
+      auto stats=worker->getRunnable()->getMinStats();
+      size_t in_messages_count=worker->getRunnable()->getInMessagesCount();
+      
+      (*wstats)[std::to_string(worker->getRunnable()->getID())]={
+        {{ "InMessagesCount", in_messages_count }},
+        {{ "Connections", stats.mConnections }},
+        {{ "EventQSize", stats.mEventQSize }}
+      };
+    }
+    return wstats;
+  }
+  
+  const std::shared_ptr<json> getStats(itc::utils::Bool2Type<true> stats_enabled)
+  {
+    std::shared_ptr<json> wstats=std::make_shared<json>(json::object());
+    
+    for(auto it=mWorkers.begin();it!=mWorkers.end();++it)
+    {
+      const std::string wid=std::to_string(it->get()->getRunnable()->getID());
+      auto stats=it->get()->getRunnable()->getMinStats();
+      size_t in_messages_count=it->get()->getRunnable()->getInMessagesCount();
+      
+      (*wstats)[wid]=it->get()->getRunnable()->getStats();
+      (*wstats)[wid]["InMessagesCount"]=in_messages_count;
+      (*wstats)[wid]["Connections"]=stats.mConnections;
+      (*wstats)[wid]["EventQSize"]=stats.mEventQSize;
+    }
+ 
+    return wstats;
+  }
+
  public:
-  typedef LAppS::IOWorker<TLSEnable,StatsEnable>             WorkerType;
+  typedef LAppS::IOWorker<TLSEnable,StatsEnable> WorkerType;
   
   WSWorkersPool():mMutex(),mWorkers(),mCursor(0)
   {
@@ -70,38 +107,12 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WSWorkersPool
       return ret;
     }
   }
-  const WorkerStats getStats()
-  {
-    WorkerStats mAllStats{0};
-    
-    for(auto it=mWorkers.begin();it!=mWorkers.end();++it)
-    {
-      auto stats=it->get()->getRunnable()->getStats();
-      mAllStats.mConnections+=stats.mConnections;
-      mAllStats.mInMessageCount+=stats.mInMessageCount;
-      mAllStats.mOutMessageCount+=stats.mOutMessageCount;
-      
-      
-      if(mAllStats.mInMessageMaxSize<stats.mInMessageMaxSize)
-      {
-        mAllStats.mInMessageMaxSize=stats.mInMessageMaxSize;
-      }
-      if(mAllStats.mOutMessageMaxSize<stats.mOutMessageMaxSize)
-      {
-        mAllStats.mOutMessageMaxSize=stats.mOutMessageMaxSize;
-      }
-      mAllStats.mOutCMASize+=stats.mOutCMASize;
-      mAllStats.mInCMASize+=stats.mInCMASize;
-    }
-    mAllStats.mOutCMASize/=mWorkers.size();
-    mAllStats.mInCMASize/=mWorkers.size();
-    return mAllStats;
-  }
   
-  const WorkerStats getStats(const size_t id) const
+  const auto getStats()
   {
-    return mWorkers[id]->getRunnable()->getStats();
-  }
+    static const itc::utils::Bool2Type<StatsEnable> statsEnabled;
+    return getStats(statsEnabled);
+  }  
   
   const size_t size() const
   {

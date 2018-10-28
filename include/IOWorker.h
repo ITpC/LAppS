@@ -77,7 +77,53 @@ namespace LAppS
       {
         return (events & (EPOLLIN|EPOLLOUT));
       }
-      
+
+      const auto gatherStats(const itc::utils::Bool2Type<false> stats_disabled)
+      {
+        return std::make_shared<json>(json::object());
+      }
+
+      const auto gatherStats(const itc::utils::Bool2Type<true> stats_enabled)
+      {
+        std::shared_ptr<json> nstats=std::make_shared<json>(json::object());
+        
+        for(const auto& connection : mConnections)
+        {
+          const auto sock_stats=std::move(connection.second->getStats());
+          const std::string instanceid=std::to_string(connection.second->getApplication()->getInstanceId());
+          const std::string service_name=connection.second->getApplication()->getName();
+          
+          (*nstats)[instanceid][service_name]={
+            {{"InMessageCount", (*nstats)[instanceid][service_name]["InMessageCount"].get<size_t>()+sock_stats.mInMessageCount}},
+            {{"OutMessageCount", (*nstats)[instanceid][service_name]["OutMessageCount"].get<size_t>()+sock_stats.mOutMessageCount}},
+            {{"Connections", (*nstats)[instanceid][service_name]["Connections"].get<size_t>()+1 }}
+          };
+          
+          if((*nstats)[instanceid][service_name]["InMessageMaxSize"].get<size_t>()<sock_stats.mInMessageMaxSize)
+            (*nstats)[instanceid][service_name]["InMessageMaxSize"]=sock_stats.mInMessageMaxSize;
+          
+          if((*nstats)[instanceid][service_name]["OutMessageMaxSize"].get<size_t>()<sock_stats.mOutMessageMaxSize)
+            (*nstats)[instanceid][service_name]["OutMessageMaxSize"]=sock_stats.mOutMessageMaxSize;
+          
+          if((*nstats)[instanceid][service_name]["OutMessageCount"].get<size_t>() > 0)
+          {
+            (*nstats)[instanceid][service_name]["OutCMASize"]=
+              (*nstats)[instanceid][service_name]["OutCMASize"].get<size_t>()+(
+                sock_stats.mOutCMASize-(*nstats)[instanceid][service_name]["OutCMASize"].get<size_t>()
+              )/(*nstats)[instanceid][service_name]["OutMessageCount"].get<size_t>();
+          }
+            
+          if((*nstats)[instanceid][service_name]["InMessageCount"].get<size_t>() > 0)
+          {
+            (*nstats)[instanceid][service_name]["InCMASize"]=
+              (*nstats)[instanceid][service_name]["InCMASize"].get<size_t>()+(
+                sock_stats.mInCMASize-(*nstats)[instanceid][service_name]["InCMASize"].get<size_t>()
+              )/(*nstats)[instanceid][service_name]["InMessageCount"].get<size_t>();
+          }
+          
+        }
+        return nstats;
+      }      
     public:
      
     explicit IOWorker(const size_t id, const size_t maxConnections,const bool auto_fragment)
@@ -125,44 +171,18 @@ namespace LAppS
       AtomicLock sync(mConnectionsMutex);
       return mConnections.size();
     }
+    
+    const size_t getInMessagesCount() const
+    {
+      return mStats.mInMessageCount;
+    }
+    
     const bool  isTLSEnabled() const
     {
       return TLSEnable;
     }
     
-    void gatherStats(const itc::utils::Bool2Type<false> stats_disabled)
-    {
-    }
-    
-    void gatherStats(const itc::utils::Bool2Type<true> stats_enabled)
-    {
-      AtomicLock sync(mConnectionsMutex);
-      mStats.mInMessageCount=0;
-      mStats.mOutMessageCount=0;
-      mStats.mInCMASize=0;
-      size_t counter=0;
-
-      for(const auto& connection : mConnections)
-      {
-        const auto sock_stats=std::move(connection.second->getStats());
-        mStats.mInMessageCount+=sock_stats.mInMessageCount;
-        mStats.mOutMessageCount+=sock_stats.mOutMessageCount;
-
-        if(mStats.mInMessageMaxSize<sock_stats.mInMessageMaxSize)
-          mStats.mInMessageMaxSize=sock_stats.mInMessageMaxSize;
-
-        if(mStats.mOutMessageMaxSize<sock_stats.mOutMessageMaxSize)
-          mStats.mOutMessageMaxSize=sock_stats.mOutMessageMaxSize;
-
-        mStats.mInCMASize+=sock_stats.mInCMASize;
-        mStats.mOutCMASize+=sock_stats.mOutCMASize;
-      }
-      if(counter>0)
-      {
-        mStats.mInCMASize=mStats.mInCMASize/counter;
-        mStats.mOutCMASize=mStats.mOutCMASize/counter;
-      }
-    }
+   
     void execute()
     {
       sigset_t sigpipe_mask;
@@ -202,10 +222,10 @@ namespace LAppS
                 else 
                 {
                   processIO(mEvents[i].data.fd);
+                  mStats.mInMessageCount++;
                 }
               }
             }
-            gatherStats(enableStatsUpdate);
           }catch(const std::exception& e)
           {
             itc::getLog()->error(__FILE__,__LINE__,"Exception on ePoll::poll(): ", e.what());
@@ -235,11 +255,16 @@ namespace LAppS
     {
       if(!mCanStop) this->shutdown();
     }
+
+    const WorkerMinStats getMinStats() const
+    {
+      return { mStats.mConnections,mStats.mEventQSize };
+    }
     
-    const WorkerStats getStats() const
+    const std::shared_ptr<json> getStats()
     {
       AtomicLock sync(mConnectionsMutex);
-      return mStats;
+      return gatherStats(enableStatsUpdate);
     }
     
     void updateStats()
@@ -365,14 +390,14 @@ namespace LAppS
       
       const std::shared_ptr<WSType> mkWebSocket(const itc::CSocketSPtr& inbound,const itc::utils::Bool2Type<false> tls_is_disabled)
       {
-        return std::make_shared<WSType>(std::move(inbound),this->getID(),mEPoll,this,mustAutoFragment());
+        return std::make_shared<WSType>(std::move(inbound),mEPoll,this,mustAutoFragment());
       }
       
       const std::shared_ptr<WSType> mkWebSocket(const itc::CSocketSPtr& inbound,const itc::utils::Bool2Type<true> tls_is_enabled)
       {
         auto tls_server_context=TLS::SharedServerContext::getInstance()->getContext();
         if(tls_server_context)
-          return std::make_shared<WSType>(std::move(inbound),this->getID(),mEPoll,this,mustAutoFragment(),tls_server_context);
+          return std::make_shared<WSType>(std::move(inbound),mEPoll,this,mustAutoFragment(),tls_server_context);
         else throw std::system_error(EINVAL,std::system_category(),"TLS ServerContext is NULL");
       }
   };

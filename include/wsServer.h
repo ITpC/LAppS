@@ -75,7 +75,7 @@ namespace LAppS
     itc::utils::Bool2Type<StatsEnable>  enableStatsUpdate;
     float                               mConnectionWeight;
     size_t                              mWorkers;
-    WorkerStats                         mAllStats;
+    IOStats                         mAllStats;
     std::shared_ptr<LAppS::NetworkACL>  mNACL;
     DeployerThread                      mDeployer;
     std::vector<TCPListenerThreadSPtr>  mListenersPool;
@@ -153,21 +153,6 @@ namespace LAppS
 
 
   public:
-
-    const WorkerStats& collectStats(const itc::utils::Bool2Type<false> stats_collection_is_disabled)
-    {
-      return mAllStats;
-    }
-    const WorkerStats& collectStats(const itc::utils::Bool2Type<true> stats_collection_is_enabled)
-    {
-      return WorkersPool::getInstance()->getStats();
-    }
-
-    const WorkerStats& collectStats()
-    {
-      return collectStats(enableStatsUpdate);
-    }
-
     wsServer()
     : enableTLS(), enableStatsUpdate(), mConnectionWeight(
         LAppSConfig::getInstance()->getWSConfig()["connection_weight"]

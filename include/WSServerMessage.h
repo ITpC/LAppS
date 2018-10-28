@@ -175,6 +175,63 @@ namespace WebSocketProtocol
         out.push(outmsg);
       }
     }
+    
+    FragmentedServerMessage(msgQType& out,const WebSocketProtocol::OpCode oc,const std::shared_ptr<std::vector<uint8_t>>& src)
+    {
+      const size_t len=src->size();
+      const size_t fragment_pl_size=1392;
+      int fragments = len/fragment_pl_size;
+      size_t bytes_left=len;
+      size_t offset=0;
+      
+      auto outmsg=std::make_shared<MSGBufferType>();
+      
+      if(fragments>1)
+      {
+        // first fragment
+        outmsg->clear();
+        outmsg->push_back(oc);
+        WS::putLength(fragment_pl_size,*outmsg);
+        offset=outmsg->size();
+        outmsg->resize(offset+fragment_pl_size);
+        memcpy(outmsg->data()+offset,src->data(),fragment_pl_size);
+        bytes_left=bytes_left-fragment_pl_size;
+        out.push(outmsg);
+        --fragments;
+        
+        // continuation fragments
+        while((fragments-1)>0)
+        {
+          outmsg=std::make_shared<MSGBufferType>();
+          outmsg->clear();
+          outmsg->push_back(0);
+          WS::putLength(fragment_pl_size,*outmsg);
+          offset=outmsg->size();
+          outmsg->resize(offset+fragment_pl_size);
+          memcpy(outmsg->data()+offset,src->data()+(len-bytes_left),fragment_pl_size);
+          bytes_left=bytes_left-fragment_pl_size;
+          out.push(outmsg);
+          --fragments;
+        }
+        // fin fragment;
+        outmsg=std::make_shared<MSGBufferType>();
+        outmsg->clear();
+        outmsg->push_back(128);
+        WS::putLength(bytes_left,*outmsg);
+        offset=outmsg->size();
+        outmsg->resize(offset+bytes_left);
+        memcpy(outmsg->data()+offset,src->data()+(len-bytes_left),bytes_left);
+        out.push(outmsg);
+      }else{
+        outmsg->clear();
+        outmsg->push_back(128|oc);
+        WS::putLength(len,*outmsg);
+        size_t offset=outmsg->size();
+        outmsg->resize(offset+len);
+        memcpy(outmsg->data()+offset,src->data(),len);
+        out.push(outmsg);
+      }
+    }
   };
   
   struct ServerMessage

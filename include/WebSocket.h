@@ -65,8 +65,8 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   }
   
  private:
+  itc::sys::AtomicMutex               mMutex;
   int                                 fd;
-  size_t                              mWorkerId;
   State                               mState;
   std::atomic<bool>                   mNoInput;
   
@@ -76,26 +76,20 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   struct tls*                         TLSContext;
   struct tls*                         TLSSocket;
   
-  ::abstract::Worker*                 mParent;
+  SharedEPollType                     mEPoll;
   
-  itc::CSocketSPtr                    mSocketSPtr;
-  
-  uint32_t                            mPeerIP;
-  std::string                         mPeerAddress;
+  WSConnectionStats                   mStats;
   
   WSStreamProcessing::WSStreamServerParser  streamProcessor;
   
   ::LAppS::ServiceSPtrType            mApplication;
   
-  SharedEPollType                     mEPoll;
-  
-  WSConnectionStats                   mStats;
-  
-  size_t                              mOutCursor;
-  
   bool                                mAutoFragment;
   
-  itc::sys::AtomicMutex               mMutex;
+  ::abstract::Worker*                 mParent;  
+  itc::CSocketSPtr                    mSocketSPtr;
+  uint32_t                            mPeerIP;
+  std::string                         mPeerAddress;
       
   void init(const itc::utils::Bool2Type<true> tls_is_enabled)
   {
@@ -116,18 +110,17 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   
   explicit WebSocket(
     const itc::CSocketSPtr&  socksptr, 
-    const size_t&            workerid, 
     const SharedEPollType&   ep,
     ::abstract::Worker*      _parent,
     const bool               auto_fragment,
     struct tls*              tls_context=nullptr
   )
-  : fd(socksptr->getfd()),     mWorkerId{workerid},     mState{HANDSHAKE}, 
-    mNoInput{false},           enableTLS(),             enableStatsUpdate(),
-    TLSContext{tls_context},   TLSSocket{nullptr},      mParent{_parent},
-    mSocketSPtr(std::move(socksptr)), 
-    streamProcessor(512),      mEPoll(ep),              mStats{0,0,0,0,0,0}, 
-    mOutCursor(0),             mAutoFragment(auto_fragment)
+  : mMutex(),  fd(socksptr->getfd()), mState{HANDSHAKE}, 
+    mNoInput{false}, enableTLS(), enableStatsUpdate(),
+    TLSContext{tls_context},   TLSSocket{nullptr},      
+    mEPoll(ep), mStats{0,0,0,0,0,0}, streamProcessor(512),
+    mAutoFragment(auto_fragment), mParent{_parent}, 
+    mSocketSPtr(std::move(socksptr))
   {
     init(enableTLS);
     mSocketSPtr->getpeeraddr(mPeerIP);
@@ -239,7 +232,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
     }
   }
   
-  const LAppS::ServiceSPtrType& getApplication() const
+  const auto& getApplication() const
   {
     return mApplication;
   }
@@ -362,21 +355,22 @@ private:
     int64_t cma_size=mStats.mInCMASize;
     cma_size=std::abs(cma_size+((size-cma_size)/static_cast<int64_t>(mStats.mInMessageCount)));
     mStats.mInCMASize=cma_size;
+    streamProcessor.setMessageBufferSize(mStats.mInCMASize);
   }
   
   void updateInStats(const size_t sz, const itc::utils::Bool2Type<false>& noStats)
   {
+    
   }
   
   bool onMessage(const WSEvent& ref)
   {
     if(!getApplication())
     {
-      throw std::system_error(EINVAL, std::system_category(), "No backend application available yet");
+      throw std::system_error(EINVAL, std::system_category(), "No backend service is available");
     }
 
     updateInStats(ref.message->size());
-    streamProcessor.setMessageBufferSize(mStats.mInCMASize);
     
     switch(ref.type)
     {
@@ -429,21 +423,6 @@ private:
         return false;
     }
     return true;
-  }
-  
-  auto getApplication()
-  {
-    if(mApplication)
-    {
-      if(mApplication->isUp())
-      {
-        return mApplication;
-      }
-      else{
-        throw std::system_error(ENOENT,std::system_category(),"Application is down");
-      }
-    }
-    throw std::system_error(ENOENT,std::system_category(),"Application is down");
   }
   void closeSocket(const WebSocketProtocol::DefiniteCloseCode& ccode)
   {
