@@ -416,7 +416,8 @@ namespace WSStreamProcessing
     
     void setMessageBufferSize(const size_t& bsz)
     {
-      mOutMSGPreSize=bsz;
+      if(mOutMSGPreSize<bsz)
+        mOutMSGPreSize=bsz;
     }
     
     /**

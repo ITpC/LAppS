@@ -30,7 +30,7 @@
  * writes to the stat-fields. No accuracy guarantee.
  * 
  **/
-struct WorkerStats
+struct IOStats
 {
   
   size_t mInMessageCount;
@@ -41,6 +41,12 @@ struct WorkerStats
   
   size_t mInCMASize;
   size_t mOutCMASize;
+  size_t mConnections;
+  size_t mEventQSize;
+};
+
+struct WorkerMinStats
+{
   size_t mConnections;
   size_t mEventQSize;
 };

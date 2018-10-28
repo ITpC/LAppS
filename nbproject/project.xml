@@ -46,6 +46,10 @@
                     <name>Release.AVX2.NO_STATS.NO_TLS</name>
                     <type>1</type>
                 </confElem>
+                <confElem>
+                    <name>Debug.AVX2.NO_STATS.NO_TLS</name>
+                    <type>1</type>
+                </confElem>
             </confList>
             <formatting>
                 <project-formatting-style>false</project-formatting-style>

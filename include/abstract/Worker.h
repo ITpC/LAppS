@@ -30,7 +30,9 @@
 #include <TCPListener.h>
 #include <WorkerStats.h>
 #include <WSEvent.h>
+#include <ext/json.hpp>
 
+using json=nlohmann::json;
 
 namespace abstract
 {
@@ -40,7 +42,7 @@ namespace abstract
     const size_t  ID;
     size_t        mMaxConnections;
     bool          auto_fragment;
-    WorkerStats   mStats;
+    IOStats   mStats;
    public:
     explicit Worker(const size_t id, const size_t maxConnections, const bool af)
     : itc::abstract::IRunnable(), ID(id),mMaxConnections(maxConnections),
@@ -80,7 +82,10 @@ namespace abstract
       return ID;
     }
     
-    virtual const WorkerStats getStats() const=0;
+    virtual const std::shared_ptr<json> getStats()=0;
+    virtual const size_t getConnectionsCount() const =0;
+    virtual const size_t getInMessagesCount() const = 0;
+    virtual const WorkerMinStats getMinStats() const =0;
     virtual void updateStats()=0;
     virtual void deleteConnection(const int32_t)=0;
     virtual void disconnect(const int32_t)=0;
