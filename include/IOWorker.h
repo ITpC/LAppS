@@ -29,7 +29,8 @@
 #include <WebSocket.h>
 #include <Shakespeer.h>
 #include <abstract/Worker.h>
-#include <sys/atomic_mutex.h>
+#include <sys/mutex.h>
+#include <time.h>
 
 
 namespace LAppS
@@ -48,10 +49,9 @@ namespace LAppS
       std::atomic<bool>                         mMayRun;
       std::atomic<bool>                         mCanStop;
       
-      mutable itc::sys::AtomicMutex             mConnectionsMutex;
-      itc::sys::AtomicMutex                     mInboundMutex;
-      itc::sys::AtomicMutex                     mSSQMutex;
-      itc::sys::AtomicMutex                     mDCQMutex;
+      mutable itc::sys::mutex                   mConnectionsMutex;
+      itc::sys::mutex                           mInboundMutex;
+      itc::sys::mutex                           mDCQMutex;
       
       LAppS::Shakespeer<TLSEnable,StatsEnable>  mShakespeer;
       SharedEPollType                           mEPoll;
@@ -61,8 +61,6 @@ namespace LAppS
       std::queue<int32_t>                       mDCQueue;
       
       std::vector<epoll_event>                  mEvents;
-      
-      itc::sys::Nap                             mNap;
       
       std::atomic<bool>                         haveConnections;
       std::atomic<bool>                         haveNewConnections;
@@ -131,7 +129,7 @@ namespace LAppS
       mMayRun{true}, mCanStop{false}, mConnectionsMutex(),  mInboundMutex(), 
       mDCQMutex(), mShakespeer(), mEPoll(std::make_shared<ePoll>()),
       mInboundConnections(), mConnections(), mDCQueue(), mEvents(1000),
-      mNap(), haveConnections{false},haveNewConnections{false},haveDisconnects{false}
+      haveConnections{false},haveNewConnections{false},haveDisconnects{false}
     {
       mConnections.clear();
     }
@@ -142,7 +140,7 @@ namespace LAppS
     
     void onUpdate(const ::itc::TCPListener::value_type& socketsptr)
     {
-      AtomicLock sync(mInboundMutex);
+      ITCSyncLock sync(mInboundMutex);
       mInboundConnections.push(std::move(socketsptr));
       updateStats();
       haveNewConnections.store(true);
@@ -150,7 +148,7 @@ namespace LAppS
     
     void onUpdate(const std::vector<::itc::TCPListener::value_type>& socketsptr)
     {
-      AtomicLock sync(mInboundMutex);
+      ITCSyncLock sync(mInboundMutex);
       for(size_t i=0;i<socketsptr.size();++i)
       {
         mInboundConnections.push(std::move(socketsptr[i]));
@@ -161,14 +159,14 @@ namespace LAppS
     
     void disconnect(const int32_t fd)
     {
-      AtomicLock sync(mDCQMutex);
+      ITCSyncLock sync(mDCQMutex);
       mDCQueue.push(fd);
       haveDisconnects.store(true);
     }
     
     const size_t getConnectionsCount() const
     {
-      AtomicLock sync(mConnectionsMutex);
+      ITCSyncLock sync(mConnectionsMutex);
       return mConnections.size();
     }
     
@@ -195,8 +193,8 @@ namespace LAppS
         processInbound();
         if(haveDisconnects)
         {
-          AtomicLock syncdcq(mDCQMutex);
-          AtomicLock sync(mConnectionsMutex);
+          ITCSyncLock syncdcq(mDCQMutex);
+          ITCSyncLock sync(mConnectionsMutex);
           while(!mDCQueue.empty())
           {
             const int32_t fd=std::move(mDCQueue.front());
@@ -216,7 +214,7 @@ namespace LAppS
               {
                 if(error_bit(mEvents[i].events))
                 {
-                  AtomicLock sync(mConnectionsMutex);
+                  ITCSyncLock sync(mConnectionsMutex);
                   deleteConnection(mEvents[i].data.fd);
                 }
                 else 
@@ -234,7 +232,8 @@ namespace LAppS
         }
         else
         {
-          mNap.usleep(10000);
+          static thread_local const struct timespec pause{0,100000};
+          nanosleep(&pause,nullptr);
         }
       }
       mCanStop.store(true);
@@ -243,7 +242,7 @@ namespace LAppS
     void shutdown()
     {
       mMayRun.store(false);
-      AtomicLock sync(mConnectionsMutex);
+      ITCSyncLock sync(mConnectionsMutex);
       mConnections.clear();
       mCanStop.store(true);
     }
@@ -263,7 +262,7 @@ namespace LAppS
     
     const std::shared_ptr<json> getStats()
     {
-      AtomicLock sync(mConnectionsMutex);
+      ITCSyncLock sync(mConnectionsMutex);
       return gatherStats(enableStatsUpdate);
     }
     
@@ -280,7 +279,7 @@ namespace LAppS
       {
         if(haveNewConnections&&mConnectionsMutex.try_lock())
         {
-          AtomicLock sync(mInboundMutex);
+          ITCSyncLock sync(mInboundMutex);
 
           while(!mInboundConnections.empty())
           {
@@ -323,7 +322,7 @@ namespace LAppS
       
       void processIO(const int fd)
       {
-        AtomicLock sync(mConnectionsMutex);
+        ITCSyncLock sync(mConnectionsMutex);
         auto it=mConnections.find(fd);
         if(it!=mConnections.end())
         {

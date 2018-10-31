@@ -41,12 +41,12 @@ namespace LAppS
   template <ServiceProtocol TProto> class LuaReactiveService : public abstract::ReactiveService
   {
    private:
-    size_t                              mMaxInMsgSize;
-    std::atomic<bool>                   mMayRun;
-    std::atomic<bool>                   mCanStop;
-    LuaReactiveServiceContext<TProto>   mContext;
-    itc::tsbqueue<AppInEvent>           mEvents;
-    NetworkACL                          mACL;
+    size_t                                          mMaxInMsgSize;
+    std::atomic<bool>                               mMayRun;
+    std::atomic<bool>                               mCanStop;
+    LuaReactiveServiceContext<TProto>               mContext;
+    itc::tsbqueue<AppInEvent,std::mutex>            mEvents;
+    NetworkACL                                      mACL;
     
     
    public:

@@ -30,7 +30,7 @@
 #include <map>
 
 #include <sys/CancelableThread.h>
-#include <sys/atomic_mutex.h>
+#include <sys/mutex.h>
 #include <sys/synclock.h>
 
 #include <Singleton.h>
@@ -149,7 +149,7 @@ namespace LAppS
   class ServiceRegistry
   {
    private:
-    mutable ::itc::sys::AtomicMutex                 mMutex;
+    mutable ::itc::sys::mutex                 mMutex;
     std::map<std::string,ServicesInstanceHolder>    mServices;
     std::map<std::string,std::string>               mTargets2Names;
     
@@ -160,7 +160,7 @@ namespace LAppS
     
     void clear()
     {
-      AtomicLock sync(mMutex);
+      ITCSyncLock sync(mMutex);
       mTargets2Names.clear();
       mServices.clear();
     }
@@ -172,7 +172,7 @@ namespace LAppS
     
     void reg(const ServiceInstanceStoreType& instance)
     {
-      AtomicLock sync(mMutex);
+      ITCSyncLock sync(mMutex);
       
       if(instance->getRunnable()->isReactive())
       {
@@ -184,7 +184,7 @@ namespace LAppS
     
     void unreg(const std::string& name)
     {
-      AtomicLock sync(mMutex);
+      ITCSyncLock sync(mMutex);
       auto it=mServices.find(name);
       if(it!=mServices.end())
       {
@@ -202,7 +202,7 @@ namespace LAppS
     
     const auto& findByName(const std::string& name) const
     {
-      AtomicLock sync(mMutex);
+      ITCSyncLock sync(mMutex);
       auto it=mServices.find(name);
       if(it!=mServices.end())
       {
@@ -213,7 +213,7 @@ namespace LAppS
     
     const auto& findByTarget(const std::string& target) const
     {
-      AtomicLock sync(mMutex);
+      ITCSyncLock sync(mMutex);
       auto tit=mTargets2Names.find(target);
       if(tit!=mTargets2Names.end())
       {
@@ -243,7 +243,7 @@ namespace LAppS
     
     const auto list() const noexcept
     {
-      AtomicLock sync(mMutex);
+      ITCSyncLock sync(mMutex);
       std::shared_ptr<json> retobj=std::make_shared<json>(json::array());
       for(const auto& instances: mServices)
       {
