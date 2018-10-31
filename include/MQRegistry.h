@@ -29,7 +29,7 @@
 #include <map>
 #include <functional>
 
-#include <sys/atomic_mutex.h>
+#include <sys/mutex.h>
 #include <sys/synclock.h>
 #include <Singleton.h>
 
@@ -43,13 +43,13 @@ namespace LAppS
   namespace MQ
   {
     typedef std::shared_ptr<json>                             MessageType;
-    typedef itc::tsbqueue<MessageType,itc::sys::AtomicMutex>  QueueType;
+    typedef itc::tsbqueue<MessageType,itc::sys::mutex>        QueueType;
     typedef std::shared_ptr<QueueType>                        QueueHolderType;
     
     class Registry
     {
      private:
-      itc::sys::AtomicMutex            mMutex;
+      itc::sys::mutex                  mMutex;
       std::map<size_t,QueueHolderType> mQueueMap;
       
      public:
@@ -59,7 +59,7 @@ namespace LAppS
       
       const size_t create(const std::string& name)
       {
-        AtomicLock sync(mMutex);
+        ITCSyncLock sync(mMutex);
         size_t hash=std::hash<std::string>{}(name);
         auto it=mQueueMap.find(hash);
         
@@ -72,7 +72,7 @@ namespace LAppS
       
       auto find(const std::string& name)
       {
-        AtomicLock sync(mMutex);
+        ITCSyncLock sync(mMutex);
         size_t hash=std::hash<std::string>{}(name);
         auto it=mQueueMap.find(hash);
         if(it!=mQueueMap.end())
@@ -83,7 +83,7 @@ namespace LAppS
       
       auto find(const size_t& id)
       {
-        AtomicLock sync(mMutex);
+        ITCSyncLock sync(mMutex);
         auto it=mQueueMap.find(id);
         if(it!=mQueueMap.end())
           return it->second;

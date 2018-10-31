@@ -83,7 +83,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WSWorkersPool
   
   void spawn(const size_t maxC, const bool auto_fragment)
   {
-    SyncLock sync(mMutex);
+    STDSyncLock sync(mMutex);
     auto worker=std::make_shared<WorkerType>(mWorkers.size(),maxC, auto_fragment);
     mWorkers.push_back(
       std::make_shared<WorkerThread>(std::move(worker))
@@ -91,7 +91,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WSWorkersPool
   }
   auto next()
   {
-    SyncLock sync(mMutex);
+    STDSyncLock sync(mMutex);
     if(mWorkers.size() == 0)
       throw std::logic_error("WSWorkersPool::next() - the pool is empty, there is no next worker");
     
@@ -121,7 +121,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WSWorkersPool
   
   auto get(const size_t& wid)
   {
-    SyncLock sync(mMutex);
+    STDSyncLock sync(mMutex);
     
     if(wid<mWorkers.size())
     {
@@ -131,7 +131,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WSWorkersPool
   }
   void  getWorkers(std::vector<std::shared_ptr<::abstract::Worker>>& out) const
   {
-    SyncLock sync(mMutex);
+    STDSyncLock sync(mMutex);
     for(auto i: mWorkers)
     {
       out.push_back(i->getRunnable());
@@ -139,7 +139,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WSWorkersPool
   }
   void clear()
   {
-    SyncLock sync(mMutex);
+    STDSyncLock sync(mMutex);
     mWorkers.clear();
   }
   

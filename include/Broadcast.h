@@ -38,15 +38,15 @@ namespace LAppS
    public:
     typedef std::forward_list<std::shared_ptr<::abstract::WebSocket>>  BCastSubscribers;
    private:
-    itc::sys::AtomicMutex     sMutex;
-    itc::sys::AtomicMutex     uMutex;
+    itc::sys::mutex     sMutex;
+    itc::sys::mutex     uMutex;
     size_t                    ChannelID;
     BCastSubscribers          mSubscribers;
     BCastSubscribers          mUnsubscribers;
     
     void purge()
     {
-      AtomicLock syncu(uMutex);
+      ITCSyncLock syncu(uMutex);
       
       auto uit=mUnsubscribers.begin();
       while(uit!=mUnsubscribers.end())
@@ -106,18 +106,18 @@ namespace LAppS
     
     void subscribe(::abstract::WebSocket* handler)
     {
-      AtomicLock sync(sMutex);
+      ITCSyncLock sync(sMutex);
       mSubscribers.push_front(std::move(handler->get_shared()));
     }
     void unsubscribe(::abstract::WebSocket* handler)
     {
-      AtomicLock sync(uMutex);
+      ITCSyncLock sync(uMutex);
       mUnsubscribers.push_front(std::move(handler->get_shared()));
     }
     
     void bcast(const MSGBufferTypeSPtr& msg)
     {
-      AtomicLock sync(sMutex);
+      ITCSyncLock sync(sMutex);
       purge();
       
       for(auto handler : mSubscribers)

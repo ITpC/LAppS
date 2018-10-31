@@ -65,7 +65,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   }
   
  private:
-  itc::sys::AtomicMutex               mMutex;
+  itc::sys::mutex                     mMutex;
   int                                 fd;
   State                               mState;
   std::atomic<bool>                   mNoInput;
@@ -140,7 +140,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
         terminate();
       case State::CLOSED:
       {
-        AtomicLock sync(mMutex);
+        ITCSyncLock sync(mMutex);
         mSocketSPtr->close();
       }
     }
@@ -153,7 +153,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   
   void terminate()
   {
-    AtomicLock sync(mMutex);
+    ITCSyncLock sync(mMutex);
     if(mState != State::CLOSED)
     {
       sigset_t sigsetmask;
@@ -261,7 +261,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   
   int recv(std::vector<uint8_t>& buff)
   {
-    AtomicLock sync(mMutex);
+    ITCSyncLock sync(mMutex);
     if(mState != State::CLOSED)
     {
       return this->recv(buff,enableTLS);
@@ -271,7 +271,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
 
   const int send(const std::vector<uint8_t>& buff)
   {
-    AtomicLock sync(mMutex);
+    ITCSyncLock sync(mMutex);
     if(mState != State::CLOSED)
     {
       const size_t bsize=buff.size();

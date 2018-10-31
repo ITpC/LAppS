@@ -38,7 +38,7 @@
 
 // ITCLib/ITCFramework
 #include <Singleton.h>
-#include <sys/atomic_mutex.h>
+#include <sys/mutex.h>
 
 typedef void (*locking_function)(int mode, int n, const char *file,	int line);
 
