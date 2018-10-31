@@ -50,9 +50,9 @@ namespace LAppS
       ReactiveService(ReactiveService&)=delete;
       ~ReactiveService() noexcept = default;
 
-      virtual void enqueue(const AppInEvent&)=0;
-      virtual void enqueue(const std::vector<AppInEvent>&)=0;
-      virtual const bool try_enqueue(const std::vector<AppInEvent>&)=0;
+      //virtual void enqueue(const AppInEvent&)=0;
+      //virtual void enqueue(const std::vector<AppInEvent>&)=0;
+      //virtual const bool try_enqueue(const std::vector<AppInEvent>&)=0;
       virtual const size_t getMaxMSGSize() const=0;
       virtual const bool filter(const uint32_t)=0;
       
