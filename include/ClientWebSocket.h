@@ -32,7 +32,7 @@
 #include <net/NSocket.h>
 #include <TCPSocketDef.h>
 #include <missing.h>
-#include <sys/atomic_mutex.h>
+#include <sys/mutex.h>
 #include <sys/synclock.h>
 
 #include <tls.h>
@@ -52,6 +52,8 @@
 #include <WSProtocol.h>
 #include <WSEvent.h>
 #include <WSStreamClientParser.h>
+
+#include "modules/nljson.h"
 
 namespace LAppS
 {
@@ -81,7 +83,7 @@ namespace LAppS
     struct tls_config*      TLSConfig;
     struct tls*             TLSSocket;
     
-    itc::sys::AtomicMutex   mMutex;
+    itc::sys::mutex         mMutex;
     
     bool                    noverifycert;
     bool                    noverifyname;
@@ -183,7 +185,7 @@ namespace LAppS
 
           if(result == -1)
           {
-            std::cerr << tls_error(TLSSocket) << std::endl;
+            itc::getLog()->error(__FILE__,__LINE__,"force_send(withTLS): %s",tls_error(TLSSocket));
             return -1;
           }
           outCursor+=result;
@@ -227,7 +229,7 @@ namespace LAppS
 
           if(result == -1)
           {
-            std::cerr << tls_error(TLSSocket) << std::endl;
+            itc::getLog()->error(__FILE__,__LINE__,"force_send(withTLS): %s",tls_error(TLSSocket));
             return -1;
           }
           outCursor+=result;
@@ -268,7 +270,7 @@ namespace LAppS
           
           if(ret == -1)
           {
-            std::cerr << tls_error(TLSSocket) << std::endl;
+            itc::getLog()->error(__FILE__,__LINE__,"force_recv(withTLS): %s",tls_error(TLSSocket));
             return -1;
           }
         }while((ret == TLS_WANT_POLLIN) || (ret == TLS_WANT_POLLOUT));
@@ -349,7 +351,7 @@ namespace LAppS
       static const itc::utils::Bool2Type<true> TLSEnabled;
       static const itc::utils::Bool2Type<false> TLSDisabled;
      
-      AtomicLock sync(mMutex);
+      ITCSyncLock sync(mMutex);
       if(tls)
       {
         return force_recv(buff,TLSEnabled);
@@ -363,7 +365,7 @@ namespace LAppS
       static const itc::utils::Bool2Type<true> TLSEnabled;
       static const itc::utils::Bool2Type<false> TLSDisabled;
       
-      AtomicLock sync(mMutex);
+      ITCSyncLock sync(mMutex);
       if(tls)
       {
         return force_send(buff,TLSEnabled);
@@ -378,7 +380,7 @@ namespace LAppS
       static const itc::utils::Bool2Type<true> TLSEnabled;
       static const itc::utils::Bool2Type<false> TLSDisabled;
       
-      AtomicLock sync(mMutex);
+      ITCSyncLock sync(mMutex);
       if(tls)
       {
         return force_send(buff,TLSEnabled);
@@ -504,17 +506,17 @@ namespace LAppS
         if(tls)
         {
           if(port==0) port=443;
+          setupTLS();
+        
+          this->open(hostname,port);
+
+          if(tls_connect_socket(TLSSocket,this->getfd(),hostname.c_str()) < 0)
+          {
+            throw std::system_error(EBADE,std::system_category(),tls_error(TLSSocket));
+          }
         }else{
           if(port==0) port=80;
-        }
-        
-        setupTLS();
-        
-        this->open(hostname,port);
-        
-        if(tls_connect_socket(TLSSocket,this->getfd(),hostname.c_str()) < 0)
-        {
-          throw std::system_error(EBADE,std::system_category(),tls_error(TLSSocket));
+          this->open(hostname,port);
         }
         
         std::string httpUpgradeRequest;
@@ -661,7 +663,7 @@ namespace LAppS
         case WSClient::State::HANDSHAKE_FAILED:
         case WSClient::State::COMM_ERROR:
         {
-          AtomicLock sync(mMutex);
+          ITCSyncLock sync(mMutex);
           this->close();
         }
       }

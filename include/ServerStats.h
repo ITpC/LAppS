@@ -27,13 +27,33 @@
 #include <Singleton.h>
 #include <WSWorkersPool.h>
 #include <ServiceRegistry.h>
+#include <Val2Type.h>
 
+#include <ext/json.hpp>
+
+using json=nlohmann::json;
 
 namespace LAppS
 {
-  template <const bool TLSEnable=true,const bool StatsEnable=true> class ServerStats
+  template <const bool StatsEnable=true> class ServerStats
   {
-    
+    private:
+     itc::utils::Bool2Type<StatsEnable> mStatsEnabled;
+     
+     
+     json getStats(const itc::utils::Bool2Type<false>& stats_disabled)
+     {
+     }
+     
+     json getStats(const itc::utils::Bool2Type<true>& stats_enabled)
+     {
+     }
+     
+    public:
+     auto getStats()
+     {
+       return getStats(mStatsEnabled);
+     }
   };
 }
 
