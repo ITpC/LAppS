@@ -153,7 +153,7 @@ namespace LAppS
     {
        mMayRun.store(false);
     }
-    
+    /*
     const bool try_enqueue(const std::vector<AppInEvent>& events)
     {
       try
@@ -168,6 +168,8 @@ namespace LAppS
         return false;
       }
     }
+    */
+    
     void enqueue(const AppInEvent& event)
     {
       try {
@@ -178,7 +180,7 @@ namespace LAppS
         itc::getLog()->error(__FILE__,__LINE__,"Can't enqueue request to application %s, exception: %s",this->getName().c_str(),e.what());
       }
     }
-    
+    /*
     void enqueue(const std::vector<AppInEvent>& event)
     {
       try {
@@ -189,7 +191,8 @@ namespace LAppS
         itc::getLog()->error(__FILE__,__LINE__,"Can't enqueue request to application %s, exception: %s",this->getName().c_str(),e.what());
       }
     }
-        
+    */
+    
     void execute()
     {
       sigset_t sigpipe_mask;
