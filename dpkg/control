@@ -3,4 +3,6 @@ Version: 0.7.1
 Maintainer: Pavel Kraynyukhov <pk@new-web.co>
 Architecture: amd64
 Description: Lua Application Server for micro-service architecture.
+Homepage: https://github.com/ITpC/LAppS
+Bugs: https://github.com/ITpC/LAppS/issues
 Depends: libcrypto++9v5 (>=5.6.1) | libcrypto++6 (>=5.6.4)

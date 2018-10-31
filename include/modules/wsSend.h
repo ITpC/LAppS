@@ -41,6 +41,7 @@ extern "C" {
 #include <lualib.h>
 #include <lauxlib.h>
 #include <stdio.h>
+
 }
 
 using json = nlohmann::json;
@@ -116,64 +117,58 @@ int wssend_raw(lua_State* L, abstract::WebSocket* handler)
   const int tpidx=3;
   const int udidx=4;
   
-  if(lua_isstring(L,udidx)) // protocol::RAW 
+  WebSocketProtocol::OpCode opcode=WebSocketProtocol::OpCode::CLOSE;
+  if(lua_isnumber(L,tpidx))
   {
-    try {
-      WebSocketProtocol::OpCode opcode=WebSocketProtocol::OpCode::CLOSE;
-      if(lua_isnumber(L,tpidx))
-      {
-        opcode=static_cast<WebSocketProtocol::OpCode>(lua_tointeger(L,tpidx));
-      }
-      else
-      {
-        lua_pushboolean(L,false);
-        lua_pushstring(L,"Usage: ws::send(handler, opcode, string), opcode is not integer");
-        return 2;
-      }
-      const bool opcode_valid=(opcode == 1)||(opcode == 2);
-      
-      if(!opcode_valid)
-      {
-        lua_pushboolean(L,false);
-        lua_pushstring(L,"Usage: ws::send(handler, opcode, string), opcode is not TEXT or BINARY");
-        return 2;
-      }
-
-      size_t len;
-      const char* msg=lua_tolstring(L,udidx,&len);
-      
-      if(handler->mustAutoFragment())
-      {
-        WebSocketProtocol::FragmentedServerMessage::msgQType msgqueue;
-        
-        WebSocketProtocol::FragmentedServerMessage(msgqueue,opcode,msg,len);
-        while(!msgqueue.empty())
-        {
-          handler->send(std::move(*msgqueue.front()));
-          msgqueue.pop();
-        }
-      }
-      else
-      {
-        MSGBufferType message;
-        WebSocketProtocol::ServerMessage(message,opcode,msg,len);
-        handler->send(std::move(message));
-      }
-  
-      lua_pushboolean(L,true);
-      return 1;
-    }catch(const std::exception& e)
-    {
-      lua_pushboolean(L,false);
-      lua_pushstring(L,e.what());
-      return 2;
-    }
-  }else{
+    opcode=static_cast<WebSocketProtocol::OpCode>(lua_tointeger(L,tpidx));
+  }
+  else
+  {
     lua_pushboolean(L,false);
-    lua_pushstring(L,"Usage: ws::send(handler, opcode, string), string is not provided");
+    lua_pushstring(L,"Usage: ws::send(handler, opcode, string), opcode is not integer");
     return 2;
   }
+  const bool opcode_valid=(opcode == 1)||(opcode == 2);
+
+  if(!opcode_valid)
+  {
+    lua_pushboolean(L,false);
+    lua_pushstring(L,"Usage: ws::send(handler, opcode, string), opcode is not TEXT or BINARY");
+    return 2;
+  }
+
+  if(lua_isstring(L,udidx))
+  {
+    size_t len;
+    const char* msg=lua_tolstring(L,udidx,&len);
+
+    if(handler->mustAutoFragment())
+    {
+      WebSocketProtocol::FragmentedServerMessage::msgQType msgqueue;
+
+      WebSocketProtocol::FragmentedServerMessage(msgqueue,opcode,msg,len);
+      while(!msgqueue.empty())
+      {
+        handler->send(std::move(*msgqueue.front()));
+        msgqueue.pop();
+      }
+    }
+    else
+    {
+      MSGBufferType message;
+      WebSocketProtocol::ServerMessage(message,opcode,msg,len);
+      handler->send(std::move(message));
+    }
+
+    lua_pushboolean(L,true);
+    return 1;
+  }else{
+    lua_pushboolean(L,false);
+    lua_pushstring(L,"ws::send(): Not a string or a bytevector, can't send anything else then these two.");
+    return 1;
+  }
 }
+
 int wssend_lapps(lua_State* L, abstract::WebSocket* handler)
 {
   const int udidx=3;

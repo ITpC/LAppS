@@ -7,14 +7,14 @@
 # Macros
 TOP=`pwd`
 CND_PLATFORM=GNU-Linux
-CND_CONF=Release.GENERIC.NO_STATS.NO_TLS
+CND_CONF=Debug.AVX2.NO_STATS.NO_TLS
 CND_DISTDIR=dist
 CND_BUILDDIR=build
 CND_DLIB_EXT=so
 NBTMPDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}/tmp-packaging
 TMPDIRNAME=tmp-packaging
-OUTPUT_PATH=${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.generic.nostats.notls
-OUTPUT_BASENAME=lapps.generic.nostats.notls
+OUTPUT_PATH=${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2.nostats.notls
+OUTPUT_BASENAME=lapps.avx2.nostats.notls
 PACKAGE_TOP_DIR=/usr/
 
 # Functions

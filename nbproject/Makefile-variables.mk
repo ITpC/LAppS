@@ -62,6 +62,14 @@ CND_ARTIFACT_PATH_Release.AVX2.NO_STATS.NO_TLS=dist/Release.AVX2.NO_STATS.NO_TLS
 CND_PACKAGE_DIR_Release.AVX2.NO_STATS.NO_TLS=dist/Release.AVX2.NO_STATS.NO_TLS/GNU-Linux/package
 CND_PACKAGE_NAME_Release.AVX2.NO_STATS.NO_TLS=lapps.deb
 CND_PACKAGE_PATH_Release.AVX2.NO_STATS.NO_TLS=dist/Release.AVX2.NO_STATS.NO_TLS/GNU-Linux/package/lapps.deb
+# Debug.AVX2.NO_STATS.NO_TLS configuration
+CND_PLATFORM_Debug.AVX2.NO_STATS.NO_TLS=GNU-Linux
+CND_ARTIFACT_DIR_Debug.AVX2.NO_STATS.NO_TLS=dist/Debug.AVX2.NO_STATS.NO_TLS/GNU-Linux
+CND_ARTIFACT_NAME_Debug.AVX2.NO_STATS.NO_TLS=lapps.avx2.nostats.notls
+CND_ARTIFACT_PATH_Debug.AVX2.NO_STATS.NO_TLS=dist/Debug.AVX2.NO_STATS.NO_TLS/GNU-Linux/lapps.avx2.nostats.notls
+CND_PACKAGE_DIR_Debug.AVX2.NO_STATS.NO_TLS=dist/Debug.AVX2.NO_STATS.NO_TLS/GNU-Linux/package
+CND_PACKAGE_NAME_Debug.AVX2.NO_STATS.NO_TLS=lapps.deb
+CND_PACKAGE_PATH_Debug.AVX2.NO_STATS.NO_TLS=dist/Debug.AVX2.NO_STATS.NO_TLS/GNU-Linux/package/lapps.deb
 #
 # include compiler specific variables
 #

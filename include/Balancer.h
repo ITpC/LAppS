@@ -88,10 +88,10 @@ namespace LAppS
           if(mWorkersCache.size()>0)
           {
             size_t chosen=0;
-            auto stats=mWorkersCache[0]->getStats();
+            auto stats=mWorkersCache[0]->getMinStats();
             for(size_t i=1;i<mWorkersCache.size();++i)
             {
-              auto stats2=mWorkersCache[i]->getStats();
+              auto stats2=mWorkersCache[i]->getMinStats();
               if(stats.mConnections>stats2.mConnections) // candidate i
               {
                 chosen=i;

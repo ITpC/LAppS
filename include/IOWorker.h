@@ -29,7 +29,8 @@
 #include <WebSocket.h>
 #include <Shakespeer.h>
 #include <abstract/Worker.h>
-#include <sys/atomic_mutex.h>
+#include <sys/mutex.h>
+#include <time.h>
 
 
 namespace LAppS
@@ -48,10 +49,9 @@ namespace LAppS
       std::atomic<bool>                         mMayRun;
       std::atomic<bool>                         mCanStop;
       
-      mutable itc::sys::AtomicMutex             mConnectionsMutex;
-      itc::sys::AtomicMutex                     mInboundMutex;
-      itc::sys::AtomicMutex                     mSSQMutex;
-      itc::sys::AtomicMutex                     mDCQMutex;
+      mutable itc::sys::mutex                   mConnectionsMutex;
+      itc::sys::mutex                           mInboundMutex;
+      itc::sys::mutex                           mDCQMutex;
       
       LAppS::Shakespeer<TLSEnable,StatsEnable>  mShakespeer;
       SharedEPollType                           mEPoll;
@@ -61,8 +61,6 @@ namespace LAppS
       std::queue<int32_t>                       mDCQueue;
       
       std::vector<epoll_event>                  mEvents;
-      
-      itc::sys::Nap                             mNap;
       
       std::atomic<bool>                         haveConnections;
       std::atomic<bool>                         haveNewConnections;
@@ -77,7 +75,53 @@ namespace LAppS
       {
         return (events & (EPOLLIN|EPOLLOUT));
       }
-      
+
+      const auto gatherStats(const itc::utils::Bool2Type<false> stats_disabled)
+      {
+        return std::make_shared<json>(json::object());
+      }
+
+      const auto gatherStats(const itc::utils::Bool2Type<true> stats_enabled)
+      {
+        std::shared_ptr<json> nstats=std::make_shared<json>(json::object());
+        
+        for(const auto& connection : mConnections)
+        {
+          const auto sock_stats=std::move(connection.second->getStats());
+          const std::string instanceid=std::to_string(connection.second->getApplication()->getInstanceId());
+          const std::string service_name=connection.second->getApplication()->getName();
+          
+          (*nstats)[instanceid][service_name]={
+            {{"InMessageCount", (*nstats)[instanceid][service_name]["InMessageCount"].get<size_t>()+sock_stats.mInMessageCount}},
+            {{"OutMessageCount", (*nstats)[instanceid][service_name]["OutMessageCount"].get<size_t>()+sock_stats.mOutMessageCount}},
+            {{"Connections", (*nstats)[instanceid][service_name]["Connections"].get<size_t>()+1 }}
+          };
+          
+          if((*nstats)[instanceid][service_name]["InMessageMaxSize"].get<size_t>()<sock_stats.mInMessageMaxSize)
+            (*nstats)[instanceid][service_name]["InMessageMaxSize"]=sock_stats.mInMessageMaxSize;
+          
+          if((*nstats)[instanceid][service_name]["OutMessageMaxSize"].get<size_t>()<sock_stats.mOutMessageMaxSize)
+            (*nstats)[instanceid][service_name]["OutMessageMaxSize"]=sock_stats.mOutMessageMaxSize;
+          
+          if((*nstats)[instanceid][service_name]["OutMessageCount"].get<size_t>() > 0)
+          {
+            (*nstats)[instanceid][service_name]["OutCMASize"]=
+              (*nstats)[instanceid][service_name]["OutCMASize"].get<size_t>()+(
+                sock_stats.mOutCMASize-(*nstats)[instanceid][service_name]["OutCMASize"].get<size_t>()
+              )/(*nstats)[instanceid][service_name]["OutMessageCount"].get<size_t>();
+          }
+            
+          if((*nstats)[instanceid][service_name]["InMessageCount"].get<size_t>() > 0)
+          {
+            (*nstats)[instanceid][service_name]["InCMASize"]=
+              (*nstats)[instanceid][service_name]["InCMASize"].get<size_t>()+(
+                sock_stats.mInCMASize-(*nstats)[instanceid][service_name]["InCMASize"].get<size_t>()
+              )/(*nstats)[instanceid][service_name]["InMessageCount"].get<size_t>();
+          }
+          
+        }
+        return nstats;
+      }      
     public:
      
     explicit IOWorker(const size_t id, const size_t maxConnections,const bool auto_fragment)
@@ -85,7 +129,7 @@ namespace LAppS
       mMayRun{true}, mCanStop{false}, mConnectionsMutex(),  mInboundMutex(), 
       mDCQMutex(), mShakespeer(), mEPoll(std::make_shared<ePoll>()),
       mInboundConnections(), mConnections(), mDCQueue(), mEvents(1000),
-      mNap(), haveConnections{false},haveNewConnections{false},haveDisconnects{false}
+      haveConnections{false},haveNewConnections{false},haveDisconnects{false}
     {
       mConnections.clear();
     }
@@ -96,7 +140,7 @@ namespace LAppS
     
     void onUpdate(const ::itc::TCPListener::value_type& socketsptr)
     {
-      AtomicLock sync(mInboundMutex);
+      ITCSyncLock sync(mInboundMutex);
       mInboundConnections.push(std::move(socketsptr));
       updateStats();
       haveNewConnections.store(true);
@@ -104,7 +148,7 @@ namespace LAppS
     
     void onUpdate(const std::vector<::itc::TCPListener::value_type>& socketsptr)
     {
-      AtomicLock sync(mInboundMutex);
+      ITCSyncLock sync(mInboundMutex);
       for(size_t i=0;i<socketsptr.size();++i)
       {
         mInboundConnections.push(std::move(socketsptr[i]));
@@ -115,54 +159,28 @@ namespace LAppS
     
     void disconnect(const int32_t fd)
     {
-      AtomicLock sync(mDCQMutex);
+      ITCSyncLock sync(mDCQMutex);
       mDCQueue.push(fd);
       haveDisconnects.store(true);
     }
     
     const size_t getConnectionsCount() const
     {
-      AtomicLock sync(mConnectionsMutex);
+      ITCSyncLock sync(mConnectionsMutex);
       return mConnections.size();
     }
+    
+    const size_t getInMessagesCount() const
+    {
+      return mStats.mInMessageCount;
+    }
+    
     const bool  isTLSEnabled() const
     {
       return TLSEnable;
     }
     
-    void gatherStats(const itc::utils::Bool2Type<false> stats_disabled)
-    {
-    }
-    
-    void gatherStats(const itc::utils::Bool2Type<true> stats_enabled)
-    {
-      AtomicLock sync(mConnectionsMutex);
-      mStats.mInMessageCount=0;
-      mStats.mOutMessageCount=0;
-      mStats.mInCMASize=0;
-      size_t counter=0;
-
-      for(const auto& connection : mConnections)
-      {
-        const auto sock_stats=std::move(connection.second->getStats());
-        mStats.mInMessageCount+=sock_stats.mInMessageCount;
-        mStats.mOutMessageCount+=sock_stats.mOutMessageCount;
-
-        if(mStats.mInMessageMaxSize<sock_stats.mInMessageMaxSize)
-          mStats.mInMessageMaxSize=sock_stats.mInMessageMaxSize;
-
-        if(mStats.mOutMessageMaxSize<sock_stats.mOutMessageMaxSize)
-          mStats.mOutMessageMaxSize=sock_stats.mOutMessageMaxSize;
-
-        mStats.mInCMASize+=sock_stats.mInCMASize;
-        mStats.mOutCMASize+=sock_stats.mOutCMASize;
-      }
-      if(counter>0)
-      {
-        mStats.mInCMASize=mStats.mInCMASize/counter;
-        mStats.mOutCMASize=mStats.mOutCMASize/counter;
-      }
-    }
+   
     void execute()
     {
       sigset_t sigpipe_mask;
@@ -175,8 +193,8 @@ namespace LAppS
         processInbound();
         if(haveDisconnects)
         {
-          AtomicLock syncdcq(mDCQMutex);
-          AtomicLock sync(mConnectionsMutex);
+          ITCSyncLock syncdcq(mDCQMutex);
+          ITCSyncLock sync(mConnectionsMutex);
           while(!mDCQueue.empty())
           {
             const int32_t fd=std::move(mDCQueue.front());
@@ -196,16 +214,16 @@ namespace LAppS
               {
                 if(error_bit(mEvents[i].events))
                 {
-                  AtomicLock sync(mConnectionsMutex);
+                  ITCSyncLock sync(mConnectionsMutex);
                   deleteConnection(mEvents[i].data.fd);
                 }
                 else 
                 {
                   processIO(mEvents[i].data.fd);
+                  mStats.mInMessageCount++;
                 }
               }
             }
-            gatherStats(enableStatsUpdate);
           }catch(const std::exception& e)
           {
             itc::getLog()->error(__FILE__,__LINE__,"Exception on ePoll::poll(): ", e.what());
@@ -214,7 +232,8 @@ namespace LAppS
         }
         else
         {
-          mNap.usleep(10000);
+          static thread_local const struct timespec pause{0,100000};
+          nanosleep(&pause,nullptr);
         }
       }
       mCanStop.store(true);
@@ -223,7 +242,7 @@ namespace LAppS
     void shutdown()
     {
       mMayRun.store(false);
-      AtomicLock sync(mConnectionsMutex);
+      ITCSyncLock sync(mConnectionsMutex);
       mConnections.clear();
       mCanStop.store(true);
     }
@@ -235,11 +254,16 @@ namespace LAppS
     {
       if(!mCanStop) this->shutdown();
     }
-    
-    const WorkerStats getStats() const
+
+    const WorkerMinStats getMinStats() const
     {
-      AtomicLock sync(mConnectionsMutex);
-      return mStats;
+      return { mStats.mConnections,mStats.mEventQSize };
+    }
+    
+    const std::shared_ptr<json> getStats()
+    {
+      ITCSyncLock sync(mConnectionsMutex);
+      return gatherStats(enableStatsUpdate);
     }
     
     void updateStats()
@@ -255,7 +279,7 @@ namespace LAppS
       {
         if(haveNewConnections&&mConnectionsMutex.try_lock())
         {
-          AtomicLock sync(mInboundMutex);
+          ITCSyncLock sync(mInboundMutex);
 
           while(!mInboundConnections.empty())
           {
@@ -298,7 +322,7 @@ namespace LAppS
       
       void processIO(const int fd)
       {
-        AtomicLock sync(mConnectionsMutex);
+        ITCSyncLock sync(mConnectionsMutex);
         auto it=mConnections.find(fd);
         if(it!=mConnections.end())
         {
@@ -365,14 +389,14 @@ namespace LAppS
       
       const std::shared_ptr<WSType> mkWebSocket(const itc::CSocketSPtr& inbound,const itc::utils::Bool2Type<false> tls_is_disabled)
       {
-        return std::make_shared<WSType>(std::move(inbound),this->getID(),mEPoll,this,mustAutoFragment());
+        return std::make_shared<WSType>(std::move(inbound),mEPoll,this,mustAutoFragment());
       }
       
       const std::shared_ptr<WSType> mkWebSocket(const itc::CSocketSPtr& inbound,const itc::utils::Bool2Type<true> tls_is_enabled)
       {
         auto tls_server_context=TLS::SharedServerContext::getInstance()->getContext();
         if(tls_server_context)
-          return std::make_shared<WSType>(std::move(inbound),this->getID(),mEPoll,this,mustAutoFragment(),tls_server_context);
+          return std::make_shared<WSType>(std::move(inbound),mEPoll,this,mustAutoFragment(),tls_server_context);
         else throw std::system_error(EINVAL,std::system_category(),"TLS ServerContext is NULL");
       }
   };

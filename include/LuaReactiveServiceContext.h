@@ -201,6 +201,16 @@ namespace LAppS
       
       lua_pushinteger(mLState, (lua_Integer)(event.websocket.get()));
       lua_pushinteger(mLState, event.opcode);
+      
+      /*
+      auto ptr=static_cast<size_t*>(lua_newuserdata(mLState,sizeof(size_t)));
+      
+      (*ptr)=bv_storage_index;
+      bv_storage[bv_storage_index]=std::move(event.message);
+      ++bv_storage_index;
+      luaL_getmetatable(mLState, "byte_vector");
+      lua_setmetatable(mLState, -2);
+      */
       lua_pushlstring(mLState,(const char*)(event.message->data()),event.message->size());
       
       callAppOnMessage(); 

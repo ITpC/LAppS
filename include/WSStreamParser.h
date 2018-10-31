@@ -36,7 +36,7 @@
 #include <WSProtocol.h>
 #include <WSEvent.h>
 
-#include <sys/atomic_mutex.h>
+#include <sys/mutex.h>
 #include <sys/synclock.h>
 
 /* check for AVX2 */
@@ -62,7 +62,7 @@ namespace WSStreamProcessing
     
     std::queue<MSGBufferTypeSPtr>           mBufferQueue;
     
-    itc::sys::AtomicMutex                   mBQMutex;
+    itc::sys::mutex                         mBQMutex;
     
     State                                   mState;
     
@@ -377,7 +377,7 @@ namespace WSStreamProcessing
     
     auto getBuffer()
     {
-      AtomicLock sync(mBQMutex);
+      ITCSyncLock sync(mBQMutex);
       if(mBufferQueue.empty())
       {
         return std::make_shared<MSGBufferType>(mOutMSGPreSize);
@@ -405,7 +405,7 @@ namespace WSStreamProcessing
 
     void returnBuffer(std::remove_reference<const std::shared_ptr<MSGBufferType>&>::type buff)
     {
-      AtomicLock sync(mBQMutex);
+      ITCSyncLock sync(mBQMutex);
       mBufferQueue.push(std::move(buff));
     }
 
@@ -416,7 +416,8 @@ namespace WSStreamProcessing
     
     void setMessageBufferSize(const size_t& bsz)
     {
-      mOutMSGPreSize=bsz;
+      if(mOutMSGPreSize<bsz)
+        mOutMSGPreSize=bsz;
     }
     
     /**
