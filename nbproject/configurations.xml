@@ -66,7 +66,6 @@
       <itemPath>include/WebSocket.h</itemPath>
       <itemPath>include/WorkerStats.h</itemPath>
       <itemPath>include/ePoll.h</itemPath>
-      <itemPath>include/ePollController.h</itemPath>
       <itemPath>include/ipcalc.h</itemPath>
       <itemPath>include/wsServer.h</itemPath>
     </logicalFolder>
@@ -929,6 +928,12 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -1041,8 +1046,6 @@
       <item path="include/abstract/Worker.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ePoll.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/ePollController.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ext/json.hpp" ex="false" tool="3" flavor2="0">
       </item>
@@ -1892,6 +1895,12 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -2004,8 +2013,6 @@
       <item path="include/abstract/Worker.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ePoll.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/ePollController.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ext/json.hpp" ex="false" tool="3" flavor2="0">
       </item>
@@ -2855,6 +2862,12 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -2967,8 +2980,6 @@
       <item path="include/abstract/Worker.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ePoll.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/ePollController.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ext/json.hpp" ex="false" tool="3" flavor2="0">
       </item>
@@ -3817,6 +3828,12 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -3929,8 +3946,6 @@
       <item path="include/abstract/Worker.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ePoll.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/ePollController.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ext/json.hpp" ex="false" tool="3" flavor2="0">
       </item>
@@ -4778,6 +4793,12 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -4890,8 +4911,6 @@
       <item path="include/abstract/Worker.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ePoll.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/ePollController.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ext/json.hpp" ex="false" tool="3" flavor2="0">
       </item>
@@ -5740,6 +5759,12 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -5852,8 +5877,6 @@
       <item path="include/abstract/Worker.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ePoll.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/ePollController.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ext/json.hpp" ex="false" tool="3" flavor2="0">
       </item>
@@ -6701,6 +6724,12 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -6813,8 +6842,6 @@
       <item path="include/abstract/Worker.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ePoll.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/ePollController.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ext/json.hpp" ex="false" tool="3" flavor2="0">
       </item>
@@ -7662,6 +7689,12 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -7774,8 +7807,6 @@
       <item path="include/abstract/Worker.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ePoll.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/ePollController.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ext/json.hpp" ex="false" tool="3" flavor2="0">
       </item>
