@@ -1,5 +1,5 @@
 #!/bin/bash
 
-chown lapps:lapps /opt/lapps/bin/lapps*
+chown lapps /opt/lapps/bin/lapps*
 
 ldconfig
