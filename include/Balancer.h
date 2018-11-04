@@ -51,12 +51,12 @@ namespace LAppS
   public:
     void onUpdate(const ::itc::TCPListener::value_type& data)
     {
-      mInbound.send(data);
+      mInbound.send(std::move(data));
     }
 
     void onUpdate(const std::vector<::itc::TCPListener::value_type>& data)
     {
-      mInbound.send(data);
+      mInbound.send(std::move(data));
     }
     
     Balancer(const float connw=0.7):mConnectionWeight(connw),mMayRun{true},mWorkersCache(0)
@@ -80,7 +80,7 @@ namespace LAppS
       while(mMayRun)
       {
         try {
-          auto inbound_connection=mInbound.recv();
+          auto inbound_connection=std::move(mInbound.recv());
 
           if(mWorkersCache.size()!=itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>::getInstance()->size())
             itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>::getInstance()->getWorkers(mWorkersCache);
@@ -110,7 +110,7 @@ namespace LAppS
                 }
               }
             }
-            mWorkersCache[chosen]->update(inbound_connection);
+            mWorkersCache[chosen]->update(std::move(inbound_connection));
           }else
           {
             mMayRun.store(false);
