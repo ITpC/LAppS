@@ -25,7 +25,9 @@ RUN apt install -y ${WORKSPACE}/lapps-0.7.2-ssse3-amd64.deb
 
 RUN apt-get install -f -y
 
-RUN echo "LAppS-0.7.2 is installed under /opt/lapps prefix. To run LAppS use /opt/lapps/bin/lapps.ssse3 [-d] command. -d is an optional argument do run LAppS as a deamon."
+WORKDIR /opt/lapps/run
+
+RUN echo "LAppS-0.7.2 is installed under /opt/lapps prefix. To run LAppS use /opt/lapps/bin/lapps.ssse3 [-d] from within /opt/lapps/run directory. -d is an optional argument do run LAppS as a deamon."
 
 RUN echo "Optionally /opt/lapps/bin/lapps.ssse3.notls and /opt/lapps/bin/lapps.ssse3.nostats.notls builds are provided for convinience"
 
