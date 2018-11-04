@@ -232,8 +232,8 @@ namespace LAppS
         }
         else
         {
-          static thread_local const struct timespec pause{0,100000};
-          nanosleep(&pause,nullptr);
+          itc::sys::Nap nap;
+          nap.usleep(1000);
         }
       }
       mCanStop.store(true);

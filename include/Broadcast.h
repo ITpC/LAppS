@@ -38,8 +38,8 @@ namespace LAppS
    public:
     typedef std::forward_list<std::shared_ptr<::abstract::WebSocket>>  BCastSubscribers;
    private:
-    itc::sys::mutex     sMutex;
-    itc::sys::mutex     uMutex;
+    itc::sys::mutex           sMutex;
+    itc::sys::mutex           uMutex;
     size_t                    ChannelID;
     BCastSubscribers          mSubscribers;
     BCastSubscribers          mUnsubscribers;
