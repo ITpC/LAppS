@@ -23,7 +23,7 @@ AS=as
 # Macros
 CND_PLATFORM=GNU-Linux
 CND_DLIB_EXT=so
-CND_CONF=Release.GENERIC
+CND_CONF=Release.SSE2
 CND_DISTDIR=dist
 CND_BUILDDIR=build
 
@@ -43,8 +43,8 @@ OBJECTFILES= \
 CFLAGS=
 
 # CC Compiler Flags
-CCFLAGS=-pipe -std=c++17 -Wall -pthread -O2 -fPIC -march=native -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer
-CXXFLAGS=-pipe -std=c++17 -Wall -pthread -O2 -fPIC -march=native -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer
+CCFLAGS=-pipe -std=c++17 -Wall -pthread -O2 -fPIC -march=native -mtune=generic -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer
+CXXFLAGS=-pipe -std=c++17 -Wall -pthread -O2 -fPIC -march=native -mtune=generic -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer
 
 # Fortran Compiler Flags
 FFLAGS=
@@ -57,17 +57,17 @@ LDLIBSOPTIONS=-L/usr/local/lib -L../libressl/lib ../ITCFramework/dist/Debug/GNU-
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
-	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.generic
+	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.sse2
 
-${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.generic: ../ITCFramework/dist/Debug/GNU-Linux/libitcframework.a
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.sse2: ../ITCFramework/dist/Debug/GNU-Linux/libitcframework.a
 
-${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.generic: ../ITCLib/dist/Debug/GNU-Linux/libitclib.a
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.sse2: ../ITCLib/dist/Debug/GNU-Linux/libitclib.a
 
-${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.generic: ../utils/dist/Debug/GNU-Linux/libutils.a
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.sse2: ../utils/dist/Debug/GNU-Linux/libutils.a
 
-${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.generic: ${OBJECTFILES}
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.sse2: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
-	g++ -pipe -Wall -pthread -O2 -mtune=native -march=native -fPIC  -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.generic ${OBJECTFILES} ${LDLIBSOPTIONS} -lcryptopp -ltls -lcrypto -lluajit-5.1 -lbz2 -lstdc++fs -lpam
+	g++ -pipe -Wall -pthread -O2 -mtune=native -march=native -fPIC  -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.sse2 ${OBJECTFILES} ${LDLIBSOPTIONS} -lcryptopp -ltls -lcrypto -lluajit-5.1 -lbz2 -lstdc++fs -lpam
 
 ${OBJECTDIR}/src/getLog.o: src/getLog.cpp nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/src
@@ -84,6 +84,7 @@ ${OBJECTDIR}/src/main.o: src/main.cpp nbproject/Makefile-${CND_CONF}.mk
 	cd ../ITCFramework && ${MAKE}  -f Makefile CONF=Debug
 	cd ../ITCLib && ${MAKE}  -f Makefile CONF=Debug
 	cd ../utils && ${MAKE}  -f utils-Makefile.mk CONF=Debug
+	cd ../ITCLib && ${MAKE}  -f Makefile CONF=Release.SSE2
 
 # Clean Targets
 .clean-conf: ${CLEAN_SUBPROJECTS}
@@ -94,6 +95,7 @@ ${OBJECTDIR}/src/main.o: src/main.cpp nbproject/Makefile-${CND_CONF}.mk
 	cd ../ITCFramework && ${MAKE}  -f Makefile CONF=Debug clean
 	cd ../ITCLib && ${MAKE}  -f Makefile CONF=Debug clean
 	cd ../utils && ${MAKE}  -f utils-Makefile.mk CONF=Debug clean
+	cd ../ITCLib && ${MAKE}  -f Makefile CONF=Release.SSE2 clean
 
 # Enable dependency checking
 .dep.inc: .depcheck-impl
