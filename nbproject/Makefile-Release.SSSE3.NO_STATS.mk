@@ -23,7 +23,7 @@ AS=as
 # Macros
 CND_PLATFORM=GNU-Linux
 CND_DLIB_EXT=so
-CND_CONF=Release.AVX2.NO_STATS
+CND_CONF=Release.SSSE3.NO_STATS
 CND_DISTDIR=dist
 CND_BUILDDIR=build
 
@@ -43,8 +43,8 @@ OBJECTFILES= \
 CFLAGS=
 
 # CC Compiler Flags
-CCFLAGS=-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -mavx2 -msse2avx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer
-CXXFLAGS=-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -mavx2 -msse2avx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer
+CCFLAGS=-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer
+CXXFLAGS=-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer
 
 # Fortran Compiler Flags
 FFLAGS=
@@ -57,17 +57,17 @@ LDLIBSOPTIONS=-L/usr/local/lib -L../libressl/lib ../ITCFramework/dist/Debug/GNU-
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
-	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2.nostats
+	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.ssse3.nostats
 
-${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2.nostats: ../ITCFramework/dist/Debug/GNU-Linux/libitcframework.a
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.ssse3.nostats: ../ITCFramework/dist/Debug/GNU-Linux/libitcframework.a
 
-${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2.nostats: ../ITCLib/dist/Debug/GNU-Linux/libitclib.a
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.ssse3.nostats: ../ITCLib/dist/Debug/GNU-Linux/libitclib.a
 
-${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2.nostats: ../utils/dist/Debug/GNU-Linux/libutils.a
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.ssse3.nostats: ../utils/dist/Debug/GNU-Linux/libutils.a
 
-${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2.nostats: ${OBJECTFILES}
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.ssse3.nostats: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
-	g++ -pipe -Wall -pthread -O2 -mtune=native -march=native -fPIC  -flto -mfpmath=sse -mavx -msse2avx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2.nostats ${OBJECTFILES} ${LDLIBSOPTIONS} -lcryptopp -ltls -lcrypto -lluajit-5.1 -lbz2 -lstdc++fs -lpam
+	g++ -pipe -Wall -pthread -O2 -mtune=native -march=native -fPIC -flto -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.ssse3.nostats ${OBJECTFILES} ${LDLIBSOPTIONS} -lcryptopp -ltls -lcrypto -lluajit-5.1 -lbz2 -lstdc++fs -lpam
 
 ${OBJECTDIR}/src/getLog.o: src/getLog.cpp nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/src

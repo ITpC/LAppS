@@ -23,7 +23,7 @@
                     <type>1</type>
                 </confElem>
                 <confElem>
-                    <name>Release.GENERIC</name>
+                    <name>Release.SSSE3</name>
                     <type>1</type>
                 </confElem>
                 <confElem>
@@ -31,11 +31,11 @@
                     <type>1</type>
                 </confElem>
                 <confElem>
-                    <name>Release.GENERIC.NO_STATS</name>
+                    <name>Release.SSSE3.NO_STATS</name>
                     <type>1</type>
                 </confElem>
                 <confElem>
-                    <name>Release.GENERIC.NO_STATS.NO_TLS</name>
+                    <name>Release.SSSE3.NO_STATS.NO_TLS</name>
                     <type>1</type>
                 </confElem>
                 <confElem>
@@ -48,6 +48,18 @@
                 </confElem>
                 <confElem>
                     <name>Debug.AVX2.NO_STATS.NO_TLS</name>
+                    <type>1</type>
+                </confElem>
+                <confElem>
+                    <name>Release.SSE2</name>
+                    <type>1</type>
+                </confElem>
+                <confElem>
+                    <name>Release.SSE2.NO_STATS</name>
+                    <type>1</type>
+                </confElem>
+                <confElem>
+                    <name>Release.SSE2.NO_STATS.NO_TLS</name>
                     <type>1</type>
                 </confElem>
             </confList>

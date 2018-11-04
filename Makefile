@@ -109,18 +109,18 @@ install: build
 	mkdir -p /opt/lapps/lib
 	mkdir -p /opt/lapps/apps
 	mkdir -p /opt/lapps/share
-	install -m 0755 ${CND_ARTIFACT_PATH_${CONF}} /opt/lapps/bin
+	install -o lapps:lapps -m 0755 ${CND_ARTIFACT_PATH_${CONF}} /opt/lapps/bin
 
 install-examples: install
 	mkdir -p /opt/lapps/apps/echo
 	mkdir -p /opt/lapps/apps/echo_lapps
 	mkdir -p /opt/lapps/apps/time_broadcast
 	mkdir -p /opt/lapps/apps/broadcast_blob
-	install -m 0644 ${CND_BASEDIR}/examples/echo/ssl/* /opt/lapps/conf/ssl/
-	install -m 0644 ${CND_BASEDIR}/examples/echo/echo.lua /opt/lapps/apps/echo/
-	install -m 0644 ${CND_BASEDIR}/examples/echo_lapps/* /opt/lapps/apps/echo_lapps/
-	install -m 0644 ${CND_BASEDIR}/examples/time_broadcast/* /opt/lapps/apps/time_broadcast/
-	install -m 0644 ${CND_BASEDIR}/examples/broadcast_blob/* /opt/lapps/apps/broadcast_blob/
+	install -o lapps:lapps -m 0644 ${CND_BASEDIR}/examples/echo/ssl/* /opt/lapps/conf/ssl/
+	install -o lapps:lapps -m 0644 ${CND_BASEDIR}/examples/echo/echo.lua /opt/lapps/apps/echo/
+	install -o lapps:lapps -m 0644 ${CND_BASEDIR}/examples/echo_lapps/* /opt/lapps/apps/echo_lapps/
+	install -o lapps:lapps -m 0644 ${CND_BASEDIR}/examples/time_broadcast/* /opt/lapps/apps/time_broadcast/
+	install -o lapps:lapps -m 0644 ${CND_BASEDIR}/examples/broadcast_blob/* /opt/lapps/apps/broadcast_blob/
 
 clone-luajit:
 	cp -RpP /usr/local/lib/* /opt/lapps/lib/
@@ -140,6 +140,7 @@ build-deb: install-examples clone-luajit clone-libressl
 	cp ${CND_BASEDIR}/dpkg/control /opt/distrib/lapps-${VERSION}-amd64/DEBIAN/
 	install -m 0755 ${CND_BASEDIR}/dpkg/postinst /opt/distrib/lapps-${VERSION}-amd64/DEBIAN/
 	cp ${CND_BASEDIR}/dpkg/lapps.conf /opt/distrib/lapps-${VERSION}-amd64/etc/ld.so.conf.d/lapps.conf
+	cp  ${CND_BASEDIR}/dpkg/{copyright,postinst,postrm,prerm} /opt/distrib/lapps-${VERSION}-amd64/DEBIAN/
 	cp -RpP /opt/lapps/[^p]* /opt/distrib/lapps-${VERSION}-amd64/opt/lapps/
 	cd /opt/distrib && dpkg-deb --build lapps-${VERSION}-amd64
 	
