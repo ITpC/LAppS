@@ -1,3 +1,1 @@
 #!/bin/bash
-
-useradd -r -U -s /sbin/nologin -d /opt/lapps -M -c "LAppS system user" lapps
