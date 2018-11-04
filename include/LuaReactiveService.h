@@ -45,7 +45,7 @@ namespace LAppS
     std::atomic<bool>                               mMayRun;
     std::atomic<bool>                               mCanStop;
     LuaReactiveServiceContext<TProto>               mContext;
-    itc::tsbqueue<AppInEvent,std::mutex>            mEvents;
+    itc::tsbqueue<AppInEvent,itc::sys::mutex>       mEvents;
     NetworkACL                                      mACL;
     
     
@@ -154,20 +154,6 @@ namespace LAppS
        mMayRun.store(false);
     }
     
-    const bool try_enqueue(const std::vector<AppInEvent>& events)
-    {
-      try
-      {
-        if(mEvents.try_send(events))
-          return true;
-        else return false;
-      }
-      catch(const std::exception& e)
-      {
-        itc::getLog()->error(__FILE__,__LINE__,"Can't enqueue request to application %s, exception: %s",this->getName().c_str(),e.what());
-        return false;
-      }
-    }
     void enqueue(const AppInEvent& event)
     {
       try {
@@ -179,17 +165,6 @@ namespace LAppS
       }
     }
     
-    void enqueue(const std::vector<AppInEvent>& event)
-    {
-      try {
-        mEvents.send(event);
-      }
-      catch (const std::exception& e)
-      {
-        itc::getLog()->error(__FILE__,__LINE__,"Can't enqueue request to application %s, exception: %s",this->getName().c_str(),e.what());
-      }
-    }
-        
     void execute()
     {
       sigset_t sigpipe_mask;
@@ -198,7 +173,7 @@ namespace LAppS
       sigset_t saved_mask;
       pthread_sigmask(SIG_BLOCK, &sigpipe_mask, &saved_mask);
       
-      while(mMayRun)
+      while(mMayRun.load())
       { 
         try
         {
@@ -238,7 +213,7 @@ namespace LAppS
               }
             }
           }
-        }catch(std::exception& e)
+        }catch(const std::exception& e)
         {
           mMayRun.store(false);
           itc::getLog()->error(__FILE__,__LINE__,"Exception in the instance [%u] of service [%s]::execute(): %s",getInstanceId(), this->getName().c_str(),e.what());

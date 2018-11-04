@@ -55,7 +55,6 @@ namespace LAppS
   private:
     std::atomic<bool>           mMayRun;
     std::mutex                  mMutex;
-    itc::tsbqueue<std::string>  mDeploymentQueue;
     int                         mInotifyFD;
     environment::LAppSEnv       mEnv;
     fs::path                    mDeployDir;
@@ -424,7 +423,7 @@ namespace LAppS
     }
     
     explicit Deployer()
-    : mMayRun{true},mMutex(),mDeploymentQueue(),
+    : mMayRun{true},mMutex(),
       mInotifyFD(inotify_init()),mEnv()
     {
       const std::string deploy_dir=LAppSConfig::getInstance()->getLAppSConfig()["directories"]["deploy"];
