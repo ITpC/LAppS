@@ -20,7 +20,7 @@ then
 
   export BUILD_TYPE_CHOSEN=0
 
-  for i in avx2 ssse3
+  for i in avx2 ssse3 sse2
   do
     if [ "${BUILD}" == "${i}" ]
     then
