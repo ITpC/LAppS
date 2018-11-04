@@ -1,7 +1,9 @@
 #!/bin/bash
 
 useradd -r -U -s /sbin/nologin -d /opt/lapps -M -c "LAppS user" lapps
-chown lapps /opt/lapps/bin/lapps*
-chmod u+s /opt/lapps/bin/l*
+mkdir -p /opt/lapps/run
+chown lapps /opt/lapps/run
+chown lapps /opt/lapps/bin/l*
+chmod u+s /opt/lapps/bin/lapps*
 
 ldconfig
