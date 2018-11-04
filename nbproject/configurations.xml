@@ -7908,7 +7908,7 @@
             <pElem>/usr/local/lib</pElem>
             <pElem>../libressl/lib</pElem>
           </linkerAddLib>
-          <commandlineTool>g++ -pipe -Wall -pthread -O2 -flto -mtune=native -march=native -fPIC  -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
+          <commandlineTool>g++ -pipe -Wall -pthread -O2 -flto -mtune=native -march=native -fPIC  -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"
@@ -8878,7 +8878,7 @@
             <pElem>/usr/local/lib</pElem>
             <pElem>../libressl/lib</pElem>
           </linkerAddLib>
-          <commandlineTool>g++ -pipe -Wall -pthread -O2 -mtune=native -march=native -fPIC -flto  -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
+          <commandlineTool>g++ -pipe -Wall -pthread -O2 -mtune=native -march=native -fPIC -flto  -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"
