@@ -6,4 +6,3 @@ chown root /opt/lapps/run
 chown root /opt/lapps/bin/l*
 userdel -f lapps
 
-return 0
