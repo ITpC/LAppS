@@ -132,7 +132,7 @@
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
           </incDir>
-          <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -march=native -mtune=generic -mfpmath=sse -mavx -msse2avx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fno-omit-frame-pointer</commandLine>
+          <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -march=native -mtune=native -mfpmath=sse -mavx -msse2avx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fno-omit-frame-pointer</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>LAPPS_TLS_ENABLE</Elem>
@@ -7075,12 +7075,12 @@
           </makeArtifact>
           <makeArtifact PL="../ITCLib"
                         CT="3"
-                        CN="Release.SSE2"
+                        CN="Debug"
                         AC="true"
                         BL="true"
                         WD="../ITCLib"
-                        BC="${MAKE}  -f Makefile CONF=Release.SSE2"
-                        CC="${MAKE}  -f Makefile CONF=Release.SSE2 clean"
+                        BC="${MAKE}  -f Makefile CONF=Debug"
+                        CC="${MAKE}  -f Makefile CONF=Debug clean"
                         OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
           </makeArtifact>
           <makeArtifact PL="../ITCFramework"
