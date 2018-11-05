@@ -1,8 +1,0 @@
-#!/bin/bash
-
-pid=$(ps ax | grep lapps | awk '{ print $1 }')
-
-if [ "${pid}x" != "x" ]
-then
-  kill -15 $pid
-fi
