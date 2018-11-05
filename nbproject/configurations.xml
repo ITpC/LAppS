@@ -1114,7 +1114,7 @@
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
           </incDir>
-          <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
+          <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>LAPPS_TLS_ENABLE</Elem>
@@ -1131,7 +1131,7 @@
             <pElem>/usr/local/lib</pElem>
             <pElem>../libressl/lib</pElem>
           </linkerAddLib>
-          <commandlineTool>g++ -pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
+          <commandlineTool>g++ -pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"
@@ -3080,7 +3080,7 @@
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
           </incDir>
-          <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
+          <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>LAPPS_TLS_ENABLE</Elem>
@@ -3096,7 +3096,7 @@
             <pElem>/usr/local/lib</pElem>
             <pElem>../libressl/lib</pElem>
           </linkerAddLib>
-          <commandlineTool>g++ -pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
+          <commandlineTool>g++ -pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"
@@ -3142,7 +3142,7 @@
                         CT="3"
                         CN="Debug"
                         AC="true"
-                        BL="false"
+                        BL="true"
                         WD="../utils"
                         BC="${MAKE}  -f utils-Makefile.mk CONF=Debug"
                         CC="${MAKE}  -f utils-Makefile.mk CONF=Debug clean"
@@ -3162,7 +3162,7 @@
                         CT="3"
                         CN="Debug"
                         AC="true"
-                        BL="false"
+                        BL="true"
                         WD="../ITCFramework"
                         BC="${MAKE}  -f Makefile CONF=Debug"
                         CC="${MAKE}  -f Makefile CONF=Debug clean"
@@ -4062,7 +4062,7 @@
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
           </incDir>
-          <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
+          <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
@@ -4077,7 +4077,7 @@
             <pElem>/usr/local/lib</pElem>
             <pElem>../libressl/lib</pElem>
           </linkerAddLib>
-          <commandlineTool>g++ -pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
+          <commandlineTool>g++ -pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"
@@ -7987,7 +7987,7 @@
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
           </incDir>
-          <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
+          <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>LAPPS_TLS_ENABLE</Elem>
@@ -8004,7 +8004,7 @@
             <pElem>/usr/local/lib</pElem>
             <pElem>../libressl/lib</pElem>
           </linkerAddLib>
-          <commandlineTool>g++ -pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
+          <commandlineTool>g++ -pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"
@@ -8970,7 +8970,7 @@
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
           </incDir>
-          <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
+          <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>LAPPS_TLS_ENABLE</Elem>
@@ -8986,7 +8986,7 @@
             <pElem>/usr/local/lib</pElem>
             <pElem>../libressl/lib</pElem>
           </linkerAddLib>
-          <commandlineTool>g++ -pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
+          <commandlineTool>g++ -pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2  -mtune=generic -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"
@@ -9952,7 +9952,7 @@
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
           </incDir>
-          <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
+          <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
@@ -9967,7 +9967,7 @@
             <pElem>/usr/local/lib</pElem>
             <pElem>../libressl/lib</pElem>
           </linkerAddLib>
-          <commandlineTool>g++ -pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
+          <commandlineTool>g++ -pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"

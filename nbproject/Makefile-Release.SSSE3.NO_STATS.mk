@@ -43,8 +43,8 @@ OBJECTFILES= \
 CFLAGS=
 
 # CC Compiler Flags
-CCFLAGS=-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer
-CXXFLAGS=-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer
+CCFLAGS=-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer
+CXXFLAGS=-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer
 
 # Fortran Compiler Flags
 FFLAGS=
@@ -67,7 +67,7 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.ssse3.nostats: ../utils/dist/De
 
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.ssse3.nostats: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
-	g++ -pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.ssse3.nostats ${OBJECTFILES} ${LDLIBSOPTIONS} -lcryptopp -ltls -lcrypto -lluajit-5.1 -lbz2 -lstdc++fs -lpam
+	g++ -pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.ssse3.nostats ${OBJECTFILES} ${LDLIBSOPTIONS} -lcryptopp -ltls -lcrypto -lluajit-5.1 -lbz2 -lstdc++fs -lpam
 
 ${OBJECTDIR}/src/getLog.o: src/getLog.cpp nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/src
@@ -84,7 +84,9 @@ ${OBJECTDIR}/src/main.o: src/main.cpp nbproject/Makefile-${CND_CONF}.mk
 	cd ../ITCFramework && ${MAKE}  -f Makefile CONF=Debug
 	cd ../ITCLib && ${MAKE}  -f Makefile CONF=Debug
 	cd ../utils && ${MAKE}  -f utils-Makefile.mk CONF=Debug
+	cd ../utils && ${MAKE}  -f utils-Makefile.mk CONF=Debug
 	cd ../ITCLib && ${MAKE}  -f Makefile CONF=Release.SSE2
+	cd ../ITCFramework && ${MAKE}  -f Makefile CONF=Debug
 
 # Clean Targets
 .clean-conf: ${CLEAN_SUBPROJECTS}
@@ -95,7 +97,9 @@ ${OBJECTDIR}/src/main.o: src/main.cpp nbproject/Makefile-${CND_CONF}.mk
 	cd ../ITCFramework && ${MAKE}  -f Makefile CONF=Debug clean
 	cd ../ITCLib && ${MAKE}  -f Makefile CONF=Debug clean
 	cd ../utils && ${MAKE}  -f utils-Makefile.mk CONF=Debug clean
+	cd ../utils && ${MAKE}  -f utils-Makefile.mk CONF=Debug clean
 	cd ../ITCLib && ${MAKE}  -f Makefile CONF=Release.SSE2 clean
+	cd ../ITCFramework && ${MAKE}  -f Makefile CONF=Debug clean
 
 # Enable dependency checking
 .dep.inc: .depcheck-impl
