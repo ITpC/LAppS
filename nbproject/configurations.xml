@@ -204,7 +204,7 @@
                         CT="3"
                         CN="Debug"
                         AC="true"
-                        BL="false"
+                        BL="true"
                         WD="../ITCLib"
                         BC="${MAKE}  -f Makefile CONF=Debug"
                         CC="${MAKE}  -f Makefile CONF=Debug clean"
