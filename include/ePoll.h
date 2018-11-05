@@ -50,7 +50,7 @@ public:
   explicit ePoll():mPollFD(epoll_create1(O_CLOEXEC))
   {
     if(mPollFD == -1)
-      throw std::system_error(errno,std::system_category(),std::string("In ePoll() constructor: "));
+      throw std::system_error(errno,std::system_category(),"Exception in ePoll::ePoll(): ");
   }
   
   ePoll(const ePoll&)=delete;
@@ -67,7 +67,7 @@ public:
     ev.events=ePollDefaultInOps;
     ev.data.fd=fd;
     if(epoll_ctl(mPollFD,EPOLL_CTL_ADD,fd,&ev)==-1)
-      throw std::system_error(errno,std::system_category(),std::string("In ePoll::add(): "));
+      throw std::system_error(errno,std::system_category(),"Exception in epoll_ctl() in ePoll::add_in(): ");
   }
   
   void add_out(const int fd)
@@ -76,7 +76,7 @@ public:
     ev.events=ePollDefaultOutOps;
     ev.data.fd=fd;
     if(epoll_ctl(mPollFD,EPOLL_CTL_ADD,fd,&ev)==-1)
-      throw std::system_error(errno,std::system_category(),std::string("In ePoll::add_out(): "));
+      throw std::system_error(errno,std::system_category(),"Exception in epoll_ctl() in ePoll::add_out(): ");
   }
   
  
@@ -90,7 +90,7 @@ public:
     if(epoll_ctl(mPollFD,EPOLL_CTL_MOD,fd,&ev)==-1)
     {
       if(errno != ENOENT)
-        throw std::system_error(errno,std::system_category(),std::string("In ePoll::mod_in(): "));
+        throw std::system_error(errno,std::system_category(),"Exception in epoll_ctl() in ePoll::mod_in(): ");
       else
         this->add_in(fd);
     }
@@ -105,7 +105,7 @@ public:
     if(epoll_ctl(mPollFD,EPOLL_CTL_MOD,fd,&ev)==-1)
     {
       if(errno != ENOENT)
-        throw std::system_error(errno,std::system_category(),std::string("In ePoll::mod_out(): "));
+        throw std::system_error(errno,std::system_category(),"Exception in epoll_ctl() in ePoll::mod_out(): ");
       else
         this->add_out(fd);
     }
@@ -119,7 +119,7 @@ public:
     if(epoll_ctl(mPollFD,EPOLL_CTL_MOD,fd,&ev)==-1)
     {
       if(errno != ENOENT)
-        throw std::system_error(errno,std::system_category(),std::string("In ePoll::mod_out(): "));
+        throw std::system_error(errno,std::system_category(),"Exception in epoll_ctl() in ePoll::mod_both(): ");
       else
         this->add_out(fd);
     }
@@ -134,7 +134,7 @@ public:
     if(epoll_ctl(mPollFD,EPOLL_CTL_DEL,fd,&ev)==-1)
     {
       if(errno != ENOENT)
-        throw std::system_error(errno,std::system_category(),std::string("In ePoll::del(): "));
+        throw std::system_error(errno,std::system_category(),"Exception in epoll_ctl() in ePoll::del(): ");
     }
   }
   /**
@@ -156,7 +156,7 @@ public:
       if((ret == -1) && (errno != EINTR))
       {
         throw std::system_error(
-          errno,std::system_category(),std::string("In ePoll::poll(): ")
+          errno,std::system_category(),"Exception in epoll_wait() in ePoll::poll(): "
         );
       }
       else{
