@@ -39,7 +39,7 @@ RUN tar xzvf LuaJIT-2.0.5.tar.gz
 
 WORKDIR ${WORKSPACE}/LuaJIT-2.0.5
 
-RUN env CFLAGS="-pipe -Wall -pthread -O2 -fPIC -march=i686 -mtune=generic -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fno-omit-frame-pointer" make all install
+RUN env CFLAGS="-pipe -Wall -pthread -O2 -fPIC -march=native -mtune=generic -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fno-omit-frame-pointer" make all install
 
 WORKDIR ${WORKSPACE}
 
@@ -49,7 +49,7 @@ RUN tar xzvf libressl-2.8.2.tar.gz
 
 WORKDIR ${WORKSPACE}/libressl-2.8.2
 
-RUN CFLAGS="-pipe -Wall -pthread -O2 -fPIC -march=i686 -mtune=generic -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fno-omit-frame-pointer" ./configure --prefix=${WORKSPACE}/libressl
+RUN CFLAGS="-pipe -Wall -pthread -O2 -fPIC -march=native -mtune=generic -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fno-omit-frame-pointer" ./configure --prefix=${WORKSPACE}/libressl
 
 RUN make all install
 
