@@ -10,7 +10,7 @@ LAppS is an easy way to develop low-latency web applications. Please see [LAppS 
 
 Please see [LAppS wiki](https://github.com/ITpC/LAppS/wiki) on how to build and run LAppS from sources. 
 
-**Release 0.7.1 is considered stable. [See binary packages for Ubuntu xenial and bionic](https://github.com/ITpC/LAppS.builds)**
+**[See binary packages for Ubuntu xenial and bionic](https://github.com/ITpC/LAppS.builds)**
 
 # Features
 
