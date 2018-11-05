@@ -84,7 +84,7 @@ ${OBJECTDIR}/src/main.o: src/main.cpp nbproject/Makefile-${CND_CONF}.mk
 	cd ../ITCFramework && ${MAKE}  -f Makefile CONF=Debug
 	cd ../ITCLib && ${MAKE}  -f Makefile CONF=Debug
 	cd ../utils && ${MAKE}  -f utils-Makefile.mk CONF=Debug
-	cd ../ITCLib && ${MAKE}  -f Makefile CONF=Release.SSE2
+	cd ../ITCLib && ${MAKE}  -f Makefile CONF=Debug
 
 # Clean Targets
 .clean-conf: ${CLEAN_SUBPROJECTS}
@@ -95,7 +95,7 @@ ${OBJECTDIR}/src/main.o: src/main.cpp nbproject/Makefile-${CND_CONF}.mk
 	cd ../ITCFramework && ${MAKE}  -f Makefile CONF=Debug clean
 	cd ../ITCLib && ${MAKE}  -f Makefile CONF=Debug clean
 	cd ../utils && ${MAKE}  -f utils-Makefile.mk CONF=Debug clean
-	cd ../ITCLib && ${MAKE}  -f Makefile CONF=Release.SSE2 clean
+	cd ../ITCLib && ${MAKE}  -f Makefile CONF=Debug clean
 
 # Enable dependency checking
 .dep.inc: .depcheck-impl

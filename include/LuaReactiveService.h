@@ -175,10 +175,18 @@ namespace LAppS
       
       while(mMayRun.load())
       { 
+        
+        std::queue<AppInEvent> events;
+        try{
+          mEvents.recv(events);
+        }catch(const std::exception& e)
+        {
+          mMayRun.store(false);
+          itc::getLog()->info(__FILE__,__LINE__,"Instance [%u] of the service [%s] is going down",this->getInstanceId(),this->getName().c_str());
+          break;
+        }
         try
         {
-          std::queue<AppInEvent> events;
-          mEvents.recv(events);
           while(!events.empty())
           {
             auto event=std::move(events.front());
