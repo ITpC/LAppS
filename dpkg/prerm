@@ -1,0 +1,9 @@
+#!/bin/bash
+
+chmod u-s /opt/lapps/bin/lapps*
+rm -rf  /opt/lapps/run
+chown root /opt/lapps/run
+chown root /opt/lapps/bin/l*
+userdel -f lapps
+
+return 0
