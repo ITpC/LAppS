@@ -17,8 +17,8 @@ CND_PACKAGE_PATH_Debug=dist/Debug/GNU-Linux/package/lapps.deb
 # Release.SSSE3 configuration
 CND_PLATFORM_Release.SSSE3=GNU-Linux
 CND_ARTIFACT_DIR_Release.SSSE3=dist/Release.SSSE3/GNU-Linux
-CND_ARTIFACT_NAME_Release.SSSE3=lapps.sse3
-CND_ARTIFACT_PATH_Release.SSSE3=dist/Release.SSSE3/GNU-Linux/lapps.sse3
+CND_ARTIFACT_NAME_Release.SSSE3=lapps.ssse3
+CND_ARTIFACT_PATH_Release.SSSE3=dist/Release.SSSE3/GNU-Linux/lapps.ssse3
 CND_PACKAGE_DIR_Release.SSSE3=dist/Release.SSSE3/GNU-Linux/package
 CND_PACKAGE_NAME_Release.SSSE3=lapps.deb
 CND_PACKAGE_PATH_Release.SSSE3=dist/Release.SSSE3/GNU-Linux/package/lapps.deb
@@ -41,8 +41,8 @@ CND_PACKAGE_PATH_Release.SSSE3.NO_STATS=dist/Release.SSSE3.NO_STATS/GNU-Linux/pa
 # Release.SSSE3.NO_STATS.NO_TLS configuration
 CND_PLATFORM_Release.SSSE3.NO_STATS.NO_TLS=GNU-Linux
 CND_ARTIFACT_DIR_Release.SSSE3.NO_STATS.NO_TLS=dist/Release.SSSE3.NO_STATS.NO_TLS/GNU-Linux
-CND_ARTIFACT_NAME_Release.SSSE3.NO_STATS.NO_TLS=lapps.sse3.nostats.notls
-CND_ARTIFACT_PATH_Release.SSSE3.NO_STATS.NO_TLS=dist/Release.SSSE3.NO_STATS.NO_TLS/GNU-Linux/lapps.sse3.nostats.notls
+CND_ARTIFACT_NAME_Release.SSSE3.NO_STATS.NO_TLS=lapps.ssse3.nostats.notls
+CND_ARTIFACT_PATH_Release.SSSE3.NO_STATS.NO_TLS=dist/Release.SSSE3.NO_STATS.NO_TLS/GNU-Linux/lapps.ssse3.nostats.notls
 CND_PACKAGE_DIR_Release.SSSE3.NO_STATS.NO_TLS=dist/Release.SSSE3.NO_STATS.NO_TLS/GNU-Linux/package
 CND_PACKAGE_NAME_Release.SSSE3.NO_STATS.NO_TLS=lapps.deb
 CND_PACKAGE_PATH_Release.SSSE3.NO_STATS.NO_TLS=dist/Release.SSSE3.NO_STATS.NO_TLS/GNU-Linux/package/lapps.deb
