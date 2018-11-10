@@ -115,12 +115,12 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
     const bool               auto_fragment,
     struct tls*              tls_context=nullptr
   )
-  : mMutex(),  fd(socksptr->getfd()), mState{HANDSHAKE}, 
-    mNoInput{false}, enableTLS(), enableStatsUpdate(),
-    TLSContext{tls_context},   TLSSocket{nullptr},      
-    mEPoll(ep), mStats{0,0,0,0,0,0}, streamProcessor(512),
-    mAutoFragment(auto_fragment), mParent{_parent}, 
-    mSocketSPtr(std::move(socksptr))
+  : mMutex(),        fd(socksptr->getfd()), mState{HANDSHAKE}, 
+    mNoInput{false}, enableTLS(),           enableStatsUpdate(),
+    TLSContext{tls_context},                TLSSocket{nullptr},      
+    mEPoll(ep),      mStats{0,0,0,0,0,0},   streamProcessor(512),
+    mApplication{nullptr},                  mAutoFragment(auto_fragment), 
+    mParent{_parent},                       mSocketSPtr(std::move(socksptr))
   {
     init(enableTLS);
     mSocketSPtr->getpeeraddr(mPeerIP);
