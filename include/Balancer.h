@@ -42,6 +42,7 @@ namespace LAppS
     public ::itc::abstract::IRunnable
   {
   private:
+    using WorkersPool=itc::Singleton<LAppS::WSWorkersPool<TLSEnable,StatsEnable>>;
     
     float                                             mConnectionWeight;
     std::atomic<bool>                                 mMayRun;
@@ -61,7 +62,7 @@ namespace LAppS
     
     Balancer(const float connw=0.7):mConnectionWeight(connw),mMayRun{true},mWorkersCache(0)
     {
-      itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>::getInstance()->getWorkers(mWorkersCache);
+      WorkersPool::getInstance()->getWorkers(mWorkersCache);
     }
     void shutdown()
     {
@@ -82,8 +83,8 @@ namespace LAppS
         try {
           auto inbound_connection=std::move(mInbound.recv());
 
-          if(mWorkersCache.size()!=itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>::getInstance()->size())
-            itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>::getInstance()->getWorkers(mWorkersCache);
+          if(mWorkersCache.size()!=WorkersPool::getInstance()->size())
+            WorkersPool::getInstance()->getWorkers(mWorkersCache);
 
           if(mWorkersCache.size()>0)
           {

@@ -132,7 +132,7 @@ namespace LAppS
         }
         retobj->push_back(j);
       }
-      return retobj;
+      return std::move(retobj);
     }
     
     void clear()
@@ -149,7 +149,7 @@ namespace LAppS
   class ServiceRegistry
   {
    private:
-    mutable ::itc::sys::mutex                 mMutex;
+    mutable ::itc::sys::mutex                       mMutex;
     std::map<std::string,ServicesInstanceHolder>    mServices;
     std::map<std::string,std::string>               mTargets2Names;
     
@@ -247,9 +247,9 @@ namespace LAppS
       std::shared_ptr<json> retobj=std::make_shared<json>(json::array());
       for(const auto& instances: mServices)
       {
-        retobj->push_back(*(instances.second.list()));
+        retobj->push_back(std::move(*(instances.second.list())));
       }
-      return retobj;
+      return std::move(retobj);
     }
   };
   using SServiceRegistry=itc::Singleton<ServiceRegistry>;
