@@ -122,7 +122,7 @@ namespace LAppS
       
       for(auto handler : mSubscribers)
       {
-        handler->send(std::move(*msg));
+        handler->send(*msg);
       }
     }
   };

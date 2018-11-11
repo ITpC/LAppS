@@ -65,15 +65,15 @@ void startWSServer()
       LAppS::SServiceRegistry::getInstance()->clear();
 #ifdef LAPPS_TLS_ENABLE
   #ifdef STATS_ENABLE
-      itc::Singleton<WSWorkersPool<true,true>>::getInstance()->clear();
+      itc::Singleton<LAppS::WSWorkersPool<true,true>>::getInstance()->clear();
   #else
-      itc::Singleton<WSWorkersPool<true,false>>::getInstance()->clear();
+      itc::Singleton<LAppS::WSWorkersPool<true,false>>::getInstance()->clear();
   #endif
 #else
   #ifdef STATS_ENABLE
-      itc::Singleton<WSWorkersPool<false,true>>::getInstance()->clear();
+      itc::Singleton<LAppS::WSWorkersPool<false,true>>::getInstance()->clear();
   #else
-      itc::Singleton<WSWorkersPool<false,false>>::getInstance()->clear();
+      itc::Singleton<LAppS::WSWorkersPool<false,false>>::getInstance()->clear();
   #endif
 #endif
       

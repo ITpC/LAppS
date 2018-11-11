@@ -29,125 +29,129 @@
 #include <sys/synclock.h>
 #include <IOWorker.h>
 
-template <bool TLSEnable=false, bool StatsEnable=false> class WSWorkersPool
+namespace LAppS
 {
- private:
-  mutable std::mutex            mMutex;
-  std::vector<WorkerThreadSPtr> mWorkers;
-  size_t                        mCursor;
-  
-  const std::shared_ptr<json> getStats(itc::utils::Bool2Type<false> stats_disabled)
+  template <bool TLSEnable=false, bool StatsEnable=false> class WSWorkersPool
   {
-    std::shared_ptr<json> wstats=std::make_shared<json>(json::object());
-    for(const auto& worker : mWorkers)
-    {
-      auto stats=worker->getRunnable()->getMinStats();
-      size_t in_messages_count=worker->getRunnable()->getInMessagesCount();
-      
-      (*wstats)[std::to_string(worker->getRunnable()->getID())]={
-        {{ "InMessagesCount", in_messages_count }},
-        {{ "Connections", stats.mConnections }},
-        {{ "EventQSize", stats.mEventQSize }}
-      };
-    }
-    return wstats;
-  }
-  
-  const std::shared_ptr<json> getStats(itc::utils::Bool2Type<true> stats_enabled)
-  {
-    std::shared_ptr<json> wstats=std::make_shared<json>(json::object());
-    
-    for(auto it=mWorkers.begin();it!=mWorkers.end();++it)
-    {
-      const std::string wid=std::to_string(it->get()->getRunnable()->getID());
-      auto stats=it->get()->getRunnable()->getMinStats();
-      size_t in_messages_count=it->get()->getRunnable()->getInMessagesCount();
-      
-      (*wstats)[wid]=it->get()->getRunnable()->getStats();
-      (*wstats)[wid]["InMessagesCount"]=in_messages_count;
-      (*wstats)[wid]["Connections"]=stats.mConnections;
-      (*wstats)[wid]["EventQSize"]=stats.mEventQSize;
-    }
- 
-    return wstats;
-  }
+   private:
+    mutable std::mutex            mMutex;
+    std::vector<WorkerThreadSPtr> mWorkers;
+    size_t                        mCursor;
 
- public:
-  typedef LAppS::IOWorker<TLSEnable,StatsEnable> WorkerType;
-  
-  WSWorkersPool():mMutex(),mWorkers(),mCursor(0)
-  {
-  }
-  WSWorkersPool(const WSWorkersPool&)=delete;
-  WSWorkersPool(WSWorkersPool&)=delete;
-  
-  void spawn(const size_t maxC, const bool auto_fragment)
-  {
-    STDSyncLock sync(mMutex);
-    auto worker=std::make_shared<WorkerType>(mWorkers.size(),maxC, auto_fragment);
-    mWorkers.push_back(
-      std::make_shared<WorkerThread>(std::move(worker))
-    );
-  }
-  auto next()
-  {
-    STDSyncLock sync(mMutex);
-    if(mWorkers.size() == 0)
-      throw std::logic_error("WSWorkersPool::next() - the pool is empty, there is no next worker");
-    
-    if(mCursor<mWorkers.size())
+    auto getStats(itc::utils::Bool2Type<false> stats_disabled)
     {
-      auto ret=mWorkers[mCursor]->getRunnable();
-      ++mCursor;
-      return ret;
-    }else {
-      mCursor=0;
-      auto ret=mWorkers[mCursor]->getRunnable();
-      ++mCursor;
-      return ret;
+      std::shared_ptr<json> wstats=std::make_shared<json>(json::object());
+      for(const auto& worker : mWorkers)
+      {
+        auto stats=worker->getRunnable()->getMinStats();
+        size_t in_messages_count=worker->getRunnable()->getInMessagesCount();
+
+        (*wstats)[std::to_string(worker->getRunnable()->getID())]={
+          {{ "InMessagesCount", in_messages_count }},
+          {{ "Connections", stats.mConnections }},
+          {{ "EventQSize", stats.mEventQSize }}
+        };
+      }
+      return std::move(wstats);
     }
-  }
-  
-  const auto getStats()
-  {
-    static const itc::utils::Bool2Type<StatsEnable> statsEnabled;
-    return getStats(statsEnabled);
-  }  
-  
-  const size_t size() const
-  {
-    return mWorkers.size();
-  }
-  
-  auto get(const size_t& wid)
-  {
-    STDSyncLock sync(mMutex);
-    
-    if(wid<mWorkers.size())
+
+    auto getStats(itc::utils::Bool2Type<true> stats_enabled)
     {
-      return mWorkers[wid];
+      std::shared_ptr<json> wstats=std::make_shared<json>(json::object());
+
+      for(auto it=mWorkers.begin();it!=mWorkers.end();++it)
+      {
+        const std::string wid=std::to_string(it->get()->getRunnable()->getID());
+        auto stats=it->get()->getRunnable()->getMinStats();
+        size_t in_messages_count=it->get()->getRunnable()->getInMessagesCount();
+
+        (*wstats)[wid]=it->get()->getRunnable()->getStats();
+        (*wstats)[wid]["InMessagesCount"]=in_messages_count;
+        (*wstats)[wid]["Connections"]=stats.mConnections;
+        (*wstats)[wid]["EventQSize"]=stats.mEventQSize;
+      }
+
+      return std::move(wstats);
     }
-    throw std::system_error(EINVAL,std::system_category(), "There is no worker with ID "+std::to_string(wid));
-  }
-  void  getWorkers(std::vector<std::shared_ptr<::abstract::Worker>>& out) const
-  {
-    STDSyncLock sync(mMutex);
-    for(auto i: mWorkers)
+
+   public:
+    typedef LAppS::IOWorker<TLSEnable,StatsEnable> WorkerType;
+
+    WSWorkersPool():mMutex(),mWorkers(),mCursor(0)
     {
-      out.push_back(i->getRunnable());
     }
-  }
-  void clear()
-  {
-    STDSyncLock sync(mMutex);
-    mWorkers.clear();
-  }
-  
-  ~WSWorkersPool()
-  {
-    clear();
-  }
-};
+    WSWorkersPool(const WSWorkersPool&)=delete;
+    WSWorkersPool(WSWorkersPool&)=delete;
+
+    void spawn(const size_t maxC, const bool auto_fragment)
+    {
+      STDSyncLock sync(mMutex);
+      auto worker=std::make_shared<WorkerType>(mWorkers.size(),maxC, auto_fragment);
+      mWorkers.push_back(
+        std::make_shared<WorkerThread>(std::move(worker))
+      );
+    }
+    auto next()
+    {
+      STDSyncLock sync(mMutex);
+      if(mWorkers.size() == 0)
+        throw std::logic_error("WSWorkersPool::next() - the pool is empty, there is no next worker");
+
+      if(mCursor<mWorkers.size())
+      {
+        auto ret=mWorkers[mCursor]->getRunnable();
+        ++mCursor;
+        return ret;
+      }else {
+        mCursor=0;
+        auto ret=mWorkers[mCursor]->getRunnable();
+        ++mCursor;
+        return ret;
+      }
+    }
+
+    const auto getStats()
+    {
+      static const itc::utils::Bool2Type<StatsEnable> statsEnabled;
+      return getStats(statsEnabled);
+    }  
+
+    const size_t size() const
+    {
+      return mWorkers.size();
+    }
+
+    auto get(const size_t& wid)
+    {
+      STDSyncLock sync(mMutex);
+
+      if(wid<mWorkers.size())
+      {
+        return mWorkers[wid];
+      }
+      throw std::system_error(EINVAL,std::system_category(), "There is no worker with ID "+std::to_string(wid));
+    }
+    void  getWorkers(std::vector<std::shared_ptr<::abstract::Worker>>& out) const
+    {
+      STDSyncLock sync(mMutex);
+      for(auto i: mWorkers)
+      {
+        out.push_back(i->getRunnable());
+      }
+    }
+    void clear()
+    {
+      STDSyncLock sync(mMutex);
+      mWorkers.clear();
+    }
+
+    ~WSWorkersPool()
+    {
+      clear();
+    }
+  };
+}
+
 
 
 #endif /* __WSWORKERSPOOL_H__ */

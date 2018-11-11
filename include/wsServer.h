@@ -66,20 +66,21 @@ namespace LAppS
   class wsServer
   {
   private:
-    typedef LAppS::IOWorker<TLSEnable,StatsEnable>                    WorkerType;
-    typedef itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>      WorkersPool;
-    typedef LAppS::Deployer<TLSEnable,StatsEnable>                    DeployerType;
-    typedef itc::sys::CancelableThread<DeployerType>                  DeployerThread;
+    using WorkerType=LAppS::IOWorker<TLSEnable,StatsEnable>;
+    using WorkersPool=itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>;
+    using DeployerType=LAppS::Deployer<TLSEnable,StatsEnable>;
+    using DeployerThread=itc::sys::CancelableThread<DeployerType>;
+    using BalancerThread=itc::sys::CancelableThread<Balancer<TLSEnable,StatsEnable>>;
     
     itc::utils::Bool2Type<TLSEnable>    enableTLS;
     itc::utils::Bool2Type<StatsEnable>  enableStatsUpdate;
     float                               mConnectionWeight;
     size_t                              mWorkers;
-    IOStats                         mAllStats;
+    IOStats                             mAllStats;
     std::shared_ptr<LAppS::NetworkACL>  mNACL;
     DeployerThread                      mDeployer;
     std::vector<TCPListenerThreadSPtr>  mListenersPool;
-    itc::sys::CancelableThread<Balancer<TLSEnable,StatsEnable>> mBalancer;
+    BalancerThread                      mBalancer;
     
     void loadNACL()
     {

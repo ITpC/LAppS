@@ -87,7 +87,7 @@ namespace LAppS
         
         for(const auto& connection : mConnections)
         {
-          const auto sock_stats=std::move(connection.second->getStats());
+          const auto sock_stats=connection.second->getStats();
           const std::string instanceid=std::to_string(connection.second->getApplication()->getInstanceId());
           const std::string service_name=connection.second->getApplication()->getName();
           

@@ -63,8 +63,7 @@ namespace LAppS
     {
       for(auto it=policy_exclude.begin();it!=policy_exclude.end();++it)
       {
-        std::string exclude=it.value();
-        mACL.add(std::move(LAppS::addrinfo(std::move(exclude))));
+        mACL.add(std::move(LAppS::addrinfo(it.value().get<std::string>())));
       }
     }
    
