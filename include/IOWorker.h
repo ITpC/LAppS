@@ -78,7 +78,7 @@ namespace LAppS
 
       const auto gatherStats(const itc::utils::Bool2Type<false> stats_disabled)
       {
-        return std::make_shared<json>(json::object());
+        return std::move(std::make_shared<json>(json::object()));
       }
 
       const auto gatherStats(const itc::utils::Bool2Type<true> stats_enabled)
@@ -91,36 +91,54 @@ namespace LAppS
           const std::string instanceid=std::to_string(connection.second->getApplication()->getInstanceId());
           const std::string service_name=connection.second->getApplication()->getName();
           
-          (*nstats)[instanceid][service_name]={
-            {{"InMessageCount", (*nstats)[instanceid][service_name]["InMessageCount"].get<size_t>()+sock_stats.mInMessageCount}},
-            {{"OutMessageCount", (*nstats)[instanceid][service_name]["OutMessageCount"].get<size_t>()+sock_stats.mOutMessageCount}},
-            {{"Connections", (*nstats)[instanceid][service_name]["Connections"].get<size_t>()+1 }}
+          if(nstats->find(service_name)==nstats->end())
+          {
+            (*nstats)[service_name]=json::object();
+          }
+          
+          if((*nstats)[service_name].find(instanceid)==(*nstats)[service_name].end())
+          {
+            (*nstats)[service_name][instanceid]={
+              {{"InMessageCount",0}},
+              {{"OutMessageCount",0}},
+              {{"Connections",0}},
+              {{"InMessageMaxSize",0}},
+              {{"OutMessageMaxSize",0}},
+              {{"OutCMASize",0}},
+              {{"InCMASize",0}}
+            };
+          }
+          
+          (*nstats)[service_name][instanceid]={
+            {{"InMessageCount", (*nstats)[service_name][instanceid]["InMessageCount"].get<size_t>()+sock_stats.mInMessageCount}},
+            {{"OutMessageCount", (*nstats)[service_name][instanceid]["OutMessageCount"].get<size_t>()+sock_stats.mOutMessageCount}},
+            {{"Connections", (*nstats)[service_name][instanceid]["Connections"].get<size_t>()+1 }}
           };
           
-          if((*nstats)[instanceid][service_name]["InMessageMaxSize"].get<size_t>()<sock_stats.mInMessageMaxSize)
-            (*nstats)[instanceid][service_name]["InMessageMaxSize"]=sock_stats.mInMessageMaxSize;
+          if((*nstats)[service_name][instanceid]["InMessageMaxSize"].get<size_t>()<sock_stats.mInMessageMaxSize)
+            (*nstats)[service_name][instanceid]["InMessageMaxSize"]=sock_stats.mInMessageMaxSize;
           
-          if((*nstats)[instanceid][service_name]["OutMessageMaxSize"].get<size_t>()<sock_stats.mOutMessageMaxSize)
-            (*nstats)[instanceid][service_name]["OutMessageMaxSize"]=sock_stats.mOutMessageMaxSize;
+          if((*nstats)[service_name][instanceid]["OutMessageMaxSize"].get<size_t>()<sock_stats.mOutMessageMaxSize)
+            (*nstats)[service_name][instanceid]["OutMessageMaxSize"]=sock_stats.mOutMessageMaxSize;
           
-          if((*nstats)[instanceid][service_name]["OutMessageCount"].get<size_t>() > 0)
+          if((*nstats)[service_name][instanceid]["OutMessageCount"].get<size_t>() > 0)
           {
-            (*nstats)[instanceid][service_name]["OutCMASize"]=
-              (*nstats)[instanceid][service_name]["OutCMASize"].get<size_t>()+(
-                sock_stats.mOutCMASize-(*nstats)[instanceid][service_name]["OutCMASize"].get<size_t>()
-              )/(*nstats)[instanceid][service_name]["OutMessageCount"].get<size_t>();
+            (*nstats)[service_name][instanceid]["OutCMASize"]=
+              (*nstats)[service_name][instanceid]["OutCMASize"].get<size_t>()+(
+                sock_stats.mOutCMASize-(*nstats)[service_name][instanceid]["OutCMASize"].get<size_t>()
+              )/(*nstats)[service_name][instanceid]["OutMessageCount"].get<size_t>();
           }
             
-          if((*nstats)[instanceid][service_name]["InMessageCount"].get<size_t>() > 0)
+          if((*nstats)[service_name][instanceid]["InMessageCount"].get<size_t>() > 0)
           {
-            (*nstats)[instanceid][service_name]["InCMASize"]=
-              (*nstats)[instanceid][service_name]["InCMASize"].get<size_t>()+(
-                sock_stats.mInCMASize-(*nstats)[instanceid][service_name]["InCMASize"].get<size_t>()
-              )/(*nstats)[instanceid][service_name]["InMessageCount"].get<size_t>();
+            (*nstats)[service_name][instanceid]["InCMASize"]=
+              (*nstats)[service_name][instanceid]["InCMASize"].get<size_t>()+(
+                sock_stats.mInCMASize-(*nstats)[service_name][instanceid]["InCMASize"].get<size_t>()
+              )/(*nstats)[service_name][instanceid]["InMessageCount"].get<size_t>();
           }
           
         }
-        return nstats;
+        return std::move(nstats);
       }      
     public:
      
@@ -263,7 +281,7 @@ namespace LAppS
     const std::shared_ptr<json> getStats()
     {
       ITCSyncLock sync(mConnectionsMutex);
-      return gatherStats(enableStatsUpdate);
+      return std::move(gatherStats(enableStatsUpdate));
     }
     
     void updateStats()

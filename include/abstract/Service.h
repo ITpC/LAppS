@@ -72,7 +72,7 @@ namespace LAppS
       virtual const bool filterIP(const uint32_t address) const=0;
       virtual void shutdown() = 0;
       virtual const size_t getMaxMSGSize() const=0;
-      virtual void enqueue(const AppInEvent&)=0;
+      virtual void enqueue(const AppInEvent&&)=0;
       
       virtual ~Service() noexcept = default;
     };
