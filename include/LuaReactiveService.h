@@ -230,7 +230,6 @@ namespace LAppS
       itc::getLog()->info(__FILE__,__LINE__,"Instance [%u] of the service [%s]: execution finished",getInstanceId(), this->getName().c_str());
       mCanStop.store(true);
     }
-    
   };
 }
 
