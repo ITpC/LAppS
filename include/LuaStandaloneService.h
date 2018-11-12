@@ -108,12 +108,9 @@ namespace LAppS
     {
       return 0;
     }
-    void enqueue(const AppInEvent& e)
+    void enqueue(const AppInEvent&& e)
     {
-    }
-    const bool try_enqueue(const std::vector<AppInEvent>& events)
-    {
-      return false;
+      throw std::logic_error("Interface method void LuaStandaloneService::enqueue(const AppInEvent&) may not be implemented");
     }
   };
 }

@@ -153,10 +153,10 @@ namespace LAppS
        mMayRun.store(false);
     }
     
-    void enqueue(const AppInEvent& event)
+    void enqueue(const AppInEvent&& event)
     {
       try {
-        mEvents.send(event);
+        mEvents.send(std::move(event));
       }
       catch (const std::exception& e)
       {

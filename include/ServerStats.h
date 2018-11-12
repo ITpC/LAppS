@@ -35,24 +35,18 @@ using json=nlohmann::json;
 
 namespace LAppS
 {
-  template <const bool StatsEnable=true> class ServerStats
+  template <const bool TLSEnable=false, const bool StatsEnable=true> class ServerStats
   {
     private:
-     itc::utils::Bool2Type<StatsEnable> mStatsEnabled;
-     
-     
-     json getStats(const itc::utils::Bool2Type<false>& stats_disabled)
-     {
-     }
-     
-     json getStats(const itc::utils::Bool2Type<true>& stats_enabled)
-     {
-     }
+     using WorkersPool=itc::Singleton<LAppS::WSWorkersPool<TLSEnable,StatsEnable>>;
      
     public:
-     auto getStats()
+     const auto getStats()
      {
-       return getStats(mStatsEnabled);
+       auto retobj=std::make_shared<json>(json::object());
+       retobj["stats"]=WorkersPool::getInstance()->getStats();
+       retobj["services"]=SServiceRegistry::getInstance()->list();
+       return std::move(retobj);
      }
   };
 }
