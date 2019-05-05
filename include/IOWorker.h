@@ -322,7 +322,7 @@ namespace LAppS
                 mShakespeer.sendForbidden(current);
                 itc::getLog()->error(
                   __FILE__,__LINE__,
-                  "Too many connections, new connection from %s on fd %d will is rejected",
+                  "Too many connections, new connection from %s on fd %d is rejected",
                   current->getPeerAddress().c_str(),fd
                 );
               }
