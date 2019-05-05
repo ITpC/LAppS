@@ -45,11 +45,11 @@ RUN echo "LuaJIT-2.0.5 has been build and installed"
 
 WORKDIR ${WORKSPACE}
 
-ADD https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-2.8.3.tar.gz ${WORKSPACE}
+ADD https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-2.9.1.tar.gz ${WORKSPACE}
 
-RUN tar xzvf libressl-2.8.3.tar.gz
+RUN tar xzvf libressl-2.9.1.tar.gz
 
-WORKDIR ${WORKSPACE}/libressl-2.8.3
+WORKDIR ${WORKSPACE}/libressl-2.9.1
 
 RUN env CFLAGS="-pipe -Wall -pthread -O2 -fPIC -march=core2 -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fno-omit-frame-pointer" ./configure --prefix=${WORKSPACE}/libressl
 
