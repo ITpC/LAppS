@@ -52,9 +52,11 @@
 #include <TLSServerContext.h>
 #include <abstract/Worker.h>
 #include <IOWorker.h>
-#include <Balancer.h>
+//#include <Balancer.h>
+#include <ConnectionsInQueue.h>
 #include <Deployer.h>
 #include <NetworkACL.h>
+#include <WSWorkersPool.h>
 
 // libressl
 #include <tls.h>
@@ -70,7 +72,7 @@ namespace LAppS
     using WorkersPool=itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>;
     using DeployerType=LAppS::Deployer<TLSEnable,StatsEnable>;
     using DeployerThread=itc::sys::CancelableThread<DeployerType>;
-    using BalancerThread=itc::sys::CancelableThread<Balancer<TLSEnable,StatsEnable>>;
+//    using BalancerThread=itc::sys::CancelableThread<Balancer<TLSEnable,StatsEnable>>;
     
     itc::utils::Bool2Type<TLSEnable>    enableTLS;
     itc::utils::Bool2Type<StatsEnable>  enableStatsUpdate;
@@ -80,7 +82,7 @@ namespace LAppS
     std::shared_ptr<LAppS::NetworkACL>  mNACL;
     DeployerThread                      mDeployer;
     std::vector<TCPListenerThreadSPtr>  mListenersPool;
-    BalancerThread                      mBalancer;
+//    BalancerThread                      mBalancer;
     
     void loadNACL()
     {
@@ -121,7 +123,7 @@ namespace LAppS
             std::make_shared<::itc::TCPListener>(
               LAppSConfig::getInstance()->getWSConfig()["ip"],
               LAppSConfig::getInstance()->getWSConfig()["port"],
-              mBalancer.getRunnable(),
+              LAppS::CInQ::getInstance(),
               [this](const uint32_t address)
               {
                 switch(this->mNACL->mPolicy)
@@ -157,8 +159,8 @@ namespace LAppS
     wsServer()
     : enableTLS(), enableStatsUpdate(), mConnectionWeight(
         LAppSConfig::getInstance()->getWSConfig()["connection_weight"]
-      ), mWorkers(1), mAllStats{0,0,0,0,0,0,0,0}, mDeployer(std::make_shared<DeployerType>()),
-      mBalancer(std::make_shared<Balancer<TLSEnable, StatsEnable>>(mConnectionWeight))
+      ), mWorkers(1), mAllStats{0,0,0,0,0,0,0,0}, mDeployer(std::make_shared<DeployerType>())//,
+//      mBalancer(std::make_shared<Balancer<TLSEnable, StatsEnable>>(mConnectionWeight))
     {
         itc::getLog()->info(__FILE__,__LINE__,"Starting WS Server");
 

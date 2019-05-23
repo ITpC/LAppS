@@ -31,6 +31,8 @@
 #include <abstract/Worker.h>
 #include <sys/mutex.h>
 #include <time.h>
+#include <ConnectionsInQueue.h>
+#include <ext/tsl/robin_map.h>
 
 
 namespace LAppS
@@ -50,21 +52,21 @@ namespace LAppS
       std::atomic<bool>                         mCanStop;
       
       mutable itc::sys::mutex                   mConnectionsMutex;
-      itc::sys::mutex                           mInboundMutex;
-      itc::sys::mutex                           mDCQMutex;
+      //itc::sys::mutex                           mDCQMutex;
       
       LAppS::Shakespeer<TLSEnable,StatsEnable>  mShakespeer;
       SharedEPollType                           mEPoll;
       
-      std::queue<itc::CSocketSPtr>              mInboundConnections;
-      std::map<int,WSSPtr>                      mConnections;
-      std::queue<int32_t>                       mDCQueue;
+      tsl::robin_map<int,WSSPtr>                mConnections;
+      //std::queue<int32_t>                       mDCQueue;
+      itc::cfifo<int32_t>                       mDCQueue;
       
       std::vector<epoll_event>                  mEvents;
       
       std::atomic<bool>                         haveConnections;
-      std::atomic<bool>                         haveNewConnections;
       std::atomic<bool>                         haveDisconnects;
+      
+      itc::sys::Nap                             nap;
       
       
       bool error_bit(const uint32_t event) const
@@ -144,10 +146,10 @@ namespace LAppS
      
     explicit IOWorker(const size_t id, const size_t maxConnections,const bool auto_fragment)
     : Worker(id,maxConnections,auto_fragment), enableTLS(),  enableStatsUpdate(), 
-      mMayRun{true}, mCanStop{false}, mConnectionsMutex(),  mInboundMutex(), 
-      mDCQMutex(), mShakespeer(), mEPoll(std::make_shared<ePoll>()),
-      mInboundConnections(), mConnections(), mDCQueue(), mEvents(1000),
-      haveConnections{false},haveNewConnections{false},haveDisconnects{false}
+      mMayRun{true}, mCanStop{false}, mConnectionsMutex(),
+      /*mDCQMutex(),*/ mShakespeer(), mEPoll(std::make_shared<ePoll>()),
+      mConnections(), mDCQueue(20), mEvents(1000),
+      haveConnections{false},haveDisconnects{false}
     {
       mConnections.clear();
     }
@@ -156,29 +158,10 @@ namespace LAppS
     IOWorker(const IOWorker&)=delete;
     IOWorker(IOWorker&)=delete;
     
-    void onUpdate(const ::itc::TCPListener::value_type& socketsptr)
-    {
-      ITCSyncLock sync(mInboundMutex);
-      mInboundConnections.push(std::move(socketsptr));
-      updateStats();
-      haveNewConnections.store(true);
-    }
-    
-    void onUpdate(const std::vector<::itc::TCPListener::value_type>& socketsptr)
-    {
-      ITCSyncLock sync(mInboundMutex);
-      for(size_t i=0;i<socketsptr.size();++i)
-      {
-        mInboundConnections.push(std::move(socketsptr[i]));
-      }
-      updateStats();
-      haveNewConnections.store(true);
-    }
-    
     void disconnect(const int32_t fd)
     {
-      ITCSyncLock sync(mDCQMutex);
-      mDCQueue.push(fd);
+      //ITCSyncLock sync(mDCQMutex);
+      mDCQueue.send(fd);
       haveDisconnects.store(true);
     }
     
@@ -211,17 +194,17 @@ namespace LAppS
         processInbound();
         if(haveDisconnects)
         {
-          ITCSyncLock syncdcq(mDCQMutex);
+          //ITCSyncLock syncdcq(mDCQMutex);
           ITCSyncLock sync(mConnectionsMutex);
           while(!mDCQueue.empty())
           {
-            const int32_t fd=std::move(mDCQueue.front());
-            mDCQueue.pop();
+            const int32_t fd=std::move(mDCQueue.recv());
+            //mDCQueue.pop();
             deleteConnection(fd);
           }
           haveDisconnects.store(false);
         }
-        if(haveConnections)
+        if(haveConnections.load())
         {
           try{
             int ret=mEPoll->poll(mEvents,1);
@@ -250,8 +233,8 @@ namespace LAppS
         }
         else
         {
-          itc::sys::Nap nap;
           nap.usleep(1000);
+          processInbound();
         }
       }
       mCanStop.store(true);
@@ -286,7 +269,7 @@ namespace LAppS
     
     void updateStats()
     {
-      mStats.mConnections=mConnections.size()+mInboundConnections.size();
+      mStats.mConnections=mConnections.size();
     }
 
     private:
@@ -295,16 +278,15 @@ namespace LAppS
        **/
       void processInbound()
       {
-        if(haveNewConnections&&mConnectionsMutex.try_lock())
+        if(!LAppS::CInQ::getInstance()->empty())
         {
-          ITCSyncLock sync(mInboundMutex);
-
-          while(!mInboundConnections.empty())
-          {
-            try{
-              auto current=mkWebSocket(mInboundConnections.front());
+          try{
+            itc::CSocketSPtr sockt;
+            if(LAppS::CInQ::getInstance()->try_recv(sockt))
+            {
+              auto current=mkWebSocket(sockt);
               int fd=current->getfd();
-
+              ITCSyncLock sync(mConnectionsMutex);
               if(mConnections.size()<mMaxConnections)
               {
                   itc::getLog()->info(
@@ -325,16 +307,12 @@ namespace LAppS
                   "Too many connections, new connection from %s on fd %d is rejected",
                   current->getPeerAddress().c_str(),fd
                 );
-              }
-            }catch(const std::exception& e)
-            {
-              itc::getLog()->error(__FILE__,__LINE__,"Connection became invalid before handshake. Exception: %s",e.what());
+              } 
             }
-
-            mInboundConnections.pop();
+          }catch(const std::exception& e)
+          {
+            itc::getLog()->error(__FILE__,__LINE__,"Connection became invalid before handshake. Exception: %s",e.what());
           }
-          mConnectionsMutex.unlock();
-          haveNewConnections.store(false);
         }
       }
       
