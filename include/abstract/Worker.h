@@ -36,7 +36,8 @@ using json=nlohmann::json;
 
 namespace abstract
 {
-  class Worker : public ::itc::abstract::IRunnable, public ::itc::TCPListener::ViewType
+  class Worker : public ::itc::abstract::IRunnable
+  //, public ::itc::TCPListener::ViewType
   {
    protected:
     const size_t  ID;
