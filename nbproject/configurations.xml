@@ -15,6 +15,10 @@
       </logicalFolder>
       <logicalFolder name="f3" displayName="ext" projectFiles="true">
         <itemPath>include/ext/json.hpp</itemPath>
+        <itemPath>include/ext/tsl/robin_growth_policy.h</itemPath>
+        <itemPath>include/ext/tsl/robin_hash.h</itemPath>
+        <itemPath>include/ext/tsl/robin_map.h</itemPath>
+        <itemPath>include/ext/tsl/robin_set.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="modules" projectFiles="true">
         <itemPath>include/modules/UserDataAdapter.h</itemPath>
@@ -34,6 +38,7 @@
       <itemPath>include/Broadcasts.h</itemPath>
       <itemPath>include/ClientWebSocket.h</itemPath>
       <itemPath>include/Config.h</itemPath>
+      <itemPath>include/ConnectionsInQueue.h</itemPath>
       <itemPath>include/ContextTypes.h</itemPath>
       <itemPath>include/Deployer.h</itemPath>
       <itemPath>include/Env.h</itemPath>
@@ -987,6 +992,18 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -1009,6 +1026,8 @@
       <item path="include/ClientWebSocket.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ConnectionsInQueue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ContextTypes.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -1099,6 +1118,17 @@
       <item path="include/ePoll.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ext/json.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_growth_policy.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_hash.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_map.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_set.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ipcalc.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -2006,6 +2036,18 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -2028,6 +2070,8 @@
       <item path="include/ClientWebSocket.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ConnectionsInQueue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ContextTypes.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -2118,6 +2162,17 @@
       <item path="include/ePoll.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ext/json.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_growth_policy.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_hash.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_map.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_set.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ipcalc.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -3025,6 +3080,18 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -3047,6 +3114,8 @@
       <item path="include/ClientWebSocket.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ConnectionsInQueue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ContextTypes.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -3137,6 +3206,17 @@
       <item path="include/ePoll.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ext/json.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_growth_policy.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_hash.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_map.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_set.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ipcalc.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -4043,6 +4123,18 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -4065,6 +4157,8 @@
       <item path="include/ClientWebSocket.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ConnectionsInQueue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ContextTypes.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -4155,6 +4249,17 @@
       <item path="include/ePoll.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ext/json.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_growth_policy.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_hash.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_map.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_set.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ipcalc.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -5060,6 +5165,18 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -5082,6 +5199,8 @@
       <item path="include/ClientWebSocket.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ConnectionsInQueue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ContextTypes.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -5172,6 +5291,17 @@
       <item path="include/ePoll.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ext/json.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_growth_policy.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_hash.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_map.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_set.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ipcalc.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -6078,6 +6208,18 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -6100,6 +6242,8 @@
       <item path="include/ClientWebSocket.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ConnectionsInQueue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ContextTypes.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -6190,6 +6334,17 @@
       <item path="include/ePoll.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ext/json.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_growth_policy.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_hash.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_map.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_set.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ipcalc.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -7095,6 +7250,18 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -7117,6 +7284,8 @@
       <item path="include/ClientWebSocket.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ConnectionsInQueue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ContextTypes.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -7207,6 +7376,17 @@
       <item path="include/ePoll.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ext/json.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_growth_policy.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_hash.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_map.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_set.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ipcalc.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -8112,6 +8292,18 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -8134,6 +8326,8 @@
       <item path="include/ClientWebSocket.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ConnectionsInQueue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ContextTypes.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -8224,6 +8418,17 @@
       <item path="include/ePoll.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ext/json.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_growth_policy.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_hash.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_map.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_set.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ipcalc.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -9131,6 +9336,18 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -9153,6 +9370,8 @@
       <item path="include/ClientWebSocket.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ConnectionsInQueue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ContextTypes.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -9243,6 +9462,17 @@
       <item path="include/ePoll.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ext/json.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_growth_policy.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_hash.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_map.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_set.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ipcalc.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -10149,6 +10379,18 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -10171,6 +10413,8 @@
       <item path="include/ClientWebSocket.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ConnectionsInQueue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ContextTypes.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -10261,6 +10505,17 @@
       <item path="include/ePoll.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ext/json.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_growth_policy.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_hash.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_map.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_set.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ipcalc.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -11166,6 +11421,18 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -11188,6 +11455,8 @@
       <item path="include/ClientWebSocket.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ConnectionsInQueue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ContextTypes.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -11278,6 +11547,17 @@
       <item path="include/ePoll.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ext/json.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_growth_policy.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_hash.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_map.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/ext/tsl/robin_set.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ipcalc.h" ex="false" tool="3" flavor2="0">
       </item>
