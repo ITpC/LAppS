@@ -49,6 +49,7 @@ namespace LAppS
       {"connection_weight", 0.8},
       {"ip","0.0.0.0"},
       {"port",5083},
+      {"cinq_depth",1000},
       {"lapps_config_auto_save", true },
       {"workers",{ {"workers",4}, {"max_connections", 10000 },{"auto_fragment",false}}},
       {"acl", {{"policy", "allow"},{"exclude", {} }}},
