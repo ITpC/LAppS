@@ -51,7 +51,7 @@ namespace LAppS
       {"port",5083},
       {"cinq_depth",1000},
       {"lapps_config_auto_save", true },
-      {"workers",{ {"workers",4}, {"max_connections", 10000 },{"auto_fragment",false}}},
+      {"workers",{ {"workers",3}, {"max_connections", 10000 },{"auto_fragment",false}}},
       {"acl", {{"policy", "allow"},{"exclude", {} }}},
 #ifdef LAPPS_TLS_ENABLE
       {"tls",true},
