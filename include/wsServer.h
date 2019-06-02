@@ -52,8 +52,7 @@
 #include <TLSServerContext.h>
 #include <abstract/Worker.h>
 #include <IOWorker.h>
-//#include <Balancer.h>
-#include <ConnectionsInQueue.h>
+#include <Balancer.h>
 #include <Deployer.h>
 #include <NetworkACL.h>
 #include <WSWorkersPool.h>
@@ -72,7 +71,7 @@ namespace LAppS
     using WorkersPool=itc::Singleton<WSWorkersPool<TLSEnable,StatsEnable>>;
     using DeployerType=LAppS::Deployer<TLSEnable,StatsEnable>;
     using DeployerThread=itc::sys::CancelableThread<DeployerType>;
-//    using BalancerThread=itc::sys::CancelableThread<Balancer<TLSEnable,StatsEnable>>;
+    using BalacersPool=std::vector<std::shared_ptr<LAppS::Balancer<TLSEnable,StatsEnable>>>;
     
     itc::utils::Bool2Type<TLSEnable>    enableTLS;
     itc::utils::Bool2Type<StatsEnable>  enableStatsUpdate;
@@ -81,8 +80,8 @@ namespace LAppS
     IOStats                             mAllStats;
     std::shared_ptr<LAppS::NetworkACL>  mNACL;
     DeployerThread                      mDeployer;
+    BalacersPool                        mBalancersPool;
     std::vector<TCPListenerThreadSPtr>  mListenersPool;
-//    BalancerThread                      mBalancer;
     
     void loadNACL()
     {
@@ -119,11 +118,14 @@ namespace LAppS
 
           itc::getLog()->trace(__FILE__,__LINE__,"wsServer creating a listener %u",i);
 
+          auto balancer=std::make_shared<LAppS::Balancer<TLSEnable,StatsEnable>>(LAppSConfig::getInstance()->getWSConfig()["connection_weight"]);
+          mBalancersPool.push_back(balancer);
+          
           mListenersPool.push_back(std::make_shared<TCPListenerThread>(
             std::make_shared<::itc::TCPListener>(
               LAppSConfig::getInstance()->getWSConfig()["ip"],
               LAppSConfig::getInstance()->getWSConfig()["port"],
-              LAppS::CInQ::getInstance(),
+              balancer,
               [this](const uint32_t address)
               {
                 switch(this->mNACL->mPolicy)
