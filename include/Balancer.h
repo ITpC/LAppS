@@ -26,103 +26,78 @@
 
 #include <TCPListener.h>
 #include <WSWorkersPool.h>
-#include <tsbqueue.h>
-#include <sys/CancelableThread.h>
 #include <atomic>
 #include <memory>
 #include <abstract/Runnable.h>
+#include <ext/tsl/robin_map.h>
 
 namespace LAppS
 {
-  
-  
   template <bool TLSEnable=true, bool StatsEnable=true> 
   class Balancer 
-  : public ::itc::TCPListener::ViewType,
-    public ::itc::abstract::IRunnable
+  : public ::itc::TCPListener::ViewType
   {
   private:
     using WorkersPool=itc::Singleton<LAppS::WSWorkersPool<TLSEnable,StatsEnable>>;
     
     float                                             mConnectionWeight;
-    std::atomic<bool>                                 mMayRun;
-    itc::tsbqueue<::itc::TCPListener::value_type>     mInbound;
-    std::vector<std::shared_ptr<::abstract::Worker>>  mWorkersCache;
 
+    const size_t selectWorker(const tsl::robin_map<size_t,IOStats>& current_stats)
+    {
+      if(current_stats.begin()!=current_stats.end())
+      {
+        auto it=current_stats.begin();
+        size_t choosen=it.key();
+        IOStats stats_detail=it.value();
+
+        std::for_each(
+          current_stats.begin(),current_stats.end(),
+          [this,&stats_detail,&choosen](const auto& kv)
+          {
+            // no connections limit check, as it is the workers job to announce 403 Forbidden to the client
+            size_t m1=(kv.second.mConnections+kv.second.mInQueueDepth)*mConnectionWeight+kv.second.mEventQSize;
+            size_t m2=(stats_detail.mConnections+stats_detail.mInQueueDepth)*mConnectionWeight+stats_detail.mEventQSize;
+            if((m1)<(m2))
+            {
+              choosen=kv.first;
+              stats_detail=kv.second;
+            }
+          }
+        );
+        return choosen;
+      }
+      throw std::system_error(EINVAL,std::system_category(),"No workers are available");
+    }
   public:
     void onUpdate(const ::itc::TCPListener::value_type& data)
     {
-      mInbound.send(std::move(data));
+      tsl::robin_map<size_t,IOStats> current_stats;
+      LAppS::WStats::getInstance()->getStats(current_stats);
+      try{
+        size_t choosen=selectWorker(current_stats);
+        auto worker=WorkersPool::getInstance()->get(choosen);
+        worker->getRunnable()->enqueue(data);
+      }catch(const std::exception& e)
+      {
+        // ignore
+      }
     }
 
     void onUpdate(const std::vector<::itc::TCPListener::value_type>& data)
     {
-      mInbound.send(std::move(data));
+      std::for_each(
+        data.begin(),data.end(),
+        [this](const auto& value)
+        {
+          this->onUpdate(value);
+        }
+      );
     }
     
-    Balancer(const float connw=0.7):mConnectionWeight(connw),mMayRun{true},mWorkersCache(0)
+    explicit Balancer(const float connw=0.7):mConnectionWeight(connw)
     {
-      WorkersPool::getInstance()->getWorkers(mWorkersCache);
     }
-    void shutdown()
-    {
-      mMayRun.store(false);
-    }
-    void onCancel()
-    {
-      shutdown();
-    }
-    ~Balancer()
-    {
-      this->shutdown();
-    }
-    void execute()
-    {
-      while(mMayRun)
-      {
-        try {
-          auto inbound_connection=std::move(mInbound.recv());
-
-          if(mWorkersCache.size()!=WorkersPool::getInstance()->size())
-            WorkersPool::getInstance()->getWorkers(mWorkersCache);
-
-          if(mWorkersCache.size()>0)
-          {
-            size_t chosen=0;
-            auto stats=mWorkersCache[0]->getMinStats();
-            for(size_t i=1;i<mWorkersCache.size();++i)
-            {
-              auto stats2=mWorkersCache[i]->getMinStats();
-              if(stats.mConnections>stats2.mConnections) // candidate i
-              {
-                chosen=i;
-                if(stats.mEventQSize > stats2.mEventQSize)
-                {
-                  stats=stats2;
-                  chosen=i;
-                }
-              }
-              else
-              {
-                if(stats.mEventQSize > stats2.mConnections*mConnectionWeight)
-                {
-                  stats=stats2;
-                  chosen=i;
-                }
-              }
-            }
-            mWorkersCache[chosen]->update(std::move(inbound_connection));
-          }else
-          {
-            mMayRun.store(false);
-          }
-
-        }catch (const std::exception& e)
-        {
-          mMayRun.store(false);
-        }
-      }
-    }
+    ~Balancer()=default;
   };
 }
 #endif /* __BALANCER_H__ */

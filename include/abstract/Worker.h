@@ -43,11 +43,10 @@ namespace abstract
     const size_t  ID;
     size_t        mMaxConnections;
     bool          auto_fragment;
-    IOStats   mStats;
    public:
     explicit Worker(const size_t id, const size_t maxConnections, const bool af)
     : itc::abstract::IRunnable(), ID(id),mMaxConnections(maxConnections),
-      auto_fragment(af),mStats{0,0,0,0,0,0,0}
+      auto_fragment(af)
     {
       sigset_t sigset;
       sigemptyset(&sigset);
@@ -78,16 +77,11 @@ namespace abstract
       return auto_fragment;
     }
     
-    const uint8_t getID() const
+    const size_t getID() const
     {
       return ID;
     }
-    
-    virtual const std::shared_ptr<json> getStats()=0;
-    virtual const size_t getConnectionsCount() const =0;
-    virtual const size_t getInMessagesCount() const = 0;
-    virtual const WorkerMinStats getMinStats() const =0;
-    virtual void updateStats()=0;
+    virtual void enqueue(const ::itc::TCPListener::value_type&)=0;
     virtual void deleteConnection(const int32_t)=0;
     virtual void disconnect(const int32_t)=0;
     virtual const bool  isTLSEnabled() const = 0;
