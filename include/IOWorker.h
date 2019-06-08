@@ -45,6 +45,7 @@ namespace LAppS
       typedef std::shared_ptr<WSType>                 WSSPtr;
       
     private:
+      using qtype=itc::tsbqueue<::itc::TCPListener::value_type,itc::sys::mutex>;
       itc::utils::Bool2Type<TLSEnable>          enableTLS;
       itc::utils::Bool2Type<StatsEnable>        enableStatsUpdate;
       
@@ -55,7 +56,7 @@ namespace LAppS
       LAppS::Shakespeer<TLSEnable,StatsEnable>  mShakespeer;
       SharedEPollType                           mEPoll;
       
-      itc::tsbqueue<::itc::TCPListener::value_type,itc::sys::mutex> mInQueue;
+      qtype                                     mInQueue;
       tsl::robin_map<int,WSSPtr>                mConnections;
       itc::cfifo<int32_t>                       mDCQueue;
       
@@ -195,31 +196,38 @@ namespace LAppS
         try{
           if(!mInQueue.empty())
           {
-            auto sockt=std::move(mInQueue.recv());
-            auto current=mkWebSocket(sockt);
-            int fd=current->getfd();
+            std::queue<qtype::value_type> inbound;
+            mInQueue.recv<qtype::SWAP>(inbound);
+            while(!inbound.empty())
+            {
+              auto sockt=inbound.front();
+              inbound.pop();
+              
+              auto current=mkWebSocket(sockt);
+              int fd=current->getfd();
 
-            if(mConnections.size()<mMaxConnections)
-            {
-                itc::getLog()->info(
-                __FILE__,__LINE__,
-                "New inbound connection from %s with fd %d will be added to connection pool of worker %u ",
-                current->getPeerAddress().c_str(),fd,ID
-              );
-              mConnections.emplace(fd,std::move(current));
-              mStats.mConnections=mConnections.size();
-              mEPoll->mod_in(fd);
-              haveConnections.store(true);
-            }
-            else
-            {
-              mShakespeer.sendForbidden(current);
-              itc::getLog()->error(
-                __FILE__,__LINE__,
-                "Too many connections, new connection from %s on fd %d is rejected",
-                current->getPeerAddress().c_str(),fd
-              );
+              if(mConnections.size()<mMaxConnections)
+              {
+                  itc::getLog()->info(
+                  __FILE__,__LINE__,
+                  "New inbound connection from %s with fd %d will be added to connection pool of worker %u ",
+                  current->getPeerAddress().c_str(),fd,ID
+                );
+                mConnections.emplace(fd,std::move(current));
+                mEPoll->mod_in(fd);    
+              }
+              else
+              {
+                mShakespeer.sendForbidden(current);
+                itc::getLog()->error(
+                  __FILE__,__LINE__,
+                  "Too many connections, new connection from %s on fd %d is rejected",
+                  current->getPeerAddress().c_str(),fd
+                );
+              }
             } 
+            mStats.mConnections=mConnections.size();
+            haveConnections.store(mStats.mConnections>0);
           }
         }catch(const std::exception& e)
         {
