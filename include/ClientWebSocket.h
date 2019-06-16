@@ -90,7 +90,6 @@ namespace LAppS
     
     bool                    tls;
     WSClient::State         mState;
-    WSClient::MessageState  mMSGState;
     
     MSGBufferTypeSPtr       mCurrentMessage;
     
@@ -424,7 +423,7 @@ namespace LAppS
     explicit ClientWebSocket(const std::string& uri, const bool _noverifycert=false, const bool _noverifyname=false)
     : itc::ClientSocket(), cursor{0}, TLSConfig{nullptr}, TLSSocket{nullptr}, 
       mMutex(), noverifycert{_noverifycert},noverifyname{_noverifyname},
-      mState{WSClient::State::INIT}, mMSGState{WSClient::MessageState::INIT},
+      mState{WSClient::State::INIT},
       streamProcessor(512)
     {
       if(std::regex_match(uri,WSURI))
@@ -771,7 +770,7 @@ namespace LAppS
           
           if(received > 0)
           {
-            auto state=std::move(streamProcessor.parse(recvBuffer.data(),received,cursor));
+            auto state{streamProcessor.parse(recvBuffer.data(),received,cursor)};
 
             switch(state.directive)
             {
