@@ -81,7 +81,7 @@ namespace LAppS
         itc::getLog()->info(__FILE__,__LINE__,"Shutdown is requested for the instance %u of the service %s",this->getInstanceId(), mContext.getName().c_str());
         mContext.stop();
 
-        while(mContext.isRunning()) asm("pause");
+        while(mContext.isRunning()) itc::sys::sched_yield(10);
 
         itc::getLog()->info(__FILE__,__LINE__,"Instance %u of the service %s is down",this->getInstanceId(), mContext.getName().c_str());
       }
