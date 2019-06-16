@@ -25,16 +25,17 @@
 #  define __BALANCER_H__
 
 #include <TCPListener.h>
+#include <IOWorker.h>
 #include <WSWorkersPool.h>
 #include <atomic>
 #include <memory>
 #include <abstract/Runnable.h>
 #include <ext/tsl/robin_map.h>
+#include <InQueue.h>
 
 namespace LAppS
 {
-  template <bool TLSEnable=true, bool StatsEnable=true> 
-  class Balancer 
+  template <bool TLSEnable=true, bool StatsEnable=true> class Balancer 
   : public ::itc::TCPListener::ViewType
   {
   private:
@@ -69,14 +70,15 @@ namespace LAppS
       throw std::system_error(EINVAL,std::system_category(),"No workers are available");
     }
   public:
+   
     void onUpdate(const ::itc::TCPListener::value_type& data)
     {
-      tsl::robin_map<size_t,IOStats> current_stats;
-      LAppS::WStats::getInstance()->getStats(current_stats);
+      //tsl::robin_map<size_t,IOStats> current_stats;
+      //LAppS::WStats::getInstance()->getStats(current_stats);
       try{
-        size_t choosen=selectWorker(current_stats);
-        auto worker=WorkersPool::getInstance()->get(choosen);
-        worker->getRunnable()->enqueue(data);
+        // size_t choosen=selectWorker(current_stats);
+        auto worker=WorkersPool::getInstance()->next();
+        worker->enqueue(data);
       }catch(const std::exception& e)
       {
         // ignore
