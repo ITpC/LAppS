@@ -26,7 +26,9 @@
 
 #include <memory>
 #include <mutex>
+#include <vector>
 #include <sys/synclock.h>
+#include <InQueue.h>
 #include <IOWorker.h>
 
 namespace LAppS
@@ -34,12 +36,15 @@ namespace LAppS
   template <bool TLSEnable=false, bool StatsEnable=false> class WSWorkersPool
   {
    private:
+    typedef itc::sys::CancelableThread<::abstract::Worker> WorkerThread;
+    typedef std::shared_ptr<WorkerThread> WorkerThreadSPtr;
+    
     mutable itc::sys::mutex           mMutex;
     std::vector<WorkerThreadSPtr>     mWorkers;
     size_t                            mCursor;
 
    public:
-    typedef LAppS::IOWorker<TLSEnable,StatsEnable> WorkerType;
+    typedef ::LAppS::IOWorker<TLSEnable,StatsEnable> WorkerType;
 
     WSWorkersPool():mMutex(),mWorkers(),mCursor(0)
     {
