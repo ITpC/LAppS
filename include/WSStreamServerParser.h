@@ -337,18 +337,18 @@ namespace WSStreamProcessing
           reset();
         case WSStreamProcessing::State::HEADER_1ST_BYTE:
         {
-          auto result=std::move(getHeader1stByte(stream,limit,cursor));
+          auto result{getHeader1stByte(stream,limit,cursor)};
           if(result.directive != WSStreamProcessing::CONTINUE )
           {
-            return std::move(result);
+            return result;
           }
         }
         case WSStreamProcessing::State::HEADER_2DN_BYTE:
         {
-          auto result=std::move(getHeader2ndByte(stream,limit,cursor));
+          auto result{getHeader2ndByte(stream,limit,cursor)};
           if(result.directive != WSStreamProcessing::Directive::CONTINUE)
           {
-            return std::move(result);
+            return result;
           }
         }
         case WSStreamProcessing::State::READ_SHORT_SIZE_0:
@@ -362,10 +362,10 @@ namespace WSStreamProcessing
         case WSStreamProcessing::State::READ_LONG_SIZE_6:
         case WSStreamProcessing::State::READ_LONG_SIZE_7:
         {
-          auto result=std::move(readSIZE(stream,limit,cursor));
+          auto result{readSIZE(stream,limit,cursor)};
           if(result.directive != WSStreamProcessing::Directive::CONTINUE)
           {
-            return std::move(result);
+            return result;
           }
         }
         case WSStreamProcessing::State::READ_MASK_0:
@@ -373,30 +373,30 @@ namespace WSStreamProcessing
         case WSStreamProcessing::State::READ_MASK_2:
         case WSStreamProcessing::State::READ_MASK_3:
         {
-          auto result=std::move(readMASK(stream,limit,cursor));
+          auto result{readMASK(stream,limit,cursor)};
           if(result.directive != WSStreamProcessing::Directive::CONTINUE)
           {
-            return std::move(result);
+            return result;
           }
         }
         case WSStreamProcessing::State::VALIDATE:
         {
-          auto result=std::move(validateHeader());
+          auto result{validateHeader()};
           if(result.directive != WSStreamProcessing::Directive::CONTINUE)
           {
-            return std::move(result);
+            return result;
           }
         }
         case WSStreamProcessing::State::PAYLOAD:
         {
-          auto result=std::move(processPayload(stream,limit,cursor));
+          auto result{processPayload(stream,limit,cursor)};
           if(result.directive != WSStreamProcessing::Directive::CONTINUE)
           {
-            return std::move(result);
+            return result;
           }
         }
         case WSStreamProcessing::State::DONE:
-          return std::move(decideOnDone(stream,limit,cursor));
+          return decideOnDone(stream,limit,cursor);
         default:
           throw std::logic_error("WSStreamParser::parse() - switch case is out of options. Never should have happened. Blame the programmer");
       }

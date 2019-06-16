@@ -132,7 +132,7 @@ namespace LAppS
         }
         retobj->push_back(j);
       }
-      return std::move(retobj);
+      return retobj;
     }
     
     void clear()
@@ -249,7 +249,7 @@ namespace LAppS
       {
         retobj->push_back(std::move(*(instances.second.list())));
       }
-      return std::move(retobj);
+      return retobj;
     }
   };
   using SServiceRegistry=itc::Singleton<ServiceRegistry>;
