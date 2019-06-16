@@ -32,19 +32,20 @@
 #include <sys/mutex.h>
 #include <time.h>
 #include <ext/tsl/robin_map.h>
-#include <tsbqueue.h>
 #include <cfifo.h>
+#include <InQueue.h>
 
 namespace LAppS
 {
-  template <bool TLSEnable=false, bool StatsEnable=false> 
-    class IOWorker :public ::abstract::Worker
+  template <bool TLSEnable=false, bool StatsEnable=false> class IOWorker
+  : public ::abstract::Worker
   {
     public:
       typedef WebSocket<TLSEnable,StatsEnable>        WSType;
       typedef std::shared_ptr<WSType>                 WSSPtr;
       
     private:
+      using qtype=itc::tsbqueue<::itc::TCPListener::value_type,itc::sys::mutex>;
       itc::utils::Bool2Type<TLSEnable>          enableTLS;
       itc::utils::Bool2Type<StatsEnable>        enableStatsUpdate;
       
@@ -55,7 +56,7 @@ namespace LAppS
       LAppS::Shakespeer<TLSEnable,StatsEnable>  mShakespeer;
       SharedEPollType                           mEPoll;
       
-      itc::tsbqueue<::itc::TCPListener::value_type,itc::sys::mutex> mInQueue;
+      qtype                                     mInQueue;
       tsl::robin_map<int,WSSPtr>                mConnections;
       itc::cfifo<int32_t>                       mDCQueue;
       
@@ -120,7 +121,6 @@ namespace LAppS
       pthread_sigmask(SIG_BLOCK, &sigpipe_mask, &saved_mask);
       while(mMayRun)
       {
-        processInbound();
         if(haveDisconnects)
         {
           while(!mDCQueue.empty())
@@ -130,13 +130,15 @@ namespace LAppS
           }
           haveDisconnects.store(false);
         }
+        
+        processInbound();
+        
         if(haveConnections.load())
         {
           try{
             int ret=mEPoll->poll(mEvents,1);
             if(ret > 0)
-            {
-              mStats.mEventQSize=ret;
+            {  
               for(auto i=0;i<ret;++i)
               {
                 if(error_bit(mEvents[i].events))
@@ -149,9 +151,8 @@ namespace LAppS
                   mStats.mInMessageCount++;
                 }
               }
+              //LAppS::WStats::getInstance()->try_update(getID(),mStats);
             }
-            mStats.mInQueueDepth=mInQueue.size();
-            LAppS::WStats::getInstance()->try_update(getID(),mStats);
           }catch(const std::exception& e)
           {
             itc::getLog()->error(__FILE__,__LINE__,"Exception: %s", e.what());
@@ -160,6 +161,7 @@ namespace LAppS
         }
         else
         {
+          processInbound();
           nap.usleep(1000);
         }
       }
@@ -193,9 +195,29 @@ namespace LAppS
       void processInbound()
       {
         try{
-          if(!mInQueue.empty())
+          /*
+          tsl::robin_map<size_t,IOStats> stats;
+          LAppS::WStats::getInstance()->getStats(stats);
+          bool try_recv_new_socket=false;
+          for(const auto& kv: stats)
+          { 
+            if(kv.first != this->getID())
+            {
+              if(kv.second.mConnections > mConnections.size())
+              {
+                try_recv_new_socket=true;
+                break;
+              }
+            }
+          }
+          
+          if(try_recv_new_socket)
           {
-            auto sockt=std::move(mInQueue.recv());
+            
+  */
+          itc::TCPListener::value_type sockt;
+          if(mInQueue.try_recv(sockt))
+          {
             auto current=mkWebSocket(sockt);
             int fd=current->getfd();
 
@@ -207,9 +229,7 @@ namespace LAppS
                 current->getPeerAddress().c_str(),fd,ID
               );
               mConnections.emplace(fd,std::move(current));
-              mStats.mConnections=mConnections.size();
-              mEPoll->mod_in(fd);
-              haveConnections.store(true);
+              mEPoll->mod_in(fd);    
             }
             else
             {
@@ -219,13 +239,15 @@ namespace LAppS
                 "Too many connections, new connection from %s on fd %d is rejected",
                 current->getPeerAddress().c_str(),fd
               );
-            } 
-          }
+            }
+            mStats.mConnections=mConnections.size();
+            haveConnections.store(mStats.mConnections>0);
+//            while(!LAppS::WStats::getInstance()->try_update(getID(),mStats));
+          } 
         }catch(const std::exception& e)
         {
           itc::getLog()->error(__FILE__,__LINE__,"Connection became invalid before handshake. Exception: %s",e.what());
         }
-
       }
       
       void processIO(const int fd)
@@ -301,9 +323,10 @@ namespace LAppS
       
       const std::shared_ptr<WSType> mkWebSocket(const itc::CSocketSPtr& inbound,const itc::utils::Bool2Type<true> tls_is_enabled)
       {
-        //auto tls_server_context=TLS::SharedServerContext::getInstance()->getContext();
+        auto tls_server_context=TLS::SharedServerContext::getInstance()->getContext();
         
-        auto tls_server_context=mTLSServerContext.getContext();
+        //auto tls_server_context=mTLSServerContext.getContext(); // no difference in performance, - waste of resources.
+        
         if(tls_server_context)
           return std::make_shared<WSType>(std::move(inbound),mEPoll,this,mustAutoFragment(),tls_server_context);
         else throw std::system_error(EINVAL,std::system_category(),"TLS ServerContext is NULL");
@@ -311,7 +334,7 @@ namespace LAppS
   };
 }
 
-typedef itc::sys::CancelableThread<abstract::Worker> WorkerThread;
+typedef itc::sys::CancelableThread<::abstract::Worker> WorkerThread;
 typedef std::shared_ptr<WorkerThread> WorkerThreadSPtr;
 
 #endif /* __IOWORKER_H__ */

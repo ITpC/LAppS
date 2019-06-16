@@ -42,9 +42,9 @@ extern "C" {
   
   LUA_API int must_stop(lua_State* L)
   {
-    if(mustStop&&mustStop.load())
+    if(mustStop.load()&&(mustStop.load()->load()))
     {
-      lua_pushboolean(L,mustStop.load()->load());
+      lua_pushboolean(L,true);
       return 1;
     }
     lua_pushboolean(L,false);
@@ -149,7 +149,7 @@ namespace LAppS
     
     void run()
     {
-      mustStop=&mMustStop;
+      mustStop.store(&mMustStop);
       lua_getglobal(mLState, this->getName().c_str());
       lua_getfield(mLState, -1, "run");
       int ret = lua_pcall(mLState, 0, 0, 0);
@@ -172,7 +172,7 @@ namespace LAppS
     
     const bool isRunning() const
     {
-      return !(mMustStop.load()&&mCanStop.load());
+      return !mCanStop.load();
     }
     
     void shutdown()
@@ -180,15 +180,12 @@ namespace LAppS
       if(isRunning())
       {
         this->stop();
-        while(!mCanStop.load())
-        {
-          asm("pause");
-        }
+        while(isRunning())
+          itc::sys::sched_yield(1000);
       }
     }
     ~LuaStandaloneServiceContext() noexcept
     {
-      if(!isRunning())
         this->shutdown();
     }
   };

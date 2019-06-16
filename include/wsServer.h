@@ -51,11 +51,11 @@
 #include <Config.h>
 #include <TLSServerContext.h>
 #include <abstract/Worker.h>
-#include <IOWorker.h>
-#include <Balancer.h>
 #include <Deployer.h>
 #include <NetworkACL.h>
 #include <WSWorkersPool.h>
+
+#include <Balancer.h>
 
 // libressl
 #include <tls.h>
@@ -77,7 +77,6 @@ namespace LAppS
     itc::utils::Bool2Type<StatsEnable>  enableStatsUpdate;
     float                               mConnectionWeight;
     size_t                              mWorkers;
-    IOStats                             mAllStats;
     std::shared_ptr<LAppS::NetworkACL>  mNACL;
     DeployerThread                      mDeployer;
     BalacersPool                        mBalancersPool;
@@ -161,8 +160,7 @@ namespace LAppS
     wsServer()
     : enableTLS(), enableStatsUpdate(), mConnectionWeight(
         LAppSConfig::getInstance()->getWSConfig()["connection_weight"]
-      ), mWorkers(1), mAllStats{0,0,0,0,0,0,0,0}, mDeployer(std::make_shared<DeployerType>())//,
-//      mBalancer(std::make_shared<Balancer<TLSEnable, StatsEnable>>(mConnectionWeight))
+      ), mWorkers(1), mDeployer{std::make_shared<DeployerType>()}
     {
         itc::getLog()->info(__FILE__,__LINE__,"Starting WS Server");
 
