@@ -286,6 +286,11 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   {
     if(mState != State::CLOSED)
     {
+      if(mMutex.busy())
+      {
+        mEPoll->mod_in(fd);
+        return 0;
+      }
       if(mNoInput.load())
       {
         mEPoll->mod_both(fd);
