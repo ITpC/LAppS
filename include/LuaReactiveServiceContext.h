@@ -313,12 +313,12 @@ namespace LAppS
       
       if(require(this->getName()))
       {
-        itc::getLog()->info(__FILE__,__LINE__,"Lua module %s is registered",this->getName().c_str());
+        itc::getLog()->info(__FILE__,__LINE__,"Lua service [%s] is registered",this->getName().c_str());
         if(isServiceModuleValid())
         {
           itc::getLog()->info(
             __FILE__,__LINE__,
-            "Lua module %s is a valid application (e.a. provides required methods, though there is no warranty it works properly)",
+            "Lua service [%s] is a valid application (e.a. provides required methods, though there is no warranty it works properly)",
             this->getName().c_str()
           );
           try {
@@ -335,7 +335,7 @@ namespace LAppS
         }
         else
         {
-          itc::getLog()->error(__FILE__,__LINE__,"Lua module %s is not a valid LAppS application",this->getName().c_str());
+          itc::getLog()->error(__FILE__,__LINE__,"Lua service [%s] is not a valid LAppS application",this->getName().c_str());
           throw std::logic_error("Invalid application "+this->getName());
         }
       }
@@ -344,11 +344,12 @@ namespace LAppS
     
     void shutdown()
     {
+      mustStop.store(true);
       if(mLState)
       {
         try{
           shutdownService();
-          itc::getLog()->info(__FILE__,__LINE__,"Service-module %s is down",this->getName().c_str());
+          itc::getLog()->info(__FILE__,__LINE__,"Service-module [%] is down",this->getName().c_str());
         }catch(const std::exception& e){
           itc::getLog()->error(__FILE__,__LINE__,"Can't stop Service-module [%s], exception: %s",this->getName().c_str(),e.what());
         }

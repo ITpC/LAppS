@@ -155,7 +155,7 @@ extern "C" {
             auto udjsptr=static_cast<UDJSPTR**>(lua_newuserdata(L,sizeof(UDJSPTR*)));
             (*udjsptr)=new UDJSPTR(SHARED_PTR,new JSPTR());
             
-            if(queue->tryRecv(*((*udjsptr)->ptr)))
+            if(queue->try_recv(*((*udjsptr)->ptr)))
             {
               luaL_getmetatable(L, "nljson");
               lua_pushcfunction(L, destroy_nljson_object);
@@ -207,7 +207,7 @@ extern "C" {
           try{
             auto udjsptr=static_cast<UDJSPTR**>(lua_newuserdata(L,sizeof(UDJSPTR*)));
             (*udjsptr)=new UDJSPTR(SHARED_PTR,new JSPTR());
-            (*((*udjsptr)->ptr))=std::move(queue->recv());
+            (*((*udjsptr)->ptr))=queue->recv();
             
               luaL_getmetatable(L, "nljson");
               lua_pushcfunction(L, destroy_nljson_object);
