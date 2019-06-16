@@ -94,6 +94,7 @@ namespace LAppS
       if(mMayRun.load())
       {
         this->shutdown();
+        while(!isDown());
       }
     }
       
@@ -176,7 +177,6 @@ namespace LAppS
       
       while(mMayRun.load())
       { 
-        
         std::queue<AppInEvent> events;
         try{
           mEvents.recv<qtype::SWAP>(events);
@@ -217,6 +217,7 @@ namespace LAppS
                 const bool exec_result=mContext.onMessage(event);
                 if(!exec_result)
                 {
+                  itc::getLog()->info(__FILE__,__LINE__,"The context for instance [%u] of service [%s] is down.",getInstanceId(), this->getName().c_str());
                   mMayRun.store(false);
                 }
               }
