@@ -36,7 +36,7 @@ extern "C" {
   
   
   static thread_local LAppS::WSClientPool WSCPool;
-  static thread_local std::vector<epoll_event> events(1000);
+  static thread_local std::vector<epoll_event> events(768);
   
   static const bool is_error_event(const uint32_t event)
   {
@@ -72,7 +72,7 @@ extern "C" {
     }
   }
   
-  static void callOnError(lua_State *L, const int32_t fd, const std::string& message)
+  static void callOnError(lua_State *L, const int32_t fd, std::string_view message)
   {
     clearStack(L);
     luaL_getmetatable(L,"cws");
@@ -133,6 +133,7 @@ extern "C" {
           WSCPool.remove(ws->getfd());
           return false;
         }
+      break;
       case WebSocketProtocol::BINARY:
       {
         //onmessage
