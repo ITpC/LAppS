@@ -40,7 +40,6 @@
       <itemPath>include/Broadcasts.h</itemPath>
       <itemPath>include/ClientWebSocket.h</itemPath>
       <itemPath>include/Config.h</itemPath>
-      <itemPath>include/ConnectionsInQueue.h</itemPath>
       <itemPath>include/ContextTypes.h</itemPath>
       <itemPath>include/Deployer.h</itemPath>
       <itemPath>include/Env.h</itemPath>
@@ -74,6 +73,7 @@
       <itemPath>include/WorkerStats.h</itemPath>
       <itemPath>include/ePoll.h</itemPath>
       <itemPath>include/ipcalc.h</itemPath>
+      <itemPath>include/wolfSSLLib.h</itemPath>
       <itemPath>include/wsServer.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
@@ -1031,6 +1031,30 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -1053,8 +1077,6 @@
       <item path="include/ClientWebSocket.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/ConnectionsInQueue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ContextTypes.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -1180,6 +1202,8 @@
       <item path="include/modules/time_now.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/modules/wsSend.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/wolfSSLLib.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -2101,6 +2125,30 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -2123,8 +2171,6 @@
       <item path="include/ClientWebSocket.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/ConnectionsInQueue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ContextTypes.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -2251,6 +2297,8 @@
       </item>
       <item path="include/modules/wsSend.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/wolfSSLLib.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/getLog.cpp" ex="false" tool="1" flavor2="9">
@@ -2279,7 +2327,7 @@
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
           </incDir>
-          <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -mavx2 -msse2avx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
+          <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -mavx2 -msse2avx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer -Wcpp</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>LAPPS_TLS_ENABLE</Elem>
@@ -2288,6 +2336,7 @@
             <Elem>MAX_BUFF_SIZE=512</Elem>
             <Elem>STATS_ENABLE</Elem>
             <Elem>TSAFE_LOG=1</Elem>
+            <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
         </ccTool>
         <linkerTool>
@@ -2335,7 +2384,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -ltls -lcrypto -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
+          <commandLine>-lcryptopp -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lwolfssl</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -3171,6 +3220,30 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -3193,8 +3266,6 @@
       <item path="include/ClientWebSocket.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/ConnectionsInQueue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ContextTypes.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -3320,6 +3391,8 @@
       <item path="include/modules/time_now.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/modules/wsSend.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/wolfSSLLib.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -4240,6 +4313,30 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -4262,8 +4359,6 @@
       <item path="include/ClientWebSocket.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/ConnectionsInQueue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ContextTypes.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -4389,6 +4484,8 @@
       <item path="include/modules/time_now.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/modules/wsSend.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/wolfSSLLib.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -5308,6 +5405,30 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -5330,8 +5451,6 @@
       <item path="include/ClientWebSocket.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/ConnectionsInQueue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ContextTypes.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -5457,6 +5576,8 @@
       <item path="include/modules/time_now.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/modules/wsSend.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/wolfSSLLib.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -6377,6 +6498,30 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -6399,8 +6544,6 @@
       <item path="include/ClientWebSocket.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/ConnectionsInQueue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ContextTypes.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -6526,6 +6669,8 @@
       <item path="include/modules/time_now.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/modules/wsSend.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/wolfSSLLib.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -7445,6 +7590,30 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -7467,8 +7636,6 @@
       <item path="include/ClientWebSocket.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/ConnectionsInQueue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ContextTypes.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -7594,6 +7761,8 @@
       <item path="include/modules/time_now.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/modules/wsSend.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/wolfSSLLib.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -8513,6 +8682,30 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -8535,8 +8728,6 @@
       <item path="include/ClientWebSocket.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/ConnectionsInQueue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ContextTypes.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -8662,6 +8853,8 @@
       <item path="include/modules/time_now.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/modules/wsSend.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/wolfSSLLib.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -9583,6 +9776,30 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -9605,8 +9822,6 @@
       <item path="include/ClientWebSocket.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/ConnectionsInQueue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ContextTypes.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -9732,6 +9947,8 @@
       <item path="include/modules/time_now.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/modules/wsSend.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/wolfSSLLib.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -10652,6 +10869,30 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -10674,8 +10915,6 @@
       <item path="include/ClientWebSocket.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/ConnectionsInQueue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ContextTypes.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -10801,6 +11040,8 @@
       <item path="include/modules/time_now.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/modules/wsSend.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/wolfSSLLib.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -11720,6 +11961,30 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -11742,8 +12007,6 @@
       <item path="include/ClientWebSocket.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/ConnectionsInQueue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ContextTypes.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -11869,6 +12132,8 @@
       <item path="include/modules/time_now.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/modules/wsSend.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/wolfSSLLib.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
