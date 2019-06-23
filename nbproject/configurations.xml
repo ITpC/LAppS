@@ -143,12 +143,16 @@
           <commandLine>-pipe -g -std=c++17 -Wall -pthread -O2 -fPIC -march=native -mtune=native -mfpmath=sse -mavx -msse2avx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fno-omit-frame-pointer</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
+            <Elem>DTFM_TIMING_RESISTANT</Elem>
+            <Elem>ECC_TIMING_RESISTANT</Elem>
             <Elem>LAPPS_TLS_ENABLE</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
             <Elem>STATS_ENABLE</Elem>
             <Elem>TSAFE_LOG=1</Elem>
+            <Elem>WC_RSA_BLINDING</Elem>
+            <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
         </ccTool>
         <linkerTool>
@@ -195,7 +199,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -ltls -lcrypto -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
+          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -233,6 +237,12 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -1236,12 +1246,16 @@
           <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
+            <Elem>ECC_TIMING_RESISTANT</Elem>
             <Elem>LAPPS_TLS_ENABLE</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
             <Elem>STATS_ENABLE</Elem>
+            <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
+            <Elem>WC_RSA_BLINDING</Elem>
+            <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
         </ccTool>
         <linkerTool>
@@ -1289,7 +1303,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -ltls -lcrypto -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
+          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -1327,6 +1341,12 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -2327,15 +2347,18 @@
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
           </incDir>
-          <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -mavx2 -msse2avx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer -Wcpp</commandLine>
+          <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -mavx2 -msse2avx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
+            <Elem>ECC_TIMING_RESISTANT</Elem>
             <Elem>LAPPS_TLS_ENABLE</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
             <Elem>STATS_ENABLE</Elem>
+            <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
+            <Elem>WC_RSA_BLINDING</Elem>
             <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
         </ccTool>
@@ -2422,6 +2445,12 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -3425,11 +3454,15 @@
           <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
+            <Elem>ECC_TIMING_RESISTANT</Elem>
             <Elem>LAPPS_TLS_ENABLE</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
+            <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
+            <Elem>WC_RSA_BLINDING</Elem>
+            <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
         </ccTool>
         <linkerTool>
@@ -3477,7 +3510,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -ltls -lcrypto -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
+          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -3515,6 +3548,12 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -4518,10 +4557,14 @@
           <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
+            <Elem>ECC_TIMING_RESISTANT</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
+            <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
+            <Elem>WC_RSA_BLINDING</Elem>
+            <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
         </ccTool>
         <linkerTool>
@@ -4569,7 +4612,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -ltls -lcrypto -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
+          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -4607,6 +4650,12 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -5610,11 +5659,15 @@
           <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -mavx2 -msse2avx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
+            <Elem>ECC_TIMING_RESISTANT</Elem>
             <Elem>LAPPS_TLS_ENABLE</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
+            <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
+            <Elem>WC_RSA_BLINDING</Elem>
+            <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
         </ccTool>
         <linkerTool>
@@ -5662,7 +5715,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -ltls -lcrypto -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
+          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -5700,6 +5753,12 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -6703,10 +6762,14 @@
           <commandLine>-pipe -std=c++17 -Wall -pthread -O3 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -mavx2 -msse2avx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
+            <Elem>ECC_TIMING_RESISTANT</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
+            <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
+            <Elem>WC_RSA_BLINDING</Elem>
+            <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
         </ccTool>
         <linkerTool>
@@ -6754,7 +6817,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -ltls -lcrypto -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
+          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -6792,6 +6855,12 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -7795,10 +7864,14 @@
           <commandLine>-g -pipe -std=c++17 -Wall -pthread -O3 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -mavx2 -msse2avx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
+            <Elem>ECC_TIMING_RESISTANT</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
+            <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
+            <Elem>WC_RSA_BLINDING</Elem>
+            <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
         </ccTool>
         <linkerTool>
@@ -7846,7 +7919,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -ltls -lcrypto -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
+          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -7884,6 +7957,12 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -8887,12 +8966,16 @@
           <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
+            <Elem>ECC_TIMING_RESISTANT</Elem>
             <Elem>LAPPS_TLS_ENABLE</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
             <Elem>STATS_ENABLE</Elem>
+            <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
+            <Elem>WC_RSA_BLINDING</Elem>
+            <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
         </ccTool>
         <linkerTool>
@@ -8940,7 +9023,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -ltls -lcrypto -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
+          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -8978,6 +9061,12 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -9981,11 +10070,15 @@
           <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
+            <Elem>ECC_TIMING_RESISTANT</Elem>
             <Elem>LAPPS_TLS_ENABLE</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
+            <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
+            <Elem>WC_RSA_BLINDING</Elem>
+            <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
         </ccTool>
         <linkerTool>
@@ -10033,7 +10126,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -ltls -lcrypto -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
+          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -10071,6 +10164,12 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -11074,10 +11173,14 @@
           <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
+            <Elem>ECC_TIMING_RESISTANT</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
+            <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
+            <Elem>WC_RSA_BLINDING</Elem>
+            <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
         </ccTool>
         <linkerTool>
@@ -11125,7 +11228,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -ltls -lcrypto -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
+          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -11163,6 +11266,12 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
