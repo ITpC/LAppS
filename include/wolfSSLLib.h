@@ -21,8 +21,9 @@
  **/
 
 
-#ifndef __WOLFSSLCONTEXT_H__
-#  define __WOLFSSLCONTEXT_H__
+#ifndef __WOLFSSLLIB_H__
+#  define __WOLFSSLLIB_H__
+
 #include <Val2Type.h>
 #include <wolfssl/ssl.h>
 #include <atomic>
@@ -32,7 +33,9 @@
 
 enum TLSContextType : bool { TLS_SERVER, TLS_CLIENT };
 
-class wolfSSLLib
+static std::atomic<bool> wolfSSLInitialized{false};
+
+template <TLSContextType CONTEXT_TYPE> class wolfSSLLib
 {
 public:
  class wolfSSLContext
@@ -61,12 +64,18 @@ public:
  
  class wolfSSLServerContext : public wolfSSLContext
  {
-  private:
+ public:
    explicit wolfSSLServerContext():wolfSSLContext(wolfSSL_CTX_new(wolfTLSv1_3_server_method()))
    { 
-     
+     std::string ca{LAppSConfig::getInstance()->getWSConfig()["tls_certificates"]["ca"]};
      std::string kfile{LAppSConfig::getInstance()->getWSConfig()["tls_certificates"]["key"]};
      std::string cert{LAppSConfig::getInstance()->getWSConfig()["tls_certificates"]["cert"]};
+     
+     
+     if(wolfSSL_CTX_load_verify_locations(this->raw_context(),ca.c_str(),nullptr) != SSL_SUCCESS)
+     {
+       throw std::system_error(ENOENT,std::system_category(),ca);
+     }
      
      if(wolfSSL_CTX_use_PrivateKey_file(this->raw_context(),kfile.c_str(), SSL_FILETYPE_PEM) == SSL_SUCCESS)
      {
@@ -86,17 +95,20 @@ public:
  
  class wolfSSLClientContext : public wolfSSLContext
  {
-  private:
+ public:
    explicit wolfSSLClientContext():wolfSSLContext({wolfSSL_CTX_new(wolfTLSv1_3_client_method())})
    { 
+     std::string ca{LAppSConfig::getInstance()->getWSConfig()["tls_certificates"]["ca"]};
+     
+     if(wolfSSL_CTX_load_verify_locations(this->raw_context(),ca.c_str(),nullptr) != SSL_SUCCESS)
+     {
+       throw std::system_error(ENOENT,std::system_category(),ca);
+     }
    }
    wolfSSLClientContext(wolfSSLClientContext&)=delete;
-   wolfSSLClientContext(const wolfSSLClientContext&)=delete;
-   
+   wolfSSLClientContext(const wolfSSLClientContext&)=delete;   
  };
 private:
-  static std::atomic<bool> initialized{false};
-  
   std::shared_ptr<wolfSSLContext> getContext(itc::utils::Bool2Type<TLS_SERVER> fictive)
   {
     return std::make_shared<wolfSSLServerContext>();
@@ -112,7 +124,7 @@ public:
   explicit wolfSSLLib()
   {
     bool test=false;
-    if(initialized.compare_exchange_strong(test,true))
+    if(wolfSSLInitialized.compare_exchange_strong(test,true))
     {
       wolfSSL_Init();
     }
@@ -123,23 +135,23 @@ public:
   ~wolfSSLLib()
   {
     bool test=true;
-    if(initialized.compare_exchange_strong(test,false))
+    if(wolfSSLInitialized.compare_exchange_strong(test,false))
     {
       wolfSSL_Cleanup();
       
     }
   }
 
-  auto getContext(const TLSContextType& _ctype)
+  constexpr auto getContext()
   {
-    itc::utils::Bool2Type<_ctype> context_type;
-    return this->getContext(context_type);
+    return this->getContext(itc::utils::Bool2Type<CONTEXT_TYPE>());
   }
   
 };
 
+typedef itc::Singleton<wolfSSLLib<TLS_SERVER>> wolfSSLServer;
+typedef itc::Singleton<wolfSSLLib<TLS_CLIENT>> wolfSSLClient;
 
 
-
-#endif /* __WOLFSSLCONTEXT_H__ */
+#endif /* __WOLFSSLLIB_H__ */
 
