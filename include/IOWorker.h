@@ -51,6 +51,7 @@ namespace LAppS
       
       std::atomic<bool>                         mMayRun;
       std::atomic<bool>                         mCanStop;
+      size_t                                    mMaxEPollWait;
       LAppS::IOStats                            mStats;
       
       LAppS::Shakespeer<TLSEnable,StatsEnable>  mShakespeer;
@@ -83,8 +84,10 @@ namespace LAppS
      
     explicit IOWorker(const size_t id, const size_t maxConnections,const bool auto_fragment)
     : Worker(id,maxConnections,auto_fragment), enableTLS(),  enableStatsUpdate(), 
-      mMayRun{true}, mCanStop{false}, mShakespeer(), mEPoll(std::make_shared<ePoll>()),
-      mInQueue(),mConnections(), mDCQueue(20), mEvents(1000),
+      mMayRun{true}, mCanStop{false}, mMaxEPollWait{LAppSConfig::getInstance()->getWSConfig()["workers"]["max_poll_wait_ms"]},
+      mShakespeer(), mEPoll(std::make_shared<ePoll>()),
+      mInQueue(),mConnections(), mDCQueue(20), 
+      mEvents{LAppSConfig::getInstance()->getWSConfig()["workers"]["max_poll_events"]},
       haveConnections{false},haveDisconnects{false},mTLSServerContext()
     {
       mConnections.clear();
@@ -136,7 +139,7 @@ namespace LAppS
         if(haveConnections.load())
         {
           try{
-            int ret=mEPoll->poll(mEvents,1);
+            int ret=mEPoll->poll(mEvents,mMaxEPollWait);
             if(ret > 0)
             {  
               for(auto i=0;i<ret;++i)
@@ -258,6 +261,21 @@ namespace LAppS
           auto current=it->second;
           switch(current->getState())
           {
+            case WSType::MESSAGING:
+              try {
+                int ret=current->handleInput();
+                if(ret == -1)
+                {
+                  itc::getLog()->info(__FILE__,__LINE__,"Disconnected: %s",current->getPeerAddress().c_str());
+                  deleteConnection(fd);
+                }
+              }
+              catch(const std::exception& e)
+              {
+                itc::getLog()->info(__FILE__,__LINE__,"Application is going down [Exception: %s], socket with fd %d must be disconnected ", e.what(),current->getfd());
+                deleteConnection(fd);
+              }
+            break;
             case WSType::HANDSHAKE:
                 mShakespeer.handshake(current,*LAppS::SServiceRegistry::getInstance());
                 if(current->getState() !=WSType::MESSAGING)
@@ -265,22 +283,6 @@ namespace LAppS
                   itc::getLog()->error(__FILE__,__LINE__,"Handshake with the peer %s has been failed. Disconnecting.", current->getPeerAddress().c_str());
                   deleteConnection(fd);
                 }
-            break;
-            case WSType::MESSAGING:
-                  try {
-                    int ret=current->handleInput();
-                    if(ret == -1)
-                    {
-                      itc::getLog()->info(__FILE__,__LINE__,"Disconnected: %s",current->getPeerAddress().c_str());
-                      deleteConnection(fd);
-                    }
-                  }
-                  catch(const std::exception& e)
-                  {
-                    itc::getLog()->info(__FILE__,__LINE__,"Application is going down [Exception: %s], socket with fd %d must be disconnected ", e.what(),current->getfd());
-                    deleteConnection(fd);
-                  }
-
             break;
             case WSType::CLOSED:
                 deleteConnection(fd);
