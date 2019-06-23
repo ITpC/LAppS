@@ -40,10 +40,10 @@ extern "C" {
 #include <lualib.h>
 #include <lauxlib.h>
 #include <stdio.h>
-#include <map>
+#include <ext/tsl/robin_map.h>
 }
 
-static thread_local std::map<size_t,std::shared_ptr<LAppS::BCastType::BCastValueType>> broadcasts;
+static thread_local tsl::robin_map<size_t,std::shared_ptr<LAppS::BCastType::BCastValueType>> broadcasts;
 
 
 const bool isLAppSBcastMessageValid(const json& msg)
