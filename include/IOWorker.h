@@ -35,6 +35,8 @@
 #include <cfifo.h>
 #include <InQueue.h>
 
+#include <wolfSSLLib.h>
+
 namespace LAppS
 {
   template <bool TLSEnable=false, bool StatsEnable=false> class IOWorker
@@ -46,6 +48,8 @@ namespace LAppS
       
     private:
       using qtype=itc::tsbqueue<::itc::TCPListener::value_type,itc::sys::mutex>;
+      using TLSContextType=std::shared_ptr<wolfSSLLib<TLS_SERVER>::wolfSSLContext>;
+      
       itc::utils::Bool2Type<TLSEnable>          enableTLS;
       itc::utils::Bool2Type<StatsEnable>        enableStatsUpdate;
       
@@ -68,7 +72,7 @@ namespace LAppS
       
       itc::sys::Nap                             nap;
       
-      TLS::ServerContext                        mTLSServerContext;
+      TLSContextType                            mTLSContext;
       
       
       bool error_bit(const uint32_t event) const
@@ -88,7 +92,7 @@ namespace LAppS
       mShakespeer(), mEPoll(std::make_shared<ePoll>()),
       mInQueue(),mConnections(), mDCQueue(20), 
       mEvents{LAppSConfig::getInstance()->getWSConfig()["workers"]["max_poll_events"]},
-      haveConnections{false},haveDisconnects{false},mTLSServerContext()
+      haveConnections{false},haveDisconnects{false},mTLSContext(wolfSSLServer::getInstance()->getContext())
     {
       mConnections.clear();
       LAppS::WStats::getInstance()->add_slot(getID());
@@ -325,9 +329,9 @@ namespace LAppS
       
       const std::shared_ptr<WSType> mkWebSocket(const itc::CSocketSPtr& inbound,const itc::utils::Bool2Type<true> tls_is_enabled)
       {
-        auto tls_server_context=TLS::SharedServerContext::getInstance()->getContext();
+        //auto tls_server_context=TLS::SharedServerContext::getInstance()->getContext();
         
-        //auto tls_server_context=mTLSServerContext.getContext(); // no difference in performance, - waste of resources.
+        auto tls_server_context=mTLSContext->raw_context();
         
         if(tls_server_context)
           return std::make_shared<WSType>(std::move(inbound),mEPoll,this,mustAutoFragment(),tls_server_context);

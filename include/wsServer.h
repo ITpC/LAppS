@@ -49,7 +49,7 @@
 // This app headers
 
 #include <Config.h>
-#include <TLSServerContext.h>
+
 #include <abstract/Worker.h>
 #include <Deployer.h>
 #include <NetworkACL.h>
@@ -57,8 +57,8 @@
 
 #include <Balancer.h>
 
-// libressl
-#include <tls.h>
+//wolfSSL
+#include <wolfSSLLib.h>
 
 
 namespace LAppS
@@ -175,11 +175,13 @@ namespace LAppS
          throw std::system_error(EINVAL,std::system_category(),"WS Server is build without TLS support, disable tls option in config to start LAppS (insecure)");
         else if(is_tls_enabled)
         {
+          /*
           auto tls_server_context=TLS::SharedServerContext::getInstance()->getContext();
           if(tls_server_context == nullptr)
           {
             throw std::logic_error("Can't continue, TLS Server Context is NULL");
           }
+          */
         }
 
         auto found=LAppSConfig::getInstance()->getWSConfig().find("workers");

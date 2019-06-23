@@ -35,8 +35,6 @@
 #include <sys/mutex.h>
 #include <sys/synclock.h>
 
-#include <tls.h>
-
 #include <iostream>
 
 // crypto++
@@ -53,7 +51,15 @@
 #include <WSEvent.h>
 #include <WSStreamClientParser.h>
 
-#include "modules/nljson.h"
+#include <modules/nljson.h>
+
+// wolfSSL
+#include <wolfSSLLib.h>
+
+#define logWOLFSSLError(x,y)\
+      char buffer[80];\
+      auto err=wolfSSL_get_error(TLSSocket,x);\
+      itc::getLog()->error(__FILE__,__LINE__,y"%s", wolfSSL_ERR_error_string(err,buffer));\
 
 namespace LAppS
 {
@@ -79,9 +85,10 @@ namespace LAppS
   class ClientWebSocket: public itc::ClientSocket
   {
    private:
+    using TLSClientContext=std::shared_ptr<wolfSSLLib<TLS_CLIENT>::wolfSSLContext>;
     size_t                  cursor;
-    struct tls_config*      TLSConfig;
-    struct tls*             TLSSocket;
+    TLSClientContext        TLSContext;
+    WOLFSSL*                TLSSocket;
     
     itc::sys::mutex         mMutex;
     
@@ -97,35 +104,6 @@ namespace LAppS
     
     WSStreamProcessing::WSStreamClientParser  streamProcessor;
     
-    
-    void setupTLS()
-    {
-      if(tls_init() != 0)
-        throw std::system_error(ECANCELED,std::system_category(),"tls_init() has failed");
-      
-      if((TLSConfig=tls_config_new()) == nullptr)
-        throw std::system_error(ECANCELED,std::system_category(),"tls_config_new() has failed");
-      
-      tls_config_set_protocols(TLSConfig,TLS_PROTOCOL_TLSv1_2);
-      
-      tls_config_prefer_ciphers_server(TLSConfig);
-      
-      if(noverifycert)
-      {
-        tls_config_insecure_noverifycert(TLSConfig);
-      }
-      
-      if(noverifyname)
-      {
-        tls_config_insecure_noverifyname(TLSConfig);
-      }
-      
-      if((TLSSocket=tls_client())==nullptr)
-        throw std::system_error(ECANCELED,std::system_category(),"tls_client() has failed");
-      
-      tls_configure(TLSSocket, TLSConfig);
-    }
-    
     void terminate()
     {
       if(mState != WSClient::State::CLOSED)
@@ -137,13 +115,8 @@ namespace LAppS
 
         if(tls)
         {
-          int ret=0;
-          do
-          {
-            ret=tls_close(TLSSocket);
-          }while((ret == TLS_WANT_POLLIN)||(ret == TLS_WANT_POLLOUT));
-
-          tls_free(TLSSocket);
+          wolfSSL_shutdown(TLSSocket);
+          wolfSSL_free(TLSSocket);
           TLSSocket=nullptr;
         }      
         mState=WSClient::State::CLOSED;
@@ -177,17 +150,16 @@ namespace LAppS
         size_t outCursor=0;
         do
         {
-          const int result=tls_write(TLSSocket,buff.data()+outCursor,buff.length()-outCursor);
-
-          if((result == TLS_WANT_POLLIN) || (result == TLS_WANT_POLLOUT))
-            continue;
+          const int result=wolfSSL_write(TLSSocket,buff.data()+outCursor,buff.length()-outCursor);
 
           if(result == -1)
           {
-            itc::getLog()->error(__FILE__,__LINE__,"force_send(withTLS): %s",tls_error(TLSSocket));
+            logWOLFSSLError(result,"ClientWebSocket::force_send(withTLS): ");
             return -1;
           }
+          
           outCursor+=result;
+          
         }while(outCursor!=buff.length());
 
         return outCursor;
@@ -213,7 +185,7 @@ namespace LAppS
       } while(outCursor != buff.size());
       return outCursor;
     }
-
+    
     const int force_send(const std::vector<uint8_t>& buff,const itc::utils::Bool2Type<true> withTLS)
     {
       if(TLSSocket)
@@ -221,14 +193,11 @@ namespace LAppS
         size_t outCursor=0;
         do
         {
-          const int result=tls_write(TLSSocket,buff.data()+outCursor,buff.size()-outCursor);
-
-          if((result == TLS_WANT_POLLIN) || (result == TLS_WANT_POLLOUT))
-            continue;
+          const int result=wolfSSL_write(TLSSocket,buff.data()+outCursor,buff.size()-outCursor);
 
           if(result == -1)
           {
-            itc::getLog()->error(__FILE__,__LINE__,"force_send(withTLS): %s",tls_error(TLSSocket));
+            logWOLFSSLError(result,"ClientWebSocket::force_send(withTLS): ");
             return -1;
           }
           outCursor+=result;
@@ -263,16 +232,14 @@ namespace LAppS
     {
       if(TLSSocket)
       {
-        int ret=0;
-        do{
-          ret=tls_read(TLSSocket,buff.data(),buff.size());
+        int ret=wolfSSL_read(TLSSocket,buff.data(),buff.size());
           
-          if(ret == -1)
-          {
-            itc::getLog()->error(__FILE__,__LINE__,"force_recv(withTLS): %s",tls_error(TLSSocket));
-            return -1;
-          }
-        }while((ret == TLS_WANT_POLLIN) || (ret == TLS_WANT_POLLOUT));
+        if(ret <= 0)
+        {
+          logWOLFSSLError(ret,"ClientWebSocket::force_recv(withTLS): ");
+          return -1;
+        }
+        
         return ret;
       }
       return -1;
@@ -421,7 +388,7 @@ namespace LAppS
    public:
     
     explicit ClientWebSocket(const std::string& uri, const bool _noverifycert=false, const bool _noverifyname=false)
-    : itc::ClientSocket(), cursor{0}, TLSConfig{nullptr}, TLSSocket{nullptr}, 
+    : itc::ClientSocket(), cursor{0}, TLSContext(wolfSSLClient::getInstance()->getContext()), TLSSocket{nullptr}, 
       mMutex(), noverifycert{_noverifycert},noverifyname{_noverifyname},
       mState{WSClient::State::INIT},
       streamProcessor(512)
@@ -505,13 +472,16 @@ namespace LAppS
         if(tls)
         {
           if(port==0) port=443;
-          setupTLS();
         
           this->open(hostname,port);
-
-          if(tls_connect_socket(TLSSocket,this->getfd(),hostname.c_str()) < 0)
+          
+          TLSSocket=wolfSSL_new(TLSContext->raw_context());
+          
+          if( TLSSocket == nullptr)
           {
-            throw std::system_error(EBADE,std::system_category(),tls_error(TLSSocket));
+            throw std::system_error(errno,std::system_category(),"TLS: can't create new WOLFSSL* object");
+          }else{
+            wolfSSL_set_fd(TLSSocket,this->getfd());
           }
         }else{
           if(port==0) port=80;
@@ -595,7 +565,7 @@ namespace LAppS
       out.push_back(static_cast<uint8_t>((beCode<<8)>>8)^0);
       out.push_back(static_cast<uint8_t>(beCode>>8)^0);
       force_send(out);
-      mState=WSClient::State::CLOSED;
+      terminate();
     }
     
     
