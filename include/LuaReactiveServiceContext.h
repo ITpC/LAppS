@@ -349,7 +349,7 @@ namespace LAppS
       {
         try{
           shutdownService();
-          itc::getLog()->info(__FILE__,__LINE__,"Service-module [%] is down",this->getName().c_str());
+          itc::getLog()->info(__FILE__,__LINE__,"Service-module [%s] is down",this->getName().c_str());
         }catch(const std::exception& e){
           itc::getLog()->error(__FILE__,__LINE__,"Can't stop Service-module [%s], exception: %s",this->getName().c_str(),e.what());
         }
