@@ -92,9 +92,6 @@ namespace LAppS
     
     itc::sys::mutex         mMutex;
     
-    bool                    noverifycert;
-    bool                    noverifyname;
-    
     bool                    tls;
     WSClient::State         mState;
     
@@ -389,9 +386,7 @@ namespace LAppS
     
     explicit ClientWebSocket(const std::string& uri, const bool _noverifycert=false, const bool _noverifyname=false)
     : itc::ClientSocket(), cursor{0}, TLSContext(wolfSSLClient::getInstance()->getContext()), TLSSocket{nullptr}, 
-      mMutex(), noverifycert{_noverifycert},noverifyname{_noverifyname},
-      mState{WSClient::State::INIT},
-      streamProcessor(512)
+      mMutex(),mState{WSClient::State::INIT},streamProcessor(512)
     {
       if(std::regex_match(uri,WSURI))
       {
