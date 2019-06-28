@@ -272,7 +272,7 @@ extern "C" {
       lua_pushnil(L);
       std::string message("Can't create socket: ");
       message.append(e.what());
-      lua_pushstring(L,message.c_str());
+      lua_pushlstring(L,message.c_str(),message.size());
       return 2;
     }
     return 0; // relax compiler
