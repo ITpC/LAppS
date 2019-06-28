@@ -255,20 +255,25 @@ extern "C" {
       return 2;
     }
     
-    auto udptr=static_cast<int32_t*>(lua_newuserdata(L,sizeof(int32_t)));
-    std::string uri{lua_tostring(L,argc-1)};
     try
     {
-      (*udptr)=WSCPool.create(std::move(uri));
+      std::string uri{lua_tostring(L,argc-1)};
+      
+      auto wscs=WSCPool.create(std::move(uri));
+      
+      auto udptr=static_cast<int32_t*>(lua_newuserdata(L,sizeof(int32_t)));
+      
+      (*udptr)=wscs;
       
       luaL_getmetatable(L,"cws");
       lua_pushvalue(L,3);
       lua_setfield(L,-2,std::to_string(*udptr).c_str());
       lua_setmetatable(L, -2);
       return 1;
-    }
-    catch(const std::exception& e)
+      
+    }catch(const std::exception& e)
     {
+      lua_pushnil(L);
       lua_pushnil(L);
       std::string message("Can't create socket: ");
       message.append(e.what());
