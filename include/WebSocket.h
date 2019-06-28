@@ -149,6 +149,11 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
         mSocketSPtr->close();
       }
     }
+    if(TLSEnable&&TLSSocket)
+    {
+      wolfSSL_free(TLSSocket);
+      TLSSocket=nullptr;
+    }
   }
   
   void returnBuffer(std::remove_reference<const std::shared_ptr<MSGBufferType>&>::type buffer)
@@ -168,7 +173,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
       
       if(TLSEnable)
       {
-        wolfSSL_shutdown(TLSSocket);
+        wolfSSL_shutdown(TLSSocket); 
         wolfSSL_free(TLSSocket);
         TLSSocket=nullptr;
       }      
