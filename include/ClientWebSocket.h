@@ -113,8 +113,6 @@ namespace LAppS
         if(tls)
         {
           wolfSSL_shutdown(TLSSocket);
-          wolfSSL_free(TLSSocket);
-          TLSSocket=nullptr;
         }      
         mState=WSClient::State::CLOSED;
       }
@@ -534,11 +532,26 @@ namespace LAppS
         // handshake
 
         int ret=force_send(httpUpgradeRequest);
-        if(ret == 0) throw std::system_error(ECONNRESET,std::system_category(),"ClientWebSocket::ClientWebSocket() - error on send, - peer has shutdown connection");
+        
+        if(ret == 0)
+        {
+          if(tls&&TLSSocket)
+          {
+            wolfSSL_free(TLSSocket);
+            TLSSocket=nullptr;
+          }
+          throw std::system_error(ECONNRESET,std::system_category(),"ClientWebSocket::ClientWebSocket() - error on send, - peer has shutdown connection");
+        }
+        
         if(ret>0)
         {
           mState=WSClient::State::HANDSHAKE;
         }else{
+          if(tls&&TLSSocket)
+          {
+            wolfSSL_free(TLSSocket);
+            TLSSocket=nullptr;
+          }
           throw std::system_error(EBADE,std::system_category(),"ClientWebSocket handshake failed on write");
         }
       }
@@ -607,7 +620,7 @@ namespace LAppS
       send(event.message->data(),event.message->size(),WebSocketProtocol::OpCode::PONG);
     }
     
-    ~ClientWebSocket()
+    ~ClientWebSocket() override
     {
       // prevent SIGPIPE on thread calling destructor.
       sigset_t sigsetmask;
@@ -630,6 +643,12 @@ namespace LAppS
           ITCSyncLock sync(mMutex);
           this->close();
         }
+      }
+      
+      if(tls&&TLSSocket)
+      {
+        wolfSSL_free(TLSSocket);
+        TLSSocket=nullptr;
       }
     }
     
