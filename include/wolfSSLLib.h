@@ -64,8 +64,24 @@ public:
  
  class wolfSSLServerContext : public wolfSSLContext
  {
+ private:
+  const size_t getConfig_TLS_server_version()
+  {
+    auto it=LAppSConfig::getInstance()->getWSConfig().find(std::string("tls_server_version"));
+    if(it!=LAppSConfig::getInstance()->getWSConfig().end())
+    {
+      size_t version=it.value();
+      if(version == 3 || version == 4)
+        return version;
+    }
+    return 4;
+  }
  public:
-   explicit wolfSSLServerContext():wolfSSLContext(wolfSSL_CTX_new(wolfTLSv1_3_server_method()))
+   explicit wolfSSLServerContext():wolfSSLContext(
+    getConfig_TLS_server_version() == 3 ? 
+      wolfSSL_CTX_new(wolfTLSv1_2_server_method()) : 
+      wolfSSL_CTX_new(wolfTLSv1_3_server_method())
+   )
    { 
      std::string ca{LAppSConfig::getInstance()->getWSConfig()["tls_certificates"]["ca"]};
      std::string kfile{LAppSConfig::getInstance()->getWSConfig()["tls_certificates"]["key"]};
@@ -95,8 +111,25 @@ public:
  
  class wolfSSLClientContext : public wolfSSLContext
  {
+ private:
+  const size_t getConfig_TLS_client_version()
+  {
+    auto it=LAppSConfig::getInstance()->getWSConfig().find(std::string("tls_client_version"));
+    if(it!=LAppSConfig::getInstance()->getWSConfig().end())
+    {
+      size_t version=it.value();
+      if(version == 3 || version == 4)
+        return version;
+    }
+    return 4;
+  }
  public:
-   explicit wolfSSLClientContext():wolfSSLContext({wolfSSL_CTX_new(wolfTLSv1_3_client_method())})
+   explicit wolfSSLClientContext()
+   : wolfSSLContext(
+     getConfig_TLS_client_version() == 3 ? 
+       wolfSSL_CTX_new(wolfTLSv1_2_client_method()) : 
+       wolfSSL_CTX_new(wolfTLSv1_3_client_method())
+   )
    { 
      std::string ca{LAppSConfig::getInstance()->getWSConfig()["tls_certificates"]["ca"]};
      
