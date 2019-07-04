@@ -92,6 +92,13 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   itc::CSocketSPtr                    mSocketSPtr;
   uint32_t                            mPeerIP;
   std::string                         mPeerAddress;
+  
+  
+  const auto getParentId() const
+  {
+    static thread_local auto parent_id=mParent->getID();
+    return parent_id;
+  }
       
   void init(int _fd, const itc::utils::Bool2Type<true> tls_is_enabled)
   {
@@ -274,9 +281,8 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
     ITCSyncLock sync(mMutex);
     if(mState != State::CLOSED)
     {
-      const size_t bsize=buff.size();
-      updateOutStats(bsize);
       int ret=this->send(buff,enableTLS);
+      if(ret > 0) updateOutStats(ret);
       return ret;
     }
     return -1;
