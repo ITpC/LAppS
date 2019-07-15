@@ -56,7 +56,8 @@ namespace LAppS
         {"auto_fragment",false},
         {"max_poll_events",300},
         {"max_poll_wait_ms",10},
-        {"max_inbounds_skip",50}
+        {"max_inbounds_skip",50},
+        {"input_buffer_size", 2048}
       }},
       {"acl", {{"policy", "allow"},{"exclude", {} }}},
 #ifdef LAPPS_TLS_ENABLE
@@ -66,7 +67,7 @@ namespace LAppS
 #endif
       {"tls_client_version", 4},
       {"tls_server_version", 4},
-      {"tls_certificates",{ {"ca","/opt/lapps/etc/ssl/cert.pem"},{"cert", "/opt/lapps/conf/ssl/cert.pem"}, {"key","/opt/lapps/conf/ssl/key.pem" } }}
+      {"tls_certificates",{ {"ca","/opt/lapps/etc/ssl/ca.pem"},{"cert", "/opt/lapps/conf/ssl/cert.pem"}, {"key","/opt/lapps/conf/ssl/key.pem" } }}
     }),
     lapps_config({
       {
