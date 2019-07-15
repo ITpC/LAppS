@@ -51,10 +51,11 @@
 // wolfSSL
 #include <wolfSSLLib.h>
 
-#include "modules/nljson.h"
+// modules
+#include <modules/nljson.h>
 
 
-static thread_local std::vector<uint8_t> anInBuffer(16384);
+static thread_local std::vector<uint8_t> anInBuffer(static_cast<size_t>(LAppSConfig::getInstance()->getWSConfig()["workers"]["input_buffer_size"]));
 
 
 template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
@@ -167,7 +168,18 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   {
     streamProcessor.returnBuffer(std::move(buffer));
   }
-  
+  void setInStats(WSConnectionStats& _stats)
+  {
+    _stats.mInMessageCount=mStats.mInMessageCount;
+    _stats.mBytesIn=mStats.mBytesIn;
+    _stats.mInMessageMaxSize=mStats.mInMessageMaxSize;
+  }
+  void setOutStats(WSConnectionStats& _stats)
+  {
+    _stats.mOutMessageCount=mStats.mOutMessageCount;
+    _stats.mBytesOut=mStats.mBytesOut;
+    _stats.mOutMessageMaxSize=mStats.mOutMessageMaxSize;
+  }
   void terminate()
   {
     ITCSyncLock sync(mMutex);
@@ -275,7 +287,6 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
     }
     return -1;
   }
-
   const int send(const std::vector<uint8_t>& buff)
   {
     ITCSyncLock sync(mMutex);
@@ -355,18 +366,13 @@ private:
   
   void updateInStats(const size_t sz, const itc::utils::Bool2Type<true>& withStats)
   { 
-    if(mStats.mInMessageCount+1 == 0xFFFFFFFFFFFFFFFFULL)
-    {
-      mStats.mInMessageCount=1;
-    }
-    else ++mStats.mInMessageCount;
+    ++mStats.mInMessageCount;
     
     if(sz == 0) return; // exclude 0-size messages;
-    int64_t size=sz;
-    int64_t cma_size=mStats.mInCMASize;
-    cma_size=std::abs(cma_size+((size-cma_size)/static_cast<int64_t>(mStats.mInMessageCount)));
-    mStats.mInCMASize=cma_size;
-    streamProcessor.setMessageBufferSize(mStats.mInCMASize);
+
+    mStats.mBytesIn+=sz;
+    auto InCMASize=mStats.mBytesIn/mStats.mInMessageCount;
+    streamProcessor.setMessageBufferSize(InCMASize);
   }
   
   void updateInStats(const size_t sz, const itc::utils::Bool2Type<false>& noStats)
@@ -550,13 +556,9 @@ RFC 6455                 The WebSocket Protocol            December 2011
   }
   void updateOutStats(const size_t sz, const itc::utils::Bool2Type<true>& withStats)
   {
-    if(mStats.mOutMessageCount+1 == 0xFFFFFFFFFFFFFFFFULL)
-    {
-      mStats.mOutMessageCount=1;
-    }
-    
     ++mStats.mOutMessageCount;
-    mStats.mOutCMASize=mStats.mOutCMASize+(sz-mStats.mOutCMASize)/mStats.mOutMessageCount;
+    
+   mStats.mBytesOut+=sz;
   }
   
   void updateOutStats(const size_t buff_size,const itc::utils::Bool2Type<false>& noStats)
