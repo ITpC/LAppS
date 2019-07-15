@@ -47,8 +47,8 @@ namespace LAppS
     size_t mInMessageMaxSize;
     size_t mOutMessageMaxSize;
 
-    size_t mInCMASize;
-    size_t mOutCMASize;
+    size_t mBytesIn;
+    size_t mBytesOut;
     size_t mInQueueDepth;
 
     const IOStats& operator=(const IOStats& value)
@@ -59,8 +59,6 @@ namespace LAppS
       mOutMessageCount=value.mOutMessageCount;
       mInMessageMaxSize=value.mInMessageMaxSize;
       mOutMessageMaxSize=value.mOutMessageMaxSize;
-      mInCMASize=value.mInCMASize;
-      mOutCMASize=value.mOutCMASize;
       mInQueueDepth=value.mInQueueDepth;
       return *this;
     }
