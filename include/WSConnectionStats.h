@@ -32,8 +32,8 @@ struct WSConnectionStats
   size_t mInMessageMaxSize;
   size_t mOutMessageMaxSize;
   
-  size_t mInCMASize;
-  size_t mOutCMASize;
+  size_t mBytesIn;
+  size_t mBytesOut;
 };
 
 #endif /* __WSCONNECTIONSTATS_H__ */
