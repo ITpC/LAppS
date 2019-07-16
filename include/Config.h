@@ -65,8 +65,8 @@ namespace LAppS
 #else      
       {"tls",false},
 #endif
-      {"tls_client_version", 4},
-      {"tls_server_version", 4},
+      {"tls_client_version", 3},
+      {"tls_server_version", 3},
       {"tls_certificates",{ {"ca","/opt/lapps/etc/ssl/ca.pem"},{"cert", "/opt/lapps/conf/ssl/cert.pem"}, {"key","/opt/lapps/conf/ssl/key.pem" } }}
     }),
     lapps_config({
