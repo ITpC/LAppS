@@ -74,7 +74,9 @@ RUN ls -la
 
 WORKDIR ${WORKSPACE}/cryptopp-CRYPTOPP_8_2_0
 
-RUN make CFLAGS="-pipe -O2 -march=native -mtune=native -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -msse2avx -ftree-vectorize -funroll-loops" CXXFLAGS="-pipe -O2 -march=native -mtune=native -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -msse2avx -ftree-vectorize -funroll-loops" -j4 libcryptopp.a libcryptopp.so install
+RUN make CFLAGS="-pipe -O2 -march=native -mtune=native -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -msse2avx -ftree-vectorize -funroll-loops" CXXFLAGS="-pipe -O2 -march=native -mtune=native -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -msse2avx -ftree-vectorize -funroll-loops" -j4 libcryptopp.a libcryptopp.so
+
+RUN make install
 
 WORKDIR ${WORKSPACE}
 
@@ -85,6 +87,8 @@ WORKDIR ${WORKSPACE}/mimalloc
 RUN cmake CFLAGS="-pipe -O2 -march=native -mtune=native -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -msse2avx -ftree-vectorize -funroll-loops" .
 
 RUN make -j4 all install
+
+WORKDIR ${WORKSPACE}
 
 RUN rm -rf ITCLib ITCFramework lar utils LAppS
 
