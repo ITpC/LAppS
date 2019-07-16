@@ -33,7 +33,6 @@
 #include <time.h>
 #include <ext/tsl/robin_map.h>
 #include <cfifo.h>
-#include <InQueue.h>
 
 #include <wolfSSLLib.h>
 

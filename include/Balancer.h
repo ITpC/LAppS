@@ -31,7 +31,6 @@
 #include <memory>
 #include <abstract/Runnable.h>
 #include <ext/tsl/robin_map.h>
-#include <InQueue.h>
 
 namespace LAppS
 {
