@@ -76,8 +76,8 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   itc::utils::Bool2Type<TLSEnable>    enableTLS;
   itc::utils::Bool2Type<StatsEnable>  enableStatsUpdate;
   
-  WOLFSSL_CTX*                         TLSContext;
-  WOLFSSL*                             TLSSocket;
+  WOLFSSL_CTX*                        TLSContext;
+  WOLFSSL*                            TLSSocket;
   
   SharedEPollType                     mEPoll;
   
@@ -93,7 +93,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   itc::CSocketSPtr                    mSocketSPtr;
   uint32_t                            mPeerIP;
   std::string                         mPeerAddress;
-  
+  bool                                accepted;
   
   const auto getParentId() const
   {
@@ -109,6 +109,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
     {
       throw std::system_error(errno,std::system_category(),"TLS: can't accept socket");
     }
+    
     wolfSSL_set_fd(TLSSocket,_fd);
   }
   
@@ -116,6 +117,24 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   {
   }
   
+  const bool accept(const itc::utils::Bool2Type<false> tls_is_not_enabled) const
+  {
+    return true;
+  }
+  
+  const bool accept(const itc::utils::Bool2Type<true> tls_is_enabled) const
+  {
+    auto result=wolfSSL_accept(TLSSocket);
+    if( result != SSL_SUCCESS)
+    {
+      logWOLFSSLError(result, "WebSocket::accept() on wolfSSL_accept :");
+      return false;
+    }
+    else
+    {
+      return true;
+    }
+  }
   
  public:
   WebSocket(const WebSocket&) = delete;
@@ -128,19 +147,30 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
     const bool               auto_fragment,
     WOLFSSL_CTX*             tls_context=nullptr
   )
-  : mMutex(),        fd(socksptr->getfd()), mState{HANDSHAKE}, 
-    mNoInput{false}, enableTLS(),           enableStatsUpdate(),
-    TLSContext{tls_context},                TLSSocket{nullptr},      
-    mEPoll(ep),      mStats{0,0,0,0,0,0},   streamProcessor(512),
-    mApplication{nullptr},                  mAutoFragment(auto_fragment), 
-    mParent{_parent},                       mSocketSPtr(std::move(socksptr))
+  : mMutex(), fd(socksptr->getfd()), mState{HANDSHAKE}, 
+    mNoInput{false}, enableTLS(), enableStatsUpdate(),
+    TLSContext{tls_context}, TLSSocket{nullptr},mEPoll(ep),
+    mStats{0,0,0,0,0,0}, streamProcessor(512),
+    mApplication{nullptr}, mAutoFragment(auto_fragment),mParent{_parent},
+    mSocketSPtr(std::move(socksptr)),accepted{false}
   {
     init(fd, enableTLS);
     mSocketSPtr->getpeeraddr(mPeerIP);
     mSocketSPtr->getpeeraddr(mPeerAddress);
     mEPoll->add_in(fd);
   }
-    
+
+  const bool is_accepted() const
+  {
+    return accepted;
+  }
+  
+  const bool accept()
+  {
+    if(!accepted) accepted=accept(enableTLS);
+    return accepted;
+  }
+  
   WebSocket()=delete;
   
   ~WebSocket()
@@ -588,7 +618,7 @@ RFC 6455                 The WebSocket Protocol            December 2011
   int recv(std::vector<uint8_t>& buff, const itc::utils::Bool2Type<true> withTLS)
   {
     if(TLSSocket)
-    {
+    { 
       int ret=wolfSSL_read(TLSSocket,buff.data(),buff.size());
 
       if(ret <= 0)
