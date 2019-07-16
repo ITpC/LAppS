@@ -35,9 +35,16 @@ then
 
   export VERSION=$(cat ./VERSION)
 
+  if [ "${VERSION}x" == "0.8.0x" ]
+  then
+    export DOCKERFILE=dockerfiles/Dockerfile.${UBUNTU}.${VERSION}.${BUILD}
+  else
+    export DOCKERFILE=dockerfiles/Dockerfile.${UBUNTU}.${BUILD}
+  fi
+
   sudo rm -rf /opt/lapps-builds/latest/*
 
-  docker build -t lapps:${UBUNTU}-${BUILD} -f dockerfiles/Dockerfile.${UBUNTU}.${BUILD} --force-rm . || die "Dockerfile for specified build is missing"
+  docker build -t lapps:${UBUNTU}-${BUILD} -f $DOCKERFILE --force-rm . || die "Dockerfile for specified build is missing"
   docker run -it --rm --name myldev -h ldev -v /opt/lapps-builds/latest:/opt/lapps lapps:${UBUNTU}-${BUILD} ./inDockerPackage.${BUILD}.sh || die "Something went wrong: build has failed"
   sudo mv /opt/lapps-builds/latest/packages/lapps-${VERSION}-${BUILD}-amd64.deb packages/${UBUNTU}/
 else
