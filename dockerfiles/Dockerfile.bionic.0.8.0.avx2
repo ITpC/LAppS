@@ -17,11 +17,11 @@ RUN apt-get install -y git
 
 RUN apt-get install -y g++-multilib
 
+RUN apt-get install -y g++-8
+
 RUN apt-get install -y make
 
 RUN apt-get install -y autotools-dev
-
-RUN apt-get install -y libcrypto++-dev
 
 RUN apt-get install -y libpam0g-dev
 
@@ -49,6 +49,7 @@ WORKDIR ${WORKSPACE}
 
 ADD https://github.com/wolfSSL/wolfssl/archive/v3.15.7-stable.tar.gz ${WORKSPACE}
 
+
 RUN ls -la
 
 RUN tar xzvf v3.15.7-stable.tar.gz
@@ -61,7 +62,27 @@ RUN ./configure CFLAGS="-pipe -O2 -march=native -mtune=native -fomit-frame-point
 
 RUN make all install
 
+ADD https://github.com/weidai11/cryptopp/archive/CRYPTOPP_8_2_0.tar.gz ${WORKSPACE}
+
+RUN tar xzvf ${WORKSPACE}/CRYPTOPP_8_2_0.tar.gz
+
+RUN ls -la
+
+WORKDIR ${WORKSPACE}/cryptopp-CRYPTOPP_8_2_0
+
+RUN make CFLAGS="-pipe -O2 -march=native -mtune=native -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -msse2avx -ftree-vectorize -funroll-loops" CXXFLAGS="-pipe -O2 -march=native -mtune=native -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -msse2avx -ftree-vectorize -funroll-loops" -j4 libcryptopp.a libcryptopp.so install
+
 WORKDIR ${WORKSPACE}
+
+RUN git clone https://github.com/microsoft/mimalloc.git
+
+WORKDIR ${WORKSPACE}/mimalloc
+
+RUN cmake CFLAGS="-pipe -O2 -march=native -mtune=native -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -msse2avx -ftree-vectorize -funroll-loops" .
+
+RUN make -j4 all install
+
+RUN rm -rf ITCLib ITCFramework lar utils LAppS
 
 RUN git clone https://github.com/ITpC/ITCLib.git
 

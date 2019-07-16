@@ -2428,7 +2428,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lwolfssl</commandLine>
+          <commandLine>-lcryptopp -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lwolfssl -lmimalloc</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
