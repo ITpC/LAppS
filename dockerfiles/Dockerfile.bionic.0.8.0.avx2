@@ -60,7 +60,7 @@ WORKDIR ${WORKSPACE}/wolfssl-3.15.7-stable
 
 RUN ./autogen.sh
 
-RUN ./configure CFLAGS="-pipe -O2 -march=native -mtune=native -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -msse2avx -ftree-vectorize -funroll-loops -DTFM_TIMING_RESISTANT -DECC_TIMING_RESISTANT -DWC_RSA_BLINDING" --prefix=/usr/local --enable-tls13 --enable-openssh --enable-aesni --enable-intelasm --enable-keygen --enable-certgen --enable-certreq --enable-curve25519 --enable-ed25519 --enable-intelasm --enable-harden
+RUN ./configure CFLAGS="-pipe -O2 -march=native -mtune=generic -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -DTFM_TIMING_RESISTANT -DECC_TIMING_RESISTANT -DWC_RSA_BLINDING" --prefix=/usr/local --enable-tls13 --enable-openssh --enable-aesni --enable-intelasm --enable-keygen --enable-certgen --enable-certreq --enable-curve25519 --enable-ed25519 --enable-intelasm --enable-harden
 
 RUN make all install
 
@@ -74,7 +74,7 @@ RUN ls -la
 
 WORKDIR ${WORKSPACE}/cryptopp-CRYPTOPP_8_2_0
 
-RUN make CFLAGS="-pipe -O2 -march=native -mtune=native -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -msse2avx -ftree-vectorize -funroll-loops" CXXFLAGS="-pipe -O2 -march=native -mtune=native -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -msse2avx -ftree-vectorize -funroll-loops" -j4 libcryptopp.a libcryptopp.so
+RUN make CFLAGS="-pipe -O2 -march=native -mtune=generic -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops" CXXFLAGS="-pipe -O2 -march=native -mtune=generic -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops" -j4 libcryptopp.a libcryptopp.so
 
 RUN make install
 
@@ -84,7 +84,7 @@ RUN git clone https://github.com/microsoft/mimalloc.git
 
 WORKDIR ${WORKSPACE}/mimalloc
 
-RUN cmake CFLAGS="-pipe -O2 -march=native -mtune=native -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -msse2avx -ftree-vectorize -funroll-loops" .
+RUN cmake CFLAGS="-pipe -O2 -march=native -mtune=generic -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops" .
 
 RUN make -j4 all install
 

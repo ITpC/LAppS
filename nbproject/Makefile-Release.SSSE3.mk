@@ -67,7 +67,7 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.ssse3: ../utils/dist/Debug/GNU-
 
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.ssse3: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
-	g++ -pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.ssse3 ${OBJECTFILES} ${LDLIBSOPTIONS} -lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam
+	g++ -pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.ssse3 ${OBJECTFILES} ${LDLIBSOPTIONS} -lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lmimalloc
 
 ${OBJECTDIR}/src/getLog.o: src/getLog.cpp nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/src
