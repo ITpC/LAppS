@@ -35,7 +35,9 @@
 
 
 #include <WebSocket.h>
-#include <TLSServerContext.h>
+
+#include <wolfSSLLib.h>
+
 #include <Val2Type.h>
 #include <ePoll.h>
 #include <Config.h>
@@ -44,7 +46,7 @@
 #include <ContextTypes.h>
 #include <ServiceRegistry.h>
 
-#include "modules/nljson.h"
+#include <modules/nljson.h>
 
 static const std::vector<uint8_t> forbidden{'H','T','T','P','/','1','.','1',' ','4','0','3',' ','F','o','r','b','i','d','d','e','n'};
 
@@ -73,6 +75,16 @@ namespace LAppS
       void handshake(const WSSPtr& wssocket,const ServiceRegistry& anAppRegistry)
       {
         mHTTPRParser.clear();
+        
+        if(!wssocket->is_accepted())
+        {
+          if(!wssocket->accept())
+          {
+            wssocket->close();
+            return;
+          }
+        }
+        
         int received=wssocket->recv(headerBuffer);
         if(received != -1)
         {
@@ -130,8 +142,8 @@ namespace LAppS
           }else{
             itc::getLog()->error(
               __FILE__,__LINE__,
-              "Shakespeer::handshake() was unsuccessful for peer %s. Closing this WebSocket.",
-              wssocket->getPeerAddress().c_str()
+              "Shakespeer::handshake() was unsuccessful for peer %s. Received %u bytes. Header Content: %s.",
+              wssocket->getPeerAddress().c_str(), received, headerBuffer.data()
             );
             wssocket->send(forbidden);
             wssocket->close();
@@ -164,7 +176,9 @@ namespace LAppS
        {
           mHTTPRParser.parse(headerBuffer,bufflen);
           bool arhap=true;
-          arhap=arhap&&(itc::utils::toupper(mHTTPRParser["Connection"])=="UPGRADE");
+          
+          auto connection_value=itc::utils::toupper(mHTTPRParser["Connection"]);
+          arhap=arhap&&(connection_value.find("UPGRADE") != std::string::npos);
           arhap=arhap&&(itc::utils::toupper(mHTTPRParser["Upgrade"])=="WEBSOCKET");
           arhap=arhap&&(mHTTPRParser["Sec-WebSocket-Version"]=="13");
           arhap=arhap&&(!(mHTTPRParser["Sec-WebSocket-Key"].empty()));

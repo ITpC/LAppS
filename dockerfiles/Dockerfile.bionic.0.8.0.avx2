@@ -1,0 +1,79 @@
+FROM ubuntu:bionic
+
+LABEL "co.new-web" "new WEB() LLP" version 1.0  maintainer "pk@new-web.co" description "LAppS build environment"
+
+RUN apt-get update \
+	&& apt-get dist-upgrade -y 
+
+RUN apt-get install -y apt-utils 
+
+RUN apt-get install -y vim 
+
+RUN apt-get install -y curl 
+
+RUN apt-get install -y wget 
+
+RUN apt-get install -y git 
+
+RUN apt-get install -y g++-multilib
+
+RUN apt-get install -y make
+
+RUN apt-get install -y autotools-dev
+
+RUN apt-get install -y libcrypto++-dev
+
+RUN apt-get install -y libpam0g-dev
+
+RUN apt-get install -y libbz2-dev
+
+RUN apt-get install -y autoconf
+
+RUN apt-get install -y libtool
+
+ENV WORKSPACE /root/workspace
+
+RUN mkdir ${WORKSPACE}
+
+ADD http://luajit.org/download/LuaJIT-2.0.5.tar.gz ${WORKSPACE}
+
+WORKDIR ${WORKSPACE}
+
+RUN tar xzvf LuaJIT-2.0.5.tar.gz
+
+WORKDIR ${WORKSPACE}/LuaJIT-2.0.5
+
+RUN env CFLAGS="-pipe -Wall -pthread -O2 -fPIC -march=native -mtune=generic -mfpmath=sse -mavx -msse2avx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fno-omit-frame-pointer" make all install
+
+WORKDIR ${WORKSPACE}
+
+ADD https://github.com/wolfSSL/wolfssl/archive/v3.15.7-stable.tar.gz ${WORKSPACE}
+
+RUN ls -la
+
+RUN tar xzvf v3.15.7-stable.tar.gz
+
+WORKDIR ${WORKSPACE}/wolfssl-3.15.7-stable
+
+RUN ./autogen.sh
+
+RUN ./configure CFLAGS="-pipe -O2 -march=native -mtune=native -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -msse2avx -ftree-vectorize -funroll-loops -DTFM_TIMING_RESISTANT -DECC_TIMING_RESISTANT -DWC_RSA_BLINDING" --prefix=/usr/local --enable-tls13 --enable-openssh --enable-aesni --enable-intelasm --enable-keygen --enable-certgen --enable-certreq --enable-curve25519 --enable-ed25519 --enable-intelasm --enable-harden
+
+RUN make all install
+
+WORKDIR ${WORKSPACE}
+
+RUN git clone https://github.com/ITpC/ITCLib.git
+
+RUN git clone https://github.com/ITpC/utils.git
+
+RUN git clone https://github.com/ITpC/ITCFramework.git
+
+RUN git clone https://github.com/ITpC/LAppS.git
+
+RUN git clone https://github.com/ITpC/lar.git
+
+WORKDIR ${WORKSPACE}/LAppS
+
+RUN make clean
+

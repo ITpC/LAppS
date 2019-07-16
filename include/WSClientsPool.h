@@ -24,7 +24,7 @@
 #ifndef __WSCLIENTSPOOL_H__
 #  define __WSCLIENTSPOOL_H__
 
-#include <map>
+#include <ext/tsl/robin_map.h>
 #include <memory>
 #include <string>
 
@@ -37,7 +37,7 @@ namespace LAppS
   {
    private:
     ePoll                                 mEPoll;
-    std::map<int32_t,ClientWebSocketSPtr> mPool;
+    tsl::robin_map<int32_t,ClientWebSocketSPtr> mPool;
     
    public:
     explicit WSClientPool():mEPoll(), mPool() {}
@@ -59,7 +59,7 @@ namespace LAppS
     
     void remove(const int32_t idx)
     {
-      auto it=mPool.begin();
+      auto it=mPool.find(idx);
       if(it != mPool.end())
         mPool.erase(it);
     }

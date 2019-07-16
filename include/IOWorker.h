@@ -33,7 +33,8 @@
 #include <time.h>
 #include <ext/tsl/robin_map.h>
 #include <cfifo.h>
-#include <InQueue.h>
+
+#include <wolfSSLLib.h>
 
 namespace LAppS
 {
@@ -46,6 +47,8 @@ namespace LAppS
       
     private:
       using qtype=itc::tsbqueue<::itc::TCPListener::value_type,itc::sys::mutex>;
+      using TLSContextType=std::shared_ptr<wolfSSLLib<TLS_SERVER>::wolfSSLContext>;
+      
       itc::utils::Bool2Type<TLSEnable>          enableTLS;
       itc::utils::Bool2Type<StatsEnable>        enableStatsUpdate;
       
@@ -68,7 +71,9 @@ namespace LAppS
       
       itc::sys::Nap                             nap;
       
-      TLS::ServerContext                        mTLSServerContext;
+      TLSContextType                            mTLSContext;
+      size_t                                    mMaxInboundsSkip;
+      size_t                                    mCounter;
       
       
       bool error_bit(const uint32_t event) const
@@ -88,7 +93,8 @@ namespace LAppS
       mShakespeer(), mEPoll(std::make_shared<ePoll>()),
       mInQueue(),mConnections(), mDCQueue(20), 
       mEvents{LAppSConfig::getInstance()->getWSConfig()["workers"]["max_poll_events"]},
-      haveConnections{false},haveDisconnects{false},mTLSServerContext()
+      haveConnections{false},haveDisconnects{false},mTLSContext(wolfSSLServer::getInstance()->getContext()),
+      mMaxInboundsSkip{LAppSConfig::getInstance()->getWSConfig()["workers"]["max_inbounds_skip"]}, mCounter{0}
     {
       mConnections.clear();
       LAppS::WStats::getInstance()->add_slot(getID());
@@ -190,7 +196,33 @@ namespace LAppS
       if(!mCanStop) this->shutdown();
     }
 
-    
+    void addNewConnection(const std::shared_ptr<WSType>& current)
+    {
+      int fd=current->getfd();
+
+      if(mConnections.size()<mMaxConnections)
+      {
+          itc::getLog()->info(
+          __FILE__,__LINE__,
+          "New inbound connection from %s with fd %d will be added to connection pool of worker %u ",
+          current->getPeerAddress().c_str(),fd,ID
+        );
+        mConnections.emplace(fd,std::move(current));
+        mEPoll->mod_in(fd);    
+      }
+      else
+      {
+        mShakespeer.sendForbidden(current);
+        itc::getLog()->error(
+          __FILE__,__LINE__,
+          "Too many connections, new connection from %s on fd %d is rejected",
+          current->getPeerAddress().c_str(),fd
+        );
+      }
+      mStats.mConnections=mConnections.size();
+      haveConnections.store(mStats.mConnections>0);
+      //LAppS::WStats::getInstance()->try_update(getID(),mStats);
+    }
     private:
       /**
        * @brief processing all inbound connections in bulk.
@@ -198,55 +230,28 @@ namespace LAppS
       void processInbound()
       {
         try{
-          /*
-          tsl::robin_map<size_t,IOStats> stats;
-          LAppS::WStats::getInstance()->getStats(stats);
-          bool try_recv_new_socket=false;
-          for(const auto& kv: stats)
-          { 
-            if(kv.first != this->getID())
-            {
-              if(kv.second.mConnections > mConnections.size())
-              {
-                try_recv_new_socket=true;
-                break;
-              }
-            }
-          }
-          
-          if(try_recv_new_socket)
-          {
-            
-  */
           itc::TCPListener::value_type sockt;
           if(mInQueue.try_recv(sockt))
           {
-            auto current=mkWebSocket(sockt);
-            int fd=current->getfd();
-
-            if(mConnections.size()<mMaxConnections)
+            addNewConnection(mkWebSocket(sockt));
+            
+            mCounter=0;
+            
+          }else{
+            ++mCounter;
+          }
+          
+          if((mCounter>mMaxInboundsSkip)&&(!mInQueue.empty()))
+          {
+            mCounter=0;
+            std::queue<qtype::value_type> tmpq;
+            mInQueue.recv<qtype::SWAP>(tmpq);
+            while(!tmpq.empty())
             {
-                itc::getLog()->info(
-                __FILE__,__LINE__,
-                "New inbound connection from %s with fd %d will be added to connection pool of worker %u ",
-                current->getPeerAddress().c_str(),fd,ID
-              );
-              mConnections.emplace(fd,std::move(current));
-              mEPoll->mod_in(fd);    
+              addNewConnection(mkWebSocket(std::move(tmpq.front())));
+              tmpq.pop();
             }
-            else
-            {
-              mShakespeer.sendForbidden(current);
-              itc::getLog()->error(
-                __FILE__,__LINE__,
-                "Too many connections, new connection from %s on fd %d is rejected",
-                current->getPeerAddress().c_str(),fd
-              );
-            }
-            mStats.mConnections=mConnections.size();
-            haveConnections.store(mStats.mConnections>0);
-//            while(!LAppS::WStats::getInstance()->try_update(getID(),mStats));
-          } 
+          }
         }catch(const std::exception& e)
         {
           itc::getLog()->error(__FILE__,__LINE__,"Connection became invalid before handshake. Exception: %s",e.what());
@@ -325,9 +330,9 @@ namespace LAppS
       
       const std::shared_ptr<WSType> mkWebSocket(const itc::CSocketSPtr& inbound,const itc::utils::Bool2Type<true> tls_is_enabled)
       {
-        auto tls_server_context=TLS::SharedServerContext::getInstance()->getContext();
+        //auto tls_server_context=TLS::SharedServerContext::getInstance()->getContext();
         
-        //auto tls_server_context=mTLSServerContext.getContext(); // no difference in performance, - waste of resources.
+        auto tls_server_context=mTLSContext->raw_context();
         
         if(tls_server_context)
           return std::make_shared<WSType>(std::move(inbound),mEPoll,this,mustAutoFragment(),tls_server_context);

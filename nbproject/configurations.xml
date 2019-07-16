@@ -40,13 +40,11 @@
       <itemPath>include/Broadcasts.h</itemPath>
       <itemPath>include/ClientWebSocket.h</itemPath>
       <itemPath>include/Config.h</itemPath>
-      <itemPath>include/ConnectionsInQueue.h</itemPath>
       <itemPath>include/ContextTypes.h</itemPath>
       <itemPath>include/Deployer.h</itemPath>
       <itemPath>include/Env.h</itemPath>
       <itemPath>include/HTTPRequestParser.h</itemPath>
       <itemPath>include/IOWorker.h</itemPath>
-      <itemPath>include/InQueue.h</itemPath>
       <itemPath>include/LuaReactiveService.h</itemPath>
       <itemPath>include/LuaReactiveServiceContext.h</itemPath>
       <itemPath>include/LuaStandaloneService.h</itemPath>
@@ -58,8 +56,6 @@
       <itemPath>include/ServiceFactory.h</itemPath>
       <itemPath>include/ServiceRegistry.h</itemPath>
       <itemPath>include/Shakespeer.h</itemPath>
-      <itemPath>include/TLSServerContext.h</itemPath>
-      <itemPath>include/TaggedEvent.h</itemPath>
       <itemPath>include/WSClientsPool.h</itemPath>
       <itemPath>include/WSConnectionStats.h</itemPath>
       <itemPath>include/WSEvent.h</itemPath>
@@ -74,6 +70,7 @@
       <itemPath>include/WorkerStats.h</itemPath>
       <itemPath>include/ePoll.h</itemPath>
       <itemPath>include/ipcalc.h</itemPath>
+      <itemPath>include/wolfSSLLib.h</itemPath>
       <itemPath>include/wsServer.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
@@ -143,12 +140,16 @@
           <commandLine>-pipe -g -std=c++17 -Wall -pthread -O2 -fPIC -march=native -mtune=native -mfpmath=sse -mavx -msse2avx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fno-omit-frame-pointer</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
+            <Elem>DTFM_TIMING_RESISTANT</Elem>
+            <Elem>ECC_TIMING_RESISTANT</Elem>
             <Elem>LAPPS_TLS_ENABLE</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
             <Elem>STATS_ENABLE</Elem>
             <Elem>TSAFE_LOG=1</Elem>
+            <Elem>WC_RSA_BLINDING</Elem>
+            <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
         </ccTool>
         <linkerTool>
@@ -195,7 +196,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -ltls -lcrypto -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
+          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -1031,6 +1032,54 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -1054,8 +1103,6 @@
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="include/ConnectionsInQueue.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="include/ContextTypes.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Deployer.h" ex="false" tool="3" flavor2="0">
@@ -1065,8 +1112,6 @@
       <item path="include/HTTPRequestParser.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/IOWorker.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/InQueue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/LuaReactiveService.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -1095,10 +1140,6 @@
       <item path="include/ServiceRegistry.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Shakespeer.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/TLSServerContext.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/TaggedEvent.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WSClientsPool.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -1181,6 +1222,8 @@
       </item>
       <item path="include/modules/wsSend.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/wolfSSLLib.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/getLog.cpp" ex="false" tool="1" flavor2="0">
@@ -1212,12 +1255,16 @@
           <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
+            <Elem>ECC_TIMING_RESISTANT</Elem>
             <Elem>LAPPS_TLS_ENABLE</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
             <Elem>STATS_ENABLE</Elem>
+            <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
+            <Elem>WC_RSA_BLINDING</Elem>
+            <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
         </ccTool>
         <linkerTool>
@@ -1265,7 +1312,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -ltls -lcrypto -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
+          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -2101,6 +2148,54 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -2124,8 +2219,6 @@
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="include/ConnectionsInQueue.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="include/ContextTypes.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Deployer.h" ex="false" tool="3" flavor2="0">
@@ -2135,8 +2228,6 @@
       <item path="include/HTTPRequestParser.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/IOWorker.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/InQueue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/LuaReactiveService.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -2165,10 +2256,6 @@
       <item path="include/ServiceRegistry.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Shakespeer.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/TLSServerContext.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/TaggedEvent.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WSClientsPool.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -2251,6 +2338,8 @@
       </item>
       <item path="include/modules/wsSend.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/wolfSSLLib.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/getLog.cpp" ex="false" tool="1" flavor2="9">
@@ -2282,12 +2371,16 @@
           <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -mavx2 -msse2avx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
+            <Elem>ECC_TIMING_RESISTANT</Elem>
             <Elem>LAPPS_TLS_ENABLE</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
             <Elem>STATS_ENABLE</Elem>
+            <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
+            <Elem>WC_RSA_BLINDING</Elem>
+            <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
         </ccTool>
         <linkerTool>
@@ -2335,7 +2428,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -ltls -lcrypto -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
+          <commandLine>-lcryptopp -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lwolfssl</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -3171,6 +3264,54 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -3194,8 +3335,6 @@
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="include/ConnectionsInQueue.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="include/ContextTypes.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Deployer.h" ex="false" tool="3" flavor2="0">
@@ -3205,8 +3344,6 @@
       <item path="include/HTTPRequestParser.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/IOWorker.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/InQueue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/LuaReactiveService.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -3235,10 +3372,6 @@
       <item path="include/ServiceRegistry.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Shakespeer.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/TLSServerContext.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/TaggedEvent.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WSClientsPool.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -3321,6 +3454,8 @@
       </item>
       <item path="include/modules/wsSend.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/wolfSSLLib.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/getLog.cpp" ex="false" tool="1" flavor2="9">
@@ -3352,11 +3487,15 @@
           <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
+            <Elem>ECC_TIMING_RESISTANT</Elem>
             <Elem>LAPPS_TLS_ENABLE</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
+            <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
+            <Elem>WC_RSA_BLINDING</Elem>
+            <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
         </ccTool>
         <linkerTool>
@@ -3404,7 +3543,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -ltls -lcrypto -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
+          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -4240,6 +4379,54 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -4263,8 +4450,6 @@
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="include/ConnectionsInQueue.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="include/ContextTypes.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Deployer.h" ex="false" tool="3" flavor2="0">
@@ -4274,8 +4459,6 @@
       <item path="include/HTTPRequestParser.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/IOWorker.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/InQueue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/LuaReactiveService.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -4304,10 +4487,6 @@
       <item path="include/ServiceRegistry.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Shakespeer.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/TLSServerContext.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/TaggedEvent.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WSClientsPool.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -4390,6 +4569,8 @@
       </item>
       <item path="include/modules/wsSend.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/wolfSSLLib.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/getLog.cpp" ex="false" tool="1" flavor2="9">
@@ -4421,10 +4602,14 @@
           <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
+            <Elem>ECC_TIMING_RESISTANT</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
+            <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
+            <Elem>WC_RSA_BLINDING</Elem>
+            <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
         </ccTool>
         <linkerTool>
@@ -4472,7 +4657,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -ltls -lcrypto -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
+          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -5308,6 +5493,54 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -5331,8 +5564,6 @@
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="include/ConnectionsInQueue.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="include/ContextTypes.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Deployer.h" ex="false" tool="3" flavor2="0">
@@ -5342,8 +5573,6 @@
       <item path="include/HTTPRequestParser.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/IOWorker.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/InQueue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/LuaReactiveService.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -5372,10 +5601,6 @@
       <item path="include/ServiceRegistry.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Shakespeer.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/TLSServerContext.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/TaggedEvent.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WSClientsPool.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -5458,6 +5683,8 @@
       </item>
       <item path="include/modules/wsSend.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/wolfSSLLib.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/getLog.cpp" ex="false" tool="1" flavor2="9">
@@ -5489,11 +5716,15 @@
           <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -mavx2 -msse2avx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
+            <Elem>ECC_TIMING_RESISTANT</Elem>
             <Elem>LAPPS_TLS_ENABLE</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
+            <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
+            <Elem>WC_RSA_BLINDING</Elem>
+            <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
         </ccTool>
         <linkerTool>
@@ -5541,7 +5772,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -ltls -lcrypto -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
+          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -6377,6 +6608,54 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -6400,8 +6679,6 @@
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="include/ConnectionsInQueue.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="include/ContextTypes.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Deployer.h" ex="false" tool="3" flavor2="0">
@@ -6411,8 +6688,6 @@
       <item path="include/HTTPRequestParser.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/IOWorker.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/InQueue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/LuaReactiveService.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -6441,10 +6716,6 @@
       <item path="include/ServiceRegistry.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Shakespeer.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/TLSServerContext.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/TaggedEvent.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WSClientsPool.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -6527,6 +6798,8 @@
       </item>
       <item path="include/modules/wsSend.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/wolfSSLLib.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/getLog.cpp" ex="false" tool="1" flavor2="9">
@@ -6558,10 +6831,14 @@
           <commandLine>-pipe -std=c++17 -Wall -pthread -O3 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -mavx2 -msse2avx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
+            <Elem>ECC_TIMING_RESISTANT</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
+            <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
+            <Elem>WC_RSA_BLINDING</Elem>
+            <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
         </ccTool>
         <linkerTool>
@@ -6609,7 +6886,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -ltls -lcrypto -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
+          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -7445,6 +7722,54 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -7468,8 +7793,6 @@
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="include/ConnectionsInQueue.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="include/ContextTypes.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Deployer.h" ex="false" tool="3" flavor2="0">
@@ -7479,8 +7802,6 @@
       <item path="include/HTTPRequestParser.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/IOWorker.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/InQueue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/LuaReactiveService.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -7509,10 +7830,6 @@
       <item path="include/ServiceRegistry.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Shakespeer.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/TLSServerContext.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/TaggedEvent.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WSClientsPool.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -7595,6 +7912,8 @@
       </item>
       <item path="include/modules/wsSend.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/wolfSSLLib.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/getLog.cpp" ex="false" tool="1" flavor2="9">
@@ -7626,10 +7945,14 @@
           <commandLine>-g -pipe -std=c++17 -Wall -pthread -O3 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -mavx2 -msse2avx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
+            <Elem>ECC_TIMING_RESISTANT</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
+            <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
+            <Elem>WC_RSA_BLINDING</Elem>
+            <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
         </ccTool>
         <linkerTool>
@@ -7677,7 +8000,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -ltls -lcrypto -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
+          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -8513,6 +8836,54 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -8536,8 +8907,6 @@
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="include/ConnectionsInQueue.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="include/ContextTypes.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Deployer.h" ex="false" tool="3" flavor2="0">
@@ -8547,8 +8916,6 @@
       <item path="include/HTTPRequestParser.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/IOWorker.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/InQueue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/LuaReactiveService.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -8577,10 +8944,6 @@
       <item path="include/ServiceRegistry.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Shakespeer.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/TLSServerContext.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/TaggedEvent.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WSClientsPool.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -8663,6 +9026,8 @@
       </item>
       <item path="include/modules/wsSend.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/wolfSSLLib.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/getLog.cpp" ex="false" tool="1" flavor2="9">
@@ -8694,12 +9059,16 @@
           <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
+            <Elem>ECC_TIMING_RESISTANT</Elem>
             <Elem>LAPPS_TLS_ENABLE</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
             <Elem>STATS_ENABLE</Elem>
+            <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
+            <Elem>WC_RSA_BLINDING</Elem>
+            <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
         </ccTool>
         <linkerTool>
@@ -8747,7 +9116,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -ltls -lcrypto -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
+          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -9583,6 +9952,54 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -9606,8 +10023,6 @@
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="include/ConnectionsInQueue.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="include/ContextTypes.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Deployer.h" ex="false" tool="3" flavor2="0">
@@ -9617,8 +10032,6 @@
       <item path="include/HTTPRequestParser.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/IOWorker.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/InQueue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/LuaReactiveService.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -9647,10 +10060,6 @@
       <item path="include/ServiceRegistry.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Shakespeer.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/TLSServerContext.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/TaggedEvent.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WSClientsPool.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -9733,6 +10142,8 @@
       </item>
       <item path="include/modules/wsSend.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/wolfSSLLib.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/getLog.cpp" ex="false" tool="1" flavor2="9">
@@ -9764,11 +10175,15 @@
           <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
+            <Elem>ECC_TIMING_RESISTANT</Elem>
             <Elem>LAPPS_TLS_ENABLE</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
+            <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
+            <Elem>WC_RSA_BLINDING</Elem>
+            <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
         </ccTool>
         <linkerTool>
@@ -9816,7 +10231,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -ltls -lcrypto -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
+          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -10652,6 +11067,54 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -10675,8 +11138,6 @@
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="include/ConnectionsInQueue.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="include/ContextTypes.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Deployer.h" ex="false" tool="3" flavor2="0">
@@ -10686,8 +11147,6 @@
       <item path="include/HTTPRequestParser.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/IOWorker.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/InQueue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/LuaReactiveService.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -10716,10 +11175,6 @@
       <item path="include/ServiceRegistry.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Shakespeer.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/TLSServerContext.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/TaggedEvent.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WSClientsPool.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -10802,6 +11257,8 @@
       </item>
       <item path="include/modules/wsSend.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/wolfSSLLib.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/getLog.cpp" ex="false" tool="1" flavor2="9">
@@ -10833,10 +11290,14 @@
           <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
+            <Elem>ECC_TIMING_RESISTANT</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
+            <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
+            <Elem>WC_RSA_BLINDING</Elem>
+            <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
         </ccTool>
         <linkerTool>
@@ -10884,7 +11345,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -ltls -lcrypto -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
+          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -11720,6 +12181,54 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -11743,8 +12252,6 @@
       </item>
       <item path="include/Config.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="include/ConnectionsInQueue.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="include/ContextTypes.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Deployer.h" ex="false" tool="3" flavor2="0">
@@ -11754,8 +12261,6 @@
       <item path="include/HTTPRequestParser.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/IOWorker.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/InQueue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/LuaReactiveService.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -11784,10 +12289,6 @@
       <item path="include/ServiceRegistry.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Shakespeer.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/TLSServerContext.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="include/TaggedEvent.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WSClientsPool.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -11869,6 +12370,8 @@
       <item path="include/modules/time_now.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/modules/wsSend.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/wolfSSLLib.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>

@@ -28,7 +28,6 @@
 #include <mutex>
 #include <vector>
 #include <sys/synclock.h>
-#include <InQueue.h>
 #include <IOWorker.h>
 
 namespace LAppS
