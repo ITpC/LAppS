@@ -86,6 +86,8 @@ RUN cmake CFLAGS="-pipe -O2 -march=native -mtune=native -fPIC -fomit-frame-point
 
 RUN make -j4 all install
 
+WORKDIR ${WORKSPACE}
+
 RUN rm -rf ITCLib ITCFramework lar utils LAppS
 
 RUN git clone https://github.com/ITpC/ITCLib.git
