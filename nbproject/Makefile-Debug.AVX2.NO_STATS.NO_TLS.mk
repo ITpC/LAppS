@@ -67,7 +67,7 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2.nostats.notls: ../utils/di
 
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2.nostats.notls: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
-	g++ -g -pipe -Wall -pthread -O3 -flto -mtune=native -march=native -fPIC  -flto -mfpmath=sse -mavx2 -msse2avx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong  -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2.nostats.notls ${OBJECTFILES} ${LDLIBSOPTIONS} -lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam
+	g++ -g -pipe -Wall -pthread -O3 -flto -mtune=native -march=native -fPIC  -flto -mfpmath=sse -mavx2 -msse2avx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong  -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2.nostats.notls ${OBJECTFILES} ${LDLIBSOPTIONS} -lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lmimalloc
 
 ${OBJECTDIR}/src/getLog.o: src/getLog.cpp nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/src

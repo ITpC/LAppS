@@ -196,7 +196,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
+          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lmimalloc</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -1312,7 +1312,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
+          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lmimalloc</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -3543,7 +3543,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
+          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lmimalloc</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -4657,7 +4657,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
+          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lmimalloc</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -5772,7 +5772,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
+          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lmimalloc</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -6886,7 +6886,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
+          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lmimalloc</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -8000,7 +8000,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
+          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lmimalloc</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -9116,7 +9116,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
+          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lmimalloc</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -10231,7 +10231,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
+          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lmimalloc</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -11345,7 +11345,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam</commandLine>
+          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lmimalloc</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
