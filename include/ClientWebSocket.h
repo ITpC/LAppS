@@ -56,10 +56,6 @@
 // wolfSSL
 #include <wolfSSLLib.h>
 
-#define logWOLFSSLError(x,y)\
-      char buffer[80];\
-      auto err=wolfSSL_get_error(TLSSocket,x);\
-      itc::getLog()->error(__FILE__,__LINE__,y"%s", wolfSSL_ERR_error_string(err,buffer));\
 
 namespace LAppS
 {

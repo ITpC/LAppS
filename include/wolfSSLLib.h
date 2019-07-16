@@ -31,6 +31,13 @@
 #include <Config.h>
 #include <memory>
 
+
+ #define logWOLFSSLError(x,y)\
+      char buffer[80];\
+      auto err=wolfSSL_get_error(TLSSocket,x);\
+      itc::getLog()->error(__FILE__,__LINE__,y"%d - %s", err, wolfSSL_ERR_error_string(err,buffer));
+      
+
 enum TLSContextType : bool { TLS_SERVER, TLS_CLIENT };
 
 static std::atomic<bool> wolfSSLInitialized{false};
