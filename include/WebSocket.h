@@ -48,11 +48,14 @@
 #include <AppInEvent.h>
 
 
-// LibreSSL
-#include <tls.h>
+// wolfSSL
+#include <wolfSSLLib.h>
+
+// modules
+#include <modules/nljson.h>
 
 
-static thread_local std::vector<uint8_t> anInBuffer(16384);
+static thread_local std::vector<uint8_t> anInBuffer(static_cast<size_t>(LAppSConfig::getInstance()->getWSConfig()["workers"]["input_buffer_size"]));
 
 
 template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
@@ -73,8 +76,8 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   itc::utils::Bool2Type<TLSEnable>    enableTLS;
   itc::utils::Bool2Type<StatsEnable>  enableStatsUpdate;
   
-  struct tls*                         TLSContext;
-  struct tls*                         TLSSocket;
+  WOLFSSL_CTX*                        TLSContext;
+  WOLFSSL*                            TLSSocket;
   
   SharedEPollType                     mEPoll;
   
@@ -90,19 +93,48 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   itc::CSocketSPtr                    mSocketSPtr;
   uint32_t                            mPeerIP;
   std::string                         mPeerAddress;
-      
-  void init(const itc::utils::Bool2Type<true> tls_is_enabled)
+  bool                                accepted;
+  
+  const auto getParentId() const
   {
-    if(tls_accept_socket(TLSContext,&TLSSocket,fd))
+    static thread_local auto parent_id=mParent->getID();
+    return parent_id;
+  }
+      
+  void init(int _fd, const itc::utils::Bool2Type<true> tls_is_enabled)
+  {
+    TLSSocket=wolfSSL_new(TLSContext);
+    
+    if( TLSSocket == nullptr)
     {
       throw std::system_error(errno,std::system_category(),"TLS: can't accept socket");
     }
+    
+    wolfSSL_set_fd(TLSSocket,_fd);
   }
   
-  void init(const itc::utils::Bool2Type<false> tls_is_not_enabled)
+  void init(int _fd, const itc::utils::Bool2Type<false> tls_is_not_enabled)
   {
   }
   
+  const bool accept(const itc::utils::Bool2Type<false> tls_is_not_enabled) const
+  {
+    return true;
+  }
+  
+  const bool accept(const itc::utils::Bool2Type<true> tls_is_enabled) const
+  {
+    auto result=wolfSSL_accept(TLSSocket);
+    if( result != SSL_SUCCESS)
+    {
+      logWOLFSSLError(result, "WebSocket::accept() on wolfSSL_accept :");
+      return false;
+    }
+    else
+    {
+      return true;
+    }
+  }
   
  public:
   WebSocket(const WebSocket&) = delete;
@@ -113,21 +145,32 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
     const SharedEPollType&   ep,
     ::abstract::Worker*      _parent,
     const bool               auto_fragment,
-    struct tls*              tls_context=nullptr
+    WOLFSSL_CTX*             tls_context=nullptr
   )
-  : mMutex(),        fd(socksptr->getfd()), mState{HANDSHAKE}, 
-    mNoInput{false}, enableTLS(),           enableStatsUpdate(),
-    TLSContext{tls_context},                TLSSocket{nullptr},      
-    mEPoll(ep),      mStats{0,0,0,0,0,0},   streamProcessor(512),
-    mApplication{nullptr},                  mAutoFragment(auto_fragment), 
-    mParent{_parent},                       mSocketSPtr(std::move(socksptr))
+  : mMutex(), fd(socksptr->getfd()), mState{HANDSHAKE}, 
+    mNoInput{false}, enableTLS(), enableStatsUpdate(),
+    TLSContext{tls_context}, TLSSocket{nullptr},mEPoll(ep),
+    mStats{0,0,0,0,0,0}, streamProcessor(512),
+    mApplication{nullptr}, mAutoFragment(auto_fragment),mParent{_parent},
+    mSocketSPtr(std::move(socksptr)),accepted{false}
   {
-    init(enableTLS);
+    init(fd, enableTLS);
     mSocketSPtr->getpeeraddr(mPeerIP);
     mSocketSPtr->getpeeraddr(mPeerAddress);
     mEPoll->add_in(fd);
   }
-    
+
+  const bool is_accepted() const
+  {
+    return accepted;
+  }
+  
+  const bool accept()
+  {
+    if(!accepted) accepted=accept(enableTLS);
+    return accepted;
+  }
+  
   WebSocket()=delete;
   
   ~WebSocket()
@@ -144,13 +187,29 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
         mSocketSPtr->close();
       }
     }
+    if(TLSEnable&&TLSSocket)
+    {
+      wolfSSL_free(TLSSocket);
+      TLSSocket=nullptr;
+    }
   }
   
   void returnBuffer(std::remove_reference<const std::shared_ptr<MSGBufferType>&>::type buffer)
   {
     streamProcessor.returnBuffer(std::move(buffer));
   }
-  
+  void setInStats(WSConnectionStats& _stats)
+  {
+    _stats.mInMessageCount=mStats.mInMessageCount;
+    _stats.mBytesIn=mStats.mBytesIn;
+    _stats.mInMessageMaxSize=mStats.mInMessageMaxSize;
+  }
+  void setOutStats(WSConnectionStats& _stats)
+  {
+    _stats.mOutMessageCount=mStats.mOutMessageCount;
+    _stats.mBytesOut=mStats.mBytesOut;
+    _stats.mOutMessageMaxSize=mStats.mOutMessageMaxSize;
+  }
   void terminate()
   {
     ITCSyncLock sync(mMutex);
@@ -163,13 +222,8 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
       
       if(TLSEnable)
       {
-        int ret=0;
-        do
-        {
-          ret=tls_close(TLSSocket);
-        }while((ret == TLS_WANT_POLLIN)||(ret == TLS_WANT_POLLOUT));
-
-        tls_free(TLSSocket);
+        wolfSSL_shutdown(TLSSocket); 
+        wolfSSL_free(TLSSocket);
         TLSSocket=nullptr;
       }      
       setState(State::CLOSED);
@@ -182,13 +236,8 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
     {
       if(TLSEnable)
       {
-        int ret=0;
-        do
-        {
-          ret=tls_close(TLSSocket);
-        }while((ret == TLS_WANT_POLLIN)||(ret == TLS_WANT_POLLOUT));
-
-        tls_free(TLSSocket);
+        wolfSSL_shutdown(TLSSocket);
+        wolfSSL_free(TLSSocket);
         TLSSocket=nullptr;
       }      
       setState(State::CLOSED);
@@ -201,7 +250,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
     return mAutoFragment;
   }
   
-  const struct tls* getTLSSocket()
+  const WOLFSSL* getTLSSocket() const
   {
     return TLSSocket;
   }
@@ -268,15 +317,13 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
     }
     return -1;
   }
-
   const int send(const std::vector<uint8_t>& buff)
   {
     ITCSyncLock sync(mMutex);
     if(mState != State::CLOSED)
     {
-      const size_t bsize=buff.size();
-      updateOutStats(bsize);
       int ret=this->send(buff,enableTLS);
+      if(ret > 0) updateOutStats(ret);
       return ret;
     }
     return -1;
@@ -349,18 +396,13 @@ private:
   
   void updateInStats(const size_t sz, const itc::utils::Bool2Type<true>& withStats)
   { 
-    if(mStats.mInMessageCount+1 == 0xFFFFFFFFFFFFFFFFULL)
-    {
-      mStats.mInMessageCount=1;
-    }
-    else ++mStats.mInMessageCount;
+    ++mStats.mInMessageCount;
     
     if(sz == 0) return; // exclude 0-size messages;
-    int64_t size=sz;
-    int64_t cma_size=mStats.mInCMASize;
-    cma_size=std::abs(cma_size+((size-cma_size)/static_cast<int64_t>(mStats.mInMessageCount)));
-    mStats.mInCMASize=cma_size;
-    streamProcessor.setMessageBufferSize(mStats.mInCMASize);
+
+    mStats.mBytesIn+=sz;
+    auto InCMASize=mStats.mBytesIn/mStats.mInMessageCount;
+    streamProcessor.setMessageBufferSize(InCMASize);
   }
   
   void updateInStats(const size_t sz, const itc::utils::Bool2Type<false>& noStats)
@@ -544,13 +586,9 @@ RFC 6455                 The WebSocket Protocol            December 2011
   }
   void updateOutStats(const size_t sz, const itc::utils::Bool2Type<true>& withStats)
   {
-    if(mStats.mOutMessageCount+1 == 0xFFFFFFFFFFFFFFFFULL)
-    {
-      mStats.mOutMessageCount=1;
-    }
-    
     ++mStats.mOutMessageCount;
-    mStats.mOutCMASize=mStats.mOutCMASize+(sz-mStats.mOutCMASize)/mStats.mOutMessageCount;
+    
+   mStats.mBytesOut+=sz;
   }
   
   void updateOutStats(const size_t buff_size,const itc::utils::Bool2Type<false>& noStats)
@@ -576,21 +614,19 @@ RFC 6455                 The WebSocket Protocol            December 2011
       return ret;
     }
   }
-  
+
   int recv(std::vector<uint8_t>& buff, const itc::utils::Bool2Type<true> withTLS)
   {
     if(TLSSocket)
-    {
-      int ret=0;
-    
-      do{
-        ret=tls_read(TLSSocket,buff.data(),buff.size());
+    { 
+      int ret=wolfSSL_read(TLSSocket,buff.data(),buff.size());
 
-        if(ret == -1)
-        {
-          return -1;
-        }
-      }while((ret == TLS_WANT_POLLIN) || (ret == TLS_WANT_POLLOUT));
+      if(ret <= 0)
+      {
+        logWOLFSSLError(ret, "WebSocket::recv(withTLS) :");
+        return -1;
+      }
+      
       return ret;
     }
     return -1;
@@ -623,15 +659,14 @@ RFC 6455                 The WebSocket Protocol            December 2011
       size_t outCursor=0;
       do
       {
-        const int result=tls_write(TLSSocket,buff.data()+outCursor,buff.size()-outCursor);
-
-        if((result == TLS_WANT_POLLIN) || (result == TLS_WANT_POLLOUT))
-          continue;
+        const int result=wolfSSL_write(TLSSocket,buff.data()+outCursor,buff.size()-outCursor);
 
         if(result == -1)
         {
+          logWOLFSSLError(result,"WebSocket::send(withTLS) :");
           return -1;
         }
+        
         outCursor+=result;
       }while(outCursor!=buff.size());
 

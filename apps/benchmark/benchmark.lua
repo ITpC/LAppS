@@ -6,6 +6,8 @@ end
 
 benchmark.messages_counter=0;
 benchmark.start_time=time.now();
+benchmark.server_url="wss://www.example.com:5083/echo"
+benchmark.maxconn=100
 
 benchmark.meter=function()
   benchmark.messages_counter=benchmark.messages_counter+1;
@@ -23,10 +25,10 @@ benchmark.run=function()
   local n=nap:new();
   n:sleep(1); -- delay for echo service to startup fully
   local array={};
-  for i=0,99
+  for i=1,benchmark.maxconn
   do
     local sock, err_msg=cws:new(
-      "wss://127.0.0.1:5083/echo",
+      benchmark.server_url,
       {
         onopen=function(handler)
           local result, errstr=cws:send(handler,"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",2);
@@ -49,6 +51,7 @@ benchmark.run=function()
       then
         table.insert(array,sock);
       else
+        print("connection to " .. benchmark.server_url .. " is not established");
       end
       cws:eventLoop();
   end

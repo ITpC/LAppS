@@ -26,10 +26,9 @@
 
 #include <sys/synclock.h>
 #include <forward_list>
-#include <TaggedEvent.h>
 
-#include "WSProtocol.h"
-#include "abstract/WebSocket.h"
+#include <WSProtocol.h>
+#include <abstract/WebSocket.h>
 
 namespace LAppS
 {

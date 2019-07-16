@@ -77,7 +77,7 @@
       };
 
       // create a websocket
-      var websocket = new WebSocket("wss://127.0.0.1:5083/echo_lapps");
+      var websocket = new WebSocket("wss://localhost:5083/echo_lapps");
       websocket.binaryType = "arraybuffer";
 
       // on response
@@ -88,6 +88,7 @@
 
         // CBOR to native JavaScript object
         var message = CBOR.decode(event.data);
+        
 
         // Verifying the channel
         if(message.cid === 0)
@@ -101,6 +102,7 @@
                 window.lapps.authkey=message.result[0].authkey;
                 echo.params[0].authkey = window.lapps.authkey;
                 websocket.send(CBOR.encode(echo));
+                console.log("echo has been encoded and sent");
               }
               else
               {
@@ -127,6 +129,7 @@
                 subscribe.cid=6; // subscribe to blob broadcast
                 websocket.send(CBOR.encode(subscribe));
                 window.subscribed=true;
+                console.log("subscribed");
               }
             }
           }

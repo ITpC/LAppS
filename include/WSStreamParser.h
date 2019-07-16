@@ -60,7 +60,7 @@ namespace WSStreamProcessing
     MSGBufferTypeSPtr                       message;
     MSGBufferTypeSPtr                       messageFrames;
     
-    std::queue<MSGBufferTypeSPtr>           mBufferQueue;
+    std::forward_list<MSGBufferTypeSPtr>    mBufferQueue;
     
     itc::sys::mutex                         mBQMutex;
     
@@ -384,7 +384,7 @@ namespace WSStreamProcessing
       }else{
         auto tmp=std::move(mBufferQueue.front());
         tmp->resize(mOutMSGPreSize);
-        mBufferQueue.pop();
+        mBufferQueue.pop_front();
         return tmp;
       }
     }
@@ -406,7 +406,7 @@ namespace WSStreamProcessing
     void returnBuffer(std::remove_reference<const std::shared_ptr<MSGBufferType>&>::type buff)
     {
       ITCSyncLock sync(mBQMutex);
-      mBufferQueue.push(std::move(buff));
+      mBufferQueue.push_front(std::move(buff));
     }
 
     void setMaxMSGSize(const size_t& mms)
