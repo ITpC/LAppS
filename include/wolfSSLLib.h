@@ -178,7 +178,6 @@ public:
     if(wolfSSLInitialized.compare_exchange_strong(test,false))
     {
       wolfSSL_Cleanup();
-      
     }
   }
 
