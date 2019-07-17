@@ -1,8 +1,7 @@
 Package: LAppS
-Version: 0.7.2
-Maintainer: Pavel Kraynyukhov <pk@new-web.co>
+Version: 0.8.0
+Maintainer: Pavel Kraynyukhov <pavel.kraynyukhov@gmail.com>
 Architecture: amd64
 Description: Lua Application Server for micro-service architecture.
 Homepage: https://github.com/ITpC/LAppS
 Bugs: https://github.com/ITpC/LAppS/issues
-Depends: libcrypto++9v5 (>=5.6.1) | libcrypto++6 (>=5.6.4)
