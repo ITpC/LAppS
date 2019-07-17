@@ -1,314 +1,642 @@
-4a02211 nr of sockets changed
-a5b95f1 WebSocket client example services
-c385daf WebSocket client implementation bugfixes
-1f1eaa1 added dependencies in descriptor. minor changes in benchmark
-1e2fbc7 removed debug out
-ad3162a code cleanup
-5da4257 code cleanup
-77f575b service initialization message logging
-59196be removed commented lines. added logging for handshake failures
-b0baa4d fix: #19
-2d057f8 fix: #20
-a013bd8 fix: #17 implemented as a recursive call to Deployer::start_service()
-33dff14 service descriptor for lar is added
-e41afca benchmark minor fix
-791a521 attribute `depends\' is recognized by Deployer now. Configured in lapps.json in a service descriptor this will start subordinate services listed in `depends` array now.
-06e5c0e prefer client ciphers for TLS
-8c2cc87 moved common parts in superclass
-0806051 removed goto and replaced with do-while
-b09cc28 upstream version bump
-99249ec fix #18
-779302b fix #15
-4a63f48 fix #16
-0ca3064 removing debug output
-523a991 benchmark service which uses cws module
-ca4730e client WebSocket implementation and embeddable module for lua
-063f6c2 added () on key check, insignificant change
-cd56db0 moved common functionality to include/modules/UserDataAdapter.h, renamed __gc callback
-7b063eb moved common functionctionality from include/modules/mqr.h
-1e458df simplified lua stack clear wrapper, added log->flush before exceptions
-141d301 separation of methods for WS client and server
-099122a moved two common methods to base class
-b8dce40 comparison simplified
-ed68dd7 fixed HTTP headers case sensitivity issue, separated WSStreamParser for upcoming WSClient
-0afbe0a Moved structures common for client and server to include/WSStreamProcessingCommon.h
-12b4140 regression fix
-e3d12bb added a recognition of an optional 'proto_alias' attribute of the service and its announcement on handshake
-028c68d spacing in constructor
-6bff835 new option for services: extra_headers, to provide additional headers for clients
-8f7e0c7 constantiated a value
-c5455dd headers parsing tweaking
-6199ae5 HTTP headers parsing fix
-62f29d2 buffer range check fixed on send
-2b6f2d3 added server version in HTTP resoponse
-2c525e6 simplified the parser
-c7fcb43 potential socket exhaustion on handshake is fixed
-081304e 0.7.0 deb packages bump
-2830ed4 syntax error fix
-22bae55 fallback to g++5.4
-17e0076 g++6.0 added
-358d564 LAppS 0.7.0 defaults
-a99f907 LAppS protocol benchmark
-8d36183 LAppS protocol echo client
-c35e828 LAppS protocol simulation over uWebSockets is added
-54595a9 uWS.cpp example from benchmarking of uWebSockets is added
-f86c67f lar installation is added
-3411b09 console wip, added service descriptor to examples/echo_lapps
-1227a72 preads option is removed
-1b377d3 spaces
-5e87e72 optimized masking for packets >= 48 bytes
-2a648aa Reader is removed
-3e91d09 race condition on recv and send at the same time fixed
-812a9a3 added two new methods size and indexed get
-051f598 removed temporary Reader functionality. everything is back to IOWorker
-23188c0 Workers Cache update condition fixed
-542da44 lar dependecy was missing. fixed
-33b694a Inter-Service communications with message queues
-c282ffa buffer owenership on return
-3b0c29c formatting
-da2e6ff alignment, saving 8 bytes per WebSocket
-36ac7f1 ChangeLog.md formatting
-19ab61f ChangeLog.md bump from git log
-76d693c deployment descriptor and stop condition
-ee62516 formatting
-49ce263 auto save of the config file in pretty print
-9cbe03d control of internal services lifetime moved from InternalAppContext into InternalApplication
-080bbb1 deployment for internal apps is fixed
-04e9840 0.7.0 packages links are added
-f8caee7 comments fixed
-d2d0c3b autobahn testsuite results
-ba7e8df 0.7.0 proper. no console
-bedc0a4 64 bit-xor for fragmented messages with fragments larger 8192 bytes
-454dc1f libbz2-dev was missing. fixed
-c237293 lar was missing. fixed
-0146b10 console.WIP
-1132740 removed gprof linking
-2b2ce8e removed commented lines
-a493848 more optimizations
-7980cd6 4x performance improvement on large payloads (>1024 bytes)
-975a374 instance unique id and name forwarding fix
-0c0d915 WS stream parser refactoring and cleanup
-e1bec18 added ignore of a benchmark/benchmark_nontls binary file
-01f35e3 removed remarked line
-8520488 optional variable check `NONTLS' is added to have a possibility to run NONTLS benchmarking
-6d9ad75 exception error message fix
-bf5169c members declaration indent fix
-d01d66d comment fixed
-1b3f89a simplify hash acquiring code
-0af611a Closes: #11, Instance ID support for internal services
-cae3e57 moving nonce singleton declaration to a separate file
-bf35500 Closes: #10 , support for unique id of the running instances of the service <internal=false>
-8a0b7f4 fix: #9
-ffab485 fix: #8
-721d5f3 Merge branch 'master' of github.com:ITpC/LAppS
-159d26b console WIP
-c29ae09 murmur hash and time_now modules are added
-5ea66f8 fix: #6
-dbdeaec added LAPPS_APPS_DIR environment variable
-17431ce fix: #7
-2966653 fix: #6
-f5a6e82 removed debuging line
-92d4c13 fixed default config
-4bb1237 Service-level network ACL has been added (on a Shakespeer level at handshake)
-973ff81 Global network ACL (filter on TCPListener level) is implemented)
-1001222 pam_auth:login() arguments length check added to avoid pam calls with empty passwords
-983cebe console app, initial commit
-2bf1e85 PAM authentication module is added for console app
-3fe98fc Upstream autobahn testsuite report for latest fixes
-23e763e added filtering of temporary files
-5368bb7 connection termination and proper failing fix
-f3c8e97 benchmarking fix
-62c463a gperftool profiler is removed from library dependencies
-b45330b fixed an error caused by yesterdays commit with optimization on fragmented messages
-ccfe12e slight optimizations. ring buffer for messages is added
-97b85cf 0.7.0.1
-f9edec2 console app, initial commit
-e684834 authentication module (just some lines not finished yet)
-59557e7 Non disruptive restart of deployed applications (connections are persist and moved to new applications). This must be tested more, much more. Apps stream can be disrupted anyways.
-4c91c1c removed second copy of echo.lar
-11d821c Deployer is working. Example of an archived service is added to examples/ dir
-dd922ac Separate deployer for local and network deployment with LAR support. Not fully tested
-fc33456 ApplicationRegistry is counting instances now, unRegApp method is added, CMA for inbound messages is corrected, in-message buffer is adjusted by CMA
-b87fb3d cma fix
-7708534 0.7.1:WIP
-309535e 0.7.1:WIP
-c23b26f reader for preads option
-8db18b4 preads option is added for parallel reads
-9b68b74 removed useless file
-07fa99a 0.7.1RC parallel send, dynamic service start/stop infrastructure
-e83c6b0 removed workerscache, std::mutex is replaced with itc::sys::AtomicMutex
-b9a11cd std::mutex replaced with itc::sys::AtomicMutex
-c202136 benchmark fix
-4ba9d29 ignore binaries, test results and profiling output
-16940e6 removed commented line
-df29b10 changed from posix mutex to AtomicMutex
-158788b removed useless mutex
-886aecb removed useless mutex
-753d272 0.7.0 work in progress
-35f8701 uWebsockets examples used in benchmarking are added
-2f16caf width update for tables
-cd183ad WIP: ongoing work on performance optimization
-fdc50fe cleaning the code
-bdab8ab Merge pull request #2 from ITpC/0.7-highperf
-65cf903 Merge pull request #1 from ITpC/0.6.3-stable
-4f676ba (origin/0.6.3-stable) license file for nlohmann json
-0b532f0 (origin/0.7-highperf) VERSION bump
-bd32488 LAppS-0.7.0 experimental high performance branch
-00adcfd toward perfopts
-fe8f581 removed useless file
-4b81e4d Merge branch 'master' of github.com:ITpC/LAppS
-3260774 incorrect exit out of switch
-e0f42be ckmob
-a3a5239 LibreSSL updated to 2.7.3
-b09c77f package and runenv script bump
-bb0a0a2 0.6.3 stability improvments, slight performance improvments
-facdd8b 0.6.3 regression test results
-9e4b765 correced
-9d420a5 defaults for demo
-c5871f6 nebeans configuration auto-update
-ce56657 side-notes correction
-c330f5d link to deb package is fixed
-959c937 running xavante with client-app conf
-f16f060 removed test line
-46202fe fix for xavante stop behavior
-1d7ea7d fix for xavante
-0d8270c one more fix for deb
-90c8938 config file for xavante
-61c9b26 xavante service
-e249929 LAppS-0.6.2 hotfix, environment variables
-ca853e1 LAppS-0.6.2 fix: config validation
-2c29307 Config validation fixed
-3ff4b29 fixing dockerfile for runenv 0.6.2
-f52daba deb package for LAppS-0.6.2 is added
-ebdb3f1 broadcast_blob example added in examples installation
-f5060a8 auto_fragment default value: false
-b82942c VERSION bump
-e35dbd6 LAppS-0.6.2. New features: option for inbound message limit per service; optioanl outbound messages auto-fragmentation; option for workers to limit amount of connections
-f339cc7 changelog update
-1ecebfd Dockerfile for LAppS runtime is prepared. See the changes in dockerfiles/Dockerfile.lapps-runenv.0.6.1
-c973a2f deb package for 0.6.0 is removed
-19ebb99 deb package refresh
-3b38a92 LAppS-0.6.1
-1485ab6 time_broadcast intallation is added
-714f822 code refining towards the dynamic deployment
-f018cb8 version 0.6.0 package is added. 0.5.1 is removed
-5938753 changelog bump
-c4e56ab decoupled apps support
-133d97b useless declaration is removed
-2f9f3c4 formatting
-c4dbba4 useless declaration is removed
-53c7057 broadcast moved to new example for decoupled apps: time_broadcast. echo_lapps subscribes clients on request to broadcast channel, but the broadcast itself is done from time_broadcast service
-de8a526 decoupled apps implementation
-0f2214d module for usleep - microseconds sleep, nsleep nanoseconds sleep, sleep seconds granular sleep
-5d3a159 bcast_create() fix
-2ef2eb0 0.6 branch is in development. features: internal apps
-2c413ba Internal apps are addded
-49d6b73 refactoring common use methods moved to abstract/ApplicationContext.h
-d59504e added profiling directory to gitignore
-f1e24a2 error messages changed. nothing significant
-5c97169 perftest results added (requested by habrahabr.ru user)
-59ec0ff default parameters tuning for test on 4 cores i7
-011f097 regression test bump
-69827cf Special note for performance results is added
-f2c2b2d result for nginx test has been added
-e9b0c63 location section of nginx.conf used for test
-78519e0 deb package version bump
-b5ddb07 deb package version bump
-26f3696 test results bomped
-6d34371 checking for nullptr added
-491bac8 default for listeners changed to 3
-18c90ed mWorkersCache initialization
-bbffdd8 remarked useless locking
-5b1a515 deadlock regression fixed for onDisconnect method
-f490766 removed some debugging code
-c5fa5e7 bcast fix-bump
-c33d045 bcast-fix
-3f3b366 png resolution changed
-cb588d3 LAppS arch image
-ff092ad Merge branch 'master' of github.com:ITpC/LAppS Issue templates merged with local changes
-c75460a TODO moved to project's kanban
-79811ae Update issue templates
-c4b12d6 Update issue templates
-465c4ce package is bumped to lapps-0.5.1
-d51779f Broadcast fixed
-05433d4 fixed permission for bcast module to be available only in an application context with LAppS protocol
-329f400 comments
-ec1ba54 LAppS-0.5 Ubuntu xenail amd64 package
-33806b0 deb package for ubuntu xenial is provided
-7306efc echo_lapps example installation fixed2
-3a90a0f echo_lapps example installation fixed
-bb72b1b echo_lapps example installation added
-c42b158 deb package control file is added
-c2d314b sigsegv fix
-e4c4c01 -march=native, -mtune=generic
-d250879 comments changed. usless notification is removed
-0274669 demonization argument check is fixed
-8fae691 demonization with -d command line argument is added
-d17a368 wsServer is moved to LAppS namespace
-b757979 bcast module is added
-69b8ddd ud2json() and get_userdata_value() are moved to include/modules/UserDataAdapter.h
-d14b815 removed commented code
-f2206a3 moved to LAppS namespace
-ce1b7df TODO fixed
-0a85066 wsServer::run() moved to main()
-3cb07df removed run() method. connection weighting based on configuration parameter is implemented
-28c8450 wsServer configuration attribute connection_weight was added (affects load balancing)
-cb4d75f postpone application instance shutdown, until it is released by application
-981d218 performance results with load balancer are added
-6d2f8ef Balancer for inbound connections is added
-0d1f7e4 Event Queue Size attribute is added
-462a76b Stats update is partially  enabled for the balancer
-9cfa396 size() method is added
-a669995 removed commented line
-7729527 improvments done according to documentation
-5f1f903 LAppS protocol echo app updated to fit specification
-6e48146 side notes updated. Performance is degraded because of EventBus use. Will be fixed later
-ac1ff45 params specification detalization
-5b76ff6 using 'auto' instead of type specification
-9e67822 using 'auto' instead of type specification
-4b95cd7 fix: dereference of unassigned shared_ptr on socket close with no handshake
-f5e0b35 LAppS-protocol implemented. echo_lapps demo application is added to demonstrate LAppS stack
-abb5734 changed startup notification from log-debug to log-info level
-ddd6d35 added 2 interface methods: submitError, submitResponses (batch submission)
-192024b changed includes
-ba68205 added new constructor for ServerMessage
-8eea240 added messages batch-submission
-928521f Added support for LAppS protocol messaging (input messages validation)
-675792a error notifications changed. `this\' submitted to ApplicationContext as a parent
-e8348a3 formatting
-d1a146f added ws::send() for sending from within lua apps, with RAW and LAppS protocols support
-5ff1f51 LAppS protocol formatting fixed
-26f8359 LAppS protocol specification is updated
-0af299e testing multi-instance work
-4eb1cba shutdown notification changed from log-debug to log-info level
-546c3c7 batch update impl
-1f5c41a getWorker() method is added
-61d8776 separate messages header constructor
-bfa956e batch update impl
-2fa62e8 batch update impl
-4f1c062 duplicated code moved to method cleanLuaStack()
-7636f58 workers caching
-8edb8e1 include/WSStreamProcessor.h enum range check fix; worker id is size_t now - fixed
-8fb84bf state change bugfix (allow sames state re-set)
-d5f3ee6 corrected Makefile
-522ef0a reordering config. removed workers restriction
-9b19df8 Spec markup update
-a7f2f0d fix install target
-c6bb141 changes for default config to run within docker instance
-175b7c7 changes for default config to run within docker instance
-28bdb53 install and install-examples targets are added
-de1034d added TODO
-1f283e4 Refactoring. lua echo app is running now
-2e73eac Refactoring: Shaker runs IO over thread pool. LAppS protocol specification is added (no working implementation yet). nljson module is added. LAppS is capable to load applications now. Code is just compiling and run until first app load, everything needs excessive testing, debugging and fixing
-664d799 Code refactoring: handshake phase moved out of workers to listeners, stats added, internal communication queues
-081739f LAppS Core v0.0.1
-4014c16 socket's close on different WebSocket states
-1076b59 libtls thread safety, TLSServerContext is shared between workers now. lockfuncs and idfuncs for libtls are added
-f5991c1 excluded private from respository
-8e6380c excluded nbproject/private/ from respository
-111c1e5 1. Fix: tls server context and config are required to be singletons 2. Refactoring: rename ConnectionsWorker to WSWorker
-54c9452 Modified link to Autobahn TestSuite Results
-8b8b758 Added link to Autobahn Results
-a90ed89 Autobahn Testsuite Results
-d4f3602 Initial import, WebSockets Protocol Implementation, non-SSL and TLSv1.2
-d8c0f6f Initial commit
+<li> <a href="http://github.com/ITpC/LAppS/commit/bdb6da61d9dec5ab80780027073d415d5afe6756">view commit &bull;</a> 0.8.0 bump</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/acd04d8c3a21d0991cda8e760acca0b854721afd">view commit &bull;</a> clarification</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/fdb9b2479bc5db7bb88921ab4ef91b6c94ce64f0">view commit &bull;</a> fix for binary names [0.8.0]-RC2 AVX build</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/822fe28f0b2fb6a3fa9be57a54103030bd9df70d">view commit &bull;</a> fix for binary names of the AVX build. 0.8.0-RC2</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/90588395d033ca8f7dc88267ba439e8a91e78478">view commit &bull;</a> packages for 0.8.0-RC2</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/1b6a70660823e462554ba7fb55872b59f2669ea1">view commit &bull;</a> AVX package</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/79db33e602ebbc5a84639f3378dffea1bfb45125">view commit &bull;</a> WIP towards 0.8.0 release</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/865ab85aaf979b5e2005f9e6def119fb660f98f4">view commit &bull;</a> formatting</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/a6d2d22956032058e2e69cdd1691e60a4dba2566">view commit &bull;</a> Docker runenv for 0.8.0 AVX build</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/1948b92b9a186d104751fb10957d97c8bdfeadf5">view commit &bull;</a> WIP towards 0.8.0 release</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/237bea1dc34591842edf7daf164e3cf87ef73575">view commit &bull;</a> WIP towards 0.8.0, avx release</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/be5b1c3a36e642ae5e7330496f4ed685a07f007d">view commit &bull;</a> WIP towards 0.8.0 release</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/2cc842df1508d9d22fa5d11b0588d854f7350b75">view commit &bull;</a> 0.8.0 bump</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/2116948a1c5099ac85284df6dea64e01ab4ddc7f">view commit &bull;</a> WIP towards 0.8.0 release</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/2c2759104f5ed8046181f3c483ccdcf469e2ffff">view commit &bull;</a> WIP towards 0.8.0 release</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/de9b57c50a2fdc1f20b9f142c806b369ac055362">view commit &bull;</a> packages version bump</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/b8590a2d55434502664307f31a43886575c03545">view commit &bull;</a> packages are updated to 0.8.0</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/96de3e8c79584317bfd2ba54c8b525283821b600">view commit &bull;</a> WIP towards 0.8.0 release</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/9e6ea4cc5dfc6a7569b31dc0e6b150578d41ac34">view commit &bull;</a> fix: cryptopp 8.2 install</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/41699e7cc8f2495a7a05c359603d046e42514cd6">view commit &bull;</a> workspace fix. WIP towards 0.8.0 release</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/10d5c4ac5f959534c5c25467d0795b91a77a977b">view commit &bull;</a> WIP towards 0.8.0 release</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/4c4f5deb4d713ec1208728a73f170fe271933459">view commit &bull;</a> WIP towards 0.8.0 release</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/6c835bf96b62c157db8d6bebf9a8a799546719d5">view commit &bull;</a> 0.8.0 libraries</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/6503a6b43455c95b91351edea33ce7eba5f04db4">view commit &bull;</a> WIP: 0.8.0 preparations for release</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/d128401eea4c218ea05b756267204dec72ea2fdb">view commit &bull;</a> netbeans build config autochanges</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/a61d9711e5eeae538377d106ce0a07b898873440">view commit &bull;</a> separately call wolfSSL_accept for TLS 1.3 errors verbosity. Fix parser for Connection header in include/Shakespeer.h</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/292ea4d5f2434a9de5a7a48b2093266147261627">view commit &bull;</a> TLS 1.2 is set by default now instead of TLS 1.3</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/0ebf5714fe27b73656323d6e16c1d1395ca93870">view commit &bull;</a> logWOLFSSLError macro has been moved to wolfSSLLib.h</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/b7179b8edf92db25f6a3921631aa2df73f332f8c">view commit &bull;</a> InQueue.h removal</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/a783419ef7c535b44c7531a87cea5ae6c93a073e">view commit &bull;</a> more logging in console</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/0ce36e4f47c9d7835e72fdf53619a11f236ce50d">view commit &bull;</a> nbproject/configurations.xml</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c3267c45d4399ecf4f9d76d064d18a881e77ef37">view commit &bull;</a> stats in/out bytes instead of CMA</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/2d4566c4c65911e758742f550b74aaf8a155a681">view commit &bull;</a> per worker in buffer size parametrization and stats in/out bytes</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/fb32599c775da45c5beb97f331655b47b4dbdb79">view commit &bull;</a> stats must keep in/out bytes</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/1e673439955174c91d7ec2ed96fddbad5ede3a9f">view commit &bull;</a> libressl removal</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c60e6742ba3c145a5c9d52af60daa4a93d1c5066">view commit &bull;</a> per worker input buffer size parametrized now</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/dd907d8d79111e7c48604e5d35fd8b56f4046761">view commit &bull;</a> fix: nap module must be preloaded</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/6d654802f80723983c7f87b5fca28e9f1ad48e5b">view commit &bull;</a> access policy changed to allow by default</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c04e797ead073c6f4efab5b4345ac2d1078a144c">view commit &bull;</a> constants moved to module scope</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/7923a669944b9062cad834c1571451b3e0465c22">view commit &bull;</a> includes. TaggedEvent.h removed</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/84b3d686def09bc55d9fe4237d67b50d4b59c30e">view commit &bull;</a> update stats postfactum</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/094a011d0e998ca0ca79ccf69505da23a19414fc">view commit &bull;</a> tls_client_version and tls_server_version options have been added</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/99a3987ebd52e49128968f081c5001de24a315b9">view commit &bull;</a> netbeanse build scripts autochanges</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/dab886b4f63c0387c9a3592ae4ec3c3b3acdb840">view commit &bull;</a> memory leak fix</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/ca0b688d7d089452ac22fb57d82146d4f5c04ca0">view commit &bull;</a> memory leak fix</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/e64095f4b26e77f81548a285491edefcc0e14a38">view commit &bull;</a> pushlstring instead of pushsring</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/a9997bfc7cde9852dda74a910137795f2f0db1f8">view commit &bull;</a> memory leak fix</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/a140bf2bc5e7fcc8a2cee2e62a439f27e1adf5f0">view commit &bull;</a> netbeans conf auto changes</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c2d5cef1a182a830baa99ccc8637dc90dc74dfd2">view commit &bull;</a> do not need the std::queue there, replaced with std::forward_list, - 2.03% performance improve</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/94064b4b475101339d4265e7a80aae4b84a97bea">view commit &bull;</a> remove unused vars</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/2a06c29f9a41f95f1d64fb4ad1df5744a1aa9bea">view commit &bull;</a> netbeans build config autochanges</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/541034afbb331d0b11d7633870de0032e9ee5e6b">view commit &bull;</a> max_inbounds_skip option is added, - force IOWorker::processInbound() to dequeue available sockets, after max_inbounds_skip try_recv attempts failed</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/201910ac13c94be534dec5c31948f2f511ce4aee">view commit &bull;</a> [%] -> [%s]</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/a0c613c9dd030b8bedc6318380afe95ce19efb6d">view commit &bull;</a> options for wolfSSL timing resistance / side-channel attack prevention</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/37e2832b58e763415557b236be867572a425495b">view commit &bull;</a> wolfSSL replaces LibreSSL</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/8d7e415bda78f31a972b2dd708e7660c10c4e5e3">view commit &bull;</a> wolfSSL initialization and context creation library, TLS1.3 only</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/a290c8530345709c66f89be3dd2236f2865f077d">view commit &bull;</a> LAppS 0.8.0 with TLS1.3 and wolfSSL</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/f55b9a8cefb059ee94ce797fb75fd09d8451a9d5">view commit &bull;</a> slight optimizations</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/60577c483e376f9f8277a23e8f29023f94f08108">view commit &bull;</a> std::map replaced with tsl::robin_map</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/3f2fff2b41454967cea69846fc2330726c98deb3">view commit &bull;</a> `cinq_depth option' removed; epoll policies are added: `max_poll_events' - max amount of events polled at once; `max_poll_wait_ms' maximum wait time in ms spent in epoll at once</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/f5f6bd25d59af46d9e6769acc1bcfd7bc5daa732">view commit &bull;</a> `cinq_depth option\' removed; epoll policies are added: `max_poll_events\' - max amount of events polled at once; `max_poll_wait_ms\' maximum wait time in ms spent in epoll at once</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/541162a2c50b6423c47617e5200383599c8f764b">view commit &bull;</a> netbeans default build-config autochange</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/a6b239dbcbc6ec6543ac6e439b3eeaf0d0b35dd1">view commit &bull;</a> defaults changed</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/30282320cfe7d96bc45d9f2e2b8bec9b2fa45a4d">view commit &bull;</a> send has a prio over recv</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c10bbafd12eb0db6ed8dcfff47b24dabd35bea6e">view commit &bull;</a> namespace</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/3f4febb044badf572c1f4d3dc1e312e536c7f6ea">view commit &bull;</a> the balancers are per listener now</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/44a0d8244ed7f5e9c56f27cf236b97081189fc8c">view commit &bull;</a> move semantics, clang++ warnings fix</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/726a0750e410a9d62a9cc326bd0891246e746430">view commit &bull;</a> using itc::sys::sched_yield() instead of asm(pause)</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/44f677e13e9fae95037a13b120ac6570e7485c3b">view commit &bull;</a> context stop atomic + log messages fix</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/2c3d6ddc5a4457b39260c463b99467039eb68f41">view commit &bull;</a> wait for context to shutdown</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/7c06060353c4c62a7544bed93d2e2516c42124f2">view commit &bull;</a> removed unused variable. clang++ warnings fix</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c947f0d6f79a68087a852f2de98fa9404e4ac98f">view commit &bull;</a> Back to balancer. RR only</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/f89fb024d76c1d1c754e814534ba5335c055c664">view commit &bull;</a> netbeanse build config autochanges</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/d116252aa8b5acc8dab67372a49c2be15a6d6ec4">view commit &bull;</a> batch read from inbound queue</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/6a9c21b7523b2584f8bd23fdb7285a513342f399">view commit &bull;</a> netbeans config autochange</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/b2f484d0277e6172392ede2728f57583f50a1720">view commit &bull;</a> include/ext/json.hpp.bak removed</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/0e5e047f1dcdaa6d2fe995cd4c0acd1273f06fab">view commit &bull;</a> std::mutex has been replaced with itc::mutex (occusionnaly locks in userland without context swithc)</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/d0dea8e0df1a6f5ba0728eeddc8c0ee08e6404b3">view commit &bull;</a> libcrypto++-8.0.2 compat</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/3499bad178af6fa812b3f30869fdb5529599bd41">view commit &bull;</a> default: 3 workers</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/ad8a3f527f7031e6f77e4c5e348f993de70a2ddd">view commit &bull;</a> libcrypto++-8.0.2 compat</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/e00f34e1219cbcb1928f4d9ee2fcba84f1783ae8">view commit &bull;</a> Per listener Balancer. Lock-free WorkersStats</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/cd8e4a8e7b12e6c2b22a5f360120e898053ba580">view commit &bull;</a> netbeans config autochanges</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/955103ad64f7d556ca3590cd1b9b17dcecc343e0">view commit &bull;</a> CINQ. per worker connections in queue</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/0771b472d581ecafb95972f11ce44285458a5cc1">view commit &bull;</a> balancer temporary disabled. to be reworked together with lock-free stats tables</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/61f2d07d84f416be2f33db7ec52d95cc7557a20e">view commit &bull;</a> added defaults for cinq_depth - connections in queue (per worker)</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/d6000d1147ae11546036dd76f6c7ebd00ec6bd47">view commit &bull;</a> formatting</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/5193a184e4d9c041a66654998e723aab2ac9ac0f">view commit &bull;</a> tsl::robin_map added. To be used instead of std::map as of connections key-value storage</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/2387b3428d450ffa8b04259228f0375a35143e8b">view commit &bull;</a> nlohmann JSON updated to github master head</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/d05de21b7db5b570aaa50ad971c13499dc02c41c">view commit &bull;</a> netbeans config autochange</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/e69b2bb3b425169539dd83ab51723dc9da177d67">view commit &bull;</a> v0.7.3 bump</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c0823a3f6ce3a03b56feb9a5b8f20c85f8cec733">view commit &bull;</a> netbeans config autochange. TLS_ENABLE by default</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/76fbc18283bd2dd1fffad7046759f546c9a59765">view commit &bull;</a> log message fix</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/7df2060947190e24c53d2be39e5b78d52bd9e02f">view commit &bull;</a> recursive update for packages/README.md fix</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/7cb370365375fa8de127789da8f2457d1d1efe5c">view commit &bull;</a> bump to packages module update, netbeans build-conf autochanges</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/3ed30024219cf908bdbecb3990bcb29101bec3d0">view commit &bull;</a> netbeans build config auto-update</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/70ede5535bde11d4456d34d4a4d111fffb10988a">view commit &bull;</a> libressl version update to 2.8.3</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/dcb607ba9e2e55b6cfb076ebb4894d250e975ec3">view commit &bull;</a> ITCFramwwork/tsbqueue interface change</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/95b8f44c8952589f6903421ebc561dec99a68271">view commit &bull;</a> formatting</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/d9f4928f80a90c444d031c9844b6cdb6ffc016d5">view commit &bull;</a> stats+cleanup</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/d58115024e7aaaa072fb39fcb724211be04e7f4b">view commit &bull;</a> netbeans build-conf autochanges</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/42f7ada0050f9fcc238a0c73e33aa58a722cf8e2">view commit &bull;</a> WorkersPool moved to namespace LAppS</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/02c7117153f64b50048b2736ba7f06e80465b347">view commit &bull;</a> std::move added where appropriate</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/11a4a5be22b59c777a875af618982068956ecd0e">view commit &bull;</a> fix: inappropriate use of std::move</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/3c5f30c75c53c03aa21d954d9ba92a5d5a578da7">view commit &bull;</a> fix: inappropriate use of std::move</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/b029591d19eaf39ed96ded2d32b419556f943dfb">view commit &bull;</a> formatting</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/97e32bbd2de06dea7c2aab27498d65c5a5239b2d">view commit &bull;</a> removed commented code</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/1cad58fc63c5369973a57455ac7e4a7ce2a7f133">view commit &bull;</a> fix: destructor changed to virtual; removed commented code</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/0f134399e16efde0185668ee4621fe06c5614f85">view commit &bull;</a> formatting</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/40396128ec7a9b42b5f270ddd51a0b48c61809f7">view commit &bull;</a> WorkersPool moved to namespace LAppS</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/4c8ba73bfe322d19a4f875d96f8b5bfc22cb119b">view commit &bull;</a> useless tmp variable removed</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/98c709d3ad41f847adf4e7f7e314b7dd3214f49f">view commit &bull;</a> packages are updated</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/ab18bf0321ada4d7de220be0a2ae0f1e4fa6c0c3">view commit &bull;</a> binaries names fix, must be ssse3 instead of sse3</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/3049f517b8fcaaf32b335df9b2161b0aad0b41f7">view commit &bull;</a> README.md</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/3f732f151a43d9f394fc5d194ee6e089e783f203">view commit &bull;</a> update packages with 0.7.2 stable</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/507d75c55a4d2057f13018e42676eb4a9d7f3b5b">view commit &bull;</a> fixed exceptions messages</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/5ae6806c6509c20da5995d88b96d0aec40e69234">view commit &bull;</a> separate exception handling on itc::semaphore::wait()</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/ea638c954cbe1e3bcbca7a14836f3690b0bd65e1">view commit &bull;</a> LAppS debug build must relay on ITCLib debug build</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/020122e4cb7c4c40830047b553418a69d5c39a5a">view commit &bull;</a> 0.7.1 packages broken, replaced with 0.7.2</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/b18eb8235045cba859d999a834006c221ca9cee2">view commit &bull;</a> 0.7.2-rc12</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/a34a53fb558e9feb4b4ab6268b6b6e972a09f590">view commit &bull;</a> /opt/lapps/run removal</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/1a0447a08a56bef5e6dfedbad44924767497fe9e">view commit &bull;</a> 0.7.2-rc10 sse2 packages</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/5dc0e5e707fffc528fe8ca8e85013d2b57ee2470">view commit &bull;</a> removed return</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/0980e20eba577a5472448e1cb5c91e5253b5f2f4">view commit &bull;</a> 0.7.2-rc9</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/f77e58840ef229ca280bc789da82aa82f4f371b7">view commit &bull;</a> prerm</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/28c1c8d18e9527f72a9f280d7569492e9e550b3a">view commit &bull;</a> 0.7.2-rc8 binaries</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/ff412b1e456100dff510197849cc1a916ea37da9">view commit &bull;</a> removed dpkg/{postrm,prerm} install targets</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/a5df2cf369f72ec74eae09e29eddef605122db12">view commit &bull;</a> fixes for deb package</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/7dea9198cba104a0c3388b5096c292db34615e54">view commit &bull;</a> 0.7.2-sse2 packages</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/0b344217c0926c9b888f287edcfc4c8af86c43c9">view commit &bull;</a> march=core2 for ssse3/sse2 builds</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/18e2fa07494a8ae38e9adb704ee3e2d07bae7a17">view commit &bull;</a> revise config for SSE2/SSSE3 builds</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/532d8bd7ccc5ffec036775cc521354d09151c0de">view commit &bull;</a> 0.7.2-sse2-rc5 builds</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/b913e9170321e388fac8989e75d74461f17587ec">view commit &bull;</a> 0.7.2 mtune/march flags for ssse3/sse2</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/e2cf00c79b1a7bb8941467d2298a2196587aed7c">view commit &bull;</a> mtune flags set to generic and march=i686 for SSSE3/SSE2 builds</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/587592652379078c94e8d86e6c43cc1c7664eca8">view commit &bull;</a> mtune flags set to generic and march=i686 for SSSE3/SSE2 builds</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/b8c02cc17a03a699858dd6293440d5d34f697e36">view commit &bull;</a> 0.7.2-rc4</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/cc3d5323442633e99be429bbce9044697fad9aab">view commit &bull;</a> linking flags fix</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/aba018bea71797195ddb62deb388794567dc7ec9">view commit &bull;</a> posintst fixes. LAppS must be run from within /opt/lapps/run directory</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/b0062de95be468adaa16a7aa40100a2573e34255">view commit &bull;</a> -flto added to SSE2 builds</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/475b97d5db0734cdf33ded4bdb32ac7756311712">view commit &bull;</a> moved lapps user creation into postinst</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/4cea5b5d52d63dc16f9c9e95b1db11cb6b936bee">view commit &bull;</a> 0.7.2-sse2-rc2</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/df01c51c894eeb0ba324fed27e39a60e575651f8">view commit &bull;</a> packages updated</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/23a74490a1b49c8e9fce920ed0a888220bde52fc">view commit &bull;</a> fix owner</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/7b3e172bb7692737e46c35db85991ac9d1b95747">view commit &bull;</a> fix for sse2</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/562c4f12bd06d1a4086444fa42999979846b007a">view commit &bull;</a> packages updated</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/a931f91a5c54f09e0fcb39266a95ce1067499571">view commit &bull;</a> ownership for lapps binaries set in postinst script</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/21919cf0cafc7612ded89d98f4180a36a222950b">view commit &bull;</a> dpkg files proper copy</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/7e9d6616cafb335497a50fa206a6e317e984c2ed">view commit &bull;</a> renamed generic build to ssse3</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/19e7e84fbeaa8733636c81d61bea5236ce706f97">view commit &bull;</a> fix: #62 providing sse2 builds for 0.7.2</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/7566fa4d91b1b3c41a8fa64fd8d09ca881643339">view commit &bull;</a> all code switched to use itc::sys::semaphore and itc::sys::mutex by default</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/767105a6d993d8c7b22693d1a625fc516354e9ed">view commit &bull;</a> removed unused and outdated (from 0.6.1) include/ePollController.h</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/05c246c39e70a3c6af742ca049ec6994a8fb387b">view commit &bull;</a> ownership change for the messages</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/90ef40d9fde7d05033bc7cd6cc3552a3c7ad59e1">view commit &bull;</a> removed unused methods (recursive removal from superclasses)</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/4095c18100e59fcd12e533cdc2daf7d386fd7215">view commit &bull;</a> removed unused member</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/f4fbcef45e7b2dfd6f273941fa6c861ae0dd0e8d">view commit &bull;</a> removed already defined interfaces and try_enqueue which is useless</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/fdea350395a8d5ca9a77adcf532d7205066969a8">view commit &bull;</a> removed useless try_enqueue interface</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/7db1717e92f9d37cf2336bb0da869533b5697d8f">view commit &bull;</a> removed usless data</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/5297e3cfe2674ab92347c9b59ca82c036084a86b">view commit &bull;</a> ITCLib recursive refactoring (sys::itc::mutex)</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/75c22fbc0d7de794c7c3a8e698b4b51fc1d3b43f">view commit &bull;</a> netbeans profiles auto-changes</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/694e0d6cb3cb03d50fbe3a9f414f8ae39cf6ed33">view commit &bull;</a> WSClientPool.h moved in proper subtree of the netbeans project, file was already where it had to be</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/40d0b78d7104de79b2ee3c4edeeb3f94f28d3bc9">view commit &bull;</a> netbeans auto-changes</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/4913ab3ffdba2fe400612bb454b8e249d9be089a">view commit &bull;</a> README.md bump</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/7780d0a7bd084c47633efd9c01ece022ea799bff">view commit &bull;</a> added a --cprefix argument, - a container prefix</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/703da54b04563818483c92c833c8ba3096f8df58">view commit &bull;</a> URL fix for LAppS.builds</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/315c7be655d8d84c0fbf5632ae7b4d244e7a33ad">view commit &bull;</a> highlighting</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c402433f401f15f16841a44b7fc8b1f940993659">view commit &bull;</a> README.md bump for packages</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/e1e6977b5e0a237a81114dc1c8155509d40ffbfb">view commit &bull;</a> packages submodule update</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/0da0e05f0c5ea74a97df90d4cc7ae7c299f9d48a">view commit &bull;</a> cleanup</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/49c552fade9d8a7856d24dce730f5f444512550b">view commit &bull;</a> rm submodule for builds</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/6d482f73d66fcf04e5b9f097334d41e84ad9126e">view commit &bull;</a> README bump</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/6f6aa9a589cdd58aeb86ee0f4cd5155a48e614f3">view commit &bull;</a> cleanup permissions fix</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/7fb7ec7a9152cd411766661bff8518a3c8f65f93">view commit &bull;</a> separate build steps, add listing of target bindir</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/2264a82950a0d0364c95e68d80df527c3da3e457">view commit &bull;</a> fix: permissions</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/f721b9a100aea8e82ae5f96fbee926bde90234a0">view commit &bull;</a> fix: target bindir was missing</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/77e7211b71f9e640a18984b761787b962508515b">view commit &bull;</a> packages as submodules</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/1541729adcfa2450cacedaa9cf88a6c10a31dc47">view commit &bull;</a> removing packages before adding LAppS.builds as submodule</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/f112b5b120e73f6433ace9b2e7e8e91800d13535">view commit &bull;</a> fix: cleanup target</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c90e96e6ee0b268a7599e0347e3970c7d64f2e16">view commit &bull;</a> builds separation, cleanup before build fix</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/dd8c6637be59ae5ec48b61af6beb019544ac5fbd">view commit &bull;</a> builds separation fix: cleanup target bindir before package creation</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/7c2b9df7109ff90a4e420432bd3491871fd55f06">view commit &bull;</a> binaries explicit naming for generic and avx2 buileds</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/5b09f57d3a692b44ea0a1875f87ce7ec7cd14780">view commit &bull;</a> fix: #24</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/e22c07d0357afc8cc599850a4d32166eec5fc1e5">view commit &bull;</a> packages apdate after control file fix</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/2d76267ea89eb1a99673e0366ff87cf28d00e129">view commit &bull;</a> syntax fix</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c7e2c4ab71068a5f9a495db1b8b0562b384cb68c">view commit &bull;</a> common control file for xenial and bionic</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/7b681b3b912e1a8766d03d15338538d22f963bac">view commit &bull;</a> packages update</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/2b53e405cefebfb806357e8d6e5734f8a101b132">view commit &bull;</a> packages rebuild after changes in control file</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/448becd667a561549c8ed338128ec0f6c0a3f1f0">view commit &bull;</a> wip. build system fixes for #24</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/affc1166dd60ed9f8fd98fa041a90abc7e170689">view commit &bull;</a> README bump</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/630fdcf7ba767d8d330111d2bd64df84864aea1f">view commit &bull;</a> fixes with latest changes</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/60c5e0f86b59ca0fe03f48b8e141b3909af666e6">view commit &bull;</a> revising build system as per #24</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/bb5b22e9ceff33bb9634c6bd922cb5e5b2a98d68">view commit &bull;</a> Support for crypto++7.0.0 is discarded as it is not supported in bionic, see bug #40</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/03348a238a49fa20c08040f89cebbab0378f79e2">view commit &bull;</a> Bionic dockerfiles</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/d1b9f7d593e68907f5941f4168b7a8a14868a8a4">view commit &bull;</a> fix #38</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/ad5e0f9e1e43ac8bc2ab5362f7c2796f90792f34">view commit &bull;</a> fix: missing ]</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/3e97f838336ff7516f0b9a15d6dde521e6acad08">view commit &bull;</a> revising the docker build scripts as per #24</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/401f9fb5d7109fce645775d069cd38fc837b5c91">view commit &bull;</a> better syntax</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/75dc39b6fad1bab97df2a5511946f894e8a7030d">view commit &bull;</a> README.fix</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/eafc206f6aa4acf1c45ac9f40267454c32acc9dc">view commit &bull;</a> README bump for packages versions</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/789d91f54d0a64df88c64a6c87df9d9f02189a70">view commit &bull;</a> 0.7.1 packages</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/e3c424f6c6a68e683198d584ab3e08028bcc930d">view commit &bull;</a> removed useless copy of deb package</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/55c0b2128df01b44cff6154f31ef69521e432bdf">view commit &bull;</a> fix for VERSION reading</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/bf40b2963721f2b7a67936df6d8d50da868664a0">view commit &bull;</a> proper package names on copy</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/5e8e245412fc8202672351f396c6e2f0d3bcfb34">view commit &bull;</a> Proper CONF for packaging and VERSION use</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/9f03bb1e9bdca01d2fbde31704ddcd9c03e011fe">view commit &bull;</a> as per #24 build separation wip.</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/dc3c82da4b19d0562428ba18171f83deb04d51f2">view commit &bull;</a> GCC 5.4 through 7.3 support (cryptopp compat issue on byte type)</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/2e58219147031dc5011806d966a07a53cdbc6819">view commit &bull;</a> README.md mistypes fix</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/688df63302f5860d51bec5d02d5cc23b342c4cdf">view commit &bull;</a> README.md mistypes fix</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/6b8968e07dbddcac20e9063fccecaab7d476d261">view commit &bull;</a> 0.7.1 performance results</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/b8a07f0bc8f17d5d02089bd5529d7fd6c34740ef">view commit &bull;</a> twicked for notls</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/8280e2cf0166807efb682acab087a492249cbbb0">view commit &bull;</a> Added information about binaries as requested in #24</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/b0e2ce28f41c8d67bbcd643b09e92d0b4e0c793b">view commit &bull;</a> Update to libressl-2.8.2</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/01c7a9d7ea79c1d86f90ee48bcb86a6a9f94c6f4">view commit &bull;</a> payload is changed to 64 bytes</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/3c52d908484f109ccd7ed318ae2d280a8f0435d6">view commit &bull;</a> Packaging separation, as per fr: #24</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/2b0652e678befc6c593a54cd866130ef810ec237">view commit &bull;</a> removed minimum restriction of the payload (48 octets) to process batch-unmasking</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/f24d91927576a30bcaffc038b6194412f5b85678">view commit &bull;</a> formatting</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/30f8693e11a5706bf89dc4dc18ba6b4c2c3dd0f6">view commit &bull;</a> Extending server stats. WIP.</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/e95540b579463792e46930d6e7714eba2d0a0f4c">view commit &bull;</a> fix: #24 Builds are separated as required in feature request.</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/957ee9e63c08826183661f95be647f425eee7c29">view commit &bull;</a> 2 more files removed from configuration. netbeans build-config autochanges</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/f483e6ac16e41c1a4aa8ba7d0bfd928e6ca109cd">view commit &bull;</a> fix config for removed files</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/8a93c39421867460f1684751b450b43392ea63b3">view commit &bull;</a> nap is not preloaded by default anymore</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c30c69d99a0533b678e287fc4da14cc999fe4ef1">view commit &bull;</a> gcc7 toolchain update</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/36c231528646e502273dac590cd32023335c170d">view commit &bull;</a> readme fix</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/d96a0b7528d95c8bd6a7d0e7d1279e52c73834fe">view commit &bull;</a> Refactoring: reactive and standalone services are unified under LAppS::abstract::Service interface, with possiblility to add languages other then Lua; mumrmur - hash-string truncate fix;</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/2e4adf004e8770cf409b06e313a9669d07b68b14">view commit &bull;</a> ServerStats: WIP</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/1041ddb378f4dfb97705343e032a3e50b0e81322">view commit &bull;</a> listApps changed to provide number of instances</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/1fcf5a05d6f7f9df7468a7e829e67e80126602f8">view commit &bull;</a> proper close for open connections</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/aa034766f016341dbe3019d59f44918675d3dc8b">view commit &bull;</a> Services runtimerrors are logged without LAppS to stop</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/bc895568ce7e026c10d6691c2b4a0a6cb49f9f46">view commit &bull;</a> global server stats</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/62b1df4a47cdd1cae5c11a8cdea0feb8c47a03b4">view commit &bull;</a> License exclusion for modules/services</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/e9e889f4701b5ceb7a78a70801149fbd98a57b1a">view commit &bull;</a> formatting</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/327262abdd3fdfff66221e59119d840a8888c705">view commit &bull;</a> prevent datarace on client shutdown</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/8f48621af8195d68e9270ad6b62ffc9854dfb402">view commit &bull;</a> prevent data race on shutdown</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/01ddf43d17069f94918c09f0c7bbb3f48bf3fdaa">view commit &bull;</a> method cws:close is added</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/8c80e622817a8b0b641553b7b1db10569f476fb3">view commit &bull;</a> prevent SIGABRT on shutdown: destruction sequence</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c4c82f26b60f995c5014713b0f077284ff911aa2">view commit &bull;</a> docker conf fixes</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/d4567ec15895b454e64f68ac2eebe0e1b6c6608d">view commit &bull;</a> 0.7.0 builds updated</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/82c68d43776edae915b10679c4d9744e295b5fe9">view commit &bull;</a> comment is added</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/50bc6434c914649bdc70e93fa2dcbbb1ea9110da">view commit &bull;</a> ChangeLog.md bump</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/5bdf8e1c9ba67a89b70e416d4e36ae9be80aaa1f">view commit &bull;</a> README bump</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/41cc8bc89510f075304d93c2a4e7d40cd05b3ae6">view commit &bull;</a> netbeans build autochanges</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/4a02211352df069cd8a76c0608c39f6e22a7e039">view commit &bull;</a> nr of sockets changed</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/a5b95f1cb8bafe4e1bb0d934ebbe8a46b0a77a43">view commit &bull;</a> WebSocket client example services</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c385daf1fafa5f74f43588dc0247c67a05767cd3">view commit &bull;</a> WebSocket client implementation bugfixes</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/4e5cfd7eee9490963da7aa2127521ad9de2f76d0">view commit &bull;</a> README.md</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/1f1eaa1c885097aa8e74783de7245ce63e63a959">view commit &bull;</a> added dependencies in descriptor. minor changes in benchmark</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/1e2fbc784af519582d44602e5d8ce5656b57e728">view commit &bull;</a> removed debug out</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/e4df2034a81b5b673f9d21fa71a43795688aeefa">view commit &bull;</a> netbeans build autochanges</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/ad3162a963adecb9f6003f9e898e8d62d68d2fce">view commit &bull;</a> code cleanup</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/5da4257a6013bf02e4ec1badfcea7e887d776b20">view commit &bull;</a> code cleanup</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/77f575bfb3723121f76d9e7c648a5fa16ea70879">view commit &bull;</a> service initialization message logging</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/59196be1fa4b8c58ec133e1126ae88cfbbe35e5b">view commit &bull;</a> removed commented lines. added logging for handshake failures</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/b0baa4dc84252296fd9378085a0481c90df92e89">view commit &bull;</a> fix: #19</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/2d057f830eccb0348c8bc3ee53833345630d5676">view commit &bull;</a> fix: #20</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/935e56efcd732ec2da329d3a50b0bcc29d8e9796">view commit &bull;</a> README bump</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/a013bd865c59df7bbf577e9b3c64d61ca8215e02">view commit &bull;</a> fix: #17 implemented as a recursive call to Deployer::start_service()</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/33dff144cc43b823887216d1f9de765d18484cda">view commit &bull;</a> service descriptor for lar is added</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/e41afcaa4e3858eb213fdc98375a7db603cf4f81">view commit &bull;</a> benchmark minor fix</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/ffc97946495b40653027b0454d25b8d8501b8ad1">view commit &bull;</a> netbeans build-config autoupdate</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/727f4fc9240c83913fdda3957e1edb98460a5606">view commit &bull;</a> README.md bump</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/791a521d614f785367249abbbc68803c5b84238d">view commit &bull;</a> attribute `depends\' is recognized by Deployer now. Configured in lapps.json in a service descriptor this will start subordinate services listed in `depends` array now.</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/06e5c0ef1aa8087558481db448dcf84d83e00ffc">view commit &bull;</a> prefer client ciphers for TLS</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/8c2cc876fbf9925686b612ec6dd8759f8bd9eff0">view commit &bull;</a> moved common parts in superclass</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/080605136c873b4a8ea3e51c62a6a47b60b7a06c">view commit &bull;</a> removed goto and replaced with do-while</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/b09cc2890b5e24c52420203a0b7fa2d137ba608d">view commit &bull;</a> upstream version bump</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/99249ecf7988ba41a3f55ec464c169c923996520">view commit &bull;</a> fix #18</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/779302b4d5b630d2ac1e05ee03e9506bb3c62a73">view commit &bull;</a> fix #15</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/4a63f483e83e9586093ce0e7557caea1d0d518fd">view commit &bull;</a> fix #16</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/0ca3064008bf06bcf32728f0f9bfb29d1a771005">view commit &bull;</a> removing debug output</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/f6dff62b21ff49202ef6c02ae7a6088548d53ae1">view commit &bull;</a> README bump for upstream test results</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/090a3af7c09cad5d426e394b834a0b22abb5f799">view commit &bull;</a> README bump for upstream test results</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/e50764f228e402a173232b133f146a6681d7e103">view commit &bull;</a> README bump for upstream test results</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/523a991cc692d804a6ba405466aba6b393fab4d4">view commit &bull;</a> benchmark service which uses cws module</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/ca4730e707d6a3ca17e09cc7a33943c5d7c5a569">view commit &bull;</a> client WebSocket implementation and embeddable module for lua</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/063f6c2e84ceb7f2d3dd32fd4c66bbd25823ad6b">view commit &bull;</a> added () on key check, insignificant change</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/cd56db02a8fa01e97e6b1bc85d8872b6d37aa650">view commit &bull;</a> moved common functionality to include/modules/UserDataAdapter.h, renamed __gc callback</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/7b063eb05c116ad241400d66302d40c7781152c3">view commit &bull;</a> moved common functionctionality from include/modules/mqr.h</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/1e458df1015991a5511e84ff94f4c57bc8d5a382">view commit &bull;</a> simplified lua stack clear wrapper, added log->flush before exceptions</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/141d301ee4666610abdc6714edfbe6310145a6df">view commit &bull;</a> separation of methods for WS client and server</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/099122ae2a62bbf7fbe47aa3ddff54972ae75e12">view commit &bull;</a> moved two common methods to base class</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/b8dce40977d3cdccf5373e7af5942f49ed9b3e59">view commit &bull;</a> comparison simplified</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/ed68dd7366745fb74a52af172371b7109aea9650">view commit &bull;</a> fixed HTTP headers case sensitivity issue, separated WSStreamParser for upcoming WSClient</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/0afbe0a9e1f5984b13e740bf09de117d56f1bf3e">view commit &bull;</a> Moved structures common for client and server to include/WSStreamProcessingCommon.h</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/12b4140f820a338a230d8711e817c4f0ea1ee427">view commit &bull;</a> regression fix</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/e3d12bb55523bfe6290f6d6e127eb511cda1742a">view commit &bull;</a> added a recognition of an optional 'proto_alias' attribute of the service and its announcement on handshake</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/028c68d9b84c2e5df79b26bc4f26aa2ab3ecebf0">view commit &bull;</a> spacing in constructor</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/6bff8357119c604254347cc03406e889f9eb1295">view commit &bull;</a> new option for services: extra_headers, to provide additional headers for clients</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/8f7e0c7a0c9dbfc92b63f65b20d96f9a442efea8">view commit &bull;</a> constantiated a value</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c5455dd02dca03db58605852671226d822f2334f">view commit &bull;</a> headers parsing tweaking</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/6199ae57d97d883051d77b2617a43b5373ff41db">view commit &bull;</a> HTTP headers parsing fix</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/62f29d2dd59e0cbcbcad86c3e0497aa7dbe1d9c2">view commit &bull;</a> buffer range check fixed on send</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/2b6f2d32ff2cb1e26951641bf81c7d92049f4dbd">view commit &bull;</a> added server version in HTTP resoponse</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/2c525e61f1b3f76294cb6dd44e299f7cf1b83eac">view commit &bull;</a> simplified the parser</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c7fcb4393068797125f5e5b92477525c48247e8b">view commit &bull;</a> potential socket exhaustion on handshake is fixed</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/9463fdab6a5d6da93d3cbd0806db92eb4ed20bdd">view commit &bull;</a> README.md bump</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/7478e24828b621af1cd7c385494cba7963cac792">view commit &bull;</a> README.md bump</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/5988cf760721be4fd1304bdc0fd3770721225591">view commit &bull;</a> README.md</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/081304e5919c229026801f3af6c165f9b9020a3b">view commit &bull;</a> 0.7.0 deb packages bump</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/2830ed42da201d6dc399a3797f7747a5ff3a3d88">view commit &bull;</a> syntax error fix</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/22bae55f26a1aff64b660a6d700d1ce34d2ae8cc">view commit &bull;</a> fallback to g++5.4</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/17e007679821019d87d1b2b88428fbb8003e39e7">view commit &bull;</a> g++6.0 added</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/358d564627fe84955a3597c8e071a9fa03b09857">view commit &bull;</a> LAppS 0.7.0 defaults</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/a99f90700c93025f9dd96e85c9394e9985b910c2">view commit &bull;</a> LAppS protocol benchmark</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/8d361830f9b8fdfcc4cd7b24be51999be81cd911">view commit &bull;</a> LAppS protocol echo client</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c35e8288ba02ced995263febd36a731928b22a64">view commit &bull;</a> LAppS protocol simulation over uWebSockets is added</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/54595a98be2823996a9fc436989933db341ade90">view commit &bull;</a> uWS.cpp example from benchmarking of uWebSockets is added</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/65ef61112e2415b9d6f462df082bd706bad05462">view commit &bull;</a> README.md</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/0da6ef0dfde51a114386938a58434ddb68995440">view commit &bull;</a> README.md bump</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c8e6f39c730d866f9631817e40c5e00c4722898c">view commit &bull;</a> README.md bump</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/9cddf96d1e010b57dc8fec44385dfe16f262003e">view commit &bull;</a> README.md</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/cf6dd8872e875d03d72a45b65e9dd984be294918">view commit &bull;</a> README bump</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/f86c67f90de602e712fdb8737f906f10c45baa2c">view commit &bull;</a> lar installation is added</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/8188f673ed05104f35bd23eb0f9a2560144dff08">view commit &bull;</a> README.md bump</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/3411b09e01c0e8704acfef6d43e19c59d275d91f">view commit &bull;</a> console wip, added service descriptor to examples/echo_lapps</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/1227a7246e37b4e4c60ec100ef029eb6c4e96e81">view commit &bull;</a> preads option is removed</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/1b377d33dc6a448c75d30363622a2da1dca79f35">view commit &bull;</a> spaces</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/5e87e72f7554998f6057ec3403b83745fdba8cb0">view commit &bull;</a> optimized masking for packets >= 48 bytes</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/2a648aaafba7d95511ecba4552df999846a8e417">view commit &bull;</a> Reader is removed</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/3e91d09b7c81cd0307c6d73063007861ef6772f9">view commit &bull;</a> race condition on recv and send at the same time fixed</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/812a9a3922607f6783aa042571112e1ce448609a">view commit &bull;</a> added two new methods size and indexed get</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/051f598c75d66035914222b4abb7c103b5899c5d">view commit &bull;</a> removed temporary Reader functionality. everything is back to IOWorker</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/23188c0eed170cf193951e98dd529761232b9eef">view commit &bull;</a> Workers Cache update condition fixed</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/542da4408b68e82506daa683cf13829c64818236">view commit &bull;</a> lar dependecy was missing. fixed</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/33b694a9671327ff0a3fd10dc48dee967936225c">view commit &bull;</a> Inter-Service communications with message queues</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c282ffa033f9c4357581403a632924c70a222910">view commit &bull;</a> buffer owenership on return</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/3b0c29c0dc19da60befabc669fca3fd7f4c9d4c9">view commit &bull;</a> formatting</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/da2e6ff7e99e6bbdd9d92dd1b1b5db021fe0aa8c">view commit &bull;</a> alignment, saving 8 bytes per WebSocket</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/36ac7f128c98253db96cd0bce31367235ab8f742">view commit &bull;</a> ChangeLog.md formatting</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/19ab61f0da518ef96a29ccd49ed77a02db6c8732">view commit &bull;</a> ChangeLog.md bump from git log</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/e16e181c6df013301219c5ca4149e9fcb01f3cb3">view commit &bull;</a> netbeans build auto-changes</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/76d693c10c56195b006d41c4eeb6a895298d6516">view commit &bull;</a> deployment descriptor and stop condition</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/ee6251681cc6ef3c0f8c455a976b5378bff60f96">view commit &bull;</a> formatting</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/49ce2630ee5ab12c749cfb1dc934f6aebff9c3e2">view commit &bull;</a> auto save of the config file in pretty print</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/9cbe03d4172bf0056e2d9babebed37a54b78ec6e">view commit &bull;</a> control of internal services lifetime moved from InternalAppContext into InternalApplication</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/080bbb1340b155bf0b9584b6de64ffd15b8d20d6">view commit &bull;</a> deployment for internal apps is fixed</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/04e9840e911016abb917e8a4fde6f1360a9fe6dd">view commit &bull;</a> 0.7.0 packages links are added</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/dfe56a2497fa872d21a189f8345090e8711b6407">view commit &bull;</a> readme bump</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c734f37157874298c871822e526e8b93cede19ae">view commit &bull;</a> build separation fix</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/f8caee76bbf89461936032214b29cc30b7352ecd">view commit &bull;</a> comments fixed</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/7e4d2e26f3efd128960a6d29abba7f1c0a49d128">view commit &bull;</a> build separation</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/b7e260638f472afa59bf4f05f87a8d61434283c6">view commit &bull;</a> build sequence fix</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/38f1b97fe07c821880a67dff45c2117aed2b6172">view commit &bull;</a> netbeanse build-config auto changes</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c2028940755e89700c70bcc9047bcd619e967c07">view commit &bull;</a> Release separation for AVX2 and SSSE3 builds</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/d2d0c3bb5c61198494b364ef0e359a7ca28a5801">view commit &bull;</a> autobahn testsuite results</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/ba7e8dfcd38448e62abc29d8cd45da768016dffc">view commit &bull;</a> 0.7.0 proper. no console</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/bedc0a4c0b2e6928f99afb8a31c5f38288dd2d2d">view commit &bull;</a> 64 bit-xor for fragmented messages with fragments larger 8192 bytes</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/03563e1d436653fc18b85f08df06a71fea82d94a">view commit &bull;</a> 0.7.0 prelimenary build</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/454dc1f6aed43f2a456705f2fda2bef5444ca954">view commit &bull;</a> libbz2-dev was missing. fixed</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c23729317c3046c2547d6bced4f6776abcf6d71c">view commit &bull;</a> lar was missing. fixed</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/0146b10aa6d258ba7cd3a352c271b7010e4119e0">view commit &bull;</a> console.WIP</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/e553edeeb95727a7b93636e3b76cd3cbffdf4579">view commit &bull;</a> bump docker infrastructure to build LAppS 0.7.0</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/1132740c7c034795dbef2a5ec43d3c6766d87349">view commit &bull;</a> removed gprof linking</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/2b2ce8e6d122a222e0e640f167e1e43774109f5f">view commit &bull;</a> removed commented lines</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/ab54ca39072dcc6238e70184aa564019f3cc0a88">view commit &bull;</a> netbeans config auto-changes</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/a493848acbc24d34fd968f13c7b74a6ed567cd08">view commit &bull;</a> more optimizations</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/7980cd61d51a767ddf98e3bbb6db3fb2261af50c">view commit &bull;</a> 4x performance improvement on large payloads (>1024 bytes)</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/975a37470ef4088981201196f54c5d2e836117f9">view commit &bull;</a> instance unique id and name forwarding fix</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/0c0d915d5bce6ef6a1f6a5d92e59dd5939e6a4dc">view commit &bull;</a> WS stream parser refactoring and cleanup</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/e1bec189d3769878a2546633463f30a5c72c4aca">view commit &bull;</a> added ignore of a benchmark/benchmark_nontls binary file</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/01f35e36d8258056d3b8ecab6a057253aadc98af">view commit &bull;</a> removed remarked line</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/8520488f6b7dcf312dcc745333e05d13b599dc92">view commit &bull;</a> optional variable check `NONTLS' is added to have a possibility to run NONTLS benchmarking</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/6d9ad75984e6333c5c58561106bec38a61741c20">view commit &bull;</a> exception error message fix</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/bf5169c1fb6dc3a9d405ca53a883145396a40073">view commit &bull;</a> members declaration indent fix</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/d01d66d18517aba2fc3bbb65a35afc0a358d0281">view commit &bull;</a> comment fixed</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/1b3f89a0daca015626deabdb353d4aba13f4e5e5">view commit &bull;</a> simplify hash acquiring code</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/0af611acc48ac4c692f9772ea6cef0afa90f5b1a">view commit &bull;</a> Closes: #11, Instance ID support for internal services</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/cae3e57b1bdfa181e4c7c58dc1b7f13d6f976d69">view commit &bull;</a> moving nonce singleton declaration to a separate file</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/bf35500ad1cb504fb32b2920089373e864f63697">view commit &bull;</a> Closes: #10 , support for unique id of the running instances of the service <internal=false></li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/8a0b7f443e05bf6a7c0724ad1b98afe54977aa8e">view commit &bull;</a> fix: #9</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/ffab48592536bba0d511ef69aa56f1530e8585d2">view commit &bull;</a> fix: #8</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/721d5f31141b4883eceaf42f23adc14b0a691b9b">view commit &bull;</a> Merge branch 'master' of github.com:ITpC/LAppS</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/0b4d46240d9dd6870a2b4ff25ba5e5307a454ec1">view commit &bull;</a> netbeans configuration auto changes</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/159d26bc6551b9cdb96ca8d3bdde0859669e828b">view commit &bull;</a> console WIP</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c29ae09426c1e3f4fe77f29cb25095326449059e">view commit &bull;</a> murmur hash and time_now modules are added</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/5ea66f8febadf7cc70897a4704d6bc798e2d2b15">view commit &bull;</a> fix: #6</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/dbdeaec880ffd7dda802427e6241cbab5210572d">view commit &bull;</a> added LAPPS_APPS_DIR environment variable</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/17431ce671401a6d16aeab23891569fe083fbf50">view commit &bull;</a> fix: #7</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/296665314f4bdb63b8ae20a7a2b71b7bc817f5ca">view commit &bull;</a> fix: #6</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/36abc6c4caa1f1211dbe4fd99befa90b0c1f5306">view commit &bull;</a> Set theme jekyll-theme-slate</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/59a7bf51653444c58e8fb83d24b7f5899975dfe3">view commit &bull;</a> Set theme jekyll-theme-modernist</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/85ddd63bd0eda5eb19cffd755b0a819a34f6dffe">view commit &bull;</a> Set theme jekyll-theme-minimal</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/5d404d996f0c577f112ba0782f2450b42b2fed0c">view commit &bull;</a> Set theme jekyll-theme-minimal</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/26b7ed6bb39af10c7d24ec21906b966d85d8b11a">view commit &bull;</a> Set theme jekyll-theme-slate</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/f5a6e82876197357813228ad33e40c8de10e4a0b">view commit &bull;</a> removed debuging line</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/92d4c13ee86bddb5296e9eb933f33bfa37881596">view commit &bull;</a> fixed default config</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/4f878a765a70bd7bd6c26563098a482b99e50eca">view commit &bull;</a> netbeans build auto change</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/4bb1237d8d2cb0d0bcbd9bef810475f8841e2d5d">view commit &bull;</a> Service-level network ACL has been added (on a Shakespeer level at handshake)</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/3a1ff4d4a994ee7dd337dbdf6a0d5cb93bacd31a">view commit &bull;</a> netbeans build-config auto changes</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/973ff81aea29cf6bc51862232e9a30fc94320487">view commit &bull;</a> Global network ACL (filter on TCPListener level) is implemented)</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/f60d618d54921eeaf15d182fa079e8b2ccfe4eb9">view commit &bull;</a> corrections in README.md</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/b206715a1055d543a6cb4c5b0baead38daefe347">view commit &bull;</a> netbeanse conf auto changes</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/1001222a74aa011308e7b6becbc764b0e89ed38c">view commit &bull;</a> pam_auth:login() arguments length check added to avoid pam calls with empty passwords</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/983cebea364fcaba9b2b8f7778d7b80897995327">view commit &bull;</a> console app, initial commit</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/2bf1e852324efc69816ea5c2994c959c94b2bba8">view commit &bull;</a> PAM authentication module is added for console app</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/707c303eef7a7a73ed9a891db690dd2f201ab797">view commit &bull;</a> netbeans conf change: LAPPS_TLS_ENABLE must be enabled by default</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/3fe98fc3d2679ae058ea9c2e2099d17520935478">view commit &bull;</a> Upstream autobahn testsuite report for latest fixes</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/23e763e7baf33051df4df98f59c6ce436c619dc4">view commit &bull;</a> added filtering of temporary files</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/5368bb77c6987193cd34b1e58222cbd0aaa817ca">view commit &bull;</a> connection termination and proper failing fix</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/f3c8e97b4ea0d0d008393b54cb5c8d85db615b89">view commit &bull;</a> benchmarking fix</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/62c463a3ff789bbbc11cae846c4c0af9335fd1d6">view commit &bull;</a> gperftool profiler is removed from library dependencies</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/b45330ba070233838b17826534c518dfc4f9b837">view commit &bull;</a> fixed an error caused by yesterdays commit with optimization on fragmented messages</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/3e412afefbbfaac06f4fe870aa2149218ad2add7">view commit &bull;</a> netbeans conf auto change, additional files</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/ccfe12ef18fb9315b7e376d1d03250702c108ef6">view commit &bull;</a> slight optimizations. ring buffer for messages is added</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/97b85cf0c54a5a77693bee5437ffb161c3c1951c">view commit &bull;</a> 0.7.0.1</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/66d6688e6629d3e5169ced6957ca0add707dcbd5">view commit &bull;</a> README.md note, and log message change in include/WebSocket.h</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/fccbbfea71baa3abfe20e4b2975557d2b70a9577">view commit &bull;</a> netbeans configuration auto changes</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/f9edec2dd983463f499db9be7e41a050bd6bdfbe">view commit &bull;</a> console app, initial commit</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/e6848342150fb574e4a3ca1ec0840739fdf0eca5">view commit &bull;</a> authentication module (just some lines not finished yet)</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/59557e72d4436b09f3d9f89297183a3636c093a2">view commit &bull;</a> Non disruptive restart of deployed applications (connections are persist and moved to new applications). This must be tested more, much more. Apps stream can be disrupted anyways.</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/4c91c1c26c745ed9d4898385f858ff52e48004fe">view commit &bull;</a> removed second copy of echo.lar</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/dcacec156de32df2a5b97b4e9d6963ba1e3f0d16">view commit &bull;</a> removed netbeans/private from configuration</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/11d821cdda125c1d42508d8f014707273bb0c46f">view commit &bull;</a> Deployer is working. Example of an archived service is added to examples/ dir</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/dd922acb5bc29efa1cd221d8dd7a70bf8eb508d0">view commit &bull;</a> Separate deployer for local and network deployment with LAR support. Not fully tested</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/86738270db5da99f8126c728cc6d80b93c6b36fd">view commit &bull;</a> tests are changed. removed all tables from README.md, need to retest with new features</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/32af462f405ac9987993787aad0fbfeff5a4ebf5">view commit &bull;</a> newline removed from src/main.cpp, netbeans build files auto-changes</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/fc334567340d1bd719a7e62e16e776be227a3018">view commit &bull;</a> ApplicationRegistry is counting instances now, unRegApp method is added, CMA for inbound messages is corrected, in-message buffer is adjusted by CMA</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/b87fb3dba4d2ab79cf5c91cb6e032ef50d7a0f9b">view commit &bull;</a> cma fix</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/7708534ebffdbee2ffedc25a0bc60fe2c8aae542">view commit &bull;</a> 0.7.1:WIP</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/309535eb14c9a1e800b40ad9754a9eece3596b23">view commit &bull;</a> 0.7.1:WIP</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c23b26fe494b98479db58f2441210af03d5ce9f4">view commit &bull;</a> reader for preads option</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/8db18b40a0af2f4a7f44a217bf189214a8ce14e6">view commit &bull;</a> preads option is added for parallel reads</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/9a61920d9afa3e5f657894627dd6a87ea7c4a748">view commit &bull;</a> netbeans config auto changes</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/9b68b7436f048b4e8f763ca23c8c666d675f6539">view commit &bull;</a> removed useless file</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/07fa99ad280c361748ca70b01207122e40a87575">view commit &bull;</a> 0.7.1RC parallel send, dynamic service start/stop infrastructure</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/e83c6b07d7ccd06a06edcaf3fe1132f4b15391a1">view commit &bull;</a> removed workerscache, std::mutex is replaced with itc::sys::AtomicMutex</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/b9a11cdc3e18c820206459a972cf814672251cd5">view commit &bull;</a> std::mutex replaced with itc::sys::AtomicMutex</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c202136e97b3abdb31fd81d5bef98204310a05d0">view commit &bull;</a> benchmark fix</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/4ba9d295d7a21fb0099ccb9c3ebccbbb8fb76b1d">view commit &bull;</a> ignore binaries, test results and profiling output</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/16940e6772c3bc4f45eb774f2c40d89333d80751">view commit &bull;</a> removed commented line</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/df29b106703b5d72b084e63d3031b892f1e925b6">view commit &bull;</a> changed from posix mutex to AtomicMutex</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/158788ba842a2ffd6dcf159b294676e7e080eb08">view commit &bull;</a> removed useless mutex</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/886aecb3e1d4ca2da0200ae9fe0dd45db602161a">view commit &bull;</a> removed useless mutex</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/753d2723d521061e7b6350f312c6605000dc99ea">view commit &bull;</a> 0.7.0 work in progress</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/35f8701021208dd35222550bb7eefc7991b8178b">view commit &bull;</a> uWebsockets examples used in benchmarking are added</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/2f16cafbd68e4b91eb9b425bafabde3a88daa0cd">view commit &bull;</a> width update for tables</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/b69fe439d4ff55742962bbbaf110325c49bfd80d">view commit &bull;</a> README.md bump</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/f65d2a3988c3cd4256d475a41b533fda04192b33">view commit &bull;</a> README.md bump</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/cd183adb80250411d501e5be3a5b1260347836e8">view commit &bull;</a> WIP: ongoing work on performance optimization</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/fdc50fe440198e9807926ce04a744208e84355c1">view commit &bull;</a> cleaning the code</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/bdab8ab66ef71712a9dd082cbe5e629a1ef9acda">view commit &bull;</a> Merge pull request #2 from ITpC/0.7-highperf</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/65cf903b22cc0fddd689b6780a045d6ba4efbcd8">view commit &bull;</a> Merge pull request #1 from ITpC/0.6.3-stable</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/4f676ba1444445a70dea994124adfe7e47619464">view commit &bull;</a> license file for nlohmann json</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/0b532f0d7ea79cdce0b5584d87c2eb9d77da4846">view commit &bull;</a> VERSION bump</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/bd32488fe5570bbb9b168e34e6941fe5c1e5e9ae">view commit &bull;</a> LAppS-0.7.0 experimental high performance branch</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/00adcfd519f7d7fdcf330b054368b1ac60be3553">view commit &bull;</a> toward perfopts</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/fe8f581b16548e5035c0ce244183adfcd9870fcf">view commit &bull;</a> removed useless file</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/4b81e4d214f08209531d18691b6924c1a3a77329">view commit &bull;</a> Merge branch 'master' of github.com:ITpC/LAppS</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/3260774e983e9889f88c43b4fe3d1a482971d710">view commit &bull;</a> incorrect exit out of switch</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/e0f42bee37e09b63c10b01ee7070f109d46cc880">view commit &bull;</a> ckmob</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/a3a5239bcf0298ff4e9a70e6c93ea2e9e1008dd9">view commit &bull;</a> LibreSSL updated to 2.7.3</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/b09c77f717a37ae4b8e3e51f4c65ee998f1d87a7">view commit &bull;</a> package and runenv script bump</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/659990a4efc4e3d0cd2a84c38b983d8a3d4e336c">view commit &bull;</a> README and packages bump to 0.6.3</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/907d0028cf26610a93f5f3ba1813f09c59b2d902">view commit &bull;</a> version bump and netbeans configuration auto changes</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/bb0a0a2605c8715c543bfdeccf978bd24cbcc11c">view commit &bull;</a> 0.6.3 stability improvments, slight performance improvments</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/facdd8b6ed50bd4b8a5a97cf0db6df1fa9eb33d3">view commit &bull;</a> 0.6.3 regression test results</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/9e4b765bbf41d22965b1d00a8f3af664c07e5641">view commit &bull;</a> correced</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/9d420a53dff7b63cdb3decfd43fdb4b69cac1d07">view commit &bull;</a> defaults for demo</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c5871f63e98d722f364a6e2d4d17c85dba4ffe78">view commit &bull;</a> nebeans configuration auto-update</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/ce56657bcd86cd8351911a5cdf740eadfb124a09">view commit &bull;</a> side-notes correction</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c330f5de21320a8b92e48576c3ffcef07c312245">view commit &bull;</a> link to deb package is fixed</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/959c937b0267053ee2172fc1c372f92a9129d262">view commit &bull;</a> running xavante with client-app conf</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/f16f060583d22da3f833484c26b32d1260dc01af">view commit &bull;</a> removed test line</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/46202fe5c57095c336e4d93fdf4ede4788431be9">view commit &bull;</a> fix for xavante stop behavior</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/1d7ea7d4db2d996a9b25caf197bf20a5a28c3d6c">view commit &bull;</a> fix for xavante</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/0d8270c96c9d59510034d87a3a0984fbc4f9ff62">view commit &bull;</a> one more fix for deb</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/90c89383483410a92293fef0d96b2d9e3d02b50e">view commit &bull;</a> config file for xavante</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/61c9b264a8c7cf369e09f3d64c4dcf11d401cccc">view commit &bull;</a> xavante service</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/e24992942735d963f23433610bc6a8acc975c866">view commit &bull;</a> LAppS-0.6.2 hotfix, environment variables</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/ca853e14f9fd538fdab6b2ddbaf6823299b53af5">view commit &bull;</a> LAppS-0.6.2 fix: config validation</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/2c29307fde55befb66d9014f182ba778effd6af4">view commit &bull;</a> Config validation fixed</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/8520334d3a3d4b449512ab3e2839dc33ed9b921e">view commit &bull;</a> shell-scripts to build and run LAppS in docker</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/967c21749f0f1e1c18822bdc373eee9517710766">view commit &bull;</a> shell script to build docker runenv for LAppS-0.6.2</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/3ff4b291a6654f140850d74ccfab3e0212ba2174">view commit &bull;</a> fixing dockerfile for runenv 0.6.2</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/4a0742f864c43335ca634687e23204cdc9757a9a">view commit &bull;</a> README bump, docker run environment bump</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/f52daba940520c9ad602712a59a76f1c4b07e69f">view commit &bull;</a> deb package for LAppS-0.6.2 is added</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/ebdb3f1985172723d5f887934f1dbe9931690fd4">view commit &bull;</a> broadcast_blob example added in examples installation</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/f5060a838d914d33e96d46a77d63c1aab8e70da2">view commit &bull;</a> auto_fragment default value: false</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/b82942c2e205de6cb3ec18bf75a4535ca7988e19">view commit &bull;</a> VERSION bump</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/e35dbd685f84a0d93002604c71077af649b0ccef">view commit &bull;</a> LAppS-0.6.2. New features: option for inbound message limit per service; optioanl outbound messages auto-fragmentation; option for workers to limit amount of connections</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/f339cc71a5249d4e5f4cfb48582f663562c66621">view commit &bull;</a> changelog update</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/1ecebfde495c19f45823c1e0a8fc4fd40b8f06c4">view commit &bull;</a> Dockerfile for LAppS runtime is prepared. See the changes in dockerfiles/Dockerfile.lapps-runenv.0.6.1</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c973a2fef02857e69ea282f1ab09ea10aa3bfcd6">view commit &bull;</a> deb package for 0.6.0 is removed</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/19ebb99170ba2e75df25afb02ef22a3159cee2cc">view commit &bull;</a> deb package refresh</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/3b38a92d9df3e415170f2ee68fe7854c305510bd">view commit &bull;</a> LAppS-0.6.1</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/1485ab63b320693e4d40f3fefde8464d6578c332">view commit &bull;</a> time_broadcast intallation is added</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/714f8224b51ab5cfbf8112306e2d17d52fa7cf2d">view commit &bull;</a> code refining towards the dynamic deployment</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/f018cb882c44ea02f3e6e00134ff400458c093a8">view commit &bull;</a> version 0.6.0 package is added. 0.5.1 is removed</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/593875361d58bab73c7873290180b6ae0bfc0210">view commit &bull;</a> changelog bump</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/a9c7e46d860cf180bed08578f02dd35c421d71c7">view commit &bull;</a> netbeans configuration auto-changes</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c4e56ab12066237376e308e12e3cc48f9a0687ac">view commit &bull;</a> decoupled apps support</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/133d97bb196816eaf66f2abbfa402c7906debb58">view commit &bull;</a> useless declaration is removed</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/2f9f3c4bd637fa87828a4d932b5449b053b046ab">view commit &bull;</a> formatting</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c4dbba470b66b602f4f98d8ebafe2e241edaefbe">view commit &bull;</a> useless declaration is removed</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/53c7057f9e9f93a247036493ec5827f9ac068db5">view commit &bull;</a> broadcast moved to new example for decoupled apps: time_broadcast. echo_lapps subscribes clients on request to broadcast channel, but the broadcast itself is done from time_broadcast service</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/de8a5265b482ab5b05a7b940dfdb75c6efe9b3c1">view commit &bull;</a> decoupled apps implementation</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/0f2214dee5fa0a764f7b5e712c383c51ff3245c2">view commit &bull;</a> module for usleep - microseconds sleep, nsleep nanoseconds sleep, sleep seconds granular sleep</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/5d3a15932b8ac443e2799002eaa4a48a664e3f3b">view commit &bull;</a> bcast_create() fix</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/2ef2eb08d9b706e988ccad763bcaff074adac5d3">view commit &bull;</a> 0.6 branch is in development. features: internal apps</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/2c413ba572d56a9e8c6599c0c6b56f7db9d464c3">view commit &bull;</a> Internal apps are addded</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/49d6b73368db6e3b4b74c3cab01525e26b3c21ce">view commit &bull;</a> refactoring common use methods moved to abstract/ApplicationContext.h</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/d59504e330a42d1ea4aee8ac52eaf0c097f33f92">view commit &bull;</a> added profiling directory to gitignore</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/f1e24a207ba527597efc7c1d0568b2be8ebdfc86">view commit &bull;</a> error messages changed. nothing significant</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/5c97169078fd368ed0a97ea026b5b3afee2794fd">view commit &bull;</a> perftest results added (requested by habrahabr.ru user)</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/56d7dc7b677bc8ab0eed38351c0a2a1765ab3d15">view commit &bull;</a> netbeans configuration auto-changes</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/59ec0ffb2a193db23c1b6427326fd0e900a5946e">view commit &bull;</a> default parameters tuning for test on 4 cores i7</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/011f097e64ef6c4dc8d15eefac17b590a7bbd8b7">view commit &bull;</a> regression test bump</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/69827cffc1072773c09cef02aa524ecf16c67fd2">view commit &bull;</a> Special note for performance results is added</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/f2c2b2d8230fe66a393d67f741d563d7be71d657">view commit &bull;</a> result for nginx test has been added</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/e9b0c6335017de59ad814ac623b5822d0f75ba88">view commit &bull;</a> location section of nginx.conf used for test</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/78519e02be3e3c16883021f8325a98621ceb3da4">view commit &bull;</a> deb package version bump</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/b5ddb07283ffbbb55f0efba4b914f6ec80595b9c">view commit &bull;</a> deb package version bump</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/07ecb5f0809e5fa5b5b9b5490dd503f74aea2de0">view commit &bull;</a> auto-build</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/26f3696c7dd8dfd28fcbc5c4e3962ca7f7d48b19">view commit &bull;</a> test results bomped</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/6d343712e5e11787bb35040046ecb1c57f16eb10">view commit &bull;</a> checking for nullptr added</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/491bac80f794197c4911eab42d496cf2845c4d6d">view commit &bull;</a> default for listeners changed to 3</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/18c90ed4810f4f7085bfbac469d2ec051aca5a66">view commit &bull;</a> mWorkersCache initialization</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/bbffdd86f5c9002bb16500c5b2367fb739116dc1">view commit &bull;</a> remarked useless locking</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/5b1a51513a1d48864882dac285578df4b203f9a4">view commit &bull;</a> deadlock regression fixed for onDisconnect method</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/f490766af38b9cb82e5a887b6fb18b08ea7794f5">view commit &bull;</a> removed some debugging code</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c5fa5e7fa3e0a9bd2e13f509ceb53e26a0464955">view commit &bull;</a> bcast fix-bump</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c33d045b04b7baeb44c66fdf3b3e1995bdde048b">view commit &bull;</a> bcast-fix</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/3f3b366cf5ac4670e2f8b4dd6b787825b1d9e6f5">view commit &bull;</a> png resolution changed</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/597a4fe074172e6cc297a2694f608b3dfe6942ff">view commit &bull;</a> README.md bump</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/e022c7e1ac5f057731b1310ee86d1c41d9dd379a">view commit &bull;</a> README.md bump</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/0530ccec0ac85f61bb648ef1f8160582d66ef518">view commit &bull;</a> README.md bump</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/cb588d3a27055177a4bfa0b40a912f92d19cecbc">view commit &bull;</a> LAppS arch image</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/ff092ad96b8548f3e13033c899d6582c515e706c">view commit &bull;</a> Merge branch 'master' of github.com:ITpC/LAppS Issue templates merged with local changes</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c75460a46b8987ee2c52704e600b988a61934d01">view commit &bull;</a> TODO moved to project's kanban</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/79811ae00f3890df8a356d0ffb5679d69ecce9a7">view commit &bull;</a> Update issue templates</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c4b12d6cc153b890985170fc41e0c48b627c1654">view commit &bull;</a> Update issue templates</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/bc3761c1608e17a9c974d1db8a3744e3d044680f">view commit &bull;</a> README.md bump</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/465c4ce5aedfdac2dce26495de716f7a08645eec">view commit &bull;</a> package is bumped to lapps-0.5.1</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/a840cdbd7ede34b66767dc3b8fe1587b5b371e6c">view commit &bull;</a> build-deb postinst script added</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/4f14e5b205f2d608b2fc12f99007422f94fb6896">view commit &bull;</a> build-deb fix2</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/3506bd7818b3613a6b0b907cc9f9374ece111290">view commit &bull;</a> build-deb fix1</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/95012654015a1774b87252128eb7d872da0b05ea">view commit &bull;</a> build-deb make target</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/d51779f7651498018da57bc22c9723836682ded2">view commit &bull;</a> Broadcast fixed</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/05433d4476f502e1167e3d440b4a86bf201a0fa4">view commit &bull;</a> fixed permission for bcast module to be available only in an application context with LAppS protocol</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/329f400b48549791cf5935e1c39f79eca3aada0c">view commit &bull;</a> comments</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/8e685ef8baaa27f5f86a141bd43dd7b2725a3e16">view commit &bull;</a> README.md raw link to deb file</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/ec1ba54db96fdfc6a87f74d868ae3b6969ee53e3">view commit &bull;</a> LAppS-0.5 Ubuntu xenail amd64 package</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/459013ef6eeb51e854fdf44194f16fc2848f11b9">view commit &bull;</a> README.md updated</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/33806b027216742ea8f11e8e2d62547106190a47">view commit &bull;</a> deb package for ubuntu xenial is provided</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/7306efc027819c410f36418b4a9d66cf137a9504">view commit &bull;</a> echo_lapps example installation fixed2</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/3a90a0f01ed0e729000be1ecec6c4e205eec23c9">view commit &bull;</a> echo_lapps example installation fixed</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/bb72b1b9b3e1f11e9d3f1e068ce8015e08ad3d14">view commit &bull;</a> echo_lapps example installation added</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c42b158c1eea299511966619ed91a879c9b31bb4">view commit &bull;</a> deb package control file is added</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c2d314bae6ea6b5e912ea5af4f52b356d361a902">view commit &bull;</a> sigsegv fix</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/e4c4c01bc92a067f189698a41304f05bd0b6573c">view commit &bull;</a> -march=native, -mtune=generic</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/d250879b3f7e883f7287d8a0a86968c2b3c4154c">view commit &bull;</a> comments changed. usless notification is removed</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/02746699d316a35a97dd7b9cd2b7969ca61d2d72">view commit &bull;</a> demonization argument check is fixed</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/f39f981a9608f1859a6d159a5dc6fee5b7ed36e5">view commit &bull;</a> netbeans configuration auto-changes</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/8fae691e986e3dab19dadc79db33b8c91455ebcb">view commit &bull;</a> demonization with -d command line argument is added</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/d17a3685e828b9e8b9c23eecf27ef392fd9fa0b1">view commit &bull;</a> wsServer is moved to LAppS namespace</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/b7579796d91d98f43c2a4377d220cfb4afcdd834">view commit &bull;</a> bcast module is added</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/69b8dddddd8199afb906d2bc102c5f7cd82d598d">view commit &bull;</a> ud2json() and get_userdata_value() are moved to include/modules/UserDataAdapter.h</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/d14b815c65e4f0438fd8da81f930f2fc7bd0906f">view commit &bull;</a> removed commented code</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/f2206a3aa2c8b548a947c692158ccd2745f80df8">view commit &bull;</a> moved to LAppS namespace</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/ce1b7df0ec219a8381342a7a9c60bd630a3fb8da">view commit &bull;</a> TODO fixed</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/0a8506699480ec6970f801266938d7a8cfa6899a">view commit &bull;</a> wsServer::run() moved to main()</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/3cb07dfc94de4994a29b18ee058467e0d0b6ca77">view commit &bull;</a> removed run() method. connection weighting based on configuration parameter is implemented</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/28c8450bac69872f6199431946a6852146bd2bc8">view commit &bull;</a> wsServer configuration attribute connection_weight was added (affects load balancing)</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/cb4d75f66572306384ff50b15f9f5ee650884110">view commit &bull;</a> postpone application instance shutdown, until it is released by application</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/981d2187e047d24cf211287d0fd55583b71cc0b1">view commit &bull;</a> performance results with load balancer are added</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/4215a73d22c60081e0b7c5530ce5b57d6db9ab48">view commit &bull;</a> netbeans configuration auto-change</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/6d2f8efa019944c9799e636fc51d0c0f3c84ff0d">view commit &bull;</a> Balancer for inbound connections is added</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/0d1f7e433c489ac34b0af016803eea709ed11efb">view commit &bull;</a> Event Queue Size attribute is added</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/462a76b029a67621962a433f4f0faf8b1af8238a">view commit &bull;</a> Stats update is partially  enabled for the balancer</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/9cfa39689af77b37fba55ba123c9000053e221fb">view commit &bull;</a> size() method is added</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/a669995769d57ed9aaf50505457fd91c9e9e99ae">view commit &bull;</a> removed commented line</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/77295274164fa38e16031ba5b539364fc001362d">view commit &bull;</a> improvments done according to documentation</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/bf9079b025dd3c20ad1fd202eefcdbfcebe9ab9f">view commit &bull;</a> NetBeans configuration and build auto changes</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/5f1f903a190a478cfe0d4f419b9027c7f90900dc">view commit &bull;</a> LAppS protocol echo app updated to fit specification</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/6e48146b650b4a675f5e4a957b319a6a1e2cde0a">view commit &bull;</a> side notes updated. Performance is degraded because of EventBus use. Will be fixed later</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/ac1ff45326abb7dfcdf93cc8edb590e6a3570fbe">view commit &bull;</a> params specification detalization</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/5b76ff6989ae8e0f359386315a58b0232de1ded1">view commit &bull;</a> using 'auto' instead of type specification</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/9e6782293dbcdcaf55a89b177029dd53ccc97c84">view commit &bull;</a> using 'auto' instead of type specification</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/4b95cd77b76dfb7b06bd8751528fa0f57f9206f8">view commit &bull;</a> fix: dereference of unassigned shared_ptr on socket close with no handshake</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/f5e0b35b0c4b95de1ec5c65301be5d99ef65c6c2">view commit &bull;</a> LAppS-protocol implemented. echo_lapps demo application is added to demonstrate LAppS stack</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/7b9626c1e0a4150dba3626540ef8bfac37cf5fa1">view commit &bull;</a> automatic build-configuration change</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/abb5734ea1f3995f02d53e91ea40b1e6338c69a7">view commit &bull;</a> changed startup notification from log-debug to log-info level</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/ddd6d35a72ead491866eff83da13fc063ef72460">view commit &bull;</a> added 2 interface methods: submitError, submitResponses (batch submission)</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/192024b0687d9fedadff72b0985389ca2b297fe8">view commit &bull;</a> changed includes</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/ba6820579c3e70d31b1caee61121bdc208eed6c9">view commit &bull;</a> added new constructor for ServerMessage</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/8eea2402da2557e2943a51ba5b3b1cdb1a9fbe01">view commit &bull;</a> added messages batch-submission</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/928521fbe3fe12d97f21b5c6e7f55fe2bbe2b6c0">view commit &bull;</a> Added support for LAppS protocol messaging (input messages validation)</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/675792a56051467ab6de2ec3519048bf36ca410b">view commit &bull;</a> error notifications changed. `this\' submitted to ApplicationContext as a parent</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/e8348a3259f703c31f527deb49dde79cf0894046">view commit &bull;</a> formatting</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/d1a146f4dcea145317791e4d14bab510d3982a84">view commit &bull;</a> added ws::send() for sending from within lua apps, with RAW and LAppS protocols support</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/5ff1f514507c01e35439913722532e53a2bc1733">view commit &bull;</a> LAppS protocol formatting fixed</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/26f83597934dfb921225acc29f48cec7bfbd0369">view commit &bull;</a> LAppS protocol specification is updated</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/b121cb7bdc8ebafc15eb0d5a79178f48342b174b">view commit &bull;</a> build files auto-changes</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/0af299e46f17def2883ec2d7e504006cd5b9982d">view commit &bull;</a> testing multi-instance work</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/4eb1cbacabf2a62a4378d0e95f8b4e85865df008">view commit &bull;</a> shutdown notification changed from log-debug to log-info level</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/546c3c7301f6a66dbf36791375006f92e0295041">view commit &bull;</a> batch update impl</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/1f5c41a619f52e03ce21ebb2878f005cb839c878">view commit &bull;</a> getWorker() method is added</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/61d8776205613f0cac9416cd5527667136e5cb38">view commit &bull;</a> separate messages header constructor</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/bfa956ee16a005e65653d76420ce1c5fd70d1196">view commit &bull;</a> batch update impl</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/2fa62e8dd789fe9c57166c0b91e91b205c998e09">view commit &bull;</a> batch update impl</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/4f1c0627e2dcd66156bd79467f19524bd2da1c0e">view commit &bull;</a> duplicated code moved to method cleanLuaStack()</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/7636f580db2f784e68534d801ce35220b5239d87">view commit &bull;</a> workers caching</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/8edb8e1b02fa5c9da05993caa0b848bae0e435a0">view commit &bull;</a> include/WSStreamProcessor.h enum range check fix; worker id is size_t now - fixed</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/8fb84bfca6dc8d804a7b9f56c216bc503b0695a1">view commit &bull;</a> state change bugfix (allow sames state re-set)</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/d5f3ee66719ec3d0aee2beb871f1b6a4103e87d7">view commit &bull;</a> corrected Makefile</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/522ef0a10453b1a1e01a447e186fc17cd230ff4c">view commit &bull;</a> reordering config. removed workers restriction</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/9b19df8234d5963078f5ec1b222a2a0c865dede3">view commit &bull;</a> Spec markup update</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/360d62dbf4a3f486dd7ecec104b6fe3042ad7036">view commit &bull;</a> README.md syntax</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/691f085fc53015d77069f5d08ff8e9a2356b5375">view commit &bull;</a> README.md syntax</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/99b801d1bf39e1178283b097ba5b74c957912a4a">view commit &bull;</a> Corrected container names in README.md</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/55a409390dcff40158307db31121b32249997135">view commit &bull;</a> README.md corrected headings</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/a7cf0cc16df8f73f438e2e7dfcaae8d3925d7ae3">view commit &bull;</a> README.md corrected headings</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/a7b55fabd89f663387f9c93079ae91eafef7a42a">view commit &bull;</a> README.md removed todo sections for docker builds</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/fbf8cdb39070a2c492dc8dcf9252094cc448ca08">view commit &bull;</a> README.md links to dockerfiles are added</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/d5227c54bca9086e13d825786c8c1fa0368a5e6f">view commit &bull;</a> README.md update on howto build and run</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/ca514a3f49eb6d1b242a7b5b83ada083925aa0e8">view commit &bull;</a> Docker files for base, build and run environments</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/a7f2f0d9166c30ecc07221dee90e2112aa0b9f03">view commit &bull;</a> fix install target</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c6bb141855d6d483a7ee107d728d34ed0ec0dcfe">view commit &bull;</a> changes for default config to run within docker instance</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/175b7c714f9d47eb92bdad4d28ceabc0c35c009e">view commit &bull;</a> changes for default config to run within docker instance</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/024f45d2d559e01ed3bf223e0c338ca7bbf932f9">view commit &bull;</a> added targets for docker-build</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/28bdb530916b3a29f23d11fe8ee30fa5a22dd815">view commit &bull;</a> install and install-examples targets are added</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/2e48cb66b970de8f26eaaab3435bd847bd9611a4">view commit &bull;</a> build config auto-changes</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/c4b678877f568804270b9d5711430ecb3da9d30e">view commit &bull;</a> build config auto-changes</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/d08d3ad723d4bd7df8acfd142c3ab2688485aa00">view commit &bull;</a> build auto-config changes</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/d22545e5a66f37633d0cda06c5590156419b173c">view commit &bull;</a> build auto-conf change</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/de1034db33b43f3331586f63f811c32ccb1464a7">view commit &bull;</a> added TODO</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/41c493719f7045a5e2c53e35d0628caecd457e2a">view commit &bull;</a> Readme.md</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/eddfd63ddfdcfc917ed02310cd0092f8a8547590">view commit &bull;</a> Readme.md</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/1f283e4dd594bb37a0e99d699bdc968e18cced1f">view commit &bull;</a> Refactoring. lua echo app is running now</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/2e73eaca689acefbc9dd6b8d9e246b752443f9e4">view commit &bull;</a> Refactoring: Shaker runs IO over thread pool. LAppS protocol specification is added (no working implementation yet). nljson module is added. LAppS is capable to load applications now. Code is just compiling and run until first app load, everything needs excessive testing, debugging and fixing</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/664d7999659b63bd2b62091dd820feb1cd3e157f">view commit &bull;</a> Code refactoring: handshake phase moved out of workers to listeners, stats added, internal communication queues</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/081739f5d34b732f6beb130ecdc30f6e2db1fb74">view commit &bull;</a> LAppS Core v0.0.1</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/02913fb674feb6f4358e9c1f37140a7dfd020932">view commit &bull;</a> README.md modification</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/4014c1653228e6fab2d51c42025a8cb90c6f31a3">view commit &bull;</a> socket's close on different WebSocket states</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/1076b595cd9b434e37072ef032ea2233160f7521">view commit &bull;</a> libtls thread safety, TLSServerContext is shared between workers now. lockfuncs and idfuncs for libtls are added</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/f5991c113554b218c0c8f8c9564c912ff640648e">view commit &bull;</a> excluded private from respository</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/8e6380c6f8460e496c910d15f7eb3ee873b6e93e">view commit &bull;</a> excluded nbproject/private/ from respository</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/dfc7ad761fb7b898a6a777ddd50b67bfa49f51cb">view commit &bull;</a> excluded NetBeans private.xml from respository</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/111c1e51d51e7ade887828e75dc6ecbaf42410e5">view commit &bull;</a> 1. Fix: tls server context and config are required to be singletons 2. Refactoring: rename ConnectionsWorker to WSWorker</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/54c9452d5fef2b33a6e2e56a8aeee03207ced973">view commit &bull;</a> Modified link to Autobahn TestSuite Results</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/8b8b758cba2c92a1e1871e439798d52d3444a0bd">view commit &bull;</a> Added link to Autobahn Results</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/b97a2431d771233a0d04d0f2aa3fce0948920e66">view commit &bull;</a> removed build files</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/a90ed89f69c4fd19d9b5f10b01b44e5a0d276e17">view commit &bull;</a> Autobahn Testsuite Results</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/d4f36027316bf1e40d189ea58898a145aabedee0">view commit &bull;</a> Initial import, WebSockets Protocol Implementation, non-SSL and TLSv1.2</li> 
+<li> <a href="http://github.com/ITpC/LAppS/commit/d8c0f6f6d49a0def3b59bf93d9e5647cbfdc0ab0">view commit &bull;</a> Initial commit</li> 
