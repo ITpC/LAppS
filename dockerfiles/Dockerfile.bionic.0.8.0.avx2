@@ -68,6 +68,8 @@ WORKDIR ${WORKSPACE}
 
 ADD https://github.com/weidai11/cryptopp/archive/CRYPTOPP_8_2_0.tar.gz ${WORKSPACE}
 
+RUN rm -rf ${WORKSPACE}/cryptopp-CRYPTOPP_8_2_0
+
 RUN tar xzvf ${WORKSPACE}/CRYPTOPP_8_2_0.tar.gz
 
 RUN ls -la
