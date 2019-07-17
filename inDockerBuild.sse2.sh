@@ -12,7 +12,7 @@ then
   make CONF=Release.SSE2 build install &&\
   make CONF=Release.SSE2.NO_STATS build install &&\
   make CONF=Release.SSE2.NO_STATS.NO_TLS build install &&\
-  make CONF=Release.SSE2.NO_STATS.NO_TLS install-examples clone-luajit clone-libressl
+  make CONF=Release.SSE2.NO_STATS.NO_TLS install-examples clone-usr-local
 
   ls -la /opt/lapps/bin
 
