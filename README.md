@@ -55,3 +55,7 @@ Roadmap will be ready soon. Next releases will include:
   * improved statistics on LAppS I/O
   * Support for services written in Python, PHP and JavaScript
 
+# Dependencies
+  * libcrypto++-8.2
+  * wolfSSL-3.15.7
+
