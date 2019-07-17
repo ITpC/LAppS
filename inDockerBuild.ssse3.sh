@@ -10,7 +10,7 @@ then
   make CONF=Release.SSSE3 clean &&\
   make CONF=Release.SSSE3 build install &&\
   make CONF=Release.SSSE3.NO_STATS build install &&\
-  make CONF=Release.SSSE3.NO_STATS.NO_TLS build install install-examples clone-luajit clone-libressl
+  make CONF=Release.SSSE3.NO_STATS.NO_TLS build install install-examples clone-usr-local
 
   ls -lrt /opt/lapps/bin
 
