@@ -57,17 +57,17 @@ LDLIBSOPTIONS=-L/usr/local/lib -L../libressl/lib ../ITCFramework/dist/Debug/GNU-
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
-	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2
+	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx
 
-${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2: ../ITCFramework/dist/Debug/GNU-Linux/libitcframework.a
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx: ../ITCFramework/dist/Debug/GNU-Linux/libitcframework.a
 
-${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2: ../ITCLib/dist/Debug/GNU-Linux/libitclib.a
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx: ../ITCLib/dist/Debug/GNU-Linux/libitclib.a
 
-${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2: ../utils/dist/Debug/GNU-Linux/libutils.a
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx: ../utils/dist/Debug/GNU-Linux/libutils.a
 
-${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2: ${OBJECTFILES}
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
-	g++ -pipe -Wall -pthread -O2 -mtune=native -march=native -fPIC  -flto -mfpmath=sse -msse2avx  -mavx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2 ${OBJECTFILES} ${LDLIBSOPTIONS} -lcryptopp -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lwolfssl -lmimalloc
+	g++ -pipe -Wall -pthread -O2 -mtune=native -march=native -fPIC  -flto -mfpmath=sse -msse2avx  -mavx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx ${OBJECTFILES} ${LDLIBSOPTIONS} -lcryptopp -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lwolfssl -lmimalloc
 
 ${OBJECTDIR}/src/getLog.o: src/getLog.cpp nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/src
