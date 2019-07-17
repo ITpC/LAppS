@@ -62,6 +62,18 @@
                     <name>Release.SSE2.NO_STATS.NO_TLS</name>
                     <type>1</type>
                 </confElem>
+                <confElem>
+                    <name>Release.AVX</name>
+                    <type>1</type>
+                </confElem>
+                <confElem>
+                    <name>Release.AVX.NO_STATS</name>
+                    <type>1</type>
+                </confElem>
+                <confElem>
+                    <name>Release.AVX.NO_STATS.NO_TLS</name>
+                    <type>1</type>
+                </confElem>
             </confList>
             <formatting>
                 <project-formatting-style>false</project-formatting-style>

@@ -23,7 +23,7 @@ AS=as
 # Macros
 CND_PLATFORM=GNU-Linux
 CND_DLIB_EXT=so
-CND_CONF=Release.AVX2.NO_STATS.NO_TLS
+CND_CONF=Release.AVX.NO_STATS.NO_TLS
 CND_DISTDIR=dist
 CND_BUILDDIR=build
 
@@ -43,8 +43,8 @@ OBJECTFILES= \
 CFLAGS=
 
 # CC Compiler Flags
-CCFLAGS=-pipe -std=c++17 -Wall -pthread -O3 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -msse2avx -mavx2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer
-CXXFLAGS=-pipe -std=c++17 -Wall -pthread -O3 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -msse2avx -mavx2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer
+CCFLAGS=-pipe -std=c++17 -Wall -pthread -O3 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -msse2avx -mavx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer
+CXXFLAGS=-pipe -std=c++17 -Wall -pthread -O3 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -msse2avx -mavx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer
 
 # Fortran Compiler Flags
 FFLAGS=
@@ -67,7 +67,7 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2.nostats.notls: ../utils/di
 
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2.nostats.notls: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
-	g++ -pipe -Wall -pthread -O3 -flto -mtune=native -march=native -fPIC -flto  -mfpmath=sse -msse2avx -mavx2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2.nostats.notls ${OBJECTFILES} ${LDLIBSOPTIONS} -lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lmimalloc
+	g++ -pipe -Wall -pthread -O3 -flto -mtune=native -march=native -fPIC -flto  -mfpmath=sse -msse2avx  -mavx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2.nostats.notls ${OBJECTFILES} ${LDLIBSOPTIONS} -lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lmimalloc
 
 ${OBJECTDIR}/src/getLog.o: src/getLog.cpp nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/src
