@@ -59,3 +59,6 @@ Roadmap will be ready soon. Next releases will include:
   * libcrypto++-8.2
   * wolfSSL-3.15.7
 
+
+# Prerequisites
+  * GCC Version greater then 7
