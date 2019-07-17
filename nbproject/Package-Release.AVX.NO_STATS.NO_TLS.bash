@@ -13,8 +13,8 @@ CND_BUILDDIR=build
 CND_DLIB_EXT=so
 NBTMPDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}/tmp-packaging
 TMPDIRNAME=tmp-packaging
-OUTPUT_PATH=${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2.nostats.notls
-OUTPUT_BASENAME=lapps.avx2.nostats.notls
+OUTPUT_PATH=${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx.nostats.notls
+OUTPUT_BASENAME=lapps.avx.nostats.notls
 PACKAGE_TOP_DIR=/usr/
 
 # Functions

@@ -12417,7 +12417,7 @@
           </preprocessorList>
         </ccTool>
         <linkerTool>
-          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2</output>
+          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>../libressl/lib</pElem>
@@ -13532,7 +13532,7 @@
           </preprocessorList>
         </ccTool>
         <linkerTool>
-          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2.nostats</output>
+          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx.nostats</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>../libressl/lib</pElem>
@@ -14646,7 +14646,7 @@
           </preprocessorList>
         </ccTool>
         <linkerTool>
-          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2.nostats.notls</output>
+          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx.nostats.notls</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>../libressl/lib</pElem>
