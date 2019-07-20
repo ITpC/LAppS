@@ -93,7 +93,6 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   itc::CSocketSPtr                    mSocketSPtr;
   uint32_t                            mPeerIP;
   std::string                         mPeerAddress;
-  bool                                accepted;
   
   const auto getParentId() const
   {
@@ -117,23 +116,41 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   {
   }
   
-  const bool accept(const itc::utils::Bool2Type<false> tls_is_not_enabled) const
+  void accept(itc::utils::Bool2Type<true> tls_enabled)
   {
-    return true;
-  }
-  
-  const bool accept(const itc::utils::Bool2Type<true> tls_is_enabled) const
-  {
+  repeat:
     auto result=wolfSSL_accept(TLSSocket);
     if( result != SSL_SUCCESS)
     {
-      logWOLFSSLError(result, "WebSocket::accept() on wolfSSL_accept :");
-      return false;
+      auto error=wolfSSL_get_error(TLSSocket, result);
+      if( error == SSL_ERROR_WANT_READ)
+      {
+        mEPoll->mod_in(fd);
+        return;
+      }
+      if( error == SSL_ERROR_WANT_WRITE )
+        goto repeat;
+      
+      logWOLFSSLError(result, "WebSocket::accept(TLS_ENABLED) on wolfSSL_accept :");
+      
+      close();
     }
     else
     {
-      return true;
+      setState(State::HANDSHAKE);
+      
+      // back to blocking IO mode
+      
+      auto opts = fcntl(fd,F_GETFL);
+      opts = opts & (~O_NONBLOCK);
+      fcntl(fd, F_SETFL, opts);
+      mEPoll->mod_in(fd);
     }
+  }
+  
+  void accept(itc::utils::Bool2Type<false> tls_disabled)
+  {
+    setState(State::HANDSHAKE);
   }
   
  public:
@@ -147,28 +164,36 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
     const bool               auto_fragment,
     WOLFSSL_CTX*             tls_context=nullptr
   )
-  : mMutex(), fd(socksptr->getfd()), mState{HANDSHAKE}, 
+  : mMutex(), fd(socksptr->getfd()), mState{TLSEnable ? ACCEPT:  HANDSHAKE}, 
     mNoInput{false}, enableTLS(), enableStatsUpdate(),
     TLSContext{tls_context}, TLSSocket{nullptr},mEPoll(ep),
     mStats{0,0,0,0,0,0}, streamProcessor(512),
     mApplication{nullptr}, mAutoFragment(auto_fragment),mParent{_parent},
-    mSocketSPtr(std::move(socksptr)),accepted{false}
+    mSocketSPtr(std::move(socksptr))
   {
     init(fd, enableTLS);
     mSocketSPtr->getpeeraddr(mPeerIP);
     mSocketSPtr->getpeeraddr(mPeerAddress);
+    
+    if(TLSEnable)
+    {
+      // set nonblocking IO for the socket
+      auto opts = fcntl(fd,F_GETFL);
+      opts = opts || O_NONBLOCK;
+      fcntl(fd, F_SETFL, opts);
+    }
+    
     mEPoll->add_in(fd);
   }
 
   const bool is_accepted() const
   {
-    return accepted;
+    return mState > State::ACCEPT;
   }
   
-  const bool accept()
+  void accept()
   {
-    if(!accepted) accepted=accept(enableTLS);
-    return accepted;
+    accept(enableTLS);
   }
   
   WebSocket()=delete;
@@ -179,6 +204,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
     {
       case State::MESSAGING:
         closeSocket(WebSocketProtocol::SHUTDOWN);
+      case State::ACCEPT:
       case State::HANDSHAKE:
         terminate();
       case State::CLOSED:
@@ -292,7 +318,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   }
   void setState(const State state)
   {
-    if(((state > mState)&&(state != HANDSHAKE))||(state == mState))
+    if((state > mState)||(state == mState))
       mState=state;
     else throw std::logic_error(
         "Connection::setState(), - new state is out of order"
