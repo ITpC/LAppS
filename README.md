@@ -18,7 +18,10 @@ Please see [LAppS wiki](https://github.com/ITpC/LAppS/wiki) on how to build and 
 
 The latest 0.8.1 release is considered stable and includes many fixes and significant performance improvements in TLS mode.
 
-All 0.7.x releases are discontinued. Ubuntu bionic packages are available [here](https://github.com/ITpC/LAppS.builds).
+## Binaries
+
+  * Ubuntu bionic packages are available [here](https://github.com/ITpC/LAppS.builds).
+  * All 0.7.x releases are discontinued. 
 
 # Features
 
