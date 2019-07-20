@@ -224,18 +224,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   {
     streamProcessor.returnBuffer(std::move(buffer));
   }
-  void setInStats(WSConnectionStats& _stats)
-  {
-    _stats.mInMessageCount=mStats.mInMessageCount;
-    _stats.mBytesIn=mStats.mBytesIn;
-    _stats.mInMessageMaxSize=mStats.mInMessageMaxSize;
-  }
-  void setOutStats(WSConnectionStats& _stats)
-  {
-    _stats.mOutMessageCount=mStats.mOutMessageCount;
-    _stats.mBytesOut=mStats.mBytesOut;
-    _stats.mOutMessageMaxSize=mStats.mOutMessageMaxSize;
-  }
+  
   void terminate()
   {
     ITCSyncLock sync(mMutex);
@@ -291,7 +280,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
     return mPeerAddress;
   }
   
-  const WSConnectionStats& getStats() const
+  const auto& getStats() const
   {
     return mStats;
   }
