@@ -281,6 +281,9 @@ namespace LAppS
                 deleteConnection(fd);
               }
             break;
+            case WSType::ACCEPT:
+              current->accept();
+            break;
             case WSType::HANDSHAKE:
                 mShakespeer.handshake(current,*LAppS::SServiceRegistry::getInstance());
                 if(current->getState() !=WSType::MESSAGING)
