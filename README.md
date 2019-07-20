@@ -2,7 +2,7 @@
 
 This is an attempt to provide very easy to use Lua Application Server working over WebSockets protocol (RFC 6455). LAppS is an application server for micro-services architecture. It is build to be highly scalable vertically. The docker cloud infrastructure (kubernetes or swarm) shall be used for horizontal scaling.
 
-LAppS is the same thing to WebSockets as the Apache or Nginx are to HTTP. LAppS does not supports HTTP (though it supports HTTP Upgrade GET request as specified bz RFC 6455). The only supported scripting language so far is the Lua.
+LAppS is the same thing to WebSockets as the Apache or Nginx are to HTTP. LAppS does not supports HTTP (though it supports HTTP Upgrade GET request as per RFC 6455). The only supported scripting language so far is the Lua.
 
 RFC 6455 is fully implemented.  See the Conformance section.
 
