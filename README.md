@@ -26,7 +26,7 @@ The latest 0.8.1 release is considered stable and includes many fixes and signif
 # Features
 
 * Fastest WebSocket stream parser in industry
-* Easy API for rapid development of backend services in lua
+* Easy API for rapid development of backend services in lua, C or C++
 * High vertical scalability for requests parallelization
 * Several million client connections on one system 
 * Higly tunable through simple JSON configuration files
