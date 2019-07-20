@@ -28,7 +28,7 @@ namespace abstract
   class WebSocket : public std::enable_shared_from_this<abstract::WebSocket>
   {
   public:
-    enum State { HANDSHAKE=0, MESSAGING=1, CLOSED=2 };
+    enum State { ACCEPT=-1, HANDSHAKE=0, MESSAGING=1, CLOSED=2 };
     
     WebSocket()=default;
     

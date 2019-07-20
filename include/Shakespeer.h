@@ -76,15 +76,6 @@ namespace LAppS
       {
         mHTTPRParser.clear();
         
-        if(!wssocket->is_accepted())
-        {
-          if(!wssocket->accept())
-          {
-            wssocket->close();
-            return;
-          }
-        }
-        
         int received=wssocket->recv(headerBuffer);
         if(received != -1)
         {
