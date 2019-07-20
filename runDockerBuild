@@ -9,7 +9,7 @@ then
 
   export UBUNTU_VERSION_CHOSEN=0
 
-  for i in xenial bionic
+  for i in bionic
   do
     if [ "${UBUNTU}" == "${i}" ]
     then
@@ -19,7 +19,7 @@ then
 
   export BUILD_TYPE_CHOSEN=0
 
-  for i in avx2 ssse3 sse2
+  for i in avx avx2 ssse3 sse2
   do
     if [ "${BUILD}" == "${i}" ]
     then
@@ -27,20 +27,15 @@ then
     fi
   done
 
-  [ ${UBUNTU_VERSION_CHOSEN} ] || die "Use --ubuntu {xenial|bionic} - only these two ubuntu versions are supported"
-  [ ${BUILD_TYPE_CHOSEN} ] || die "Use --build {avx2|ssse3|sse2} - only these two build types are supported"
+  [ ${UBUNTU_VERSION_CHOSEN} ] || die "Use --ubuntu {bionic} - since 0.8.0 only bionic builds are supported"
+  [ ${BUILD_TYPE_CHOSEN} ] || die "Use --build {avx|avx2|ssse3|sse2} - only these two build types are supported"
 
 
   [ -f ./VERSION ] || die "No VERSION file in current directory"
 
   export VERSION=$(cat ./VERSION)
 
-  if [ "${VERSION}x" == "0.8.0x" ]
-  then
-    export DOCKERFILE=dockerfiles/Dockerfile.${UBUNTU}.${VERSION}.${BUILD}
-  else
-    export DOCKERFILE=dockerfiles/Dockerfile.${UBUNTU}.${BUILD}
-  fi
+  export DOCKERFILE=dockerfiles/Dockerfile.${UBUNTU}.${BUILD}
 
   sudo rm -rf /opt/lapps-builds/latest/*
 
