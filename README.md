@@ -65,7 +65,7 @@ Roadmap will be ready soon. Next releases will include:
 
 Optional
 
-  * mimalloc
+  * [mimalloc library](https://github.com/microsoft/mimalloc)
 
 
 
