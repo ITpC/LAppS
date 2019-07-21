@@ -1,0 +1,30 @@
+{
+  "directories": {
+    "app_conf_dir": "etc",
+    "applications": "apps",
+    "deploy": "deploy",
+    "tmp": "tmp",
+    "workdir": "workdir"
+  },
+  "services": {
+    "echo": {
+      "auto_start": true,
+      "instances": 4,
+      "internal": false,
+      "max_inbound_message_size": 16777216,
+      "protocol": "raw",
+      "request_target": "/echo",
+      "acl" : {
+        "policy" : "allow",
+        "exclude" : []
+      }
+    },
+    "benchmark": {
+      "auto_start": true,
+      "instances" : 4,
+      "internal": true,
+      "preload": [ "nap", "cws", "time" ],
+      "depends" : [ "echo" ]
+    }
+  }
+}
