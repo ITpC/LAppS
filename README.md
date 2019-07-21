@@ -61,6 +61,7 @@ Roadmap will be ready soon. Next releases will include:
 # Dependencies
   * libcrypto++-8.2
   * wolfSSL-3.15.7
+  * luajit-2.0.5 or higher
 
 Optional
 
