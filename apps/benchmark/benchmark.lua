@@ -6,8 +6,9 @@ end
 
 benchmark.messages_counter=0;
 benchmark.start_time=time.now();
-benchmark.server_url="wss://www.example.com:5083/echo"
-benchmark.maxconn=100
+benchmark.max_connections=100;
+benchmark.target="wss://127.0.0.1:5083/echo";
+benchmark.message="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
 
 benchmark.meter=function()
   benchmark.messages_counter=benchmark.messages_counter+1;
@@ -23,44 +24,61 @@ end
 
 benchmark.run=function()
   local n=nap:new();
-  n:sleep(1); -- delay for echo service to startup fully
+  local counter=1;
+  n:sleep(1);
   local array={};
-  for i=1,benchmark.maxconn
+  local start=time.now();
+  while(#array < benchmark.max_connections) and (not must_stop())
   do
-    local sock, err_msg=cws:new(
-      benchmark.server_url,
-      {
-        onopen=function(handler)
-          local result, errstr=cws:send(handler,"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",2);
-          if(not result)
-          then
-            print("Error on websocket send at handler "..handler..": "..errstr);
-          end
-        end,
-        onmessage=function(handler,message,opcode)
-          benchmark.meter();
-          cws:send(handler,message,opcode);
-        end,
-        onerror=function(handler, message)
-          -- print("Client WebSocket connection is failed for socketfd "..handler..". Error: "..message);
-        end,
-        onclose=function(handler)
+    local sock, err_msg=cws:new(benchmark.target,
+    {
+      onopen=function(handler)
+        local result, errstr=cws:send(handler,benchmark.message,2);
+        if(not result)
+        then
+          print("Error on websocket send at handler "..handler..": "..errstr);
         end
-      });
-      if(sock ~= nil)
-      then
-        table.insert(array,sock);
-      else
-        print("connection to " .. benchmark.server_url .. " is not established");
+      end,
+      onmessage=function(handler,message,opcode)
+        benchmark.meter();
+        cws:send(handler,message,opcode);
+      end,
+      onerror=function(handler, message)
+        print("Client WebSocket connection is failed for socketfd "..handler..". Error: "..message);
+      end,
+      onclose=function(handler)
+        print("Connection is closed for socketfd "..handler);
       end
+    });
+
+    if(sock ~= nil)
+    then
+      table.insert(array,sock);
+    else
+      print(err_msg);
+      err_msg=nil;
+      collectgarbage("collect");
+    end
+
+    -- poll events once per 10 outgoing connections 
+    -- this will improve the connection establishment speed
+    if counter == 10
+    then
       cws:eventLoop();
+      counter=1
+    else
+      counter = counter + 1;
+    end
   end
+
   print("Sockets connected: "..#array);
   benchmark.start_time=time.now();
+
   while not must_stop()
   do
     cws:eventLoop();
   end
+
   for i=1,#array
   do
     array[i]:close();
