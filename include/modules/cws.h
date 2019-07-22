@@ -69,6 +69,11 @@ extern "C" {
     {
       std::string errmsg{"Error on calling function "+func+(lua_tostring(L,lua_gettop(L)))};
       std::cerr << errmsg << std::endl;
+      if(retcode == LUA_ERRMEM)
+      {
+        std::cerr << "Total memory usage in context [" << L << "]: " << lua_gc(L,LUA_GCCOUNT,0) << std::endl;
+        lua_gc(L,LUA_GCCOLLECT,0);
+      }
     }
   }
   
@@ -244,6 +249,22 @@ extern "C" {
     }
   }
   
+  LUA_API int cws_close(lua_State *L)
+  {
+    const int argc=lua_gettop(L);
+    if(argc == 1)
+    {
+      auto udptr=static_cast<int32_t*>(luaL_checkudata(L,argc,"cws"));
+      
+      if((udptr!=nullptr)&&(*udptr))
+      {
+        WSCPool.remove(*udptr);
+        (*udptr)=0;
+      }
+    }
+    return 0;
+  }  
+  
   LUA_API int cws_create(lua_State *L)
   {
     const int argc=lua_gettop(L);
@@ -268,6 +289,8 @@ extern "C" {
       luaL_getmetatable(L,"cws");
       lua_pushvalue(L,3);
       lua_setfield(L,-2,std::to_string(*udptr).c_str());
+      lua_pushcfunction(L, cws_close);
+      lua_setfield(L, -2, "__gc");
       lua_setmetatable(L, -2);
       return 1;
       
@@ -281,21 +304,6 @@ extern "C" {
       return 2;
     }
     return 0; // relax compiler
-  }
-
-  LUA_API int cws_close(lua_State *L)
-  {
-    const int argc=lua_gettop(L);
-    if(argc == 1)
-    {
-      auto udptr=static_cast<int32_t*>(luaL_checkudata(L,argc,"cws"));
-      
-      if(udptr!=nullptr)
-      {
-        WSCPool.remove(*udptr);
-      }
-    }
-    return 0;
   }
   
   static void callOnClose(lua_State *L, const int32_t fd)
