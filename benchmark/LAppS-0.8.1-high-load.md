@@ -22,7 +22,7 @@ I wanted to see how LAppS behaves under high load with millions of connections a
 
 Before this I have made all the tests on my home PC which I use for development. The results of these tests will be used for comparison. My home PC has an Intel Core i7-7700 CPU 3.6GHz (4.0GHz Turbo) with 4 cores and 32GB of DDR4-2400 RAM. This PC runs Gentoo with 4.14.72 kernel.
 
-<spoiler title="Specter and Meltdown patch levels">
+"Specter and Meltdown patch levels"
 
   * Home PC
 ```text
@@ -45,11 +45,8 @@ I'll make an extra note with the results of the tests of Servers A and B whether
 
 On my Home PC patch level is never changed.
 
-</spoiler>
 
 ## Installing LAppS 0.8.1
-
-<spoiler title="Installing prerequisites and the LAppS">
 
 LAppS depends on the luajit-2.0.5 or higher, the libcrypto++8.2 and the wolfSSL-3.15.7 libraries and they have to be installed from sources in RHEL 7.6 and likely in any other linux distribution.
  
@@ -153,8 +150,6 @@ They will be installed into /opt/lapps/bin.
 
 Please note that the WebSockets client module for Lua is always built with SSL support. Whether it is enabled or not depends on the URI you are using for connection (ws:// or wss://) in runtime. 
 
-</spoiler>
-
 ## Test 1. Top performance on home PC. Configuration for baseline.
 
 I've already established that I get best performance when I configure four benchmark service instances with 100 connections each. In the same time I need only three IOWorkers and four echo service instances to achieve best performance. Remember? I have only 4 cores here.
@@ -164,7 +159,9 @@ The purpose of this test is just to establish a baseline for further comparison.
 Bellow are the steps required to configure LAppS for the tests.
 
 ### Self signed certificates
-<spoiler title="certgen.sh script">
+
+certgen.sh script
+
 ```bash
 #!/bin/bash
   
@@ -176,65 +173,14 @@ openssl req -new -x509 -key ca.key -out ca.crt
 openssl x509 -req -in example.org.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out example.org.crt
 cat example.org.crt ca.crt > example.org.bundle.crt
 ```
-</spoiler>
 
 Running this script from within the /opt/lapps/conf/ssl directory will create all required files. Here is the script's output and what I've typed in:
-
-<spoiler title="certgen.sh output">
-```text
-# certgen.sh 
-Generating RSA private key, 2048 bit long modulus
-.................................................................................................................................................................+++++
-.....................................+++++
-e is 65537 (0x010001)
-You are about to be asked to enter information that will be incorporated
-into your certificate request.
-What you are about to enter is what is called a Distinguished Name or a DN.
-There are quite a few fields but you can leave some blank
-For some fields there will be a default value,
-If you enter '.', the field will be left blank.
------
-Country Name (2 letter code) [AU]:KZ
-State or Province Name (full name) [Some-State]:none
-Locality Name (eg, city) []:Almaty
-Organization Name (eg, company) [Internet Widgits Pty Ltd]:NOORG.DO.NOT.FORGET.TO.REMOVE.FROM.BROWSER
-Organizational Unit Name (eg, section) []:
-Common Name (e.g. server FQDN or YOUR name) []:
-Email Address []:
-
-Please enter the following 'extra' attributes
-to be sent with your certificate request
-A challenge password []:
-An optional company name []:
-Generating RSA private key, 2048 bit long modulus
-...+++++
-............................................................................+++++
-e is 65537 (0x010001)
-You are about to be asked to enter information that will be incorporated
-into your certificate request.
-What you are about to enter is what is called a Distinguished Name or a DN.
-There are quite a few fields but you can leave some blank
-For some fields there will be a default value,
-If you enter '.', the field will be left blank.
------
-Country Name (2 letter code) [AU]:KZ
-State or Province Name (full name) [Some-State]:none
-Locality Name (eg, city) []:Almaty
-Organization Name (eg, company) [Internet Widgits Pty Ltd]:none
-Organizational Unit Name (eg, section) []:
-Common Name (e.g. server FQDN or YOUR name) []:*.example.org
-Email Address []:
-Signature ok
-subject=C = KZ, ST = none, L = Almaty, O = NOORG.DO.NOT.FORGET.TO.REMOVE.FROM.BROWSER
-Getting CA Private Key
-```
-</spoiler>
 
 ### LAppS configuration
 
 Here is the WebSockets configuration file which is set for TLS 1.3, includes the above generated certificates and configured with 3 IOWorkers (see detailed description of variables in the LAppS wiki).
 
-<spoiler title="/opt/lapps/etc/conf/ws.json">
+/opt/lapps/etc/conf/ws.json
 ```json
 {
    "listeners" : 2,
@@ -265,10 +211,10 @@ Here is the WebSockets configuration file which is set for TLS 1.3, includes the
   }
 }
 ```
-</spoiler>
 
 Configuring services: the echo server and the echo client (benchmark), each with four instances.
-<spoiler title="/opt/lapps/etc/conf/lapps.json">
+
+/opt/lapps/etc/conf/lapps.json"
 ```json
 {
   "directories": {
@@ -301,10 +247,8 @@ Configuring services: the echo server and the echo client (benchmark), each with
   }
 }
 ```
-</spoiler>
 
 The echo service is pretty trivial: 
-<spoiler title="echo service source code">
 ```Lua
 echo = {}
 
@@ -333,11 +277,9 @@ end
 
 return echo
 ```
-</spoiler>
 
 The benchmark service creates as many as **benchmark.max_connections** to **benchmark.target** and then just runs until you stop the LAppS. There is no pause in the connections' establishment or echo requests bombardment. The **cws** module API resembles the Web API for WebSockets. Once all **benchmark.max_connections** are established the benchmark prints the amount of Sockets connected. Once the connection is established the benchmark sends a  **benchmark.message** to the server. After the server replies the anonymous **onmessage** method of the **cws** object is invoked, which just sends the same message back to the server. 
 
-<spoiler title="benchmark service source code">
 ```Lua
 benchmark={}
 benchmark.__index=benchmark
@@ -429,7 +371,6 @@ end
 
 return benchmark;
 ```
-</spoiler>
 
 ### Services installation
 
@@ -440,7 +381,7 @@ Now we need to place the service scripts into /opt/lapps/apps/<servicename>/<ser
 We are ready to run our benchmark now. Just run: ```rm -f lapps.log; /opt/lapps/bin/lapps.avx2 > log``` from within the LAppS directory and wait for 5 mins, then press Ctrl-C once, to stop the LAppS (it will not stop immediately, it will shutdown the connections first), or twice (this will interrupt the shutdown sequence).
 
 Ok, we've got a text file with something like this inside:
-<spoiler title="benchmark output">
+```text
 echo::onStart
 echo::onStart
 echo::onStart
@@ -467,11 +408,11 @@ Sockets connected: 100
 141805 messages received per 1000ms
 134733 messages received per 1000ms
 ...
-</spoiler>
+```
 
 Let's clean this log file like this:
 ```bash
-echo -e ':%s/ms/^V^M/g\n:%g/^$/d\nGdd1G4/Sockets\n4\ndggZZ' | vi $i
+# echo -e ':%s/ms/^V^M/g\n:%g/^$/d\nGdd1G4/Sockets\n4\ndggZZ' | vi $i
 ```
 '^V^M' is visible representation of the following key hits: Ctrl-V Ctrl-V Ctrl-V Ctrl-M, so it will be pretty useless to just copy paste this bash line. Short explanation: 
   * we have to replace 'ms' symbols with end of line, because we do not need them, they will mess the calculations later on and 4 benchmarks working in parallel may print out their results in one line. 
@@ -535,7 +476,7 @@ This implies that I have to start several LAppS instances with the same configur
 
 Let's prepare two different configs for the servers A and B.
 
-<spoiler title="Server A ws.json">
+Server A ws.json:
 ```JSON
 {
   "listeners" : 224,
@@ -566,9 +507,8 @@ Let's prepare two different configs for the servers A and B.
   }
 }
 ```
-</spoiler>
 
-<spoiler title="Server A lapps.json">
+Server A lapps.json:
 ```JSON
 {
   "directories": {
@@ -594,9 +534,8 @@ Let's prepare two different configs for the servers A and B.
   }
 }
 ```
-</spoiler>
 
-<spoiler title="Server B ws.json">
+Server B ws.json:
 ```JSON
 {
   "listeners" : 0,
@@ -627,7 +566,6 @@ Let's prepare two different configs for the servers A and B.
   }
 }
 ```
-</spoiler>
 
 Server A has two interfaces:
   * bond0 - x.x.203.37 
@@ -636,7 +574,6 @@ Server A has two interfaces:
 One is faster another is slower but it does not really matter. The server will be under heavy load anyways.
 
 Lets prepare a template from our /opt/lapps/benchmark/benchmark.lua
-<spoiler title="benchmark.lua">
 ```Lua
 benchmark={}
 benchmark.__index=benchmark
@@ -731,10 +668,8 @@ end
 
 return benchmark;
 ```
-</spoiler>
 
 Let's store Server A IP addresses into files IP1 and IP2 respectively and then:
-
 ```bash
 for i in 1 2
 do
@@ -744,8 +679,8 @@ done
 ```
 
 Now we modify the /opt/lapps/etc/conf/lapps.json on Server B to use these two benchmark services:
-<spoiler title="Server B lapps.json">
-```JSON
+Server B lapps.json:
+```json
 {
   "directories": {
     "app_conf_dir": "etc",
@@ -770,7 +705,6 @@ Now we modify the /opt/lapps/etc/conf/lapps.json on Server B to use these two be
   }
 }
 ```
-</spoiler>
 
 Are we ready? No we are not. Because we are intent to generate 2 240 000 outgoing sockets to only two addresses and we need more ports on the server side. It is impossible to create more then 64k connections to the same ip:port pair (actually a little less then 64k).
 
@@ -803,7 +737,7 @@ date;awk '/ will be added to connection pool of worker/{a[$22]++}END{for(i in a)
 
 Here is an idea on how rapidly these connections are established:
 
-```plaintext
+```text
 375874
 Sun Jul 21 20:33:07 +06 2019
 
@@ -845,51 +779,37 @@ Let's stop the servers (press Ctrl-C several times) and modify the log as before
 echo -e ':%s/ms/^V^M/g\n:%g/^$/d\nGdd1G224/Sockets\n224\ndggZZ' | vi $i
 awk -v avg=0 '{rps=($1/$5);avg+=rps;}END{print ((avg*1000)/NR)*224}' log
 ```
-You might want to delete several last lines as well, to account for print outs from stopping benchmark services. You've already got an idea on how to do this and redo this tests yourself. So I'll post the results I've got for different test scenarios and proceed with problems I've faced.
+You might want to delete several last lines as well, to account for print outs from stopping benchmark services. You've already got an idea on how to do this. So I'll post the results for different test scenarios and proceed with problems I've faced.
+
+# Results for all the other tests (4.9 million and beyond)
 
 ![](https://habrastorage.org/webt/az/4a/at/az4aatexickfttbrom2gg3yrymu.png)
 
-<spoiler title="test #4 load">
-![](https://habrastorage.org/webt/ra/ka/_f/raka_fia7i2vnqhwh2p-5lnulc8.png)
-</spoiler>
+![Test #4](https://habrastorage.org/webt/ra/ka/_f/raka_fia7i2vnqhwh2p-5lnulc8.png)
 
-<spoiler title="test #5 load">
-![](https://habrastorage.org/webt/ln/z5/ml/lnz5mlaoz7aclxuyvjwjpwj25jm.png)
-</spoiler>
+![Test #5](https://habrastorage.org/webt/ln/z5/ml/lnz5mlaoz7aclxuyvjwjpwj25jm.png)
 
-<spoiler title="test #5 balanced for equal CPU sharing">
-![](https://habrastorage.org/webt/vi/cy/fe/vicyfenhzk7uvcjsiohq950c9fa.png)
-</spoiler>
+![Test #5 manualy balanced for CPU equal sharing](https://habrastorage.org/webt/vi/cy/fe/vicyfenhzk7uvcjsiohq950c9fa.png)
 
-<spoiler title="test #6">
-![](https://habrastorage.org/webt/7h/bg/ez/7hbgezb4zxuv3ijuemjmkilf110.png)
-</spoiler>
+![Test #6](https://habrastorage.org/webt/7h/bg/ez/7hbgezb4zxuv3ijuemjmkilf110.png)
 
-<spoiler title="test #8">
-![](https://habrastorage.org/webt/gq/5_/uj/gq5_uje-nnkfhlqmilb7xnbu5tc.png)
-</spoiler>
+![Test #8](https://habrastorage.org/webt/gq/5_/uj/gq5_uje-nnkfhlqmilb7xnbu5tc.png)
 
-<spoiler title="test #12">
-![](https://habrastorage.org/webt/xa/tr/m9/xatrm9dbbaha13w9wjxzmecvxjm.png)
-</spoiler>
+![Test #12](https://habrastorage.org/webt/xa/tr/m9/xatrm9dbbaha13w9wjxzmecvxjm.png)
 
-<spoiler title="test #13">
-![](https://habrastorage.org/webt/-w/9t/i8/-w9ti8atzczna-9dvepihihlyqu.png)
-</spoiler>
+![Test #13](https://habrastorage.org/webt/-w/9t/i8/-w9ti8atzczna-9dvepihihlyqu.png)
 
 # Problems. 
 
 Marked in above table with red.
 
 Running more then 224 benchmark instances on the Server B proved to be the bad idea, as the server on client side was incapable of evenly distribute the CPU time among processes/threads. First 224 benchmark instances which have established all their connections took most of the CPU resources and the rest of benchmark instances are lagging behind. Even using renice -20 does not help a lot(448 benchmark instances, 2 LAppS instances):
-<spoiler title="448 benchmark instances">
-![](https://habrastorage.org/webt/a2/ms/bg/a2msbgjgzuwvzzdl332linmmq98.png)
+![448 benchmark instances](https://habrastorage.org/webt/a2/ms/bg/a2msbgjgzuwvzzdl332linmmq98.png)
 The Server B (left side) is under very heavy load and the Server A still has free CPU resources.
-</spoiler>
 
 So I doubled the **benchmark.max_connections**  instead of starting more of the separate LAppS instances.
 
-Still for 12.3 million of WebSockets to run, I have started 5th LAppS instance without stopping four already running ones. And played the role of CFQ by manually  suspending and restarting prioritized processes with *kill -STOP/-CONT* or/and *renice* their priorities. You can use following template script for this:
+Still for 12.3 million of WebSockets to run, I have started 5th LAppS instance (tests 5 and 6) without stopping four already running ones. And played the role of CFQ by manually  suspending and restarting prioritized processes with *kill -STOP/-CONT* or/and *renice* their priorities. You can use following template script for this:
 ```bash
 while [ 1 ];
 do
@@ -900,7 +820,7 @@ do
 done
 ```
 
-Welcome to 2019 RHEL 7.6! Honestly, I used renice first time since 2009. What is worst, - I used it almost unsuccessfully this time.
+Welcome to 2019 RHEL 7.6! Honestly, I used the renice command first time since 2009. What is worst, - I used it almost unsuccessfully this time.
 
 I had a problem with scatter-gather  engine of the NICs. So I disabled it for some tests, not actually marking this event into the table.
 
@@ -914,3 +834,6 @@ I'm convinced that I have not managed to load LAppS on Server A to its full pote
 
 I'm still convinced that LAppS is most scalable and fastest WebSockets open source server out there and the **cws** WebSockets client module is the only of it's kind, providing the framework for high load testing.
 
+Please verify the results on your own hardware. 
+
+Note of advice: Never use nginx or apache as the load balancer or as a proxy-pass for WebSockets , or you'll end up cutting the performance on order of magnitude. They are not build for WebSockets.
