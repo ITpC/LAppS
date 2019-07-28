@@ -6,13 +6,13 @@ I've been lucky enough to get a couple of new servers for a limited period of ti
 
 <cut />Let's see the details
 
-#Challenges
+# Challenges
 
 First of all WebSockets on the client's side require a pretty fast RNG for traffic masking unless you want to fake it. I wanted the tests to be realistic, so I discarded the idea of faking the RNG by replacing it with a constant. This leaves the only option - a lot of CPU power. As I said, I have two servers: one with dual Intel Gold 6148 CPUs (40 cores in total) 256GB RAM (DDR4-2666) and one with quad Intel Platinum 8180 CPUs (112 cores in total) 384GB RAM (DDR4-2666). I'll be referring to them as Server A and Server B hereafter.
 
 The second challenge - there are no libraries or test suites for WebSockets that are fast enough. Which is why I was forced to develop a WebSockets client module for LAppS (**cws**). 
 
-#The tests setup
+# The tests setup
 
 Both servers have dual port 10GbE cards. Port 1 of each card is aggregated to a bonding interface and these ports on either cards are connected to each other in RR mode. Port 2 of each card is aggregated to a bonding interface in an Active-Backup mode, connected over an Ethernet switch. Each hardware server was running the RHEL 7.6. I had to install gcc-8.3 from the sources to have a modern compiler instead of the default gcc-4.8.5. Not the best setup for the performance tests, yet beggars can't be choosers.
 
@@ -826,7 +826,7 @@ I had a problem with scatter-gather  engine of the NICs. So I disabled it for so
 
 I had partial link disruptions under heavy load and the NIC driver bug,  so I had to discard related test results.
 
-#End of story.
+# End of story.
 
 Honestly, the tests went much smoother than I've anticipated.
 
