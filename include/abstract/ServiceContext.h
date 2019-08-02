@@ -57,6 +57,7 @@ namespace LAppS
       
       virtual const ::LAppS::ServiceProtocol getProtocol() const = 0;
       virtual const ::LAppS::ServiceLanguage getLanguage() const = 0;
+      virtual std::atomic<bool>* get_stop_flag_address() = 0;
       
       virtual ~ServiceContext() noexcept = default;
       

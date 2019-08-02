@@ -137,7 +137,19 @@ namespace LAppS
     
     void clear()
     {
+      Instances reactives;
+      Instances standalones;
+      for(const auto& instance: mInstances)
+      {
+          instance->getRunnable()->shutdown();
+          if(instance->getRunnable()->isReactive())
+            reactives.push_back(std::move(instance));
+          else
+            standalones.push_back(std::move(instance));
+      }
       mInstances.clear();
+      standalones.clear();
+      reactives.clear();
       current=0;
     }
     ~ServicesInstanceHolder()

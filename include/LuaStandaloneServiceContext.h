@@ -25,24 +25,34 @@
 #  define __LUASTANDALONESERVICECONTEXT_H__
 
 #include <abstract/LuaServiceContext.h>
-
-
 #include <ext/json.hpp>
+#include <ServiceRegistry.h>
+
 
 extern "C" {
 #include <lua.h>
 #include <lualib.h>
 #include <lauxlib.h>
 #include <stdexcept>
-}
-
-static thread_local std::atomic<std::atomic<bool>*> mustStop{nullptr};
-
-extern "C" {
   
   LUA_API int must_stop(lua_State* L)
   {
-    if(mustStop.load()&&(mustStop.load()->load()))
+    static thread_local std::atomic<bool>* mustStopAddr{nullptr};
+    
+    if(mustStopAddr == nullptr)
+    {
+      lua_getglobal(L,"instance_id");
+      const char *instance_id_str=lua_tostring(L,-1);
+      size_t instance_id=0;
+      sscanf(instance_id_str, "%zu", &instance_id);
+      try
+      {
+        mustStopAddr=LAppS::SServiceRegistry::getInstance()->findById(instance_id)->get_stop_flag_address();
+      }catch(const std::exception& e)
+      {
+      }
+    }
+    else if(mustStopAddr->load())
     {
       lua_pushboolean(L,true);
       return 1;
@@ -91,9 +101,12 @@ namespace LAppS
     
    public:
     
-    LuaStandaloneServiceContext(const std::string& name) : abstract::LuaServiceContext(name)
+    LuaStandaloneServiceContext(const std::string& name, const size_t instance_id) : abstract::LuaServiceContext(name)
     {
       init_bcast_module(mLState);
+      
+      lua_pushstring(mLState,std::to_string(instance_id).c_str());
+      lua_setglobal(mLState,"instance_id");
       
       lua_pushcfunction(mLState,must_stop);
       lua_setglobal(mLState,"must_stop");
@@ -130,6 +143,12 @@ namespace LAppS
       }
       
     }
+    
+    std::atomic<bool>* get_stop_flag_address()
+    {
+      return &mMustStop;
+    }
+    
     void init()
     {
       mMustStop.store(false);
@@ -149,7 +168,6 @@ namespace LAppS
     
     void run()
     {
-      mustStop.store(&mMustStop);
       lua_getglobal(mLState, this->getName().c_str());
       lua_getfield(mLState, -1, "run");
       int ret = lua_pcall(mLState, 0, 0, 0);
@@ -180,13 +198,15 @@ namespace LAppS
       if(isRunning())
       {
         this->stop();
-        while(isRunning())
-          itc::sys::sched_yield(1000);
       }
     }
     ~LuaStandaloneServiceContext() noexcept
     {
-        this->shutdown();
+      this->shutdown();
+      while(isRunning())
+      {
+        itc::sys::sched_yield(5000);
+      }
     }
   };
 }
