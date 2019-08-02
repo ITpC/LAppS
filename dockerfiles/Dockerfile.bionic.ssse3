@@ -86,7 +86,7 @@ RUN git clone https://github.com/microsoft/mimalloc.git
 
 WORKDIR ${WORKSPACE}/mimalloc
 
-RUN cmake CFLAGS="-pipe -O2 -march=core2 -mtune=generic -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops" .
+RUN env CFLAGS="-pipe -O2 -march=core2 -mtune=generic -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops" CXXFLAGS="-pipe -O2 -march=core2 -mtune=generic -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops" CXX="g++ -pipe -O2 -march=core2 -mtune=generic -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops" cmake .
 
 RUN make -j4 all install
 
