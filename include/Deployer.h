@@ -97,6 +97,11 @@ namespace LAppS
           {
             fs::remove_all(tempdir);
           }
+          else
+          {
+            if(!fs::create_directory(tempdir))
+              itc::getLog()->error(__FILE__,__LINE__,"Can't create directory %s",tempdir.u8string().c_str());
+          }
           
           itc::getLog()->info(__FILE__,__LINE__,"Unpacking archive %s",archive_name.u8string().c_str());
           lar::LAR service_archive;
@@ -167,7 +172,7 @@ namespace LAppS
       itc::getLog()->info(__FILE__,__LINE__,"Deploying service: %s",dir.u8string().c_str());
       try
       {
-        const bool internal{service_config["internal"]};
+        const bool standalone{service_config["standalone"]};
         const bool auto_start{service_config["auto_start"]};
         const size_t instances{service_config["instances"]};
         const std::string service_name=service_config["name"];
@@ -186,11 +191,11 @@ namespace LAppS
           fs::remove_all(service_path);
         }
         
-        if(internal)
+        if(standalone)
         {
           if(already_exists)
           {
-            LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["internal"]=internal;
+            LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["standalone"]=standalone;
             LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["instances"]=instances;
             LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["auto_start"]=auto_start;
             if(service_config.find("preload") != service_config.end())
@@ -199,7 +204,7 @@ namespace LAppS
             }
           }else{
             json sconfig{{ service_name , {
-              {"internal",internal},
+              {"standalone",standalone},
               {"instances",instances},
               {"auto_start",auto_start}
             }}};
@@ -212,14 +217,14 @@ namespace LAppS
           fs::rename(dir,service_path);          
         }
         else
-        { // non internal
+        { // non standalone
           const std::string target=service_config["request_target"];
           const std::string protocol=service_config["protocol"];
           const size_t max_in_msg_size{service_config["max_inbound_message_size"]};
 
           if(already_exists)
           {
-            LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["internal"]=internal;
+            LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["standalone"]=standalone;
             LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["instances"]=instances;
             LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["auto_start"]=auto_start;
             LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["request_target"]=target;
@@ -243,7 +248,7 @@ namespace LAppS
           {
             json sconfig{{
               service_name,{
-                { "internal", internal },
+                { "standalone", standalone },
                 { "instances", instances },
                 { "auto_start", auto_start },
                 { "request_target", target },
@@ -328,7 +333,7 @@ namespace LAppS
             );
           }
 
-          const bool internal{LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["internal"]};
+          const bool standalone{LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["standalone"]};
           const size_t instances{LAppSConfig::getInstance()->getLAppSConfig()["services"][service_name]["instances"]};
 
 
@@ -339,7 +344,7 @@ namespace LAppS
           mEnv.setEnv("LUA_PATH", mEnv["LUA_PATH"] + ";" + std::string(lua_module_path_extend.u8string().c_str()) + "/?.lua");
 
           itc::getLog()->info(__FILE__,__LINE__,"Starting service %s with %d instance(s)",service_name.c_str(),instances);    
-          if(internal)
+          if(standalone)
           {  
             for(size_t i=0;i<instances;++i)
             {
