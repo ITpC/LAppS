@@ -83,7 +83,7 @@ namespace LAppS
       {
         "services", {
           {"placeholder", {
-            {"internal", true},
+            {"standalone", true},
             {"instances", 0},
             {"auto_start" , false }
           }}
