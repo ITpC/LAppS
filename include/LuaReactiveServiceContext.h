@@ -48,6 +48,10 @@ namespace LAppS
     itc::utils::Int2Type<Tproto> mProtocol;
     std::atomic<bool>            mustStop;
     
+    std::atomic<bool>* get_stop_flag_address()
+    {
+      return nullptr;
+    }    
     
     void callAppOnMessage()
     {

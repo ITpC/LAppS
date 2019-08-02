@@ -38,7 +38,7 @@ namespace LAppS
     
    public:
     LuaStandaloneService(const std::string& name)
-      :abstract::StandaloneService(), mContext{name}
+      :abstract::StandaloneService(), mContext{name,this->getInstanceId()}
     {
     }
       
@@ -59,6 +59,10 @@ namespace LAppS
       
     }
     
+    std::atomic<bool>* get_stop_flag_address()
+    {
+      return mContext.get_stop_flag_address();
+    }
     const bool filterIP(const uint32_t address) const
     {
       return false;
@@ -67,6 +71,7 @@ namespace LAppS
     ~LuaStandaloneService()
     {
       this->shutdown();
+      while(mContext.isRunning()) itc::sys::sched_yield(5000);
     }
     
     void onCancel()
@@ -76,15 +81,9 @@ namespace LAppS
     
     void shutdown()
     {
-      if(mContext.isRunning())
-      {
-        itc::getLog()->info(__FILE__,__LINE__,"Shutdown is requested for the instance %u of the service %s",this->getInstanceId(), mContext.getName().c_str());
-        mContext.stop();
-
-        while(mContext.isRunning()) itc::sys::sched_yield(10);
-
-        itc::getLog()->info(__FILE__,__LINE__,"Instance %u of the service %s is down",this->getInstanceId(), mContext.getName().c_str());
-      }
+      itc::getLog()->info(__FILE__,__LINE__,"Shutdown is requested for the instance %u of the service %s",this->getInstanceId(), mContext.getName().c_str());
+      mContext.stop();
+      itc::getLog()->info(__FILE__,__LINE__,"Instance %u of the service %s is down",this->getInstanceId(), mContext.getName().c_str());
     }
     
     const ::LAppS::ServiceLanguage getLanguage() const
