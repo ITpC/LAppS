@@ -68,7 +68,12 @@ namespace LAppS
         mACL.add(std::move(LAppS::addrinfo(it.value().get<std::string>())));
       }
     }
-   
+      
+    std::atomic<bool>* get_stop_flag_address()
+    {
+      return nullptr;
+    }
+    
     const bool filterIP(const uint32_t address) const
     {
       switch(mACL.mPolicy)

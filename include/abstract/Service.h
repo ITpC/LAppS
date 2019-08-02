@@ -69,10 +69,11 @@ namespace LAppS
       virtual const bool isStandalone() const = 0;
       virtual const ::LAppS::ServiceLanguage getLanguage() const = 0;
       virtual const ::LAppS::ServiceProtocol getProtocol() const = 0;
-      virtual const bool filterIP(const uint32_t address) const=0;
+      virtual const bool filterIP(const uint32_t address) const = 0;
       virtual void shutdown() = 0;
       virtual const size_t getMaxMSGSize() const=0;
       virtual void enqueue(const AppInEvent&&)=0;
+      virtual std::atomic<bool>* get_stop_flag_address() = 0;
       
       virtual ~Service() noexcept = default;
     };
