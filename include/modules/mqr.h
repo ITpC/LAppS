@@ -235,7 +235,7 @@ extern "C" {
       }
     }else{
       lua_pushboolean(L,false);
-      lua_pushstring(L,"Usage: boolean [,string] mqr_obj:post(nljson_obj)");
+      lua_pushstring(L,"Usage: nljson, [boolean, string] mqr_obj:recv()");
       return 2;
     } 
   }
