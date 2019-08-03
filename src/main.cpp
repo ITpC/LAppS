@@ -92,7 +92,7 @@ int main(int argc, char** argv)
   
   if(argc > 1)
   {
-    if(strncmp(argv[0],"-d",2)==1)
+    if(strncmp(argv[0],"-d",2) > 0)
     {
       auto pid=fork();
       if(pid == 0)
