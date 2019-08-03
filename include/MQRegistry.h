@@ -26,7 +26,6 @@
 
 #include <memory>
 #include <string>
-#include <map>
 #include <functional>
 
 #include <sys/mutex.h>
@@ -37,6 +36,7 @@
 
 #include <ext/json.hpp>
 
+#include <ext/tsl/robin_map.h>
 
 namespace LAppS
 {
@@ -50,7 +50,7 @@ namespace LAppS
     {
      private:
       itc::sys::mutex                  mMutex;
-      std::map<size_t,QueueHolderType> mQueueMap;
+      tsl::robin_map<size_t,QueueHolderType> mQueueMap;
       
      public:
       explicit Registry()=default;
