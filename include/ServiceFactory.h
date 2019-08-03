@@ -83,7 +83,6 @@ namespace LAppS
             case ServiceProtocol::INTERNAL:
               throw std::system_error(EINVAL,std::system_category(),"An attempt to start a Standalone service ["+name+"] as a Reactive one");
           }
-        break;
         case ServiceLanguage::PYTHON:
         default:
           throw std::system_error(EINVAL,std::system_category(),"Python services are not implemented yet");
