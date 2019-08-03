@@ -81,9 +81,9 @@ namespace LAppS
     
     void shutdown()
     {
-      itc::getLog()->info(__FILE__,__LINE__,"Shutdown is requested for the instance %u of the service %s",this->getInstanceId(), mContext.getName().c_str());
+      itc::getLog()->info(__FILE__,__LINE__,"Shutdown is requested for the instance %zu of the service %s",this->getInstanceId(), mContext.getName().c_str());
       mContext.stop();
-      itc::getLog()->info(__FILE__,__LINE__,"Instance %u of the service %s is down",this->getInstanceId(), mContext.getName().c_str());
+      itc::getLog()->info(__FILE__,__LINE__,"Instance %zu of the service %s is down",this->getInstanceId(), mContext.getName().c_str());
     }
     
     const ::LAppS::ServiceLanguage getLanguage() const
