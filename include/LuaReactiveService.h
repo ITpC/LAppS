@@ -188,7 +188,7 @@ namespace LAppS
         }catch(const std::exception& e)
         {
           mMayRun.store(false);
-          itc::getLog()->info(__FILE__,__LINE__,"Instance [%u] of the service [%s] is going down",this->getInstanceId(),this->getName().c_str());
+          itc::getLog()->info(__FILE__,__LINE__,"Instance [%zu] of the service [%s] is going down",this->getInstanceId(),this->getName().c_str());
           break;
         }
         try
