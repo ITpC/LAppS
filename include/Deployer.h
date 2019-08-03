@@ -343,7 +343,7 @@ namespace LAppS
 
           mEnv.setEnv("LUA_PATH", mEnv["LUA_PATH"] + ";" + std::string(lua_module_path_extend.u8string().c_str()) + "/?.lua");
 
-          itc::getLog()->info(__FILE__,__LINE__,"Starting service %s with %d instance(s)",service_name.c_str(),instances);    
+          itc::getLog()->info(__FILE__,__LINE__,"Starting service %s with %u instance(s)",service_name.c_str(),instances);    
           if(standalone)
           {  
             for(size_t i=0;i<instances;++i)

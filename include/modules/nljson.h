@@ -299,8 +299,6 @@ extern "C" {
       );
       throw e;
     }
-    lua_pushnil(L);
-    return 1;
   }
   
   LUA_API int erase(lua_State *L)

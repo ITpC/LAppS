@@ -37,6 +37,7 @@ namespace LAppS
   {
     size_t mConnections;
     size_t mEventQSize;
+    WorkerMinStats() : mConnections{0}, mEventQSize{0} {};
   };
 
   struct IOStats : public WorkerMinStats
@@ -50,7 +51,13 @@ namespace LAppS
     size_t mBytesIn;
     size_t mBytesOut;
     size_t mInQueueDepth;
-
+    
+    IOStats(): WorkerMinStats(), mInMessageCount{0},mOutMessageCount{0},
+      mInMessageMaxSize{0},mOutMessageMaxSize{0},mBytesIn{0},mBytesOut{0},
+      mInQueueDepth{0}
+    {
+    }
+      
     const IOStats& operator=(const IOStats& value)
     {
       mConnections=value.mConnections;

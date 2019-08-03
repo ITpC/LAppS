@@ -101,7 +101,8 @@ namespace LAppS
     
    public:
     
-    LuaStandaloneServiceContext(const std::string& name, const size_t instance_id) : abstract::LuaServiceContext(name)
+    LuaStandaloneServiceContext(const std::string& name, const size_t instance_id)
+    : abstract::LuaServiceContext(name),mCanStop{false},mMustStop{false}
     {
       init_bcast_module(mLState);
       

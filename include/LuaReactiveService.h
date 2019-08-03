@@ -222,7 +222,7 @@ namespace LAppS
                 const bool exec_result=mContext.onMessage(event);
                 if(!exec_result)
                 {
-                  itc::getLog()->info(__FILE__,__LINE__,"The context for instance [%u] of service [%s] is down.",getInstanceId(), this->getName().c_str());
+                  itc::getLog()->info(__FILE__,__LINE__,"The context for instance [%zu] of service [%s] is down.",getInstanceId(), this->getName().c_str());
                   mMayRun.store(false);
                 }
               }
@@ -231,11 +231,11 @@ namespace LAppS
         }catch(const std::exception& e)
         {
           mMayRun.store(false);
-          itc::getLog()->error(__FILE__,__LINE__,"Exception in the instance [%u] of service [%s]::execute(): %s",getInstanceId(), this->getName().c_str(),e.what());
+          itc::getLog()->error(__FILE__,__LINE__,"Exception in the instance [%zu] of service [%s]::execute(): %s",getInstanceId(), this->getName().c_str(),e.what());
           itc::getLog()->flush();
         }
       }
-      itc::getLog()->info(__FILE__,__LINE__,"Instance [%u] of the service [%s]: execution finished",getInstanceId(), this->getName().c_str());
+      itc::getLog()->info(__FILE__,__LINE__,"Instance [%zu] of the service [%s]: execution finished",getInstanceId(), this->getName().c_str());
       mCanStop.store(true);
     }
   };
