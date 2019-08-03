@@ -179,7 +179,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
     {
       // set nonblocking IO for the socket
       auto opts = fcntl(fd,F_GETFL);
-      opts = opts || O_NONBLOCK;
+      opts = opts | O_NONBLOCK;
       fcntl(fd, F_SETFL, opts);
     }
     
