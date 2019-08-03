@@ -1,0 +1,7 @@
+{
+    "name"       : "mqr_sender",
+    "auto_start" : true,
+    "instances"  : 1,
+    "standalone" : true,
+    "preload"    : [ "mqr" ]
+}

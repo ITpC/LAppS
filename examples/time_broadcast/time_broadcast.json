@@ -1,6 +1,6 @@
 {
   "name" : "time_broadcast",
-  "internal": true,
+  "standalone": true,
   "instances" : 1,
   "auto_start": true,
   "preload" : [ "nap" ]

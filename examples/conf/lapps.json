@@ -40,11 +40,24 @@
       "preload": [ "nap" ]
     },
     "benchmark": {
-      "auto_start": true,
+      "auto_start": false,
       "instances" : 4,
       "standalone": true,
       "preload": [ "nap", "cws", "time" ],
       "depends" : [ "echo" ]
+    },
+    "mqr_sender" : {
+      "auto_start" : true,
+      "instances"  : 1,
+      "standalone" : true,
+      "preload"    : [ "mqr" ]
+    },
+    "mqr_receiver" : {
+      "auto_start" : true,
+      "instances"  : 2,
+      "standalone" : true,
+      "preload"    : [ "mqr", "time" ],
+      "depends"    : [ "mqr_sender" ]
     }
   }
 }
