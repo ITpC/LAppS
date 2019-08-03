@@ -12,8 +12,6 @@ LAppS is an easy way to develop low-latency web applications. Please see [LAppS 
 
 Please see [LAppS wiki](https://github.com/ITpC/LAppS/wiki) on how to build and run LAppS from sources. 
 
-**[See binary packages for Ubuntu xenial and bionic](https://github.com/ITpC/LAppS.builds)**
-
 # Releases
 
 The latest 0.8.1 release is considered stable and includes many fixes and significant performance improvements in TLS mode.
@@ -72,3 +70,10 @@ Optional
 
 # Prerequisites
   * GCC Version greater then 7
+
+# Static analysis
+
+<a href="https://scan.coverity.com/projects/itpc-lapps">
+  <img alt="Coverity Scan Build Status"
+       src="https://scan.coverity.com/projects/14982/badge.svg"/>
+</a>
