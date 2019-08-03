@@ -1,3 +1,8 @@
+<a href="https://scan.coverity.com/projects/itpc-lapps">
+  <img alt="Coverity Scan Build Status"
+       src="https://scan.coverity.com/projects/14982/badge.svg"/>
+</a>
+
 # LAppS - Lua Application Server
 
 This is an attempt to provide very easy to use Lua Application Server working over WebSockets protocol (RFC 6455). LAppS is an application server for micro-services architecture. It is build to be highly scalable vertically. The docker cloud infrastructure (kubernetes or swarm) shall be used for horizontal scaling. LAppS has [most scallable WebSockets server](https://habr.com/ru/post/460847/) out there.
@@ -8,7 +13,7 @@ RFC 6455 is fully implemented.  See the Conformance section.
 
 RFC 7692 (compression extensions) is not implemented due to concerns about [BREACH attacks](https://en.wikipedia.org/wiki/BREACH). It is possible to have per-message compression on the [LAppS protocol](https://github.com/ITpC/LAppS/blob/master/LAppS_Protocol_Specification.md) level without being affected by BREACH attacks.
 
-LAppS is an easy way to develop low-latency web applications. Please see [LAppS wiki](https://github.com/ITpC/LAppS/wiki) on examples of how to build your own application.
+LAppS is an easy way to develop low-latency web applications. Please see [LAppS wiki](https://github.com/ITpC/LAppS/wiki) and the examples on how to build your own applications.
 
 Please see [LAppS wiki](https://github.com/ITpC/LAppS/wiki) on how to build and run LAppS from sources. 
 
@@ -69,9 +74,3 @@ Optional
 # Prerequisites
   * GCC Version greater then 7
 
-# Static analysis
-
-<a href="https://scan.coverity.com/projects/itpc-lapps">
-  <img alt="Coverity Scan Build Status"
-       src="https://scan.coverity.com/projects/14982/badge.svg"/>
-</a>
