@@ -2,6 +2,7 @@ benchmark={}
 benchmark.__index=benchmark
 
 benchmark.init=function()
+  print("instance id: "..string.format("%u",instance_id));
 end
 
 benchmark.messages_counter=0;
@@ -9,6 +10,7 @@ benchmark.start_time=time.now();
 benchmark.max_connections=100;
 benchmark.target="wss://127.0.0.1:5083/echo";
 benchmark.message="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+benchmark.force_stop=true;
 
 benchmark.meter=function()
   benchmark.messages_counter=benchmark.messages_counter+1;
@@ -62,7 +64,7 @@ benchmark.run=function()
 
     -- poll events once per 10 outgoing connections 
     -- this will improve the connection establishment speed
-    if counter == 10
+    if counter == 10 and (not must_stop())
     then
       cws:eventLoop();
       counter=1
@@ -74,15 +76,23 @@ benchmark.run=function()
   print("Sockets connected: "..#array);
   benchmark.start_time=time.now();
 
+  if(must_stop())
+  then
+    print("must stop")
+  end
+
   while not must_stop()
   do
     cws:eventLoop();
   end
 
-  for i=1,#array
-  do
-    array[i]:close();
-    cws:eventLoop();
+  if(not force_stop)
+  then
+    for i=1,#array
+    do
+      array[i]:close();
+      cws:eventLoop();
+    end
   end
 end
 
