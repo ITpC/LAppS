@@ -115,7 +115,7 @@ namespace LAppS
         for(size_t i=0;i<max_listeners;++i)
         {
 
-          itc::getLog()->trace(__FILE__,__LINE__,"wsServer creating a listener %u",i);
+          itc::getLog()->trace(__FILE__,__LINE__,"wsServer creating a listener %zu",i);
 
           auto balancer=std::make_shared<LAppS::Balancer<TLSEnable,StatsEnable>>(LAppSConfig::getInstance()->getWSConfig()["connection_weight"]);
           mBalancersPool.push_back(balancer);
@@ -200,7 +200,7 @@ namespace LAppS
           }
           else
           {
-            itc::getLog()->error(__FILE__,__LINE__,"workers.max_connections option is not set or of inappropriate type, using default value: %u",max_connections);
+            itc::getLog()->error(__FILE__,__LINE__,"workers.max_connections option is not set or of inappropriate type, using default value: %zu",max_connections);
           }
           auto auto_fragment_found=found.value().find("auto_fragment");
           if((auto_fragment_found!=found.value().end())&&(auto_fragment_found.value().is_boolean()))
