@@ -170,7 +170,6 @@ public:
    mHeaders.clear();
    RequestTarget.clear();
    HTTPVersion.clear();
-   mHeaders.clear();
    mMinSize=168;
  }
 };
