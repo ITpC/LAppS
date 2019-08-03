@@ -13,7 +13,7 @@ LAppS is an easy way to develop low-latency web applications. Please see [LAppS 
 Please see [LAppS wiki](https://github.com/ITpC/LAppS/wiki) on how to build and run LAppS from sources. 
 
 # Releases
-03 August 2019 - 0.9.0 released with bugfixes reported by Coverty and the PVS-studio. This is a latest stable release.
+03 August 2019 - 0.9.0 released with bugfixes reported by Coverty and the PVS-studio. This is a latest stable release. Please beware that there are a change in service descriptors, the keyword "internal" has been replaced with "standalone".
 
 ## Binaries
 
