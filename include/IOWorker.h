@@ -90,7 +90,7 @@ namespace LAppS
     explicit IOWorker(const size_t id, const size_t maxConnections,const bool auto_fragment)
     : Worker(id,maxConnections,auto_fragment), enableTLS(),  enableStatsUpdate(), 
       mMayRun{true}, mCanStop{false}, mMaxEPollWait{LAppSConfig::getInstance()->getWSConfig()["workers"]["max_poll_wait_ms"]},
-      mShakespeer(), mEPoll(std::make_shared<ePoll>()),
+      mStats(), mShakespeer(), mEPoll(std::make_shared<ePoll>()),
       mInQueue(),mConnections(), mDCQueue(20), 
       mEvents{LAppSConfig::getInstance()->getWSConfig()["workers"]["max_poll_events"]},
       haveConnections{false},haveDisconnects{false},mTLSContext(wolfSSLServer::getInstance()->getContext()),
