@@ -11385,7 +11385,7 @@ class binary_writer
                     write_number(static_cast<std::uint32_t>(N));
                 }
                 // LCOV_EXCL_START
-                else if (N <= (std::numeric_limits<std::uint64_t>::max)())
+                else
                 {
                     oa->write_character(to_char_type(0x7B));
                     write_number(static_cast<std::uint64_t>(N));
