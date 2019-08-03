@@ -49,6 +49,12 @@ template <typename T> struct UserdataAdapter
     "UserdataAdapter may be used only for T=std::shared_ptr<nlohmann::json> or T=nlohmann::json"
     );
   }
+  auto& operator=(const UserdataAdapter& rval)
+  {
+    type=rval.type;
+    ptr=rval.ptr;
+    return *this;
+  }
   explicit UserdataAdapter(const UserdataAdapter& ref)
   : type(ref.type),ptr(ref.ptr) {}
   ~UserdataAdapter()
