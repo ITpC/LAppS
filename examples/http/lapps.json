@@ -7,22 +7,22 @@
 	},
 	"services": {
     "echo_lapps" : {
-       "internal" : false,
+       "standalone" : false,
        "request_target" : "/echo_lapps",
        "protocol" : "LAppS",
        "instances" : 3,
        "max_inbound_message_size" : 1024
      },
 		"http": {
-			"internal": true,
+			"standalone": true,
 			"instances": 1
 		},
 		"time_broadcast": {
-			"internal": true,
+			"standalone": true,
 			"instances": 1
 		},
 		"broadcast_blob": {
-			"internal": true,
+			"standalone": true,
 			"instances": 1
 		}
 	}
