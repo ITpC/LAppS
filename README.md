@@ -13,13 +13,11 @@ LAppS is an easy way to develop low-latency web applications. Please see [LAppS 
 Please see [LAppS wiki](https://github.com/ITpC/LAppS/wiki) on how to build and run LAppS from sources. 
 
 # Releases
-
-The latest 0.8.1 release is considered stable and includes many fixes and significant performance improvements in TLS mode.
+03 August 2019 - 0.9.0 released with bugfixes reported by Coverty and the PVS-studio. This is a latest stable release.
 
 ## Binaries
 
   * Ubuntu bionic packages are available [here](https://github.com/ITpC/LAppS.builds).
-  * All 0.7.x releases are discontinued. 
 
 # Features
 
