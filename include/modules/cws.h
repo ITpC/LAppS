@@ -36,7 +36,7 @@ extern "C" {
   
   
   static thread_local LAppS::WSClientPool WSCPool;
-  static thread_local std::vector<epoll_event> events(768);
+  static thread_local std::vector<epoll_event> events(2048);
   
   static const bool is_error_event(const uint32_t event)
   {
@@ -280,8 +280,46 @@ extern "C" {
     {
       std::string uri{lua_tostring(L,argc-1)};
       
-      auto wscs=WSCPool.create(std::move(uri));
-      
+      auto wscs{WSCPool.create(std::move(uri))};
+      auto sock{WSCPool.find(wscs)};
+      switch(sock->second->getState())
+      {
+        case LAppS::WSClient::State::CONNECT:
+          if(sock->second->wsConnect() == LAppS::WSClient::OnConnectDirective::POLL)
+          {
+            WSCPool.mod_in(wscs);
+          }
+          else
+          {
+            lua_pushnil(L);
+            lua_pushnil(L);
+            std::string message{"Can't create socket, - fail on connect"};
+            lua_pushlstring(L,message.c_str(),message.size());
+            return 2;
+          }
+        break;
+        case LAppS::WSClient::State::UPGRADE:
+          if(sock->second->wsUpgrade() == LAppS::WSClient::OnConnectDirective::POLL)
+          {
+            WSCPool.mod_in(wscs);
+          }
+          else
+          {
+            lua_pushnil(L);
+            lua_pushnil(L);
+            std::string message{"Can't create socket, - fail on connection upgrade"};
+            lua_pushlstring(L,message.c_str(),message.size());
+            return 2;
+          }
+        break;
+        default: // unexpected state
+          lua_pushnil(L);
+          lua_pushnil(L);
+          std::string message{"Can't create socket, - internal error, incorrect socket state"};
+          lua_pushlstring(L,message.c_str(),message.size());
+          return 2;
+      }
+     
       auto udptr=static_cast<int32_t*>(lua_newuserdata(L,sizeof(int32_t)));
       
       (*udptr)=wscs;
@@ -341,7 +379,7 @@ extern "C" {
     size_t ret=WSCPool.poll(events);
     for(size_t i=0;i<ret;++i)
     {
-      const epoll_event& event=events[i];
+      auto event{events[i]};
       
       if(is_error_event(event.events))
       {
@@ -355,14 +393,13 @@ extern "C" {
         
         if(it!=WSCPool.end())
         {
-          auto client_ws=it->second;
+          auto client_ws{it->second};
           
-          LAppS::WSClient::InputStatus directive=LAppS::WSClient::InputStatus::ERROR;
+          LAppS::WSClient::InputStatus directive{LAppS::WSClient::InputStatus::ERROR};
           
           do
           {
             directive=client_ws->handleInput();
-            
             switch(directive)
             {
               case LAppS::WSClient::InputStatus::FORCE_CLOSE: 
@@ -375,6 +412,37 @@ extern "C" {
                 callOnError(L,event.data.fd,"Communication error on read from socket, - it is already closed");
                 cws_remove_handler(L,event.data.fd);
                 WSCPool.remove(event.data.fd);
+              break;
+              case LAppS::WSClient::InputStatus::MUST_CONNECT:
+                switch(client_ws->wsConnect())
+                {
+                  case LAppS::WSClient::OnConnectDirective::FAIL:
+                    callOnError(L,event.data.fd,"Communication error on TLS handshake");
+                    cws_remove_handler(L,event.data.fd);
+                    WSCPool.remove(event.data.fd);
+                  break;
+                  case LAppS::WSClient::OnConnectDirective::POLL:
+                    if(client_ws->getState() == LAppS::WSClient::UPGRADE)
+                      goto upgrade;
+                  default:
+                    WSCPool.mod_in(event.data.fd);
+                  break;
+                }
+                break;
+              case LAppS::WSClient::InputStatus::MUST_UPGRADE:
+                upgrade:
+                switch(client_ws->wsUpgrade())
+                {
+                  case LAppS::WSClient::OnConnectDirective::FAIL:
+                    callOnError(L,event.data.fd,"Communication error on HTTP Upgrade Request");
+                    cws_remove_handler(L,event.data.fd);
+                    WSCPool.remove(event.data.fd);
+                  break;
+                  case LAppS::WSClient::OnConnectDirective::POLL:
+                  default:
+                    WSCPool.mod_in(event.data.fd);
+                    break;
+                }
               break;
               case LAppS::WSClient::InputStatus::NEED_MORE_DATA:
               {

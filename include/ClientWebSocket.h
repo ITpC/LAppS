@@ -28,6 +28,8 @@
 #include <vector>
 #include <string>
 #include <regex>
+#include <chrono>
+#include <random>
 
 #include <net/NSocket.h>
 #include <TCPSocketDef.h>
@@ -59,7 +61,7 @@
 
 namespace LAppS
 {
-  
+  static thread_local std::mt19937 MRNG(std::chrono::system_clock::now().time_since_epoch().count());
   static thread_local CryptoPP::AutoSeededRandomPool RNG(true);
   static thread_local CryptoPP::Base64Encoder        BASE64;
   static thread_local CryptoPP::SHA1                 SHA1;
@@ -73,8 +75,9 @@ namespace LAppS
   namespace WSClient
   {
     enum URISearchDirective {LOOK_FOR_HOSTNAME,LOOK_FOR_PORT,LOOK_FOR_RTARGET,STOP_LOOKING};  
-    enum State { INIT, HANDSHAKE_FAILED, COMM_ERROR, CLOSED, HANDSHAKE, MESSAGING };
-    enum InputStatus { FORCE_CLOSE=-2, ERROR=-1, NEED_MORE_DATA=1, MESSAGE_READY_BUFFER_IS_EMPTY=2, MESSAGE_READY_BUFFER_IS_NOT_EMPTY=3, CALL_ONCE_MORE=4, UPGRADED=5, UPGRADED_BUFF_NOT_EMPTY=6};
+    enum State { INIT, HANDSHAKE_FAILED, COMM_ERROR, CLOSED, CONNECT, UPGRADE, HANDSHAKE, MESSAGING };
+    enum InputStatus { FORCE_CLOSE=-2, ERROR=-1, MUST_CONNECT=0, MUST_UPGRADE=1, NEED_MORE_DATA=2, MESSAGE_READY_BUFFER_IS_EMPTY=3, MESSAGE_READY_BUFFER_IS_NOT_EMPTY=4, CALL_ONCE_MORE=5, UPGRADED=6, UPGRADED_BUFF_NOT_EMPTY=7};
+    enum OnConnectDirective { FAIL=-1, POLL=0 };
     typedef WSStreamProcessing::State MessageState;
   }
   
@@ -96,6 +99,9 @@ namespace LAppS
     std::string             mSecWebSocketKey;
     
     WSStreamProcessing::WSStreamClientParser  streamProcessor;
+    
+    std::string request_target;
+    std::string hostname;
     
     void terminate()
     {
@@ -350,7 +356,7 @@ namespace LAppS
     {
       int ret=force_recv(recvBuffer);
       if(ret == 0) return false; 
-          //throw std::system_error(ECONNRESET,std::system_category(),"ClientWebSocket::ClientWebSocket() - error on recv, - peer has shutdown connection");
+          
       if(ret>0)
       {
         std::string accept_key_src(mSecWebSocketKey+"258EAFA5-E914-47DA-95CA-C5AB0DC85B11");
@@ -372,7 +378,6 @@ namespace LAppS
       else
       {
         return false;
-        //throw std::system_error(EBADE,std::system_category(),"ClientWebSocket handshake failed on read");
       }
     }
     
@@ -416,12 +421,11 @@ namespace LAppS
         hostname_length=hostname_length-search_start_idx;
         
         
-        std::string hostname(uri,search_start_idx,hostname_length);
+        hostname=std::move(std::string(uri,search_start_idx,hostname_length));
         
         search_start_idx+=hostname_length;
         
         uint32_t    port=0;
-        std::string request_target;
         size_t      port_length=0;
         size_t      port_end_idx=0;
         
@@ -472,88 +476,116 @@ namespace LAppS
           }else{
             wolfSSL_set_fd(TLSSocket,this->getfd());
           }
+          auto opts = fcntl(this->getfd(),F_GETFL);
+          opts = opts | O_NONBLOCK;
+          fcntl(this->getfd(), F_SETFL, opts);
+          mState=WSClient::State::CONNECT;
         }else{
           if(port==0) port=80;
           this->open(hostname,port);
-        }
-        
-        std::string httpUpgradeRequest;
-        httpUpgradeRequest.append("GET ");
-        httpUpgradeRequest.append(request_target);
-        httpUpgradeRequest.append(" ");
-        httpUpgradeRequest.append("HTTP/1.1\r\n");
-        httpUpgradeRequest.append("Host: ");
-        httpUpgradeRequest.append(hostname);
-        httpUpgradeRequest.append("\r\n");
-        httpUpgradeRequest.append("Upgrade: websocket\r\n");
-        httpUpgradeRequest.append("Connection: Upgrade\r\n");
-        httpUpgradeRequest.append("User-Agent: LAppS/0.7.0\r\n");
-        httpUpgradeRequest.append("Sec-WebSocket-Key: ");
-        
-        std::vector<uint8_t> ws_sec_key(16,0);
-        RNG.GenerateBlock(ws_sec_key.data(),16);
-        
-        BASE64.Initialize();
-        BASE64.Put(ws_sec_key.data(), 16);
-        BASE64.MessageEnd();
-
-        size_t base64_str_size=BASE64.MaxRetrievable()-1; // remove trailing \n
-        
-        mSecWebSocketKey.resize(base64_str_size,'\0');
-        BASE64.Get((CryptoPP::byte*)(mSecWebSocketKey.data()),base64_str_size);
-        
-        httpUpgradeRequest.append(mSecWebSocketKey);
-        httpUpgradeRequest.append("\r\n");
-
-        if(tls)
-        {
-          httpUpgradeRequest.append("Origin: https://");
-        }
-        else
-        {
-          httpUpgradeRequest.append("Origin: http://");
-        }
-        
-        httpUpgradeRequest.append(hostname);
-        httpUpgradeRequest.append("\r\n");
-        httpUpgradeRequest.append("Sec-WebSocket-Version: 13\r\n\r\n");
-        
-        // prevent SIGPIPE
-        
-        sigset_t sigsetmask;
-        sigemptyset(&sigsetmask);
-        sigaddset(&sigsetmask, SIGPIPE);
-        pthread_sigmask(SIG_BLOCK, &sigsetmask, NULL);
-        
-        // handshake
-
-        int ret=force_send(httpUpgradeRequest);
-        
-        if(ret == 0)
-        {
-          if(tls&&TLSSocket)
-          {
-            wolfSSL_free(TLSSocket);
-            TLSSocket=nullptr;
-          }
-          throw std::system_error(ECONNRESET,std::system_category(),"ClientWebSocket::ClientWebSocket() - error on send, - peer has shutdown connection");
-        }
-        
-        if(ret>0)
-        {
-          mState=WSClient::State::HANDSHAKE;
-        }else{
-          if(tls&&TLSSocket)
-          {
-            wolfSSL_free(TLSSocket);
-            TLSSocket=nullptr;
-          }
-          throw std::system_error(EBADE,std::system_category(),"ClientWebSocket handshake failed on write");
-        }
+          mState=WSClient::State::UPGRADE;
+        }        
       }
       else throw std::system_error(EINVAL,std::system_category(),"Error: "+uri+" is not a WebSockets URI");
     }
       
+    const WSClient::OnConnectDirective wsConnect()
+    {
+    repeat:
+      auto result=wolfSSL_connect(TLSSocket);
+      if( result != SSL_SUCCESS)
+      {
+        auto error=wolfSSL_get_error(TLSSocket, result);
+        if( error == SSL_ERROR_WANT_READ)
+        {
+          return WSClient::OnConnectDirective::POLL;
+        }
+        if( error == SSL_ERROR_WANT_WRITE )
+        {
+          goto repeat;
+        }
+        
+        
+        logWOLFSSLError(result, "ClientWebSocket::wsConnect(): ");
+        
+        return WSClient::OnConnectDirective::FAIL;
+      }
+      else
+      {
+        mState=WSClient::State::UPGRADE;
+        // back to blocking IO mode
+
+        auto opts = fcntl(this->getfd(),F_GETFL);
+        opts = opts & (~O_NONBLOCK);
+        fcntl(this->getfd(), F_SETFL, opts);
+        return WSClient::OnConnectDirective::POLL;
+      }
+    }
+    
+    const WSClient::OnConnectDirective wsUpgrade()
+    {
+      std::string httpUpgradeRequest;
+      httpUpgradeRequest.append("GET ");
+      httpUpgradeRequest.append(request_target);
+      httpUpgradeRequest.append(" ");
+      httpUpgradeRequest.append("HTTP/1.1\r\n");
+      httpUpgradeRequest.append("Host: ");
+      httpUpgradeRequest.append(hostname);
+      httpUpgradeRequest.append("\r\n");
+      httpUpgradeRequest.append("Upgrade: websocket\r\n");
+      httpUpgradeRequest.append("Connection: Upgrade\r\n");
+      httpUpgradeRequest.append("User-Agent: LAppS/0.7.0\r\n");
+      httpUpgradeRequest.append("Sec-WebSocket-Key: ");
+
+      std::vector<uint8_t> ws_sec_key(16,0);
+      RNG.GenerateBlock(ws_sec_key.data(),16);
+
+      BASE64.Initialize();
+      BASE64.Put(ws_sec_key.data(), 16);
+      BASE64.MessageEnd();
+
+      size_t base64_str_size=BASE64.MaxRetrievable()-1; // remove trailing \n
+
+      mSecWebSocketKey.resize(base64_str_size,'\0');
+      BASE64.Get((CryptoPP::byte*)(mSecWebSocketKey.data()),base64_str_size);
+
+      httpUpgradeRequest.append(mSecWebSocketKey);
+      httpUpgradeRequest.append("\r\n");
+
+      if(tls)
+      {
+        httpUpgradeRequest.append("Origin: https://");
+      }
+      else
+      {
+        httpUpgradeRequest.append("Origin: http://");
+      }
+
+      httpUpgradeRequest.append(hostname);
+      httpUpgradeRequest.append("\r\n");
+      httpUpgradeRequest.append("Sec-WebSocket-Version: 13\r\n\r\n");
+
+      // prevent SIGPIPE
+
+      sigset_t sigsetmask;
+      sigemptyset(&sigsetmask);
+      sigaddset(&sigsetmask, SIGPIPE);
+      pthread_sigmask(SIG_BLOCK, &sigsetmask, NULL);
+
+      // handshake
+
+      int ret=force_send(httpUpgradeRequest);
+
+      if(ret>0)
+      {
+        mState=WSClient::State::HANDSHAKE;
+      }else{
+        return WSClient::OnConnectDirective::FAIL;
+      }
+      
+      return WSClient::OnConnectDirective::POLL;
+    }
+    
     void closeSocket(const WebSocketProtocol::DefiniteCloseCode& ccode)
     {
       std::vector<uint8_t> out;
@@ -629,6 +661,8 @@ namespace LAppS
       {
         case WSClient::State::MESSAGING:
           closeSocket(WebSocketProtocol::SHUTDOWN);
+        case WSClient::State::CONNECT:
+        case WSClient::State::UPGRADE:
         case WSClient::State::HANDSHAKE:
           terminate();
         case WSClient::State::CLOSED:
@@ -655,8 +689,8 @@ namespace LAppS
         uint8_t   byte_mask[8];
       } double_mask;
       
-      uint32_t single_mask=0;
-      RNG.GenerateBlock((CryptoPP::byte*)(&single_mask),sizeof(single_mask));
+      uint32_t single_mask=MRNG();
+      //RNG.GenerateBlock((CryptoPP::byte*)(&single_mask),sizeof(single_mask));
       double_mask.mask=(static_cast<uint64_t>(single_mask)<<32)|single_mask;
       
       std::vector<uint8_t> out;
@@ -709,6 +743,11 @@ namespace LAppS
       mState=WSClient::State::COMM_ERROR;
     }
     
+    const WSClient::State getState() const
+    {
+      return mState;
+    }
+    
     const WSClient::InputStatus handleInput()
     {
       switch(mState)
@@ -718,6 +757,10 @@ namespace LAppS
         case WSClient::State::COMM_ERROR:
         case WSClient::State::INIT:
           return WSClient::InputStatus::ERROR;
+        case WSClient::State::CONNECT:
+          return WSClient::InputStatus::MUST_CONNECT;
+        case WSClient::State::UPGRADE:
+          return WSClient::InputStatus::MUST_UPGRADE;
         case WSClient::State::HANDSHAKE:
         {
           if(serverResponseOk())
