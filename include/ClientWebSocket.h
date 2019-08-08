@@ -478,11 +478,15 @@ namespace LAppS
           }
           auto opts = fcntl(this->getfd(),F_GETFL);
 
-          if(opts!=-1)
-          {
-            opts = opts | O_NONBLOCK;
-            fcntl(this->getfd(), F_SETFL, opts);
-          }
+          if(opts == -1)
+            throw std::system_error(errno,std::system_category(),"socket become invalid");
+
+          opts = opts | O_NONBLOCK;
+          opts=fcntl(this->getfd(), F_SETFL, opts);
+
+          if(opts == -1)
+            throw std::system_error(errno,std::system_category(),"socket become invalid");
+
           mState=WSClient::State::CONNECT;
         }else{
           if(port==0) port=80;
@@ -520,11 +524,16 @@ namespace LAppS
         // back to blocking IO mode
 
         auto opts = fcntl(this->getfd(),F_GETFL);
-        if(opts != -1)
-        {
-          opts = opts & (~O_NONBLOCK);
-          fcntl(this->getfd(), F_SETFL, opts);
-        }
+
+        if(opts == -1)
+          return WSClient::OnConnectDirective::FAIL;
+
+        opts = opts & (~O_NONBLOCK);
+        opts=fcntl(this->getfd(), F_SETFL, opts);
+
+        if(opts == -1)
+          return WSClient::OnConnectDirective::FAIL;
+
         return WSClient::OnConnectDirective::POLL;
       }
     }
