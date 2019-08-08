@@ -477,8 +477,12 @@ namespace LAppS
             wolfSSL_set_fd(TLSSocket,this->getfd());
           }
           auto opts = fcntl(this->getfd(),F_GETFL);
-          opts = opts | O_NONBLOCK;
-          fcntl(this->getfd(), F_SETFL, opts);
+
+          if(opts!=-1)
+          {
+            opts = opts | O_NONBLOCK;
+            fcntl(this->getfd(), F_SETFL, opts);
+          }
           mState=WSClient::State::CONNECT;
         }else{
           if(port==0) port=80;
@@ -516,8 +520,11 @@ namespace LAppS
         // back to blocking IO mode
 
         auto opts = fcntl(this->getfd(),F_GETFL);
-        opts = opts & (~O_NONBLOCK);
-        fcntl(this->getfd(), F_SETFL, opts);
+        if(opts != -1)
+        {
+          opts = opts & (~O_NONBLOCK);
+          fcntl(this->getfd(), F_SETFL, opts);
+        }
         return WSClient::OnConnectDirective::POLL;
       }
     }
