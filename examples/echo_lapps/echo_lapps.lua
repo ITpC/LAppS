@@ -5,21 +5,21 @@ maps=require("lapps_echo_maps");
 local methods=require("lapps_echo_methods");
 
 
-echo_lapps["last_timestamp"]=os.time();
+echo_lapps.last_timestamp=os.time();
 
-echo_lapps["onStart"]=function()
+echo_lapps.onStart=function()
   local result, err=bcast:create(1000);
 end
 
-echo_lapps["onShutdown"]=function()
+echo_lapps.onShutdown=function()
 end
 
-echo_lapps["onDisconnect"]=function(handler)
+echo_lapps.onDisconnect=function(handler)
   bcast:unsubscribe(1000,handler);
   nljson.erase(maps.keys, tostring(handler))
 end
 
-echo_lapps["method_not_found"] = function(handler)
+echo_lapps.method_not_found = function(handler)
   local err_msg=nljson.decode([[{
     "status" : 0,
     "error" : {
@@ -44,7 +44,7 @@ end
 --    4 - Request wich has params attribute
 --  @param message - an nljson userdata object
 --]]
-echo_lapps["onMessage"]=function(handler,msg_type, message)
+echo_lapps.onMessage=function(handler,msg_type, message)
   local switch={
     [1] = function() -- a CN message does not require any response. Let's restrict CN's without params
             local err_msg=nljson.decode([[{

@@ -4,7 +4,7 @@ lapps_echo_methods.__index=lapps_echo_methods
 maps=require("lapps_echo_maps") -- must be global
 
 
-lapps_echo_methods["_cn_w_params_method"]={
+lapps_echo_methods._cn_w_params_method={
   ["logout"]=function(handler,params)
     if(nljson.find(params[1],"authkey") ~= nil) and (type(params[1].authkey) == "number")
     then
@@ -58,7 +58,7 @@ lapps_echo_methods["_cn_w_params_method"]={
   end
 }
 
-lapps_echo_methods["_request_w_params_method"]={
+lapps_echo_methods._request_w_params_method={
   ["login"]=function(handler,params)
 
       local login_authentication_error=nljson.decode([[{
