@@ -31,9 +31,8 @@
 using json = nlohmann::json;
 typedef std::shared_ptr<json> JSPTR;
 
-template<typename T, typename U> struct is_same : std::false_type { };
-template<typename T> struct is_same<T, T> : std::true_type { };
-template<typename T, typename U> constexpr bool isEqual() { return is_same<T, U>::value; }
+
+template<typename T, typename U> constexpr bool isEqual() { return std::is_same<T, U>::value; }
 
 enum UserdataType { RAW_PTR, SHARED_PTR };
 template <typename T> struct UserdataAdapter

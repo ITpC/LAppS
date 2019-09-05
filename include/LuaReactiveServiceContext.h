@@ -206,15 +206,6 @@ namespace LAppS
       lua_pushinteger(mLState, (lua_Integer)(event.websocket.get()));
       lua_pushinteger(mLState, event.opcode);
       
-      /*
-      auto ptr=static_cast<size_t*>(lua_newuserdata(mLState,sizeof(size_t)));
-      
-      (*ptr)=bv_storage_index;
-      bv_storage[bv_storage_index]=std::move(event.message);
-      ++bv_storage_index;
-      luaL_getmetatable(mLState, "byte_vector");
-      lua_setmetatable(mLState, -2);
-      */
       lua_pushlstring(mLState,(const char*)(event.message->data()),event.message->size());
       
       callAppOnMessage(); 
@@ -254,7 +245,7 @@ namespace LAppS
     
     const bool onMessage(const AppInEvent& event, const itc::utils::Int2Type<ServiceProtocol::LAPPS>& protocol_is_lapps)
     {
-      // exceptions from json and from lua stack MUST be handled in the Application class
+      // exceptions from json and from lua stack MUST be handled in the LuaService derivative class
       // We must prevent possibility to kill app with inappropriate message, therefore 
       // content errors may not throw the exceptions.
       
@@ -274,7 +265,7 @@ namespace LAppS
 
       lua_getfield(mLState, LUA_GLOBALSINDEX, this->getName().c_str());
       lua_getfield(mLState,-1,"onMessage");
-
+      
       lua_pushinteger(mLState,(lua_Integer)(event.websocket.get())); // socket handler for ws::send
       lua_pushinteger(mLState,msg_type);
       pushRequest(msg);

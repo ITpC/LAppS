@@ -141,7 +141,7 @@ int wssend_raw(lua_State* L, abstract::WebSocket* handler)
   {
     size_t len;
     const char* msg=lua_tolstring(L,udidx,&len);
-
+    
     if(handler->mustAutoFragment())
     {
       WebSocketProtocol::FragmentedServerMessage::msgQType msgqueue;
@@ -321,7 +321,7 @@ extern "C" {
           int hdidx=2;
           if(lua_isnumber(L, hdidx))
           {
-            abstract::WebSocket* handler=(abstract::WebSocket*)(lua_tointeger(L,hdidx));
+            auto handler=(abstract::WebSocket*)(lua_tointeger(L,hdidx));
             return wssend_lapps(L,handler);
           }
           else{
@@ -336,7 +336,7 @@ extern "C" {
           int hdidx=2;
           if(lua_isnumber(L, hdidx))
           {
-            abstract::WebSocket* handler=(abstract::WebSocket*)lua_tointeger(L,hdidx);
+            auto handler=(abstract::WebSocket*)(lua_tointeger(L,hdidx));
             return wssend_raw(L,handler);
           }
           else{
