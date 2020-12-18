@@ -201,7 +201,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs</commandLine>
+          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -1346,7 +1346,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs</commandLine>
+          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -2491,7 +2491,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2</commandLine>
+          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -3635,7 +3635,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs</commandLine>
+          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -4778,7 +4778,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs</commandLine>
+          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -5922,7 +5922,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs</commandLine>
+          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -7065,7 +7065,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs</commandLine>
+          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -8208,7 +8208,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs</commandLine>
+          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -9353,7 +9353,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs</commandLine>
+          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -10497,7 +10497,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs</commandLine>
+          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -11640,7 +11640,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs</commandLine>
+          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -12785,7 +12785,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs</commandLine>
+          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -13929,7 +13929,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs</commandLine>
+          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -15072,7 +15072,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs</commandLine>
+          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
