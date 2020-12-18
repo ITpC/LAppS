@@ -2417,6 +2417,7 @@
             <pElem>include/modules</pElem>
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
+            <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
           </incDir>
           <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -msse2avx -mavx2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
           <preprocessorList>
@@ -2426,6 +2427,7 @@
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
+            <Elem>MIMALLOC</Elem>
             <Elem>STATS_ENABLE</Elem>
             <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
@@ -2437,7 +2439,7 @@
           <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
-            <pElem>../libressl/lib</pElem>
+            <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerAddLib>
           <commandlineTool>g++ -pipe -Wall -pthread -O2 -mtune=native -march=native -fPIC  -flto -mfpmath=sse  -msse2avx -mavx2   -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
           <linkerLibItems>
@@ -3547,7 +3549,6 @@
         <ccTool>
           <commandlineTool>g++</commandlineTool>
           <incDir>
-            <pElem>../libressl/include</pElem>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -3557,6 +3558,7 @@
             <pElem>include/modules</pElem>
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
+            <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
           </incDir>
           <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
           <preprocessorList>
@@ -3566,6 +3568,7 @@
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
+            <Elem>MIMALLOC</Elem>
             <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
             <Elem>WC_RSA_BLINDING</Elem>
@@ -3576,7 +3579,7 @@
           <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.ssse3.nostats</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
-            <pElem>../libressl/lib</pElem>
+            <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerAddLib>
           <commandlineTool>g++ -pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
           <linkerLibItems>
@@ -4686,7 +4689,6 @@
         <ccTool>
           <commandlineTool>g++</commandlineTool>
           <incDir>
-            <pElem>../libressl/include</pElem>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -4696,6 +4698,7 @@
             <pElem>include/modules</pElem>
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
+            <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
           </incDir>
           <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
           <preprocessorList>
@@ -4704,6 +4707,7 @@
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
+            <Elem>MIMALLOC</Elem>
             <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
             <Elem>WC_RSA_BLINDING</Elem>
@@ -4714,7 +4718,7 @@
           <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.ssse3.nostats.notls</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
-            <pElem>../libressl/lib</pElem>
+            <pElem>/usr/local/lib/mimalloc-1.6/</pElem>
           </linkerAddLib>
           <commandlineTool>g++ -pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
           <linkerLibItems>
@@ -5824,7 +5828,6 @@
         <ccTool>
           <commandlineTool>g++</commandlineTool>
           <incDir>
-            <pElem>../libressl/include</pElem>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -5834,6 +5837,7 @@
             <pElem>include/modules</pElem>
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
+            <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
           </incDir>
           <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -msse2avx -mavx2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
           <preprocessorList>
@@ -5843,6 +5847,7 @@
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
+            <Elem>MIMALLOC</Elem>
             <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
             <Elem>WC_RSA_BLINDING</Elem>
@@ -5853,7 +5858,7 @@
           <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2.nostats</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
-            <pElem>../libressl/lib</pElem>
+            <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerAddLib>
           <commandlineTool>g++ -pipe -Wall -pthread -O2 -mtune=native -march=native -fPIC  -flto -mfpmath=sse -msse2avx  -mavx2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
           <linkerLibItems>
@@ -6963,7 +6968,6 @@
         <ccTool>
           <commandlineTool>g++</commandlineTool>
           <incDir>
-            <pElem>../libressl/include</pElem>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -6973,6 +6977,7 @@
             <pElem>include/modules</pElem>
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
+            <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
           </incDir>
           <commandLine>-pipe -std=c++17 -Wall -pthread -O3 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -msse2avx -mavx2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
           <preprocessorList>
@@ -6981,6 +6986,7 @@
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
+            <Elem>MIMALLOC</Elem>
             <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
             <Elem>WC_RSA_BLINDING</Elem>
@@ -6991,7 +6997,7 @@
           <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2.nostats.notls</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
-            <pElem>../libressl/lib</pElem>
+            <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerAddLib>
           <commandlineTool>g++ -pipe -Wall -pthread -O3 -flto -mtune=native -march=native -fPIC -flto  -mfpmath=sse -msse2avx -mavx2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
           <linkerLibItems>
@@ -8101,7 +8107,6 @@
         <ccTool>
           <commandlineTool>g++</commandlineTool>
           <incDir>
-            <pElem>../libressl/include</pElem>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -8111,6 +8116,7 @@
             <pElem>include/modules</pElem>
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
+            <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
           </incDir>
           <commandLine>-g -pipe -std=c++17 -Wall -pthread -O3 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -mavx2 -msse2avx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong</commandLine>
           <preprocessorList>
@@ -8119,6 +8125,7 @@
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
+            <Elem>MIMALLOC</Elem>
             <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
             <Elem>WC_RSA_BLINDING</Elem>
@@ -8129,7 +8136,7 @@
           <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2.nostats.notls</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
-            <pElem>../libressl/lib</pElem>
+            <pElem>/usr/local/lib/mimalloc-1.6/</pElem>
           </linkerAddLib>
           <commandlineTool>g++ -g -pipe -Wall -pthread -O3 -flto -mtune=native -march=native -fPIC  -flto -mfpmath=sse -mavx2 -msse2avx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong </commandlineTool>
           <linkerLibItems>
@@ -9239,7 +9246,6 @@
         <ccTool>
           <commandlineTool>g++</commandlineTool>
           <incDir>
-            <pElem>../libressl/include</pElem>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -9249,6 +9255,7 @@
             <pElem>include/modules</pElem>
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
+            <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
           </incDir>
           <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
           <preprocessorList>
@@ -9258,6 +9265,7 @@
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
+            <Elem>MIMALLOC</Elem>
             <Elem>STATS_ENABLE</Elem>
             <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
@@ -9269,7 +9277,7 @@
           <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.sse2</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
-            <pElem>../libressl/lib</pElem>
+            <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerAddLib>
           <commandlineTool>g++ -pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
           <linkerLibItems>
@@ -10379,7 +10387,6 @@
         <ccTool>
           <commandlineTool>g++</commandlineTool>
           <incDir>
-            <pElem>../libressl/include</pElem>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -10389,6 +10396,7 @@
             <pElem>include/modules</pElem>
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
+            <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
           </incDir>
           <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
           <preprocessorList>
@@ -10398,6 +10406,7 @@
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
+            <Elem>MIMALLOC</Elem>
             <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
             <Elem>WC_RSA_BLINDING</Elem>
@@ -10408,7 +10417,7 @@
           <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.sse2.nostats</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
-            <pElem>../libressl/lib</pElem>
+            <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerAddLib>
           <commandlineTool>g++ -pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2  -mtune=generic -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
           <linkerLibItems>
@@ -11518,7 +11527,6 @@
         <ccTool>
           <commandlineTool>g++</commandlineTool>
           <incDir>
-            <pElem>../libressl/include</pElem>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -11528,6 +11536,7 @@
             <pElem>include/modules</pElem>
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
+            <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
           </incDir>
           <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
           <preprocessorList>
@@ -11536,6 +11545,7 @@
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
+            <Elem>MIMALLOC</Elem>
             <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
             <Elem>WC_RSA_BLINDING</Elem>
@@ -11546,7 +11556,7 @@
           <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.sse2.nostats.notls</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
-            <pElem>../libressl/lib</pElem>
+            <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerAddLib>
           <commandlineTool>g++ -pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
           <linkerLibItems>
@@ -12656,7 +12666,6 @@
         <ccTool>
           <commandlineTool>g++</commandlineTool>
           <incDir>
-            <pElem>../libressl/include</pElem>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -12666,6 +12675,7 @@
             <pElem>include/modules</pElem>
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
+            <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
           </incDir>
           <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -msse2avx -mavx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
           <preprocessorList>
@@ -12675,6 +12685,7 @@
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
+            <Elem>MIMALLOC</Elem>
             <Elem>STATS_ENABLE</Elem>
             <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
@@ -12686,7 +12697,7 @@
           <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
-            <pElem>../libressl/lib</pElem>
+            <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerAddLib>
           <commandlineTool>g++ -pipe -Wall -pthread -O2 -mtune=native -march=native -fPIC  -flto -mfpmath=sse -msse2avx  -mavx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
           <linkerLibItems>
@@ -13796,7 +13807,6 @@
         <ccTool>
           <commandlineTool>g++</commandlineTool>
           <incDir>
-            <pElem>../libressl/include</pElem>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -13806,6 +13816,7 @@
             <pElem>include/modules</pElem>
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
+            <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
           </incDir>
           <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -msse2avx -mavx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
           <preprocessorList>
@@ -13815,6 +13826,7 @@
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
+            <Elem>MIMALLOC</Elem>
             <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
             <Elem>WC_RSA_BLINDING</Elem>
@@ -13825,7 +13837,7 @@
           <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx.nostats</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
-            <pElem>../libressl/lib</pElem>
+            <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerAddLib>
           <commandlineTool>g++ -pipe -Wall -pthread -O2 -mtune=native -march=native -fPIC  -flto -mfpmath=sse -msse2avx  -mavx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
           <linkerLibItems>
@@ -14935,7 +14947,6 @@
         <ccTool>
           <commandlineTool>g++</commandlineTool>
           <incDir>
-            <pElem>../libressl/include</pElem>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -14945,6 +14956,7 @@
             <pElem>include/modules</pElem>
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
+            <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
           </incDir>
           <commandLine>-pipe -std=c++17 -Wall -pthread -O3 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -msse2avx -mavx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
           <preprocessorList>
@@ -14953,6 +14965,7 @@
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
+            <Elem>MIMALLOC</Elem>
             <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
             <Elem>WC_RSA_BLINDING</Elem>
@@ -14963,7 +14976,7 @@
           <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx.nostats.notls</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
-            <pElem>../libressl/lib</pElem>
+            <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerAddLib>
           <commandlineTool>g++ -pipe -Wall -pthread -O3 -flto -mtune=native -march=native -fPIC -flto  -mfpmath=sse -msse2avx  -mavx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
           <linkerLibItems>

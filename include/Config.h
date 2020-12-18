@@ -67,7 +67,11 @@ namespace LAppS
 #endif
       {"tls_client_version", 3},
       {"tls_server_version", 3},
-      {"tls_certificates",{ {"ca","/opt/lapps/etc/ssl/ca.pem"},{"cert", "/opt/lapps/conf/ssl/cert.pem"}, {"key","/opt/lapps/conf/ssl/key.pem" } }}
+      {"tls_certificates",{ 
+        {"ca","/opt/lapps/etc/ssl/certs/localhost.ca.pem"},
+        {"cert", "/opt/lapps/etc/ssl/certs/localhost.crt"}, 
+        {"key","/opt/lapps/etc/ssl/certs/localhost.key" } 
+      }}
     }),
     lapps_config({
       {
@@ -132,12 +136,18 @@ namespace LAppS
    
    void save()
    {
-     std::ofstream lapps_config_file(mEnv["LAPPS_CONF_DIR"]+"/"+mEnv["LAPPS_CONFIG"]);
-     if(lapps_config_file)
+     std::ofstream lapps_config_file(mEnv["LAPPS_CONF_DIR"]+"/"+mEnv["LAPPS_CONFIG"], std::ios::trunc);
+     if(lapps_config_file.is_open())
      {
         lapps_config_file << lapps_config.dump(2);
         lapps_config_file.close();
      }
+     std::ofstream ws_config_file(mEnv["LAPPS_CONF_DIR"]+"/"+mEnv["WS_CONFIG"],std::ios::trunc);
+      if(ws_config_file.is_open())
+      {
+        ws_config_file << ws_config.dump(2);
+        ws_config_file.close();
+      }
    }
   };
 }

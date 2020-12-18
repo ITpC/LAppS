@@ -1,6 +1,6 @@
 FROM ubuntu:bionic
 
-LABEL "co.new-web" "new WEB() LLP" version 1.0  maintainer "pk@new-web.co" description "LAppS build environment"
+LABEL "localhost" "Pavel Kraynyukhov" version 1.0  maintainer "pavel.kraynyukhov@gmail.com" description "LAppS build environment"
 
 RUN apt-get update \
 	&& apt-get dist-upgrade -y 
@@ -37,6 +37,18 @@ ENV WORKSPACE /root/workspace
 
 RUN mkdir ${WORKSPACE}
 
+WORKDIR ${WORKSPACE}
+
+RUN git clone https://github.com/microsoft/mimalloc.git
+
+WORKDIR ${WORKSPACE}/mimalloc
+
+RUN env CXXFLAGS="-pipe -O2 -march=native -mtune=native -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops" CFLAGS="-pipe -O2 -march=native -mtune=native -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops" CXX="g++ -pipe -O2 -march=native -mtune=native -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops" cmake .
+
+RUN make -j4 all install
+
+WORKDIR ${WORKSPACE}
+
 ADD http://luajit.org/download/LuaJIT-2.0.5.tar.gz ${WORKSPACE}
 
 WORKDIR ${WORKSPACE}
@@ -45,24 +57,23 @@ RUN tar xzvf LuaJIT-2.0.5.tar.gz
 
 WORKDIR ${WORKSPACE}/LuaJIT-2.0.5
 
-RUN env CFLAGS="-pipe -Wall -pthread -O2 -fPIC -march=core2 -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fno-omit-frame-pointer" make all install
+RUN env LD_LIBRARY_PATH=/usr/local/lib/mimalloc-1.6/ CFLAGS="-pipe -Wall -pthread -O2 -fPIC -march=native -mtune=native -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fno-omit-frame-pointer" LDFLAGS="-L/usr/local/lib/mimalloc-1.6/ -lmimalloc" make all install
 
 WORKDIR ${WORKSPACE}
 
-ADD https://github.com/wolfSSL/wolfssl/archive/v3.15.7-stable.tar.gz ${WORKSPACE}
-
+ADD https://github.com/wolfSSL/wolfssl/archive/v4.5.0-stable.tar.gz ${WORKSPACE}
 
 RUN ls -la
 
-RUN tar xzvf v3.15.7-stable.tar.gz
+RUN tar xzvf v4.5.0-stable.tar.gz
 
-WORKDIR ${WORKSPACE}/wolfssl-3.15.7-stable
+WORKDIR ${WORKSPACE}/wolfssl-4.5.0-stable
 
 RUN ./autogen.sh
 
-RUN ./configure CFLAGS="-pipe -O2 -march=core2 -mtune=generic -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -DTFM_TIMING_RESISTANT -DECC_TIMING_RESISTANT -DWC_RSA_BLINDING" --prefix=/usr/local --enable-tls13 --enable-openssh --enable-aesni --enable-intelasm --enable-keygen --enable-certgen --enable-certreq --enable-curve25519 --enable-ed25519 --enable-intelasm --enable-harden
+RUN env LD_LIBRARY_PATH=/usr/local/lib/mimalloc-1.6/ ./configure CFLAGS="-pipe -O2 -march=native -mtune=native -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -DWOLFSSL_PUBLIC_MP -DTFM_TIMING_RESISTANT -DECC_TIMING_RESISTANT -DWC_RSA_BLINDING" LDFLAGS="-L/usr/local/lib/mimalloc-1.6/ -lmimalloc" --prefix=/usr/local --enable-tls13 --enable-openssh --enable-aesni --enable-intelasm --enable-keygen --enable-certgen --enable-certreq --enable-curve25519 --enable-ed25519 --enable-intelasm --enable-harden --enable-ecc=nonblock --enable-sp=yes,nonblock
 
-RUN make all install
+RUN env LD_LIBRARY_PATH=/usr/local/lib/mimalloc-1.6/ make all install
 
 WORKDIR ${WORKSPACE}
 
@@ -76,19 +87,10 @@ RUN ls -la
 
 WORKDIR ${WORKSPACE}/cryptopp-CRYPTOPP_8_2_0
 
-RUN make CFLAGS="-pipe -O2 -march=core2 -mtune=generic -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops" CXXFLAGS="-pipe -O2 -march=core2 -mtune=generic -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops" -j4 libcryptopp.a libcryptopp.so
+RUN make CFLAGS="-pipe -O2 -march=native -mtune=native -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops" CXXFLAGS="-pipe -O2 -march=native -mtune=native -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops" -j4 libcryptopp.a libcryptopp.so
 
 RUN make install
 
-WORKDIR ${WORKSPACE}
-
-RUN git clone https://github.com/microsoft/mimalloc.git
-
-WORKDIR ${WORKSPACE}/mimalloc
-
-RUN env CFLAGS="-pipe -O2 -march=core2 -mtune=generic -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops" CXXFLAGS="-pipe -O2 -march=core2 -mtune=generic -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops" CXX="g++ -pipe -O2 -march=core2 -mtune=generic -fPIC -fomit-frame-pointer -fstack-check -fstack-protector-strong -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops" cmake .
-
-RUN make -j4 all install
 
 WORKDIR ${WORKSPACE}
 

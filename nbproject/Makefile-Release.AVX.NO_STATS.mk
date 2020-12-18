@@ -53,7 +53,7 @@ FFLAGS=
 ASFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=-L/usr/local/lib -L../libressl/lib ../ITCFramework/dist/Debug/GNU-Linux/libitcframework.a ../ITCLib/dist/Debug/GNU-Linux/libitclib.a ../utils/dist/Debug/GNU-Linux/libutils.a
+LDLIBSOPTIONS=-L/usr/local/lib -L/usr/local/lib/mimalloc-1.6 ../ITCFramework/dist/Debug/GNU-Linux/libitcframework.a ../ITCLib/dist/Debug/GNU-Linux/libitclib.a ../utils/dist/Debug/GNU-Linux/libutils.a
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
@@ -72,12 +72,12 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx.nostats: ${OBJECTFILES}
 ${OBJECTDIR}/src/getLog.o: src/getLog.cpp nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.cc) -g -DAPP_NAME=\"LAppS\" -DECC_TIMING_RESISTANT -DLAPPS_TLS_ENABLE -DLOG_FILE=\"lapps.log\" -DLOG_INFO -DMAX_BUFF_SIZE=512 -DTFM_TIMING_RESISTANT -DTSAFE_LOG=1 -DWC_RSA_BLINDING -DWOLFSSL_TLS13 -I../libressl/include -I../ITCFramework/include -I../ITCLib/include -I../utils/include -I../lar -Iinclude -I/usr/include/luajit-2.0 -Iinclude/modules -I/usr/local/include -I/usr/local/include/luajit-2.0 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/getLog.o src/getLog.cpp
+	$(COMPILE.cc) -g -DAPP_NAME=\"LAppS\" -DECC_TIMING_RESISTANT -DLAPPS_TLS_ENABLE -DLOG_FILE=\"lapps.log\" -DLOG_INFO -DMAX_BUFF_SIZE=512 -DTFM_TIMING_RESISTANT -DTSAFE_LOG=1 -DWC_RSA_BLINDING -DWOLFSSL_TLS13 -DMIMALLOC -I../ITCFramework/include -I../ITCLib/include -I../utils/include -I../lar -Iinclude -I/usr/include/luajit-2.0 -Iinclude/modules -I/usr/local/include -I/usr/local/include/luajit-2.0 -I/usr/local/lib/mimalloc-1.6/include -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/getLog.o src/getLog.cpp
 
 ${OBJECTDIR}/src/main.o: src/main.cpp nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.cc) -g -DAPP_NAME=\"LAppS\" -DECC_TIMING_RESISTANT -DLAPPS_TLS_ENABLE -DLOG_FILE=\"lapps.log\" -DLOG_INFO -DMAX_BUFF_SIZE=512 -DTFM_TIMING_RESISTANT -DTSAFE_LOG=1 -DWC_RSA_BLINDING -DWOLFSSL_TLS13 -I../libressl/include -I../ITCFramework/include -I../ITCLib/include -I../utils/include -I../lar -Iinclude -I/usr/include/luajit-2.0 -Iinclude/modules -I/usr/local/include -I/usr/local/include/luajit-2.0 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/main.o src/main.cpp
+	$(COMPILE.cc) -g -DAPP_NAME=\"LAppS\" -DECC_TIMING_RESISTANT -DLAPPS_TLS_ENABLE -DLOG_FILE=\"lapps.log\" -DLOG_INFO -DMAX_BUFF_SIZE=512 -DTFM_TIMING_RESISTANT -DTSAFE_LOG=1 -DWC_RSA_BLINDING -DWOLFSSL_TLS13 -DMIMALLOC -I../ITCFramework/include -I../ITCLib/include -I../utils/include -I../lar -Iinclude -I/usr/include/luajit-2.0 -Iinclude/modules -I/usr/local/include -I/usr/local/include/luajit-2.0 -I/usr/local/lib/mimalloc-1.6/include -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/main.o src/main.cpp
 
 # Subprojects
 .build-subprojects:

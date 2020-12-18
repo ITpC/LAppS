@@ -11,7 +11,7 @@ then
 
   export UBUNTU_VERSION_CHOSEN=0
 
-  for i in xenial bionic
+  for i in bionic focal
   do
     if [ "${UBUNTU}" == "${i}" ]
     then
@@ -21,7 +21,7 @@ then
 
   export BUILD_TYPE_CHOSEN=0
 
-  for i in avx2 ssse3 sse2
+  for i in avx2 avx ssse3 sse2
   do
     if [ "${BUILD}" == "${i}" ]
     then
@@ -29,8 +29,8 @@ then
     fi
   done
 
-  [ ${UBUNTU_VERSION_CHOSEN} ] || die "Use --ubuntu {xenial|bionic} - only these two ubuntu versions are supported"
-  [ ${BUILD_TYPE_CHOSEN} ] || die "Use --build {avx2|ssse3|sse2} - only these two build types are supported"
+  [ ${UBUNTU_VERSION_CHOSEN} ] || die "Use --ubuntu {focal|bionic} - only these two ubuntu versions are supported"
+  [ ${BUILD_TYPE_CHOSEN} ] || die "Use --build {avx2|avx|ssse3|sse2} - only these two build types are supported"
 
 
   [ -f ./VERSION ] || die "No VERSION file in current directory"

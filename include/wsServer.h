@@ -163,7 +163,7 @@ namespace LAppS
       ), mWorkers(1), mDeployer{std::make_shared<DeployerType>()}
     {
         itc::getLog()->info(__FILE__,__LINE__,"Starting WS Server");
-
+                
         const bool is_tls_enabled=LAppSConfig::getInstance()->getWSConfig()["tls"];
 
         if(TLSEnable&&(!is_tls_enabled))

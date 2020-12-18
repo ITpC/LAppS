@@ -1,4 +1,4 @@
-FROM ubuntu:bionic
+FROM ubuntu:focal
 
 LABEL "localhost" "Pavel Kraynyukhov" version 1.0  maintainer "pavel.kraynyukhov@gmail.com" description "LAppS build environment"
 
@@ -17,7 +17,7 @@ RUN apt-get install -y git
 
 RUN apt-get install -y g++-multilib
 
-RUN apt-get install -y g++-8 --fix-missing
+RUN apt-get install -y g++-9 --fix-missing
 
 RUN apt-get install -y make
 
