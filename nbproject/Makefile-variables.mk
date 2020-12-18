@@ -9,16 +9,16 @@ CND_DISTDIR=dist
 # Debug configuration
 CND_PLATFORM_Debug=GNU-Linux
 CND_ARTIFACT_DIR_Debug=dist/Debug/GNU-Linux
-CND_ARTIFACT_NAME_Debug=lapps
-CND_ARTIFACT_PATH_Debug=dist/Debug/GNU-Linux/lapps
+CND_ARTIFACT_NAME_Debug=lapps.sse2.debug
+CND_ARTIFACT_PATH_Debug=dist/Debug/GNU-Linux/lapps.sse2.debug
 CND_PACKAGE_DIR_Debug=dist/Debug/GNU-Linux/package
 CND_PACKAGE_NAME_Debug=lapps.deb
 CND_PACKAGE_PATH_Debug=dist/Debug/GNU-Linux/package/lapps.deb
 # Release.SSSE3 configuration
 CND_PLATFORM_Release.SSSE3=GNU-Linux
 CND_ARTIFACT_DIR_Release.SSSE3=dist/Release.SSSE3/GNU-Linux
-CND_ARTIFACT_NAME_Release.SSSE3=lapps.ssse3
-CND_ARTIFACT_PATH_Release.SSSE3=dist/Release.SSSE3/GNU-Linux/lapps.ssse3
+CND_ARTIFACT_NAME_Release.SSSE3=lapps.sse3
+CND_ARTIFACT_PATH_Release.SSSE3=dist/Release.SSSE3/GNU-Linux/lapps.sse3
 CND_PACKAGE_DIR_Release.SSSE3=dist/Release.SSSE3/GNU-Linux/package
 CND_PACKAGE_NAME_Release.SSSE3=lapps.deb
 CND_PACKAGE_PATH_Release.SSSE3=dist/Release.SSSE3/GNU-Linux/package/lapps.deb
@@ -65,8 +65,8 @@ CND_PACKAGE_PATH_Release.AVX2.NO_STATS.NO_TLS=dist/Release.AVX2.NO_STATS.NO_TLS/
 # Debug.AVX2.NO_STATS.NO_TLS configuration
 CND_PLATFORM_Debug.AVX2.NO_STATS.NO_TLS=GNU-Linux
 CND_ARTIFACT_DIR_Debug.AVX2.NO_STATS.NO_TLS=dist/Debug.AVX2.NO_STATS.NO_TLS/GNU-Linux
-CND_ARTIFACT_NAME_Debug.AVX2.NO_STATS.NO_TLS=lapps.avx2.nostats.notls
-CND_ARTIFACT_PATH_Debug.AVX2.NO_STATS.NO_TLS=dist/Debug.AVX2.NO_STATS.NO_TLS/GNU-Linux/lapps.avx2.nostats.notls
+CND_ARTIFACT_NAME_Debug.AVX2.NO_STATS.NO_TLS=lapps.avx2.debug.nostats.notls
+CND_ARTIFACT_PATH_Debug.AVX2.NO_STATS.NO_TLS=dist/Debug.AVX2.NO_STATS.NO_TLS/GNU-Linux/lapps.avx2.debug.nostats.notls
 CND_PACKAGE_DIR_Debug.AVX2.NO_STATS.NO_TLS=dist/Debug.AVX2.NO_STATS.NO_TLS/GNU-Linux/package
 CND_PACKAGE_NAME_Debug.AVX2.NO_STATS.NO_TLS=lapps.deb
 CND_PACKAGE_PATH_Debug.AVX2.NO_STATS.NO_TLS=dist/Debug.AVX2.NO_STATS.NO_TLS/GNU-Linux/package/lapps.deb

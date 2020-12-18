@@ -43,8 +43,8 @@ OBJECTFILES= \
 CFLAGS=
 
 # CC Compiler Flags
-CCFLAGS=-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer
-CXXFLAGS=-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer
+CCFLAGS=-pipe -O2 -march=nocona -mtune=generic -mfpmath=sse -mssse3 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17
+CXXFLAGS=-pipe -O2 -march=nocona -mtune=generic -mfpmath=sse -mssse3 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17
 
 # Fortran Compiler Flags
 FFLAGS=
@@ -53,31 +53,31 @@ FFLAGS=
 ASFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=-L/usr/local/lib -L../libressl/lib ../ITCFramework/dist/Debug/GNU-Linux/libitcframework.a ../ITCLib/dist/Debug/GNU-Linux/libitclib.a ../utils/dist/Debug/GNU-Linux/libutils.a
+LDLIBSOPTIONS=-L/usr/local/lib -L/usr/local/lib/mimalloc-1.6 -Wl,-rpath,'/usr/local/lib/mimalloc-1.6' ../ITCFramework/dist/Debug/GNU-Linux/libitcframework.a ../ITCLib/dist/Debug/GNU-Linux/libitclib.a ../utils/dist/Debug/GNU-Linux/libutils.a
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
-	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.ssse3
+	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.sse3
 
-${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.ssse3: ../ITCFramework/dist/Debug/GNU-Linux/libitcframework.a
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.sse3: ../ITCFramework/dist/Debug/GNU-Linux/libitcframework.a
 
-${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.ssse3: ../ITCLib/dist/Debug/GNU-Linux/libitclib.a
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.sse3: ../ITCLib/dist/Debug/GNU-Linux/libitclib.a
 
-${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.ssse3: ../utils/dist/Debug/GNU-Linux/libutils.a
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.sse3: ../utils/dist/Debug/GNU-Linux/libutils.a
 
-${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.ssse3: ${OBJECTFILES}
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.sse3: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
-	g++ -pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.ssse3 ${OBJECTFILES} ${LDLIBSOPTIONS} -lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lmimalloc
+	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.sse3 ${OBJECTFILES} ${LDLIBSOPTIONS} -pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs
 
 ${OBJECTDIR}/src/getLog.o: src/getLog.cpp nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.cc) -g -DAPP_NAME=\"LAppS\" -DECC_TIMING_RESISTANT -DLAPPS_TLS_ENABLE -DLOG_FILE=\"lapps.log\" -DLOG_INFO -DMAX_BUFF_SIZE=512 -DSTATS_ENABLE -DTFM_TIMING_RESISTANT -DTSAFE_LOG=1 -DWC_RSA_BLINDING -DWOLFSSL_TLS13 -I../libressl/include -I../ITCFramework/include -I../ITCLib/include -I../utils/include -I../lar -Iinclude -I/usr/include/luajit-2.0 -Iinclude/modules -I/usr/local/include -I/usr/local/include/luajit-2.0 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/getLog.o src/getLog.cpp
+	$(COMPILE.cc) -Wall -DAPP_NAME=\"LAppS\" -DDTFM_TIMING_RESISTANT -DECC_TIMING_RESISTANT -DLAPPS_TLS_ENABLE -DLOG_FILE=\"lapps.log\" -DLOG_INFO -DMAX_BUFF_SIZE=512 -DSTATS_ENABLE -DTSAFE_LOG=1 -DWC_RSA_BLINDING -DWOLFSSL_TLS13 -DMIMALLOC -I../ITCFramework/include -I../ITCLib/include -I../utils/include -Iinclude -I/usr/include/luajit-2.0 -Iinclude/modules -I/usr/local/include -I/usr/local/include/luajit-2.0 -I/usr/local/lib/mimalloc-1.6/include -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/getLog.o src/getLog.cpp
 
 ${OBJECTDIR}/src/main.o: src/main.cpp nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.cc) -g -DAPP_NAME=\"LAppS\" -DECC_TIMING_RESISTANT -DLAPPS_TLS_ENABLE -DLOG_FILE=\"lapps.log\" -DLOG_INFO -DMAX_BUFF_SIZE=512 -DSTATS_ENABLE -DTFM_TIMING_RESISTANT -DTSAFE_LOG=1 -DWC_RSA_BLINDING -DWOLFSSL_TLS13 -I../libressl/include -I../ITCFramework/include -I../ITCLib/include -I../utils/include -I../lar -Iinclude -I/usr/include/luajit-2.0 -Iinclude/modules -I/usr/local/include -I/usr/local/include/luajit-2.0 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/main.o src/main.cpp
+	$(COMPILE.cc) -Wall -DAPP_NAME=\"LAppS\" -DDTFM_TIMING_RESISTANT -DECC_TIMING_RESISTANT -DLAPPS_TLS_ENABLE -DLOG_FILE=\"lapps.log\" -DLOG_INFO -DMAX_BUFF_SIZE=512 -DSTATS_ENABLE -DTSAFE_LOG=1 -DWC_RSA_BLINDING -DWOLFSSL_TLS13 -DMIMALLOC -I../ITCFramework/include -I../ITCLib/include -I../utils/include -Iinclude -I/usr/include/luajit-2.0 -Iinclude/modules -I/usr/local/include -I/usr/local/include/luajit-2.0 -I/usr/local/lib/mimalloc-1.6/include -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/main.o src/main.cpp
 
 # Subprojects
 .build-subprojects:

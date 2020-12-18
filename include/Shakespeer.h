@@ -28,11 +28,7 @@
 
 #include <HTTPRequestParser.h>
 
-// crypto++
-#include <cryptopp/sha.h>
-#include <cryptopp/filters.h>
-#include <cryptopp/base64.h>
-
+#include <wolfCryptHaCW.h>
 
 #include <WebSocket.h>
 
@@ -157,7 +153,6 @@ namespace LAppS
       itc::utils::Bool2Type<StatsEnable>            enableStatsUpdate;
       
       HTTPRequestParser                             mHTTPRParser;
-      CryptoPP::SHA1                                sha1;
       std::vector<uint8_t>                          headerBuffer;
       std::vector<uint8_t>                          response;
       
@@ -240,19 +235,13 @@ namespace LAppS
         
         std::string replykey(mHTTPRParser["Sec-WebSocket-Key"]+UID);
         
-        CryptoPP::byte digest[CryptoPP::SHA1::DIGESTSIZE];
-        sha1.CalculateDigest( digest, (const CryptoPP::byte*)(replykey.c_str()),replykey.length());
+        std::vector<uint8_t> digest;
+        wolf::sha1digest(replykey, digest);
+        std::string out;
+        wolf::base64encode(digest,out);
 
-        CryptoPP::Base64Encoder b64;
-        b64.Put(digest, CryptoPP::SHA1::DIGESTSIZE);
-        b64.MessageEnd();
-
-        size_t encoded_key_size=b64.MaxRetrievable();
-        size_t respsz=okResponse.size();
         
-        okResponse.resize(respsz+encoded_key_size-1);
-
-        b64.Get((CryptoPP::byte*)(okResponse.data()+respsz),encoded_key_size-1);
+        okResponse.append(out);
 
         okResponse.append("\r\n\r\n");
         

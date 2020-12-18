@@ -126,11 +126,9 @@
         <ccTool>
           <commandlineTool>g++</commandlineTool>
           <incDir>
-            <pElem>../libressl/include</pElem>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
-            <pElem>../lar</pElem>
             <pElem>include</pElem>
             <pElem>/usr/include/luajit-2.0</pElem>
             <pElem>include/modules</pElem>
@@ -138,7 +136,7 @@
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
           </incDir>
-          <commandLine>-pipe -g -std=c++17 -Wall -pthread -O2 -fPIC -march=native -mtune=native -mfpmath=sse -mavx -msse2avx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fno-omit-frame-pointer</commandLine>
+          <commandLine>-pipe -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>DTFM_TIMING_RESISTANT</Elem>
@@ -153,13 +151,17 @@
             <Elem>WC_RSA_BLINDING</Elem>
             <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
+          <warningLevel>2</warningLevel>
         </ccTool>
         <linkerTool>
+          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.sse2.debug</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerAddLib>
-          <commandlineTool>g++ -pipe -Wall -pthread -O2 -mtune=native -march=native -fPIC  -mfpmath=sse -mavx -msse2avx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong</commandlineTool>
+          <linkerDynSerch>
+            <pElem>/usr/local/lib/mimalloc-1.6</pElem>
+          </linkerDynSerch>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"
@@ -177,7 +179,7 @@
               <makeArtifact PL="../ITCLib"
                             CT="3"
                             CN="Debug"
-                            AC="true"
+                            AC="false"
                             BL="true"
                             WD="../ITCLib"
                             BC="${MAKE}  -f Makefile CONF=Debug"
@@ -198,7 +200,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lmimalloc</commandLine>
+          <commandLine>-pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -1265,41 +1267,45 @@
       </toolsSet>
       <compileType>
         <ccTool>
+          <developmentMode>0</developmentMode>
           <commandlineTool>g++</commandlineTool>
           <incDir>
-            <pElem>../libressl/include</pElem>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
-            <pElem>../lar</pElem>
             <pElem>include</pElem>
             <pElem>/usr/include/luajit-2.0</pElem>
             <pElem>include/modules</pElem>
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
+            <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
           </incDir>
-          <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
+          <commandLine>-pipe -O2 -march=nocona -mtune=generic -mfpmath=sse -mssse3 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
+            <Elem>DTFM_TIMING_RESISTANT</Elem>
             <Elem>ECC_TIMING_RESISTANT</Elem>
             <Elem>LAPPS_TLS_ENABLE</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
+            <Elem>MIMALLOC</Elem>
             <Elem>STATS_ENABLE</Elem>
-            <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
             <Elem>WC_RSA_BLINDING</Elem>
             <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
+          <warningLevel>2</warningLevel>
         </ccTool>
         <linkerTool>
-          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.ssse3</output>
+          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.sse3</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
-            <pElem>../libressl/lib</pElem>
+            <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerAddLib>
-          <commandlineTool>g++ -pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
+          <linkerDynSerch>
+            <pElem>/usr/local/lib/mimalloc-1.6</pElem>
+          </linkerDynSerch>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"
@@ -1317,7 +1323,7 @@
               <makeArtifact PL="../ITCLib"
                             CT="3"
                             CN="Debug"
-                            AC="true"
+                            AC="false"
                             BL="true"
                             WD="../ITCLib"
                             BC="${MAKE}  -f Makefile CONF=Debug"
@@ -1338,7 +1344,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lmimalloc</commandLine>
+          <commandLine>-pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -2405,23 +2411,24 @@
       </toolsSet>
       <compileType>
         <ccTool>
+          <developmentMode>0</developmentMode>
           <commandlineTool>g++</commandlineTool>
           <incDir>
-            <pElem>../libressl/include</pElem>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
-            <pElem>../lar</pElem>
             <pElem>include</pElem>
             <pElem>/usr/include/luajit-2.0</pElem>
             <pElem>include/modules</pElem>
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
+            <pElem>../lar</pElem>
           </incDir>
-          <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -msse2avx -mavx2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
+          <commandLine>-pipe -O2 -march=skylake -mtune=generic -mfpmath=sse -msse2avx -mavx2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
+            <Elem>DTFM_TIMING_RESISTANT</Elem>
             <Elem>ECC_TIMING_RESISTANT</Elem>
             <Elem>LAPPS_TLS_ENABLE</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
@@ -2429,11 +2436,11 @@
             <Elem>MAX_BUFF_SIZE=512</Elem>
             <Elem>MIMALLOC</Elem>
             <Elem>STATS_ENABLE</Elem>
-            <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
             <Elem>WC_RSA_BLINDING</Elem>
             <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
+          <warningLevel>2</warningLevel>
         </ccTool>
         <linkerTool>
           <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2</output>
@@ -2441,7 +2448,9 @@
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerAddLib>
-          <commandlineTool>g++ -pipe -Wall -pthread -O2 -mtune=native -march=native -fPIC  -flto -mfpmath=sse  -msse2avx -mavx2   -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
+          <linkerDynSerch>
+            <pElem>/usr/local/lib/mimalloc-1.6</pElem>
+          </linkerDynSerch>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"
@@ -2459,7 +2468,7 @@
               <makeArtifact PL="../ITCLib"
                             CT="3"
                             CN="Debug"
-                            AC="true"
+                            AC="false"
                             BL="true"
                             WD="../ITCLib"
                             BC="${MAKE}  -f Makefile CONF=Debug"
@@ -2480,7 +2489,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lwolfssl -lmimalloc</commandLine>
+          <commandLine>-pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -3547,12 +3556,12 @@
       </toolsSet>
       <compileType>
         <ccTool>
+          <developmentMode>0</developmentMode>
           <commandlineTool>g++</commandlineTool>
           <incDir>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
-            <pElem>../lar</pElem>
             <pElem>include</pElem>
             <pElem>/usr/include/luajit-2.0</pElem>
             <pElem>include/modules</pElem>
@@ -3560,20 +3569,21 @@
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
           </incDir>
-          <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
+          <commandLine>-pipe -O2 -march=nocona -mtune=generic -mfpmath=sse -mssse3 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
+            <Elem>DTFM_TIMING_RESISTANT</Elem>
             <Elem>ECC_TIMING_RESISTANT</Elem>
             <Elem>LAPPS_TLS_ENABLE</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
             <Elem>MIMALLOC</Elem>
-            <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
             <Elem>WC_RSA_BLINDING</Elem>
             <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
+          <warningLevel>2</warningLevel>
         </ccTool>
         <linkerTool>
           <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.ssse3.nostats</output>
@@ -3581,7 +3591,9 @@
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerAddLib>
-          <commandlineTool>g++ -pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
+          <linkerDynSerch>
+            <pElem>/usr/local/lib/mimalloc-1.6</pElem>
+          </linkerDynSerch>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"
@@ -3599,7 +3611,7 @@
               <makeArtifact PL="../ITCLib"
                             CT="3"
                             CN="Debug"
-                            AC="true"
+                            AC="false"
                             BL="true"
                             WD="../ITCLib"
                             BC="${MAKE}  -f Makefile CONF=Debug"
@@ -3620,7 +3632,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lmimalloc</commandLine>
+          <commandLine>-pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -4687,12 +4699,12 @@
       </toolsSet>
       <compileType>
         <ccTool>
+          <developmentMode>0</developmentMode>
           <commandlineTool>g++</commandlineTool>
           <incDir>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
-            <pElem>../lar</pElem>
             <pElem>include</pElem>
             <pElem>/usr/include/luajit-2.0</pElem>
             <pElem>include/modules</pElem>
@@ -4700,27 +4712,30 @@
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
           </incDir>
-          <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
+          <commandLine>-pipe -O2 -march=nocona -mtune=generic -mfpmath=sse -mssse3 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
+            <Elem>DTFM_TIMING_RESISTANT</Elem>
             <Elem>ECC_TIMING_RESISTANT</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
             <Elem>MIMALLOC</Elem>
-            <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
             <Elem>WC_RSA_BLINDING</Elem>
             <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
+          <warningLevel>2</warningLevel>
         </ccTool>
         <linkerTool>
           <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.ssse3.nostats.notls</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
-            <pElem>/usr/local/lib/mimalloc-1.6/</pElem>
+            <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerAddLib>
-          <commandlineTool>g++ -pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -mssse3 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
+          <linkerDynSerch>
+            <pElem>/usr/local/lib/mimalloc-1.6</pElem>
+          </linkerDynSerch>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"
@@ -4738,7 +4753,7 @@
               <makeArtifact PL="../ITCLib"
                             CT="3"
                             CN="Debug"
-                            AC="true"
+                            AC="false"
                             BL="true"
                             WD="../ITCLib"
                             BC="${MAKE}  -f Makefile CONF=Debug"
@@ -4759,7 +4774,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lmimalloc</commandLine>
+          <commandLine>-pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -5826,12 +5841,12 @@
       </toolsSet>
       <compileType>
         <ccTool>
+          <developmentMode>0</developmentMode>
           <commandlineTool>g++</commandlineTool>
           <incDir>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
-            <pElem>../lar</pElem>
             <pElem>include</pElem>
             <pElem>/usr/include/luajit-2.0</pElem>
             <pElem>include/modules</pElem>
@@ -5839,20 +5854,21 @@
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
           </incDir>
-          <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -msse2avx -mavx2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
+          <commandLine>-pipe -O2 -march=skylake -mtune=generic -mfpmath=sse -msse2avx -mavx2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
+            <Elem>DTFM_TIMING_RESISTANT</Elem>
             <Elem>ECC_TIMING_RESISTANT</Elem>
             <Elem>LAPPS_TLS_ENABLE</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
             <Elem>MIMALLOC</Elem>
-            <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
             <Elem>WC_RSA_BLINDING</Elem>
             <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
+          <warningLevel>2</warningLevel>
         </ccTool>
         <linkerTool>
           <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2.nostats</output>
@@ -5860,7 +5876,9 @@
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerAddLib>
-          <commandlineTool>g++ -pipe -Wall -pthread -O2 -mtune=native -march=native -fPIC  -flto -mfpmath=sse -msse2avx  -mavx2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
+          <linkerDynSerch>
+            <pElem>/usr/local/lib/mimalloc-1.6</pElem>
+          </linkerDynSerch>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"
@@ -5878,7 +5896,7 @@
               <makeArtifact PL="../ITCLib"
                             CT="3"
                             CN="Debug"
-                            AC="true"
+                            AC="false"
                             BL="true"
                             WD="../ITCLib"
                             BC="${MAKE}  -f Makefile CONF=Debug"
@@ -5899,7 +5917,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lmimalloc</commandLine>
+          <commandLine>-pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -6966,12 +6984,12 @@
       </toolsSet>
       <compileType>
         <ccTool>
+          <developmentMode>0</developmentMode>
           <commandlineTool>g++</commandlineTool>
           <incDir>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
-            <pElem>../lar</pElem>
             <pElem>include</pElem>
             <pElem>/usr/include/luajit-2.0</pElem>
             <pElem>include/modules</pElem>
@@ -6979,19 +6997,20 @@
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
           </incDir>
-          <commandLine>-pipe -std=c++17 -Wall -pthread -O3 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -msse2avx -mavx2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
+          <commandLine>-pipe -O2 -march=skylake -mtune=generic -mfpmath=sse -msse2avx -mavx2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
+            <Elem>DTFM_TIMING_RESISTANT</Elem>
             <Elem>ECC_TIMING_RESISTANT</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
             <Elem>MIMALLOC</Elem>
-            <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
             <Elem>WC_RSA_BLINDING</Elem>
             <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
+          <warningLevel>2</warningLevel>
         </ccTool>
         <linkerTool>
           <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2.nostats.notls</output>
@@ -6999,7 +7018,9 @@
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerAddLib>
-          <commandlineTool>g++ -pipe -Wall -pthread -O3 -flto -mtune=native -march=native -fPIC -flto  -mfpmath=sse -msse2avx -mavx2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
+          <linkerDynSerch>
+            <pElem>/usr/local/lib/mimalloc-1.6</pElem>
+          </linkerDynSerch>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"
@@ -7017,7 +7038,7 @@
               <makeArtifact PL="../ITCLib"
                             CT="3"
                             CN="Debug"
-                            AC="true"
+                            AC="false"
                             BL="true"
                             WD="../ITCLib"
                             BC="${MAKE}  -f Makefile CONF=Debug"
@@ -7038,7 +7059,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lmimalloc</commandLine>
+          <commandLine>-pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -8105,12 +8126,12 @@
       </toolsSet>
       <compileType>
         <ccTool>
+          <developmentMode>0</developmentMode>
           <commandlineTool>g++</commandlineTool>
           <incDir>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
-            <pElem>../lar</pElem>
             <pElem>include</pElem>
             <pElem>/usr/include/luajit-2.0</pElem>
             <pElem>include/modules</pElem>
@@ -8118,27 +8139,30 @@
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
           </incDir>
-          <commandLine>-g -pipe -std=c++17 -Wall -pthread -O3 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -mavx2 -msse2avx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong</commandLine>
+          <commandLine>-pipe -O2 -march=skylake -mtune=generic -mfpmath=sse -msse2avx -mavx2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
+            <Elem>DTFM_TIMING_RESISTANT</Elem>
             <Elem>ECC_TIMING_RESISTANT</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
             <Elem>MIMALLOC</Elem>
-            <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
             <Elem>WC_RSA_BLINDING</Elem>
             <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
+          <warningLevel>2</warningLevel>
         </ccTool>
         <linkerTool>
-          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2.nostats.notls</output>
+          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2.debug.nostats.notls</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
-            <pElem>/usr/local/lib/mimalloc-1.6/</pElem>
+            <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerAddLib>
-          <commandlineTool>g++ -g -pipe -Wall -pthread -O3 -flto -mtune=native -march=native -fPIC  -flto -mfpmath=sse -mavx2 -msse2avx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong </commandlineTool>
+          <linkerDynSerch>
+            <pElem>/usr/local/lib/mimalloc-1.6</pElem>
+          </linkerDynSerch>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"
@@ -8156,7 +8180,7 @@
               <makeArtifact PL="../ITCLib"
                             CT="3"
                             CN="Debug"
-                            AC="true"
+                            AC="false"
                             BL="true"
                             WD="../ITCLib"
                             BC="${MAKE}  -f Makefile CONF=Debug"
@@ -8177,7 +8201,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lmimalloc</commandLine>
+          <commandLine>-pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -9244,12 +9268,12 @@
       </toolsSet>
       <compileType>
         <ccTool>
+          <developmentMode>0</developmentMode>
           <commandlineTool>g++</commandlineTool>
           <incDir>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
-            <pElem>../lar</pElem>
             <pElem>include</pElem>
             <pElem>/usr/include/luajit-2.0</pElem>
             <pElem>include/modules</pElem>
@@ -9257,9 +9281,10 @@
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
           </incDir>
-          <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
+          <commandLine>-pipe -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
+            <Elem>DTFM_TIMING_RESISTANT</Elem>
             <Elem>ECC_TIMING_RESISTANT</Elem>
             <Elem>LAPPS_TLS_ENABLE</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
@@ -9267,11 +9292,11 @@
             <Elem>MAX_BUFF_SIZE=512</Elem>
             <Elem>MIMALLOC</Elem>
             <Elem>STATS_ENABLE</Elem>
-            <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
             <Elem>WC_RSA_BLINDING</Elem>
             <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
+          <warningLevel>2</warningLevel>
         </ccTool>
         <linkerTool>
           <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.sse2</output>
@@ -9279,7 +9304,9 @@
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerAddLib>
-          <commandlineTool>g++ -pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
+          <linkerDynSerch>
+            <pElem>/usr/local/lib/mimalloc-1.6</pElem>
+          </linkerDynSerch>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"
@@ -9297,7 +9324,7 @@
               <makeArtifact PL="../ITCLib"
                             CT="3"
                             CN="Debug"
-                            AC="true"
+                            AC="false"
                             BL="true"
                             WD="../ITCLib"
                             BC="${MAKE}  -f Makefile CONF=Debug"
@@ -9318,7 +9345,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lmimalloc</commandLine>
+          <commandLine>-pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -10385,12 +10412,12 @@
       </toolsSet>
       <compileType>
         <ccTool>
+          <developmentMode>0</developmentMode>
           <commandlineTool>g++</commandlineTool>
           <incDir>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
-            <pElem>../lar</pElem>
             <pElem>include</pElem>
             <pElem>/usr/include/luajit-2.0</pElem>
             <pElem>include/modules</pElem>
@@ -10398,20 +10425,21 @@
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
           </incDir>
-          <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
+          <commandLine>-pipe -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
+            <Elem>DTFM_TIMING_RESISTANT</Elem>
             <Elem>ECC_TIMING_RESISTANT</Elem>
             <Elem>LAPPS_TLS_ENABLE</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
             <Elem>MIMALLOC</Elem>
-            <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
             <Elem>WC_RSA_BLINDING</Elem>
             <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
+          <warningLevel>2</warningLevel>
         </ccTool>
         <linkerTool>
           <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.sse2.nostats</output>
@@ -10419,7 +10447,9 @@
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerAddLib>
-          <commandlineTool>g++ -pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2  -mtune=generic -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
+          <linkerDynSerch>
+            <pElem>/usr/local/lib/mimalloc-1.6</pElem>
+          </linkerDynSerch>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"
@@ -10437,7 +10467,7 @@
               <makeArtifact PL="../ITCLib"
                             CT="3"
                             CN="Debug"
-                            AC="true"
+                            AC="false"
                             BL="true"
                             WD="../ITCLib"
                             BC="${MAKE}  -f Makefile CONF=Debug"
@@ -10458,7 +10488,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lmimalloc</commandLine>
+          <commandLine>-pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -11525,12 +11555,12 @@
       </toolsSet>
       <compileType>
         <ccTool>
+          <developmentMode>0</developmentMode>
           <commandlineTool>g++</commandlineTool>
           <incDir>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
-            <pElem>../lar</pElem>
             <pElem>include</pElem>
             <pElem>/usr/include/luajit-2.0</pElem>
             <pElem>include/modules</pElem>
@@ -11538,19 +11568,20 @@
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
           </incDir>
-          <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
+          <commandLine>-pipe -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
+            <Elem>DTFM_TIMING_RESISTANT</Elem>
             <Elem>ECC_TIMING_RESISTANT</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
             <Elem>MIMALLOC</Elem>
-            <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
             <Elem>WC_RSA_BLINDING</Elem>
             <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
+          <warningLevel>2</warningLevel>
         </ccTool>
         <linkerTool>
           <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.sse2.nostats.notls</output>
@@ -11558,7 +11589,9 @@
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerAddLib>
-          <commandlineTool>g++ -pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=core2 -mtune=generic -mfpmath=sse -msse2 -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
+          <linkerDynSerch>
+            <pElem>/usr/local/lib/mimalloc-1.6</pElem>
+          </linkerDynSerch>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"
@@ -11576,7 +11609,7 @@
               <makeArtifact PL="../ITCLib"
                             CT="3"
                             CN="Debug"
-                            AC="true"
+                            AC="false"
                             BL="true"
                             WD="../ITCLib"
                             BC="${MAKE}  -f Makefile CONF=Debug"
@@ -11597,7 +11630,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lmimalloc</commandLine>
+          <commandLine>-pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -12664,12 +12697,12 @@
       </toolsSet>
       <compileType>
         <ccTool>
+          <developmentMode>0</developmentMode>
           <commandlineTool>g++</commandlineTool>
           <incDir>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
-            <pElem>../lar</pElem>
             <pElem>include</pElem>
             <pElem>/usr/include/luajit-2.0</pElem>
             <pElem>include/modules</pElem>
@@ -12677,9 +12710,10 @@
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
           </incDir>
-          <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -msse2avx -mavx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
+          <commandLine>-pipe -O2 -march=sandybridge -mtune=generic -mfpmath=sse -msse2avx -mavx -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
+            <Elem>DTFM_TIMING_RESISTANT</Elem>
             <Elem>ECC_TIMING_RESISTANT</Elem>
             <Elem>LAPPS_TLS_ENABLE</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
@@ -12687,11 +12721,11 @@
             <Elem>MAX_BUFF_SIZE=512</Elem>
             <Elem>MIMALLOC</Elem>
             <Elem>STATS_ENABLE</Elem>
-            <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
             <Elem>WC_RSA_BLINDING</Elem>
             <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
+          <warningLevel>2</warningLevel>
         </ccTool>
         <linkerTool>
           <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx</output>
@@ -12699,7 +12733,9 @@
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerAddLib>
-          <commandlineTool>g++ -pipe -Wall -pthread -O2 -mtune=native -march=native -fPIC  -flto -mfpmath=sse -msse2avx  -mavx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
+          <linkerDynSerch>
+            <pElem>/usr/local/lib/mimalloc-1.6</pElem>
+          </linkerDynSerch>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"
@@ -12717,7 +12753,7 @@
               <makeArtifact PL="../ITCLib"
                             CT="3"
                             CN="Debug"
-                            AC="true"
+                            AC="false"
                             BL="true"
                             WD="../ITCLib"
                             BC="${MAKE}  -f Makefile CONF=Debug"
@@ -12738,7 +12774,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lwolfssl -lmimalloc</commandLine>
+          <commandLine>-pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -13805,12 +13841,12 @@
       </toolsSet>
       <compileType>
         <ccTool>
+          <developmentMode>0</developmentMode>
           <commandlineTool>g++</commandlineTool>
           <incDir>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
-            <pElem>../lar</pElem>
             <pElem>include</pElem>
             <pElem>/usr/include/luajit-2.0</pElem>
             <pElem>include/modules</pElem>
@@ -13818,20 +13854,21 @@
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
           </incDir>
-          <commandLine>-pipe -std=c++17 -Wall -pthread -O2 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -msse2avx -mavx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
+          <commandLine>-pipe -O2 -march=sandybridge -mtune=generic -mfpmath=sse -msse2avx -mavx -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
+            <Elem>DTFM_TIMING_RESISTANT</Elem>
             <Elem>ECC_TIMING_RESISTANT</Elem>
             <Elem>LAPPS_TLS_ENABLE</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
             <Elem>MIMALLOC</Elem>
-            <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
             <Elem>WC_RSA_BLINDING</Elem>
             <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
+          <warningLevel>2</warningLevel>
         </ccTool>
         <linkerTool>
           <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx.nostats</output>
@@ -13839,7 +13876,9 @@
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerAddLib>
-          <commandlineTool>g++ -pipe -Wall -pthread -O2 -mtune=native -march=native -fPIC  -flto -mfpmath=sse -msse2avx  -mavx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
+          <linkerDynSerch>
+            <pElem>/usr/local/lib/mimalloc-1.6</pElem>
+          </linkerDynSerch>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"
@@ -13857,7 +13896,7 @@
               <makeArtifact PL="../ITCLib"
                             CT="3"
                             CN="Debug"
-                            AC="true"
+                            AC="false"
                             BL="true"
                             WD="../ITCLib"
                             BC="${MAKE}  -f Makefile CONF=Debug"
@@ -13878,7 +13917,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lmimalloc</commandLine>
+          <commandLine>-pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -14945,12 +14984,12 @@
       </toolsSet>
       <compileType>
         <ccTool>
+          <developmentMode>0</developmentMode>
           <commandlineTool>g++</commandlineTool>
           <incDir>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
-            <pElem>../lar</pElem>
             <pElem>include</pElem>
             <pElem>/usr/include/luajit-2.0</pElem>
             <pElem>include/modules</pElem>
@@ -14958,19 +14997,20 @@
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
           </incDir>
-          <commandLine>-pipe -std=c++17 -Wall -pthread -O3 -fPIC -flto -march=native -mtune=generic -mfpmath=sse -msse2avx -mavx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandLine>
+          <commandLine>-pipe -O2 -march=sandybridge -mtune=generic -mfpmath=sse -msse2avx -mavx -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
+            <Elem>DTFM_TIMING_RESISTANT</Elem>
             <Elem>ECC_TIMING_RESISTANT</Elem>
             <Elem>LOG_FILE="lapps.log"</Elem>
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
             <Elem>MIMALLOC</Elem>
-            <Elem>TFM_TIMING_RESISTANT</Elem>
             <Elem>TSAFE_LOG=1</Elem>
             <Elem>WC_RSA_BLINDING</Elem>
             <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
+          <warningLevel>2</warningLevel>
         </ccTool>
         <linkerTool>
           <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx.nostats.notls</output>
@@ -14978,7 +15018,9 @@
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerAddLib>
-          <commandlineTool>g++ -pipe -Wall -pthread -O3 -flto -mtune=native -march=native -fPIC -flto  -mfpmath=sse -msse2avx  -mavx -ftree-vectorize -funroll-loops -fstack-check -fstack-protector-strong -fomit-frame-pointer</commandlineTool>
+          <linkerDynSerch>
+            <pElem>/usr/local/lib/mimalloc-1.6</pElem>
+          </linkerDynSerch>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"
@@ -14996,7 +15038,7 @@
               <makeArtifact PL="../ITCLib"
                             CT="3"
                             CN="Debug"
-                            AC="true"
+                            AC="false"
                             BL="true"
                             WD="../ITCLib"
                             BC="${MAKE}  -f Makefile CONF=Debug"
@@ -15017,7 +15059,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lcryptopp -lwolfssl -lluajit-5.1 -lbz2 -lstdc++fs -lpam -lmimalloc</commandLine>
+          <commandLine>-pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"

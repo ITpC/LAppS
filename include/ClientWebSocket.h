@@ -39,13 +39,8 @@
 
 #include <iostream>
 
-// crypto++
-#include <cryptopp/sha.h>
-#include <cryptopp/osrng.h>
-#include <cryptopp/filters.h>
-#include <cryptopp/base64.h>
-#include <cryptopp/hex.h>
-
+#include <PRNG.h> 
+#include <wolfCryptHaCW.h>
 
 // LAppS
 
@@ -61,10 +56,6 @@
 
 namespace LAppS
 {
-  static thread_local std::mt19937 MRNG(std::chrono::system_clock::now().time_since_epoch().count());
-  static thread_local CryptoPP::AutoSeededRandomPool RNG(true);
-  static thread_local CryptoPP::Base64Encoder        BASE64;
-  static thread_local CryptoPP::SHA1                 SHA1;
   
   static thread_local std::vector<uint8_t> recvBuffer(8192,0);
   
@@ -361,18 +352,13 @@ namespace LAppS
       {
         std::string accept_key_src(mSecWebSocketKey+"258EAFA5-E914-47DA-95CA-C5AB0DC85B11");
 
-        CryptoPP::byte digest[CryptoPP::SHA1::DIGESTSIZE];
-        SHA1.CalculateDigest(digest,(const CryptoPP::byte*)(accept_key_src.data()),accept_key_src.length());
+        std::vector<uint8_t> digest;
+        
+        wolf::sha1digest(accept_key_src,digest);
 
-        BASE64.Initialize();
-        BASE64.Put(digest, CryptoPP::SHA1::DIGESTSIZE);
-        BASE64.MessageEnd();
-
-        size_t accept_key_length=BASE64.MaxRetrievable()-1; // skip trailing \n
-
-        std::string required_accept_key(accept_key_length,'\0');
-        BASE64.Get((CryptoPP::byte*)(required_accept_key.data()),accept_key_length);
-
+        std::string required_accept_key;
+        wolf::base64encode(digest,required_accept_key);
+        
         return responseOK((const char*)(recvBuffer.data()),ret,required_accept_key);
       }
       else
@@ -554,17 +540,15 @@ namespace LAppS
       httpUpgradeRequest.append("Sec-WebSocket-Key: ");
 
       std::vector<uint8_t> ws_sec_key(16,0);
-      RNG.GenerateBlock(ws_sec_key.data(),16);
+      
+      uint64_t rng1 = PRNG::xoshiro256pp();
+      uint64_t rng2 = PRNG::xoshiro256pp();
 
-      BASE64.Initialize();
-      BASE64.Put(ws_sec_key.data(), 16);
-      BASE64.MessageEnd();
+      memcpy(ws_sec_key.data(),&rng1,sizeof(rng1));
+      memcpy(ws_sec_key.data()+sizeof(rng1),&rng2,sizeof(rng2));
 
-      size_t base64_str_size=BASE64.MaxRetrievable()-1; // remove trailing \n
-
-      mSecWebSocketKey.resize(base64_str_size,'\0');
-      BASE64.Get((CryptoPP::byte*)(mSecWebSocketKey.data()),base64_str_size);
-
+      auto b64ret=wolf::base64encode(ws_sec_key,mSecWebSocketKey);
+      
       httpUpgradeRequest.append(mSecWebSocketKey);
       httpUpgradeRequest.append("\r\n");
 
@@ -705,8 +689,7 @@ namespace LAppS
         uint8_t   byte_mask[8];
       } double_mask;
       
-      uint32_t single_mask=MRNG();
-      //RNG.GenerateBlock((CryptoPP::byte*)(&single_mask),sizeof(single_mask));
+      uint32_t single_mask=PRNG::xoshiro128pp();
       double_mask.mask=(static_cast<uint64_t>(single_mask)<<32)|single_mask;
       
       std::vector<uint8_t> out;
