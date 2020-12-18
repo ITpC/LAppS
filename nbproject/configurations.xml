@@ -135,6 +135,7 @@
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
+            <pElem>../lar</pElem>
           </incDir>
           <commandLine>-pipe -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
           <preprocessorList>
@@ -1279,6 +1280,7 @@
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
+            <pElem>../lar</pElem>
           </incDir>
           <commandLine>-pipe -O2 -march=nocona -mtune=generic -mfpmath=sse -mssse3 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
           <preprocessorList>
@@ -3568,6 +3570,7 @@
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
+            <pElem>../lar</pElem>
           </incDir>
           <commandLine>-pipe -O2 -march=nocona -mtune=generic -mfpmath=sse -mssse3 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
           <preprocessorList>
@@ -4711,6 +4714,7 @@
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
+            <pElem>../lar</pElem>
           </incDir>
           <commandLine>-pipe -O2 -march=nocona -mtune=generic -mfpmath=sse -mssse3 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
           <preprocessorList>
@@ -5853,6 +5857,7 @@
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
+            <pElem>../lar</pElem>
           </incDir>
           <commandLine>-pipe -O2 -march=skylake -mtune=generic -mfpmath=sse -msse2avx -mavx2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
           <preprocessorList>
@@ -6996,6 +7001,7 @@
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
+            <pElem>../lar</pElem>
           </incDir>
           <commandLine>-pipe -O2 -march=skylake -mtune=generic -mfpmath=sse -msse2avx -mavx2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
           <preprocessorList>
@@ -8138,6 +8144,7 @@
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
+            <pElem>../lar</pElem>
           </incDir>
           <commandLine>-pipe -O2 -march=skylake -mtune=generic -mfpmath=sse -msse2avx -mavx2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
           <preprocessorList>
@@ -9280,6 +9287,7 @@
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
+            <pElem>../lar</pElem>
           </incDir>
           <commandLine>-pipe -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
           <preprocessorList>
@@ -10424,6 +10432,7 @@
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
+            <pElem>../lar</pElem>
           </incDir>
           <commandLine>-pipe -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
           <preprocessorList>
@@ -11567,6 +11576,7 @@
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
+            <pElem>../lar</pElem>
           </incDir>
           <commandLine>-pipe -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
           <preprocessorList>
@@ -12709,6 +12719,7 @@
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
+            <pElem>../lar</pElem>
           </incDir>
           <commandLine>-pipe -O2 -march=sandybridge -mtune=generic -mfpmath=sse -msse2avx -mavx -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
           <preprocessorList>
@@ -13853,6 +13864,7 @@
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
+            <pElem>../lar</pElem>
           </incDir>
           <commandLine>-pipe -O2 -march=sandybridge -mtune=generic -mfpmath=sse -msse2avx -mavx -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
           <preprocessorList>
@@ -14996,6 +15008,7 @@
             <pElem>/usr/local/include</pElem>
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
+            <pElem>../lar</pElem>
           </incDir>
           <commandLine>-pipe -O2 -march=sandybridge -mtune=generic -mfpmath=sse -msse2avx -mavx -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
           <preprocessorList>
