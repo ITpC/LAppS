@@ -15,4 +15,11 @@ profiling
 benchmark/benchmark_nontls
 benchmark/lapps_ebm
 benchmark/lappsbm
-
+dockerfiles/Dockerfile.lapps-runenv.template.bionic.avx
+dockerfiles/Dockerfile.lapps-runenv.template.bionic.avx2
+dockerfiles/Dockerfile.lapps-runenv.template.bionic.sse2
+dockerfiles/Dockerfile.lapps-runenv.template.bionic.ssse3
+dockerfiles/Dockerfile.lapps-runenv.template.focal.avx
+dockerfiles/Dockerfile.lapps-runenv.template.focal.avx2
+dockerfiles/Dockerfile.lapps-runenv.template.focal.sse2
+dockerfiles/Dockerfile.lapps-runenv.template.focal.ssse3
