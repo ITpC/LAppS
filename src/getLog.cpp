@@ -24,6 +24,7 @@
 #include <Singleton.h>
 #include <memory>
 
+
 #if defined(LOG_FILE)
 #define __LOG_FILE_NAME__    LOG_FILE
 #else

@@ -20,6 +20,10 @@
  * 
  **/
 
+#ifdef MIMALLOC
+#include <mimalloc-new-delete.h>
+#endif
+
 #include <sys/types.h>
 #include <unistd.h>
 #include <TSLog.h>
