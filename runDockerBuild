@@ -9,7 +9,7 @@ then
 
   export UBUNTU_VERSION_CHOSEN=0
 
-  for i in bionic
+  for i in bionic focal
   do
     if [ "${UBUNTU}" == "${i}" ]
     then
@@ -27,8 +27,8 @@ then
     fi
   done
 
-  [ ${UBUNTU_VERSION_CHOSEN} ] || die "Use --ubuntu {bionic} - since 0.8.0 only bionic builds are supported"
-  [ ${BUILD_TYPE_CHOSEN} ] || die "Use --build {avx|avx2|ssse3|sse2} - only these two build types are supported"
+  [ ${UBUNTU_VERSION_CHOSEN} ] || die "Use --ubuntu {bionic|focal}"
+  [ ${BUILD_TYPE_CHOSEN} ] || die "Use --build {avx|avx2|ssse3|sse2}"
 
 
   [ -f ./VERSION ] || die "No VERSION file in current directory"
