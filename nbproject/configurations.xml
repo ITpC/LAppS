@@ -124,7 +124,7 @@
       </toolsSet>
       <compileType>
         <ccTool>
-          <commandlineTool>g++</commandlineTool>
+          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <incDir>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
@@ -163,6 +163,7 @@
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
+          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"
@@ -1269,7 +1270,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++</commandlineTool>
+          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <incDir>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
@@ -1308,6 +1309,7 @@
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
+          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"
@@ -2414,7 +2416,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++</commandlineTool>
+          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <incDir>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
@@ -2453,6 +2455,7 @@
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
+          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"
@@ -3559,7 +3562,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++</commandlineTool>
+          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <incDir>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
@@ -3597,6 +3600,7 @@
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
+          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"
@@ -4703,7 +4707,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++</commandlineTool>
+          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <incDir>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
@@ -4740,6 +4744,7 @@
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
+          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"
@@ -5846,7 +5851,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++</commandlineTool>
+          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <incDir>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
@@ -5884,6 +5889,7 @@
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
+          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"
@@ -6990,7 +6996,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++</commandlineTool>
+          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <incDir>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
@@ -7027,6 +7033,7 @@
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
+          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"
@@ -8133,7 +8140,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++</commandlineTool>
+          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <incDir>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
@@ -8170,6 +8177,7 @@
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
+          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"
@@ -9276,7 +9284,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++</commandlineTool>
+          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <incDir>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
@@ -9315,6 +9323,7 @@
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
+          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"
@@ -10421,7 +10430,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++</commandlineTool>
+          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <incDir>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
@@ -10459,6 +10468,7 @@
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
+          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"
@@ -11565,7 +11575,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++</commandlineTool>
+          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <incDir>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
@@ -11602,6 +11612,7 @@
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
+          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"
@@ -12708,7 +12719,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++</commandlineTool>
+          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <incDir>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
@@ -12747,6 +12758,7 @@
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
+          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"
@@ -13853,7 +13865,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++</commandlineTool>
+          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <incDir>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
@@ -13891,6 +13903,7 @@
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
+          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"
@@ -14997,7 +15010,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++</commandlineTool>
+          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <incDir>
             <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
@@ -15034,6 +15047,7 @@
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
+          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCFramework"
