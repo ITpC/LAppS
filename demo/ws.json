@@ -1,0 +1,28 @@
+{
+  "acl": {
+    "exclude": [],
+    "policy": "allow"
+  },
+  "connection_weight": 1.0,
+  "ip": "0.0.0.0",
+  "lapps_config_auto_save": false,
+  "listeners": 2,
+  "port": 5083,
+  "tls": true,
+  "tls_certificates": {
+    "ca": "/opt/lapps/etc/ssl/certs/localhost.ca.pem",
+    "cert": "/opt/lapps/etc/ssl/certs/localhost.crt",
+    "key": "/opt/lapps/etc/ssl/certs/localhost.key"
+  },
+  "tls_client_version": 3,
+  "tls_server_version": 3,
+  "workers": {
+    "auto_fragment": false,
+    "input_buffer_size": 2048,
+    "max_connections": 10000,
+    "max_inbounds_skip": 50,
+    "max_poll_events": 300,
+    "max_poll_wait_ms": 10,
+    "workers": 4
+  }
+}

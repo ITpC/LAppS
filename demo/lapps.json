@@ -1,0 +1,79 @@
+{
+  "directories": {
+    "app_conf_dir": "etc",
+    "applications": "apps",
+    "deploy": "deploy",
+    "tmp": "tmp",
+    "workdir": "workdir"
+  },
+  "services": {
+    "benchmark": {
+      "auto_start": true,
+      "depends": [],
+      "instances": 4,
+      "preload": [
+        "nap",
+        "cws",
+        "time"
+      ],
+      "standalone": true
+    },
+    "echo": {
+      "acl": {
+        "exclude": [],
+        "policy": "allow"
+      },
+      "auto_start": true,
+      "instances": 4,
+      "max_inbound_message_size": 16777216,
+      "preload": null,
+      "protocol": "raw",
+      "request_target": "/echo",
+      "standalone": false
+    },
+    "echo_lapps": {
+      "acl": {
+        "exclude": [],
+        "policy": "allow"
+      },
+      "auto_start": false,
+      "depends": [
+        "time_broadcast"
+      ],
+      "instances": 3,
+      "max_inbound_message_size": 2097152,
+      "preload": [],
+      "protocol": "LAppS",
+      "request_target": "/echo_lapps",
+      "standalone": false
+    },
+    "mqr_receiver": {
+      "auto_start": false,
+      "depends": [
+        "mqr_sender"
+      ],
+      "instances": 2,
+      "preload": [
+        "mqr",
+        "time"
+      ],
+      "standalone": true
+    },
+    "mqr_sender": {
+      "auto_start": false,
+      "instances": 1,
+      "preload": [
+        "mqr"
+      ],
+      "standalone": true
+    },
+    "time_broadcast": {
+      "auto_start": false,
+      "instances": 1,
+      "preload": [
+        "nap"
+      ],
+      "standalone": true
+    }
+  }
+}

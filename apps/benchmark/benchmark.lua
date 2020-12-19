@@ -2,12 +2,12 @@ benchmark={}
 benchmark.__index=benchmark
 
 benchmark.init=function()
-  print("instance id: "..string.format("%u",instance_id));
+  print("instance id: "..instance_id);
 end
 
 benchmark.messages_counter=0;
 benchmark.start_time=time.now();
-benchmark.max_connections=100;
+benchmark.max_connections=800;
 benchmark.target="wss://127.0.0.1:5083/echo";
 benchmark.message="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
 benchmark.force_stop=true;

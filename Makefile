@@ -130,6 +130,8 @@ build-deb: install-examples clone-usr-local
 	mkdir -p /opt/distrib/lapps-${VERSION}-amd64/opt/lapps
 	mkdir -p /opt/distrib/lapps-${VERSION}-amd64/etc/ld.so.conf.d
 	mkdir -p /opt/distrib/lapps-${VERSION}-amd64/DEBIAN
+	mkdir -p /opt/distrib/lapps-${VERSION}-amd64/opt/lapps/etc/conf/
+	mkdir -p /opt/distrib/lapps-${VERSION}-amd64/opt/lapps/etc/ssl/certs/
 	mkdir -p /opt/lapps/packages
 	cp ${CND_BASEDIR}/dpkg/control /opt/distrib/lapps-${VERSION}-amd64/DEBIAN/
 	install -m 0755 ${CND_BASEDIR}/dpkg/postinst /opt/distrib/lapps-${VERSION}-amd64/DEBIAN/
@@ -137,6 +139,9 @@ build-deb: install-examples clone-usr-local
 	cp ${CND_BASEDIR}/dpkg/lapps.conf /opt/distrib/lapps-${VERSION}-amd64/etc/ld.so.conf.d/lapps.conf
 	cp  ${CND_BASEDIR}/dpkg/copyright /opt/distrib/lapps-${VERSION}-amd64/DEBIAN/
 	cp -RpP /opt/lapps/[^p]* /opt/distrib/lapps-${VERSION}-amd64/opt/lapps/
+	cp -r   apps/benchmark   /opt/distrib/lapps-${VERSION}-amd64/opt/lapps/apps/
+	cp -r   demo/*.json      /opt/distrib/lapps-${VERSION}-amd64/opt/lapps/etc/conf/
+	cp 			demo/certgen.sh /opt/distrib/lapps-${VERSION}-amd64/opt/lapps/bin/
 	cd /opt/distrib && dpkg-deb --build lapps-${VERSION}-amd64
 	
 # run tests
