@@ -4,6 +4,7 @@ useradd -r -U -s /sbin/nologin -d /opt/lapps -M -c "LAppS user" lapps
 mkdir -p /opt/lapps/run
 chown lapps /opt/lapps/run
 chown lapps /opt/lapps/bin/l*
+chown -R lapps /opt/lapps/etc
 chmod u+s /opt/lapps/bin/lapps*
 
 ldconfig
