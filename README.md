@@ -17,12 +17,13 @@ LAppS is an easy way to develop low-latency web applications. Please see [LAppS 
 
 Please see [LAppS wiki](https://github.com/ITpC/LAppS/wiki) on how to build and run LAppS from sources. 
 
-# Releases
-03 August 2019 - 0.9.0 released with bugfixes reported by Coverty and the PVS-studio. This is a latest stable release. Please beware that there are a change in service descriptors, the keyword "internal" has been replaced with "standalone".
+# Latest release
+
+0.9.3 19.12.2020 
 
 ## Binaries
 
-  * Ubuntu bionic packages are available [here](https://github.com/ITpC/LAppS.builds).
+  * Ubuntu bionic or focal packages are available [here](https://github.com/ITpC/LAppS.builds).
 
 # Features
 
@@ -60,8 +61,7 @@ Roadmap will be ready soon. Next releases will include:
   * Support for services written in Python, PHP and JavaScript
 
 # Dependencies
-  * libcrypto++-8.2
-  * wolfSSL-3.15.7
+  * wolfSSL-4.5.0-stable
   * luajit-2.0.5 or higher
 
 Optional
