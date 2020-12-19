@@ -6,3 +6,8 @@ rmdir /opt/lapps/run
 chown root /opt/lapps/bin/l*
 userdel -f lapps
 
+grep -v lapps /etc/security/limits.conf > /tmp/limits.conf
+mv  /tmp/limits.conf /etc/security/limits.conf
+chmod 0644 /etc/security/limits.conf
+chown root:root /etc/security/limits.conf
+
