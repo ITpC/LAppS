@@ -26,6 +26,7 @@
 
 #include <Val2Type.h>
 #include <wolfssl/ssl.h>
+#include <wolfssl/wolfcrypt/error-crypt.h>
 #include <atomic>
 #include <Singleton.h>
 #include <Config.h>
@@ -35,7 +36,7 @@
  #define logWOLFSSLError(x,y)\
       char buffer[80];\
       auto err=wolfSSL_get_error(TLSSocket,x);\
-      itc::getLog()->error(__FILE__,__LINE__,y"%d - %s", err, wolfSSL_ERR_error_string(err,buffer));
+      itc::getLog()->error(__FILE__,__LINE__,y" %d - %s", err, wolfSSL_ERR_error_string(err,buffer));
       
 
 enum TLSContextType : bool { TLS_SERVER, TLS_CLIENT };
@@ -94,10 +95,49 @@ public:
      std::string kfile{LAppSConfig::getInstance()->getWSConfig()["tls_certificates"]["key"]};
      std::string cert{LAppSConfig::getInstance()->getWSConfig()["tls_certificates"]["cert"]};
      
+     auto ret=wolfSSL_CTX_load_verify_locations(this->raw_context(),ca.c_str(),nullptr);
      
-     if(wolfSSL_CTX_load_verify_locations(this->raw_context(),ca.c_str(),nullptr) != SSL_SUCCESS)
+     std::string errmsg("Error on verification of the CA file ["+ca+"]: ");
+     
+     if( ret != SSL_SUCCESS)
      {
-       throw std::system_error(ENOENT,std::system_category(),ca);
+       switch(ret)
+       {
+         case SSL_FAILURE:
+           errmsg.append("ctx is NULL, or if both file and path are NULL");
+           break;
+         case SSL_BAD_FILETYPE:
+           errmsg.append("the file is in the wrong format");
+           break;
+         case SSL_BAD_FILE:
+           errmsg.append("file doesn’t exist, can’t be read, or is corrupted");
+           break;
+         case MEMORY_E:
+           errmsg.append("out of memory");
+           break;
+         case ASN_INPUT_E:
+           errmsg.append("Base16 decoding fails on the file");
+           break;
+         case ASN_BEFORE_DATE_E:
+           errmsg.append("current date is before the `before' date, this CA file is not yet valid");
+           break;
+         case ASN_AFTER_DATE_E:
+           errmsg.append("current date is after the `after' date, this CA file is already invalid");
+           break;
+         case BUFFER_E:
+           errmsg.append("the chain buffer is bigger than the receiving buffer");
+           break;
+         case BAD_PATH_ERROR:
+           errmsg.append("opendir() fails to open path");
+           break;
+         default:
+           errmsg.append("unknown error");
+           break;
+       }
+       
+       itc::getLog()->error(__FILE__,__LINE__,"%s",errmsg.c_str());
+       
+       throw std::system_error(EINVAL,std::system_category(),errmsg);
      }
      
      if(wolfSSL_CTX_use_PrivateKey_file(this->raw_context(),kfile.c_str(), SSL_FILETYPE_PEM) == SSL_SUCCESS)

@@ -547,7 +547,7 @@ namespace LAppS
       memcpy(ws_sec_key.data(),&rng1,sizeof(rng1));
       memcpy(ws_sec_key.data()+sizeof(rng1),&rng2,sizeof(rng2));
 
-      auto b64ret=wolf::base64encode(ws_sec_key,mSecWebSocketKey);
+      wolf::base64encode(ws_sec_key,mSecWebSocketKey);
       
       httpUpgradeRequest.append(mSecWebSocketKey);
       httpUpgradeRequest.append("\r\n");
