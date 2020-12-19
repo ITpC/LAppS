@@ -12,10 +12,7 @@ cd /tmp/localhost.certs
 cp localhost.ca.pem localhost.key localhost.crt /opt/lapps/etc/ssl/certs/
 chown -R lapps /opt/lapps/etc/ssl
 
-echo << EOM >> /etc/security/limits.conf
-lapps           hard     nofile          102400
-lapps           soft     nofile          102400
-EOM
-
+echo "lapps           hard     nofile          102400" >> /etc/security/limits.conf
+echo "lapps           soft     nofile          102400" >> /etc/security/limits.conf
 
 ldconfig
