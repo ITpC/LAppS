@@ -231,7 +231,7 @@ int wsclose(lua_State*L,abstract::WebSocket* handler, const size_t argc)
     try {
       MSGBufferType message;
       
-      if(close_code>999&&((close_code < 1012)||((close_code>2999)&&(close_code<5000))))
+      if((close_code>999)&&((close_code < 1012)||((close_code>2999)&&(close_code<5000))))
       {
         if(argc == 3)
         {
