@@ -55,7 +55,7 @@ namespace LAppS
       typedef std::shared_ptr<WSType>          WSSPtr;
       
       explicit Shakespeer()
-      : headerBuffer(512)
+      : headerBuffer(1024)
       {
       }
       
