@@ -89,8 +89,10 @@ namespace WSStreamProcessing
         {
          if(mPLBytesReady == 0)
             message->resize(mHeader.MSG_SIZE);
-            
-          if((mPLBytesReady+(limit-cursor))>mHeader.MSG_SIZE)
+           
+          size_t offs=limit-cursor;
+          
+          if((mPLBytesReady+offs)>mHeader.MSG_SIZE)
           {
             size_t copy_bytes= mHeader.MSG_SIZE-mPLBytesReady;
             memcpy(message->data()+mPLBytesReady,stream+cursor,copy_bytes);
@@ -98,9 +100,9 @@ namespace WSStreamProcessing
             mPLBytesReady+=copy_bytes;
           }
           else{
-            memcpy(message->data()+mPLBytesReady,stream+cursor,limit-cursor);
-            mPLBytesReady+=(limit-cursor);
-            cursor=limit;
+            memcpy(message->data()+mPLBytesReady,stream+cursor,offs);
+            mPLBytesReady+=(offs);
+            cursor+=offs;
           }
           
           if(mPLBytesReady == mHeader.MSG_SIZE)
@@ -126,6 +128,7 @@ namespace WSStreamProcessing
             messageFrames->resize(mHeader.MSG_SIZE);
         case FrameSeq::MIDDLE:
         case FrameSeq::LAST:
+        {  
           if(mHeader.FSEQ != FrameSeq::FIRST)
           {
             if((mPLBytesReady == 0)&&(cursor!=limit)) 
@@ -141,6 +144,8 @@ namespace WSStreamProcessing
           
           const size_t used=messageFrames->size()-mHeader.MSG_SIZE;
           
+          size_t offs=limit-cursor;
+          
           if((mPLBytesReady+(limit-cursor))>mHeader.MSG_SIZE)
           {
             size_t copy_bytes= mHeader.MSG_SIZE-mPLBytesReady;
@@ -148,9 +153,9 @@ namespace WSStreamProcessing
             cursor+=copy_bytes;
             mPLBytesReady+=copy_bytes;
           }else{
-            memcpy(messageFrames->data()+used+mPLBytesReady,stream+cursor,limit-cursor);
-            mPLBytesReady+=(limit-cursor);
-            cursor=limit;
+            memcpy(messageFrames->data()+used+mPLBytesReady,stream+cursor,offs);
+            mPLBytesReady+=offs;
+            cursor+=offs;
           }
           
           if(mPLBytesReady == mHeader.MSG_SIZE)
@@ -170,6 +175,7 @@ namespace WSStreamProcessing
             WSStreamProcessing::Directive::MORE, 
             WebSocketProtocol::DefiniteCloseCode::NORMAL
           };
+        }
       }
       throw std::logic_error("WSStreamParser::processPayload() switch is out of options, never should have happened. Blame the programmer");
     }
