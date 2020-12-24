@@ -178,7 +178,7 @@ namespace WSStreamProcessing
           if((limit-cursor)>=16)
           {
             // align to mask
-            while((mPLBytesReady<mHeader.MSG_SIZE)&&((cursor)<limit)&&(mPLBytesReady%4))
+            while((mPLBytesReady<mHeader.MSG_SIZE)&&(cursor<limit)&&(mPLBytesReady%4))
             {
               (message->data())[mPLBytesReady]=stream[cursor]^mHeader.MASK[mPLBytesReady%4];
               ++cursor;
