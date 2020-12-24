@@ -54,7 +54,6 @@
 // modules
 #include <modules/nljson.h>
 
-
 static thread_local std::vector<uint8_t> anInBuffer(static_cast<size_t>(LAppSConfig::getInstance()->getWSConfig()["workers"]["input_buffer_size"]));
 
 
@@ -359,10 +358,19 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
         return 0;
       }
       int ret=this->recv(anInBuffer);
-
       if(ret>0)
       {
-        processInput(anInBuffer,ret);
+        WSStreamProcessing::Directive directive;
+        repeat_processing:
+        processInput(anInBuffer,ret,directive);
+        
+        //attempt to read more data 
+        if(TLSEnable && (directive==WSStreamProcessing::Directive::MORE))
+        {
+          ret=this->recv(anInBuffer);
+          if(ret > 0)
+            goto repeat_processing;
+        }
         mEPoll->mod_in(fd);
       }
       return ret;
@@ -372,29 +380,35 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   
 private:
  
-  void processInput(const std::vector<uint8_t>& input,const size_t input_size)
+  void processInput(const std::vector<uint8_t>& input,const size_t input_size,WSStreamProcessing::Directive& directive)
   {
     if(mState!=State::MESSAGING)
     {
+      itc::getLog()->error(__FILE__,__LINE__,"WebSocket::processInput(), not in messaging state");
       return;
     }
     
     size_t cursor=0;
     again:
     auto state=std::move(streamProcessor.parse(input.data(),input_size,cursor));
+    directive=state.directive;
     
     switch(state.directive)
     {
       case WSStreamProcessing::Directive::MORE:
+        cursor=state.cursor;
         return;
       case WSStreamProcessing::Directive::TAKE_READY_MESSAGE:
-        
-        if(onMessage(std::move(streamProcessor.getMessage()))&&(state.cursor!=input_size))
+      {
+        WSEvent message=std::move(streamProcessor.getMessage());
+
+        if(onMessage(message)&&((state.cursor > 0)&&(state.cursor < input_size)))
         {
           cursor=state.cursor;
           goto again;
         }
         return;
+      }
       case WSStreamProcessing::Directive::CLOSE_WITH_CODE:
         closeSocket(state.cCode);
         return;
@@ -417,7 +431,7 @@ private:
 
     mStats.mBytesIn+=sz;
     auto InCMASize=mStats.mBytesIn/mStats.mInMessageCount;
-    streamProcessor.setMessageBufferSize(InCMASize);
+    //streamProcessor.setMessageBufferSize(InCMASize);
   }
   
   void updateInStats(const size_t sz, const itc::utils::Bool2Type<false>& noStats)
@@ -635,7 +649,7 @@ RFC 6455                 The WebSocket Protocol            December 2011
     if(TLSSocket)
     { 
       int ret=wolfSSL_read(TLSSocket,buff.data(),buff.size());
-
+      
       if(ret <= 0)
       {
         logWOLFSSLError(ret, "WebSocket::recv(withTLS) :");
