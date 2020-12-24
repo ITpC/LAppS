@@ -152,6 +152,7 @@ namespace WSStreamProcessing
           }
           if(cursor == limit)
           {
+            cursor=0;
             return {
               cursor, WSStreamProcessing::Directive::MORE, 
               WebSocketProtocol::NORMAL
@@ -164,6 +165,7 @@ namespace WSStreamProcessing
             ++cursor;
             if(cursor == limit)
             {
+              cursor=0;
               return {
                 cursor, WSStreamProcessing::Directive::MORE, 
                 WebSocketProtocol::NORMAL
@@ -175,6 +177,7 @@ namespace WSStreamProcessing
             ++cursor;
             if(cursor == limit)
             {
+              cursor=0;
               return {
                 cursor, WSStreamProcessing::Directive::MORE, 
                 WebSocketProtocol::NORMAL
@@ -186,6 +189,7 @@ namespace WSStreamProcessing
             ++cursor;
             if(cursor == limit)
             {
+              cursor=0;
               return {
                 cursor, WSStreamProcessing::Directive::MORE, 
                 WebSocketProtocol::NORMAL
@@ -197,6 +201,7 @@ namespace WSStreamProcessing
             ++cursor;
             if(cursor == limit)
             {
+              cursor=0;
               return {
                 cursor, WSStreamProcessing::Directive::MORE, 
                 WebSocketProtocol::NORMAL
@@ -208,6 +213,7 @@ namespace WSStreamProcessing
             ++cursor;
             if(cursor == limit)
             {
+              cursor=0;
               return {
                 cursor, WSStreamProcessing::Directive::MORE, 
                 WebSocketProtocol::NORMAL
@@ -219,6 +225,7 @@ namespace WSStreamProcessing
             ++cursor;
             if(cursor == limit)
             {
+              cursor=0;
               return {
                 cursor, WSStreamProcessing::Directive::MORE, 
                 WebSocketProtocol::NORMAL
@@ -230,6 +237,7 @@ namespace WSStreamProcessing
             ++cursor;
             if(cursor == limit)
             {
+              cursor=0;
               return {
                 cursor, WSStreamProcessing::Directive::MORE, 
                 WebSocketProtocol::NORMAL
@@ -252,6 +260,7 @@ namespace WSStreamProcessing
           } 
           if(cursor == limit)
           {
+            cursor=0;
             return {
               cursor, WSStreamProcessing::Directive::MORE, 
               WebSocketProtocol::NORMAL
@@ -270,7 +279,7 @@ namespace WSStreamProcessing
         };
       }else{
         cursor=0;
-        return { 
+        return {
           cursor, WSStreamProcessing::Directive::MORE, 
           WebSocketProtocol::NORMAL
         };
