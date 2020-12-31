@@ -5,7 +5,7 @@ if [ "${VERSION}x" != "x" ]
 then
 
   rm -f /opt/lapps/bin/lapps* 
-  (cd ../ITCLib && git pull) && (cd ../ITCFramework && git pull) && \
+  (cd ../ITCLib && git pull) && \
   (cd ../utils && git pull) && (cd ../lar && git pull && make install)  && git pull &&\
   make CONF=Release.SSSE3 clean &&\
   make CONF=Release.SSSE3 build install &&\

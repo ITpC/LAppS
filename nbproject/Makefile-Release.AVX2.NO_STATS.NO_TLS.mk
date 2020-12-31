@@ -15,8 +15,8 @@ NM=nm
 CCADMIN=CCadmin
 RANLIB=ranlib
 CC=gcc
-CCC=g++ -std=c++17 -pthread
-CXX=g++ -std=c++17 -pthread
+CCC=g++
+CXX=g++
 FC=gfortran
 AS=as
 
@@ -42,8 +42,8 @@ OBJECTFILES= \
 CFLAGS=
 
 # CC Compiler Flags
-CCFLAGS=-pipe -O2 -march=skylake -mtune=generic -mfpmath=sse -msse2avx -mavx2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17
-CXXFLAGS=-pipe -O2 -march=skylake -mtune=generic -mfpmath=sse -msse2avx -mavx2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17
+CCFLAGS=-pipe -std=c++17 -pthread -O2 -march=skylake -mtune=generic -mfpmath=sse -msse2avx -mavx2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops
+CXXFLAGS=-pipe -std=c++17 -pthread -O2 -march=skylake -mtune=generic -mfpmath=sse -msse2avx -mavx2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops
 
 # Fortran Compiler Flags
 FFLAGS=
@@ -52,21 +52,19 @@ FFLAGS=
 ASFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=-L/usr/local/lib -L/usr/local/lib/mimalloc-1.6 -Wl,-rpath,'/usr/local/lib/mimalloc-1.6' ../ITCFramework/dist/Debug/GNU-Linux/libitcframework.a ../ITCLib/dist/Debug/GNU-Linux/libitclib.a ../utils/dist/Debug/GNU-Linux/libutils.a
+LDLIBSOPTIONS=-L/usr/local/lib -L/usr/local/lib/mimalloc-1.6 -Wl,-rpath,'/usr/local/lib/mimalloc-1.6' ../ITCLib/dist/Debug/GNU-Linux/libitclib.a ../utils/dist/Debug/GNU-Linux/libutils.a
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
-	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2.nostats.notls
+	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps
 
-${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2.nostats.notls: ../ITCFramework/dist/Debug/GNU-Linux/libitcframework.a
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps: ../ITCLib/dist/Debug/GNU-Linux/libitclib.a
 
-${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2.nostats.notls: ../ITCLib/dist/Debug/GNU-Linux/libitclib.a
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps: ../utils/dist/Debug/GNU-Linux/libutils.a
 
-${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2.nostats.notls: ../utils/dist/Debug/GNU-Linux/libutils.a
-
-${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2.nostats.notls: ${OBJECTFILES}
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
-	g++ -std=c++17 -pthread -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2.nostats.notls ${OBJECTFILES} ${LDLIBSOPTIONS} -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt
+	g++ -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps ${OBJECTFILES} ${LDLIBSOPTIONS} -std=c++17 -pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt
 
 ${OBJECTDIR}/src/main.o: src/main.cpp nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/src
@@ -75,10 +73,9 @@ ${OBJECTDIR}/src/main.o: src/main.cpp nbproject/Makefile-${CND_CONF}.mk
 
 # Subprojects
 .build-subprojects:
-	cd ../ITCFramework && ${MAKE}  -f Makefile CONF=Debug
 	cd ../ITCLib && ${MAKE}  -f Makefile CONF=Debug
 	cd ../utils && ${MAKE}  -f utils-Makefile.mk CONF=Debug
-	cd ../ITCLib && ${MAKE}  -f Makefile CONF=Release.SSE2
+	cd ../ITCLib && ${MAKE}  -f Makefile CONF=Debug
 
 # Clean Targets
 .clean-conf: ${CLEAN_SUBPROJECTS}
@@ -86,10 +83,9 @@ ${OBJECTDIR}/src/main.o: src/main.cpp nbproject/Makefile-${CND_CONF}.mk
 
 # Subprojects
 .clean-subprojects:
-	cd ../ITCFramework && ${MAKE}  -f Makefile CONF=Debug clean
 	cd ../ITCLib && ${MAKE}  -f Makefile CONF=Debug clean
 	cd ../utils && ${MAKE}  -f utils-Makefile.mk CONF=Debug clean
-	cd ../ITCLib && ${MAKE}  -f Makefile CONF=Release.SSE2 clean
+	cd ../ITCLib && ${MAKE}  -f Makefile CONF=Debug clean
 
 # Enable dependency checking
 .dep.inc: .depcheck-impl

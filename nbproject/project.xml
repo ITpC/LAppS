@@ -9,7 +9,7 @@
             <header-extensions>h,hpp</header-extensions>
             <sourceEncoding>UTF-8</sourceEncoding>
             <make-dep-projects>
-                <make-dep-project>../ITCFramework</make-dep-project>
+                <make-dep-project>../lar</make-dep-project>
                 <make-dep-project>../ITCLib</make-dep-project>
                 <make-dep-project>../utils</make-dep-project>
             </make-dep-projects>

@@ -123,7 +123,7 @@
       </toolsSet>
       <compileType>
         <ccTool>
-          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
+          <commandlineTool>g++</commandlineTool>
           <incDir>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -135,7 +135,7 @@
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
             <pElem>../lar</pElem>
           </incDir>
-          <commandLine>-pipe -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>DTFM_TIMING_RESISTANT</Elem>
@@ -154,7 +154,6 @@
           <warningLevel>2</warningLevel>
         </ccTool>
         <linkerTool>
-          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.sse2.debug</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
@@ -162,20 +161,8 @@
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
-          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
+          <commandlineTool>g++</commandlineTool>
           <linkerLibItems>
-            <linkerLibProjectItem>
-              <makeArtifact PL="../ITCFramework"
-                            CT="3"
-                            CN="Debug"
-                            AC="true"
-                            BL="true"
-                            WD="../ITCFramework"
-                            BC="${MAKE}  -f Makefile CONF=Debug"
-                            CC="${MAKE}  -f Makefile CONF=Debug clean"
-                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitcframework.a">
-              </makeArtifact>
-            </linkerLibProjectItem>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCLib"
                             CT="3"
@@ -201,7 +188,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
+          <commandLine>-std=c++17 -pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -224,15 +211,15 @@
                         CC="${MAKE}  -f Makefile CONF=Debug clean"
                         OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
           </makeArtifact>
-          <makeArtifact PL="../ITCFramework"
-                        CT="3"
-                        CN="Debug"
+          <makeArtifact PL="../lar"
+                        CT="1"
+                        CN="Release"
                         AC="true"
                         BL="false"
-                        WD="../ITCFramework"
-                        BC="${MAKE}  -f Makefile CONF=Debug"
-                        CC="${MAKE}  -f Makefile CONF=Debug clean"
-                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitcframework.a">
+                        WD="../lar"
+                        BC="${MAKE}  -f Makefile CONF=Release"
+                        CC="${MAKE}  -f Makefile CONF=Release clean"
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lar">
           </makeArtifact>
         </requiredProjects>
       </compileType>
@@ -1285,7 +1272,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
+          <commandlineTool>g++</commandlineTool>
           <incDir>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -1297,7 +1284,7 @@
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
             <pElem>../lar</pElem>
           </incDir>
-          <commandLine>-pipe -O2 -march=nocona -mtune=generic -mfpmath=sse -mssse3 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -mssse3 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>DTFM_TIMING_RESISTANT</Elem>
@@ -1315,7 +1302,6 @@
           <warningLevel>2</warningLevel>
         </ccTool>
         <linkerTool>
-          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.sse3</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
@@ -1323,20 +1309,8 @@
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
-          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
+          <commandlineTool>g++</commandlineTool>
           <linkerLibItems>
-            <linkerLibProjectItem>
-              <makeArtifact PL="../ITCFramework"
-                            CT="3"
-                            CN="Debug"
-                            AC="true"
-                            BL="true"
-                            WD="../ITCFramework"
-                            BC="${MAKE}  -f Makefile CONF=Debug"
-                            CC="${MAKE}  -f Makefile CONF=Debug clean"
-                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitcframework.a">
-              </makeArtifact>
-            </linkerLibProjectItem>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCLib"
                             CT="3"
@@ -1362,7 +1336,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
+          <commandLine>-std=c++17 -pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -1377,23 +1351,23 @@
           </makeArtifact>
           <makeArtifact PL="../ITCLib"
                         CT="3"
-                        CN="Release.SSE2"
+                        CN="Debug"
                         AC="true"
                         BL="true"
                         WD="../ITCLib"
-                        BC="${MAKE}  -f Makefile CONF=Release.SSE2"
-                        CC="${MAKE}  -f Makefile CONF=Release.SSE2 clean"
-                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
-          </makeArtifact>
-          <makeArtifact PL="../ITCFramework"
-                        CT="3"
-                        CN="Debug"
-                        AC="true"
-                        BL="false"
-                        WD="../ITCFramework"
                         BC="${MAKE}  -f Makefile CONF=Debug"
                         CC="${MAKE}  -f Makefile CONF=Debug clean"
-                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitcframework.a">
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
+          </makeArtifact>
+          <makeArtifact PL="../lar"
+                        CT="1"
+                        CN="Release"
+                        AC="true"
+                        BL="false"
+                        WD="../lar"
+                        BC="${MAKE}  -f Makefile CONF=Release"
+                        CC="${MAKE}  -f Makefile CONF=Release clean"
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lar">
           </makeArtifact>
         </requiredProjects>
       </compileType>
@@ -2446,7 +2420,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
+          <commandlineTool>g++</commandlineTool>
           <incDir>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -2458,7 +2432,7 @@
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
             <pElem>../lar</pElem>
           </incDir>
-          <commandLine>-pipe -O2 -march=skylake -mtune=generic -mfpmath=sse -msse2avx -mavx2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=skylake -mtune=generic -mfpmath=sse -msse2avx -mavx2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>DTFM_TIMING_RESISTANT</Elem>
@@ -2476,7 +2450,6 @@
           <warningLevel>2</warningLevel>
         </ccTool>
         <linkerTool>
-          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
@@ -2484,20 +2457,8 @@
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
-          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
+          <commandlineTool>g++</commandlineTool>
           <linkerLibItems>
-            <linkerLibProjectItem>
-              <makeArtifact PL="../ITCFramework"
-                            CT="3"
-                            CN="Debug"
-                            AC="true"
-                            BL="true"
-                            WD="../ITCFramework"
-                            BC="${MAKE}  -f Makefile CONF=Debug"
-                            CC="${MAKE}  -f Makefile CONF=Debug clean"
-                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitcframework.a">
-              </makeArtifact>
-            </linkerLibProjectItem>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCLib"
                             CT="3"
@@ -2523,7 +2484,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
+          <commandLine>-std=c++17 -pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -2538,23 +2499,23 @@
           </makeArtifact>
           <makeArtifact PL="../ITCLib"
                         CT="3"
-                        CN="Release.SSE2"
+                        CN="Debug"
                         AC="true"
                         BL="true"
                         WD="../ITCLib"
-                        BC="${MAKE}  -f Makefile CONF=Release.SSE2"
-                        CC="${MAKE}  -f Makefile CONF=Release.SSE2 clean"
-                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
-          </makeArtifact>
-          <makeArtifact PL="../ITCFramework"
-                        CT="3"
-                        CN="Debug"
-                        AC="true"
-                        BL="false"
-                        WD="../ITCFramework"
                         BC="${MAKE}  -f Makefile CONF=Debug"
                         CC="${MAKE}  -f Makefile CONF=Debug clean"
-                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitcframework.a">
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
+          </makeArtifact>
+          <makeArtifact PL="../lar"
+                        CT="1"
+                        CN="Release"
+                        AC="true"
+                        BL="false"
+                        WD="../lar"
+                        BC="${MAKE}  -f Makefile CONF=Release"
+                        CC="${MAKE}  -f Makefile CONF=Release clean"
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lar">
           </makeArtifact>
         </requiredProjects>
       </compileType>
@@ -3607,7 +3568,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
+          <commandlineTool>g++</commandlineTool>
           <incDir>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -3619,7 +3580,7 @@
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
             <pElem>../lar</pElem>
           </incDir>
-          <commandLine>-pipe -O2 -march=nocona -mtune=generic -mfpmath=sse -mssse3 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -mssse3 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>DTFM_TIMING_RESISTANT</Elem>
@@ -3636,7 +3597,6 @@
           <warningLevel>2</warningLevel>
         </ccTool>
         <linkerTool>
-          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.ssse3.nostats</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
@@ -3644,20 +3604,8 @@
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
-          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
+          <commandlineTool>g++</commandlineTool>
           <linkerLibItems>
-            <linkerLibProjectItem>
-              <makeArtifact PL="../ITCFramework"
-                            CT="3"
-                            CN="Debug"
-                            AC="true"
-                            BL="true"
-                            WD="../ITCFramework"
-                            BC="${MAKE}  -f Makefile CONF=Debug"
-                            CC="${MAKE}  -f Makefile CONF=Debug clean"
-                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitcframework.a">
-              </makeArtifact>
-            </linkerLibProjectItem>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCLib"
                             CT="3"
@@ -3683,14 +3631,14 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
+          <commandLine>-std=c++17 -pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
                         CT="3"
                         CN="Debug"
                         AC="true"
-                        BL="true"
+                        BL="false"
                         WD="../utils"
                         BC="${MAKE}  -f utils-Makefile.mk CONF=Debug"
                         CC="${MAKE}  -f utils-Makefile.mk CONF=Debug clean"
@@ -3698,23 +3646,23 @@
           </makeArtifact>
           <makeArtifact PL="../ITCLib"
                         CT="3"
-                        CN="Release.SSE2"
-                        AC="true"
-                        BL="true"
-                        WD="../ITCLib"
-                        BC="${MAKE}  -f Makefile CONF=Release.SSE2"
-                        CC="${MAKE}  -f Makefile CONF=Release.SSE2 clean"
-                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
-          </makeArtifact>
-          <makeArtifact PL="../ITCFramework"
-                        CT="3"
                         CN="Debug"
                         AC="true"
                         BL="true"
-                        WD="../ITCFramework"
+                        WD="../ITCLib"
                         BC="${MAKE}  -f Makefile CONF=Debug"
                         CC="${MAKE}  -f Makefile CONF=Debug clean"
-                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitcframework.a">
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
+          </makeArtifact>
+          <makeArtifact PL="../lar"
+                        CT="1"
+                        CN="Release"
+                        AC="true"
+                        BL="false"
+                        WD="../lar"
+                        BC="${MAKE}  -f Makefile CONF=Release"
+                        CC="${MAKE}  -f Makefile CONF=Release clean"
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lar">
           </makeArtifact>
         </requiredProjects>
       </compileType>
@@ -4767,7 +4715,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
+          <commandlineTool>g++</commandlineTool>
           <incDir>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -4779,7 +4727,7 @@
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
             <pElem>../lar</pElem>
           </incDir>
-          <commandLine>-pipe -O2 -march=nocona -mtune=generic -mfpmath=sse -mssse3 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -mssse3 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>DTFM_TIMING_RESISTANT</Elem>
@@ -4795,7 +4743,6 @@
           <warningLevel>2</warningLevel>
         </ccTool>
         <linkerTool>
-          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.ssse3.nostats.notls</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
@@ -4803,20 +4750,8 @@
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
-          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
+          <commandlineTool>g++</commandlineTool>
           <linkerLibItems>
-            <linkerLibProjectItem>
-              <makeArtifact PL="../ITCFramework"
-                            CT="3"
-                            CN="Debug"
-                            AC="true"
-                            BL="true"
-                            WD="../ITCFramework"
-                            BC="${MAKE}  -f Makefile CONF=Debug"
-                            CC="${MAKE}  -f Makefile CONF=Debug clean"
-                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitcframework.a">
-              </makeArtifact>
-            </linkerLibProjectItem>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCLib"
                             CT="3"
@@ -4842,7 +4777,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
+          <commandLine>-std=c++17 -pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -4857,23 +4792,23 @@
           </makeArtifact>
           <makeArtifact PL="../ITCLib"
                         CT="3"
-                        CN="Release.SSE2"
+                        CN="Debug"
                         AC="true"
                         BL="true"
                         WD="../ITCLib"
-                        BC="${MAKE}  -f Makefile CONF=Release.SSE2"
-                        CC="${MAKE}  -f Makefile CONF=Release.SSE2 clean"
-                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
-          </makeArtifact>
-          <makeArtifact PL="../ITCFramework"
-                        CT="3"
-                        CN="Debug"
-                        AC="true"
-                        BL="false"
-                        WD="../ITCFramework"
                         BC="${MAKE}  -f Makefile CONF=Debug"
                         CC="${MAKE}  -f Makefile CONF=Debug clean"
-                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitcframework.a">
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
+          </makeArtifact>
+          <makeArtifact PL="../lar"
+                        CT="1"
+                        CN="Release"
+                        AC="true"
+                        BL="false"
+                        WD="../lar"
+                        BC="${MAKE}  -f Makefile CONF=Release"
+                        CC="${MAKE}  -f Makefile CONF=Release clean"
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lar">
           </makeArtifact>
         </requiredProjects>
       </compileType>
@@ -5926,7 +5861,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
+          <commandlineTool>g++</commandlineTool>
           <incDir>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -5938,7 +5873,7 @@
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
             <pElem>../lar</pElem>
           </incDir>
-          <commandLine>-pipe -O2 -march=skylake -mtune=generic -mfpmath=sse -msse2avx -mavx2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=skylake -mtune=generic -mfpmath=sse -msse2avx -mavx2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>DTFM_TIMING_RESISTANT</Elem>
@@ -5955,7 +5890,6 @@
           <warningLevel>2</warningLevel>
         </ccTool>
         <linkerTool>
-          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2.nostats</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
@@ -5963,20 +5897,8 @@
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
-          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
+          <commandlineTool>g++</commandlineTool>
           <linkerLibItems>
-            <linkerLibProjectItem>
-              <makeArtifact PL="../ITCFramework"
-                            CT="3"
-                            CN="Debug"
-                            AC="true"
-                            BL="true"
-                            WD="../ITCFramework"
-                            BC="${MAKE}  -f Makefile CONF=Debug"
-                            CC="${MAKE}  -f Makefile CONF=Debug clean"
-                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitcframework.a">
-              </makeArtifact>
-            </linkerLibProjectItem>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCLib"
                             CT="3"
@@ -6002,7 +5924,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
+          <commandLine>-std=c++17 -pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -6017,23 +5939,23 @@
           </makeArtifact>
           <makeArtifact PL="../ITCLib"
                         CT="3"
-                        CN="Release.SSE2"
+                        CN="Debug"
                         AC="true"
                         BL="true"
                         WD="../ITCLib"
-                        BC="${MAKE}  -f Makefile CONF=Release.SSE2"
-                        CC="${MAKE}  -f Makefile CONF=Release.SSE2 clean"
-                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
-          </makeArtifact>
-          <makeArtifact PL="../ITCFramework"
-                        CT="3"
-                        CN="Debug"
-                        AC="true"
-                        BL="false"
-                        WD="../ITCFramework"
                         BC="${MAKE}  -f Makefile CONF=Debug"
                         CC="${MAKE}  -f Makefile CONF=Debug clean"
-                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitcframework.a">
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
+          </makeArtifact>
+          <makeArtifact PL="../lar"
+                        CT="1"
+                        CN="Release"
+                        AC="true"
+                        BL="false"
+                        WD="../lar"
+                        BC="${MAKE}  -f Makefile CONF=Release"
+                        CC="${MAKE}  -f Makefile CONF=Release clean"
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lar">
           </makeArtifact>
         </requiredProjects>
       </compileType>
@@ -7086,7 +7008,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
+          <commandlineTool>g++</commandlineTool>
           <incDir>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -7098,7 +7020,7 @@
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
             <pElem>../lar</pElem>
           </incDir>
-          <commandLine>-pipe -O2 -march=skylake -mtune=generic -mfpmath=sse -msse2avx -mavx2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=skylake -mtune=generic -mfpmath=sse -msse2avx -mavx2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>DTFM_TIMING_RESISTANT</Elem>
@@ -7114,7 +7036,6 @@
           <warningLevel>2</warningLevel>
         </ccTool>
         <linkerTool>
-          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2.nostats.notls</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
@@ -7122,20 +7043,8 @@
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
-          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
+          <commandlineTool>g++</commandlineTool>
           <linkerLibItems>
-            <linkerLibProjectItem>
-              <makeArtifact PL="../ITCFramework"
-                            CT="3"
-                            CN="Debug"
-                            AC="true"
-                            BL="true"
-                            WD="../ITCFramework"
-                            BC="${MAKE}  -f Makefile CONF=Debug"
-                            CC="${MAKE}  -f Makefile CONF=Debug clean"
-                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitcframework.a">
-              </makeArtifact>
-            </linkerLibProjectItem>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCLib"
                             CT="3"
@@ -7161,7 +7070,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
+          <commandLine>-std=c++17 -pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -7176,23 +7085,23 @@
           </makeArtifact>
           <makeArtifact PL="../ITCLib"
                         CT="3"
-                        CN="Release.SSE2"
+                        CN="Debug"
                         AC="true"
                         BL="true"
                         WD="../ITCLib"
-                        BC="${MAKE}  -f Makefile CONF=Release.SSE2"
-                        CC="${MAKE}  -f Makefile CONF=Release.SSE2 clean"
-                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
-          </makeArtifact>
-          <makeArtifact PL="../ITCFramework"
-                        CT="3"
-                        CN="Debug"
-                        AC="true"
-                        BL="false"
-                        WD="../ITCFramework"
                         BC="${MAKE}  -f Makefile CONF=Debug"
                         CC="${MAKE}  -f Makefile CONF=Debug clean"
-                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitcframework.a">
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
+          </makeArtifact>
+          <makeArtifact PL="../lar"
+                        CT="1"
+                        CN="Release"
+                        AC="true"
+                        BL="false"
+                        WD="../lar"
+                        BC="${MAKE}  -f Makefile CONF=Release"
+                        CC="${MAKE}  -f Makefile CONF=Release clean"
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lar">
           </makeArtifact>
         </requiredProjects>
       </compileType>
@@ -8245,7 +8154,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
+          <commandlineTool>g++</commandlineTool>
           <incDir>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -8257,7 +8166,7 @@
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
             <pElem>../lar</pElem>
           </incDir>
-          <commandLine>-pipe -O2 -march=skylake -mtune=generic -mfpmath=sse -msse2avx -mavx2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=skylake -mtune=generic -mfpmath=sse -msse2avx -mavx2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>DTFM_TIMING_RESISTANT</Elem>
@@ -8273,7 +8182,6 @@
           <warningLevel>2</warningLevel>
         </ccTool>
         <linkerTool>
-          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx2.debug.nostats.notls</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
@@ -8281,20 +8189,8 @@
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
-          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
+          <commandlineTool>g++</commandlineTool>
           <linkerLibItems>
-            <linkerLibProjectItem>
-              <makeArtifact PL="../ITCFramework"
-                            CT="3"
-                            CN="Debug"
-                            AC="true"
-                            BL="true"
-                            WD="../ITCFramework"
-                            BC="${MAKE}  -f Makefile CONF=Debug"
-                            CC="${MAKE}  -f Makefile CONF=Debug clean"
-                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitcframework.a">
-              </makeArtifact>
-            </linkerLibProjectItem>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCLib"
                             CT="3"
@@ -8320,7 +8216,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
+          <commandLine>-std=c++17 -pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -8343,15 +8239,15 @@
                         CC="${MAKE}  -f Makefile CONF=Debug clean"
                         OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
           </makeArtifact>
-          <makeArtifact PL="../ITCFramework"
-                        CT="3"
-                        CN="Debug"
+          <makeArtifact PL="../lar"
+                        CT="1"
+                        CN="Release"
                         AC="true"
                         BL="false"
-                        WD="../ITCFramework"
-                        BC="${MAKE}  -f Makefile CONF=Debug"
-                        CC="${MAKE}  -f Makefile CONF=Debug clean"
-                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitcframework.a">
+                        WD="../lar"
+                        BC="${MAKE}  -f Makefile CONF=Release"
+                        CC="${MAKE}  -f Makefile CONF=Release clean"
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lar">
           </makeArtifact>
         </requiredProjects>
       </compileType>
@@ -9404,7 +9300,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
+          <commandlineTool>g++</commandlineTool>
           <incDir>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -9416,7 +9312,7 @@
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
             <pElem>../lar</pElem>
           </incDir>
-          <commandLine>-pipe -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>DTFM_TIMING_RESISTANT</Elem>
@@ -9434,7 +9330,6 @@
           <warningLevel>2</warningLevel>
         </ccTool>
         <linkerTool>
-          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.sse2</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
@@ -9442,20 +9337,8 @@
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
-          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
+          <commandlineTool>g++</commandlineTool>
           <linkerLibItems>
-            <linkerLibProjectItem>
-              <makeArtifact PL="../ITCFramework"
-                            CT="3"
-                            CN="Debug"
-                            AC="true"
-                            BL="true"
-                            WD="../ITCFramework"
-                            BC="${MAKE}  -f Makefile CONF=Debug"
-                            CC="${MAKE}  -f Makefile CONF=Debug clean"
-                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitcframework.a">
-              </makeArtifact>
-            </linkerLibProjectItem>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCLib"
                             CT="3"
@@ -9481,7 +9364,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
+          <commandLine>-std=c++17 -pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -9496,23 +9379,23 @@
           </makeArtifact>
           <makeArtifact PL="../ITCLib"
                         CT="3"
-                        CN="Release.SSE2"
+                        CN="Debug"
                         AC="true"
                         BL="true"
                         WD="../ITCLib"
-                        BC="${MAKE}  -f Makefile CONF=Release.SSE2"
-                        CC="${MAKE}  -f Makefile CONF=Release.SSE2 clean"
-                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
-          </makeArtifact>
-          <makeArtifact PL="../ITCFramework"
-                        CT="3"
-                        CN="Debug"
-                        AC="true"
-                        BL="false"
-                        WD="../ITCFramework"
                         BC="${MAKE}  -f Makefile CONF=Debug"
                         CC="${MAKE}  -f Makefile CONF=Debug clean"
-                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitcframework.a">
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
+          </makeArtifact>
+          <makeArtifact PL="../lar"
+                        CT="1"
+                        CN="Release"
+                        AC="true"
+                        BL="false"
+                        WD="../lar"
+                        BC="${MAKE}  -f Makefile CONF=Release"
+                        CC="${MAKE}  -f Makefile CONF=Release clean"
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lar">
           </makeArtifact>
         </requiredProjects>
       </compileType>
@@ -10565,7 +10448,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
+          <commandlineTool>g++</commandlineTool>
           <incDir>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -10577,7 +10460,7 @@
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
             <pElem>../lar</pElem>
           </incDir>
-          <commandLine>-pipe -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>DTFM_TIMING_RESISTANT</Elem>
@@ -10594,7 +10477,6 @@
           <warningLevel>2</warningLevel>
         </ccTool>
         <linkerTool>
-          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.sse2.nostats</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
@@ -10602,20 +10484,8 @@
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
-          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
+          <commandlineTool>g++</commandlineTool>
           <linkerLibItems>
-            <linkerLibProjectItem>
-              <makeArtifact PL="../ITCFramework"
-                            CT="3"
-                            CN="Debug"
-                            AC="true"
-                            BL="true"
-                            WD="../ITCFramework"
-                            BC="${MAKE}  -f Makefile CONF=Debug"
-                            CC="${MAKE}  -f Makefile CONF=Debug clean"
-                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitcframework.a">
-              </makeArtifact>
-            </linkerLibProjectItem>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCLib"
                             CT="3"
@@ -10641,7 +10511,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
+          <commandLine>-std=c++17 -pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -10656,23 +10526,23 @@
           </makeArtifact>
           <makeArtifact PL="../ITCLib"
                         CT="3"
-                        CN="Release.SSE2"
+                        CN="Debug"
                         AC="true"
                         BL="true"
                         WD="../ITCLib"
-                        BC="${MAKE}  -f Makefile CONF=Release.SSE2"
-                        CC="${MAKE}  -f Makefile CONF=Release.SSE2 clean"
-                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
-          </makeArtifact>
-          <makeArtifact PL="../ITCFramework"
-                        CT="3"
-                        CN="Debug"
-                        AC="true"
-                        BL="false"
-                        WD="../ITCFramework"
                         BC="${MAKE}  -f Makefile CONF=Debug"
                         CC="${MAKE}  -f Makefile CONF=Debug clean"
-                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitcframework.a">
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
+          </makeArtifact>
+          <makeArtifact PL="../lar"
+                        CT="1"
+                        CN="Release"
+                        AC="true"
+                        BL="false"
+                        WD="../lar"
+                        BC="${MAKE}  -f Makefile CONF=Release"
+                        CC="${MAKE}  -f Makefile CONF=Release clean"
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lar">
           </makeArtifact>
         </requiredProjects>
       </compileType>
@@ -11725,7 +11595,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
+          <commandlineTool>g++</commandlineTool>
           <incDir>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -11737,7 +11607,7 @@
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
             <pElem>../lar</pElem>
           </incDir>
-          <commandLine>-pipe -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>DTFM_TIMING_RESISTANT</Elem>
@@ -11753,7 +11623,6 @@
           <warningLevel>2</warningLevel>
         </ccTool>
         <linkerTool>
-          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.sse2.nostats.notls</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
@@ -11761,20 +11630,8 @@
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
-          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
+          <commandlineTool>g++</commandlineTool>
           <linkerLibItems>
-            <linkerLibProjectItem>
-              <makeArtifact PL="../ITCFramework"
-                            CT="3"
-                            CN="Debug"
-                            AC="true"
-                            BL="true"
-                            WD="../ITCFramework"
-                            BC="${MAKE}  -f Makefile CONF=Debug"
-                            CC="${MAKE}  -f Makefile CONF=Debug clean"
-                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitcframework.a">
-              </makeArtifact>
-            </linkerLibProjectItem>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCLib"
                             CT="3"
@@ -11800,7 +11657,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
+          <commandLine>-std=c++17 -pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -11815,23 +11672,23 @@
           </makeArtifact>
           <makeArtifact PL="../ITCLib"
                         CT="3"
-                        CN="Release.SSE2"
+                        CN="Debug"
                         AC="true"
                         BL="true"
                         WD="../ITCLib"
-                        BC="${MAKE}  -f Makefile CONF=Release.SSE2"
-                        CC="${MAKE}  -f Makefile CONF=Release.SSE2 clean"
-                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
-          </makeArtifact>
-          <makeArtifact PL="../ITCFramework"
-                        CT="3"
-                        CN="Debug"
-                        AC="true"
-                        BL="false"
-                        WD="../ITCFramework"
                         BC="${MAKE}  -f Makefile CONF=Debug"
                         CC="${MAKE}  -f Makefile CONF=Debug clean"
-                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitcframework.a">
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
+          </makeArtifact>
+          <makeArtifact PL="../lar"
+                        CT="1"
+                        CN="Release"
+                        AC="true"
+                        BL="false"
+                        WD="../lar"
+                        BC="${MAKE}  -f Makefile CONF=Release"
+                        CC="${MAKE}  -f Makefile CONF=Release clean"
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lar">
           </makeArtifact>
         </requiredProjects>
       </compileType>
@@ -12884,7 +12741,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
+          <commandlineTool>g++</commandlineTool>
           <incDir>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -12896,7 +12753,7 @@
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
             <pElem>../lar</pElem>
           </incDir>
-          <commandLine>-pipe -O2 -march=sandybridge -mtune=generic -mfpmath=sse -msse2avx -mavx -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=sandybridge -mtune=generic -mfpmath=sse -msse2avx -mavx -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>DTFM_TIMING_RESISTANT</Elem>
@@ -12914,7 +12771,6 @@
           <warningLevel>2</warningLevel>
         </ccTool>
         <linkerTool>
-          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
@@ -12922,20 +12778,8 @@
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
-          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
+          <commandlineTool>g++</commandlineTool>
           <linkerLibItems>
-            <linkerLibProjectItem>
-              <makeArtifact PL="../ITCFramework"
-                            CT="3"
-                            CN="Debug"
-                            AC="true"
-                            BL="true"
-                            WD="../ITCFramework"
-                            BC="${MAKE}  -f Makefile CONF=Debug"
-                            CC="${MAKE}  -f Makefile CONF=Debug clean"
-                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitcframework.a">
-              </makeArtifact>
-            </linkerLibProjectItem>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCLib"
                             CT="3"
@@ -12961,7 +12805,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
+          <commandLine>-std=c++17 -pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -12976,23 +12820,23 @@
           </makeArtifact>
           <makeArtifact PL="../ITCLib"
                         CT="3"
-                        CN="Release.SSE2"
+                        CN="Debug"
                         AC="true"
                         BL="true"
                         WD="../ITCLib"
-                        BC="${MAKE}  -f Makefile CONF=Release.SSE2"
-                        CC="${MAKE}  -f Makefile CONF=Release.SSE2 clean"
-                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
-          </makeArtifact>
-          <makeArtifact PL="../ITCFramework"
-                        CT="3"
-                        CN="Debug"
-                        AC="true"
-                        BL="false"
-                        WD="../ITCFramework"
                         BC="${MAKE}  -f Makefile CONF=Debug"
                         CC="${MAKE}  -f Makefile CONF=Debug clean"
-                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitcframework.a">
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
+          </makeArtifact>
+          <makeArtifact PL="../lar"
+                        CT="1"
+                        CN="Release"
+                        AC="true"
+                        BL="false"
+                        WD="../lar"
+                        BC="${MAKE}  -f Makefile CONF=Release"
+                        CC="${MAKE}  -f Makefile CONF=Release clean"
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lar">
           </makeArtifact>
         </requiredProjects>
       </compileType>
@@ -14045,7 +13889,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
+          <commandlineTool>g++</commandlineTool>
           <incDir>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -14057,7 +13901,7 @@
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
             <pElem>../lar</pElem>
           </incDir>
-          <commandLine>-pipe -O2 -march=sandybridge -mtune=generic -mfpmath=sse -msse2avx -mavx -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=sandybridge -mtune=generic -mfpmath=sse -msse2avx -mavx -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>DTFM_TIMING_RESISTANT</Elem>
@@ -14074,7 +13918,6 @@
           <warningLevel>2</warningLevel>
         </ccTool>
         <linkerTool>
-          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx.nostats</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
@@ -14082,20 +13925,8 @@
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
-          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
+          <commandlineTool>g++</commandlineTool>
           <linkerLibItems>
-            <linkerLibProjectItem>
-              <makeArtifact PL="../ITCFramework"
-                            CT="3"
-                            CN="Debug"
-                            AC="true"
-                            BL="true"
-                            WD="../ITCFramework"
-                            BC="${MAKE}  -f Makefile CONF=Debug"
-                            CC="${MAKE}  -f Makefile CONF=Debug clean"
-                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitcframework.a">
-              </makeArtifact>
-            </linkerLibProjectItem>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCLib"
                             CT="3"
@@ -14121,7 +13952,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
+          <commandLine>-std=c++17 -pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -14136,23 +13967,23 @@
           </makeArtifact>
           <makeArtifact PL="../ITCLib"
                         CT="3"
-                        CN="Release.SSE2"
+                        CN="Debug"
                         AC="true"
                         BL="true"
                         WD="../ITCLib"
-                        BC="${MAKE}  -f Makefile CONF=Release.SSE2"
-                        CC="${MAKE}  -f Makefile CONF=Release.SSE2 clean"
-                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
-          </makeArtifact>
-          <makeArtifact PL="../ITCFramework"
-                        CT="3"
-                        CN="Debug"
-                        AC="true"
-                        BL="false"
-                        WD="../ITCFramework"
                         BC="${MAKE}  -f Makefile CONF=Debug"
                         CC="${MAKE}  -f Makefile CONF=Debug clean"
-                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitcframework.a">
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
+          </makeArtifact>
+          <makeArtifact PL="../lar"
+                        CT="1"
+                        CN="Release"
+                        AC="true"
+                        BL="false"
+                        WD="../lar"
+                        BC="${MAKE}  -f Makefile CONF=Release"
+                        CC="${MAKE}  -f Makefile CONF=Release clean"
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lar">
           </makeArtifact>
         </requiredProjects>
       </compileType>
@@ -15205,7 +15036,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
+          <commandlineTool>g++</commandlineTool>
           <incDir>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -15217,7 +15048,7 @@
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
             <pElem>../lar</pElem>
           </incDir>
-          <commandLine>-pipe -O2 -march=sandybridge -mtune=generic -mfpmath=sse -msse2avx -mavx -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=sandybridge -mtune=generic -mfpmath=sse -msse2avx -mavx -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>DTFM_TIMING_RESISTANT</Elem>
@@ -15233,7 +15064,6 @@
           <warningLevel>2</warningLevel>
         </ccTool>
         <linkerTool>
-          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lapps.avx.nostats.notls</output>
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
@@ -15241,20 +15071,8 @@
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
-          <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
+          <commandlineTool>g++</commandlineTool>
           <linkerLibItems>
-            <linkerLibProjectItem>
-              <makeArtifact PL="../ITCFramework"
-                            CT="3"
-                            CN="Debug"
-                            AC="true"
-                            BL="true"
-                            WD="../ITCFramework"
-                            BC="${MAKE}  -f Makefile CONF=Debug"
-                            CC="${MAKE}  -f Makefile CONF=Debug clean"
-                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitcframework.a">
-              </makeArtifact>
-            </linkerLibProjectItem>
             <linkerLibProjectItem>
               <makeArtifact PL="../ITCLib"
                             CT="3"
@@ -15280,7 +15098,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
+          <commandLine>-std=c++17 -pthread -flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -15295,23 +15113,23 @@
           </makeArtifact>
           <makeArtifact PL="../ITCLib"
                         CT="3"
-                        CN="Release.SSE2"
+                        CN="Debug"
                         AC="true"
                         BL="true"
                         WD="../ITCLib"
-                        BC="${MAKE}  -f Makefile CONF=Release.SSE2"
-                        CC="${MAKE}  -f Makefile CONF=Release.SSE2 clean"
-                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
-          </makeArtifact>
-          <makeArtifact PL="../ITCFramework"
-                        CT="3"
-                        CN="Debug"
-                        AC="true"
-                        BL="false"
-                        WD="../ITCFramework"
                         BC="${MAKE}  -f Makefile CONF=Debug"
                         CC="${MAKE}  -f Makefile CONF=Debug clean"
-                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitcframework.a">
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
+          </makeArtifact>
+          <makeArtifact PL="../lar"
+                        CT="1"
+                        CN="Release"
+                        AC="true"
+                        BL="false"
+                        WD="../lar"
+                        BC="${MAKE}  -f Makefile CONF=Release"
+                        CC="${MAKE}  -f Makefile CONF=Release clean"
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/lar">
           </makeArtifact>
         </requiredProjects>
       </compileType>

@@ -79,13 +79,11 @@ RUN env LD_LIBRARY_PATH=/usr/local/lib/mimalloc-1.6/ make all install
 
 WORKDIR ${WORKSPACE}
 
-RUN rm -rf ITCLib ITCFramework lar utils LAppS
+RUN rm -rf ITCLib lar utils LAppS
 
 RUN git clone https://github.com/ITpC/ITCLib.git
 
 RUN git clone https://github.com/ITpC/utils.git
-
-RUN git clone https://github.com/ITpC/ITCFramework.git
 
 RUN git clone https://github.com/ITpC/LAppS.git
 

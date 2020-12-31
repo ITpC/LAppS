@@ -6,7 +6,7 @@ then
 
   rm -f /opt/lapps/bin/lapps*
 
-  (cd ../ITCLib && git pull) && (cd ../ITCFramework && git pull) && \
+  (cd ../ITCLib && git pull) && \
   (cd ../utils && git pull) && (cd ../lar && git pull && make install) && git pull &&\
   make CONF=Release.AVX2 clean &&\
   make CONF=Release.AVX2 build install &&\
