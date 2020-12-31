@@ -44,7 +44,7 @@ extern "C" {
       lua_getglobal(L,"instance_id");
       const char *instance_id_str=lua_tostring(L,-1);
       size_t instance_id=0;
-      sscanf(instance_id_str, "%s", &instance_id);
+      sscanf(instance_id_str, "%z", &instance_id);
       try
       {
         mustStopAddr=LAppS::SServiceRegistry::getInstance()->findById(instance_id)->get_stop_flag_address();
