@@ -26,7 +26,7 @@
 
 #include <sys/types.h>
 #include <unistd.h>
-#include <TSLog.h>
+#include <itc_log_defs.h>
 #include <wsServer.h>
 #include <sys/Nanosleep.h>
 #include <HTTPRequestParser.h>
@@ -64,8 +64,7 @@ void startWSServer()
   {
     if(sigwait(&sigset, &signo) == 0)
     {
-      itc::getLog()->info(__FILE__,__LINE__,"Shutdown is initiated by signal %d, - server is going down",signo);
-      itc::getLog()->flush();
+      ITC_INFO(__FILE__,__LINE__,"Shutdown is initiated by signal %d, - server is going down",signo);
       LAppS::SServiceRegistry::getInstance()->clear();
 #ifdef LAPPS_TLS_ENABLE
   #ifdef STATS_ENABLE
@@ -92,7 +91,7 @@ void startWSServer()
 
 int main(int argc, char** argv)
 { 
-  itc::getLog()->info(__FILE__,__LINE__,"Starting LAppS");
+  ITC_INFO(__FILE__,__LINE__,"Starting LAppS",nullptr);
   
   if(argc > 1)
   {
@@ -112,7 +111,6 @@ int main(int argc, char** argv)
   }
   
       
-  itc::getLog()->info(__FILE__,__LINE__,"LAppS is down");
-  itc::getLog()->flush();
+  ITC_INFO(__FILE__,__LINE__,"LAppS is down",nullptr);
   return 0;
 }

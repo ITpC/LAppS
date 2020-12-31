@@ -63,21 +63,21 @@ namespace LAppS
     {
       for(auto& entry : fs::recursive_directory_iterator(mDeployDir))
       {
-        itc::getLog()->info(__FILE__,__LINE__,"Deploying: %s",entry.path().u8string().c_str());
+        ITC_INFO(__FILE__,__LINE__,"Deploying: {}",entry.path().u8string());
         try{
           deploy_archive(entry.path());
           std::error_code ec;
           if(!fs::remove(entry.path(),ec))
           {
-            itc::getLog()->info(__FILE__,__LINE__,"Archive %s is not removed, because of an error[%d]: %s",entry.path().c_str(),ec.value(),ec.message().c_str());
+            ITC_INFO(__FILE__,__LINE__,"Archive {} is not removed, because of an error[{}]: {}",entry.path().c_str(),ec.value(),ec.message().c_str());
           }
           else
           {
-            itc::getLog()->info(__FILE__,__LINE__,"Archive %s is removed",entry.path().c_str());
+            ITC_INFO(__FILE__,__LINE__,"Archive {} is removed",entry.path().u8string());
           }
         }catch(const std::exception& e)
         {
-          itc::getLog()->info(__FILE__,__LINE__,"Archive %s was not deployed. Reason: %s",entry.path().u8string().c_str(),e.what());
+          ITC_INFO(__FILE__,__LINE__,"Archive {} was not deployed. Reason: {}",entry.path().u8string(),e.what());
         }
       }
     }
@@ -100,10 +100,10 @@ namespace LAppS
           else
           {
             if(!fs::create_directory(tempdir))
-              itc::getLog()->error(__FILE__,__LINE__,"Can't create directory %s",tempdir.u8string().c_str());
+              ITC_ERROR(__FILE__,__LINE__,"Can't create directory {}",tempdir.u8string().c_str());
           }
           
-          itc::getLog()->info(__FILE__,__LINE__,"Unpacking archive %s",archive_name.u8string().c_str());
+          ITC_INFO(__FILE__,__LINE__,"Unpacking archive {}",archive_name.u8string().c_str());
           lar::LAR service_archive;
           try{
             service_archive.unpack(
@@ -169,7 +169,7 @@ namespace LAppS
     
     void deploy_service(const fs::path& dir, const json& service_config)
     {
-      itc::getLog()->info(__FILE__,__LINE__,"Deploying service: %s",dir.u8string().c_str());
+      ITC_INFO(__FILE__,__LINE__,"Deploying service: {}",dir.u8string().c_str());
       try
       {
         const bool standalone{service_config["standalone"]};
@@ -267,12 +267,11 @@ namespace LAppS
         }
       }
       catch(const std::exception& e){
-        itc::getLog()->error(
+        ITC_ERROR(
           __FILE__,__LINE__,
-          "Service is not configured properly (unpacked from archive) into dir [%s]. Exception [%s]",
+          "Service is not configured properly (unpacked from archive) into dir [{}]. Exception [{}]",
           dir.u8string().c_str(),e.what()
         );
-        itc::getLog()->flush();
         return;
       }
       
@@ -291,12 +290,11 @@ namespace LAppS
       }
       catch(const std::exception& e)
       {
-        itc::getLog()->error(
+        ITC_ERROR(
           __FILE__,__LINE__,
-          "Can't stop service %s, because of the exception: %s",
+          "Can't stop service {}, because of the exception: {}",
           service_name.c_str(), e.what()
         );
-        itc::getLog()->flush();
       }
     }
     
@@ -305,12 +303,12 @@ namespace LAppS
       if( LAppSConfig::getInstance()->getLAppSConfig()["services"].find(service_name) == 
           LAppSConfig::getInstance()->getLAppSConfig()["services"].end()
       ){
-        itc::getLog()->error(__FILE__,__LINE__,"Can't start service %s, - can't find the service descriptor in Config[lapps.json]",service_name.c_str());
+        ITC_ERROR(__FILE__,__LINE__,"Can't start service {}, - can't find the service descriptor in Config[lapps.json]",service_name.c_str());
         return;
       }
       try{
         SServiceRegistry::getInstance()->findByName(service_name);
-        itc::getLog()->info(__FILE__,__LINE__,"Service %s is already started",service_name.c_str());
+        ITC_INFO(__FILE__,__LINE__,"Service {} is already started",service_name.c_str());
         return;
       }catch(const std::exception& e)
       {
@@ -326,7 +324,7 @@ namespace LAppS
               {
                 if(sname != service_name)
                 {
-                  itc::getLog()->info(__FILE__,__LINE__,"Service %s is depending on the service: %s. Trying to start subordinate service ...",service_name.c_str(),sname.c_str());
+                  ITC_INFO(__FILE__,__LINE__,"Service {} is depending on the service: {}. Trying to start subordinate service ...",service_name.c_str(),sname.c_str());
                   this->start_service(sname);
                 }
               }
@@ -343,7 +341,7 @@ namespace LAppS
 
           mEnv.setEnv("LUA_PATH", mEnv["LUA_PATH"] + ";" + std::string(lua_module_path_extend.u8string().c_str()) + "/?.lua");
 
-          itc::getLog()->info(__FILE__,__LINE__,"Starting service %s with %zu instance(s)",service_name.c_str(),instances);    
+          ITC_INFO(__FILE__,__LINE__,"Starting service {} with {} instance(s)",service_name.c_str(),instances);    
           if(standalone)
           {  
             for(size_t i=0;i<instances;++i)
@@ -389,7 +387,7 @@ namespace LAppS
             {
               proto=ServiceProtocol::LAPPS;
             }else{
-              itc::getLog()->error(__FILE__,__LINE__,"Inappropriate protocol %s is configured for service %s",protocol.c_str(),service_name.c_str());
+              ITC_ERROR(__FILE__,__LINE__,"Inappropriate protocol {} is configured for service {}",protocol.c_str(),service_name.c_str());
               throw std::system_error(EINVAL,std::system_category(),"Unknown protocol is configured for service "+service_name);
             }
             
@@ -410,9 +408,9 @@ namespace LAppS
         }
         catch(const std::exception& e)
         {
-          itc::getLog()->error(
+          ITC_ERROR(
             __FILE__,__LINE__,
-            "Service [%s] is configured inappropriately in %s/lapps.json, - exception: %s.",
+            "Service [{}] is configured inappropriately in {}/lapps.json, - exception: {}.",
             service_name.c_str(),
             mEnv["LAPPS_CONF_DIR"].c_str(),
             e.what()
@@ -445,9 +443,9 @@ namespace LAppS
       if(ret == -1)
         throw std::system_error(errno,std::system_category(),"Deployer::Deployer(), exception on inotify_add_watch()");
       
-      itc::getLog()->info(__FILE__,__LINE__,"Deploying all services");
+      ITC_INFO(__FILE__,__LINE__,"Deploying all services",nullptr);
       deploy_all();
-      itc::getLog()->info(__FILE__,__LINE__,"Starting all services with auto_start enabled");
+      ITC_INFO(__FILE__,__LINE__,"Starting all services with auto_start enabled",nullptr);
       auto_start();
     }
     
@@ -468,7 +466,7 @@ namespace LAppS
         
         if(ret < 0)
         {
-          itc::getLog()->error(__FILE__,__LINE__,"Error on inotify read. Going down.");
+          ITC_ERROR(__FILE__,__LINE__,"Error on inotify read. Going down.",nullptr);
           mMayRun.store(false);
           break;
         }
@@ -484,11 +482,11 @@ namespace LAppS
           std::error_code ec;
           if(!fs::remove(archive_name,ec))
           {
-            itc::getLog()->info(__FILE__,__LINE__,"Archive %s is not removed, because of an error[%d]: %s",archive_name.c_str(),ec.value(),ec.message().c_str());
+            ITC_INFO(__FILE__,__LINE__,"Archive {} is not removed, because of an error[%d]: {}",archive_name.c_str(),ec.value(),ec.message().c_str());
           }
           else
           {
-            itc::getLog()->info(__FILE__,__LINE__,"Archive %s is removed",archive_name.c_str());
+            ITC_INFO(__FILE__,__LINE__,"Archive {} is removed",archive_name.c_str());
           }          
         }
         buffer.resize(buffer_size);

@@ -80,7 +80,6 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
-      <itemPath>src/getLog.cpp</itemPath>
       <itemPath>src/main.cpp</itemPath>
     </logicalFolder>
     <logicalFolder name="TestFiles"
@@ -126,7 +125,6 @@
         <ccTool>
           <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <incDir>
-            <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
             <pElem>include</pElem>
@@ -137,7 +135,7 @@
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
             <pElem>../lar</pElem>
           </incDir>
-          <commandLine>-pipe -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops -std=c++17</commandLine>
+          <commandLine>-pipe -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>DTFM_TIMING_RESISTANT</Elem>
@@ -203,7 +201,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2</commandLine>
+          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -241,6 +239,18 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -1263,8 +1273,6 @@
       </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="src/getLog.cpp" ex="false" tool="1" flavor2="0">
-      </item>
       <item path="src/main.cpp" ex="false" tool="1" flavor2="0">
       </item>
     </conf>
@@ -1279,7 +1287,6 @@
           <developmentMode>0</developmentMode>
           <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <incDir>
-            <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
             <pElem>include</pElem>
@@ -1355,7 +1362,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2</commandLine>
+          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -1393,6 +1400,18 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -2415,8 +2434,6 @@
       </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="src/getLog.cpp" ex="false" tool="1" flavor2="9">
-      </item>
       <item path="src/main.cpp" ex="false" tool="1" flavor2="9">
       </item>
     </conf>
@@ -2431,7 +2448,6 @@
           <developmentMode>0</developmentMode>
           <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <incDir>
-            <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
             <pElem>include</pElem>
@@ -2507,7 +2523,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2</commandLine>
+          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -2545,6 +2561,18 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -3567,8 +3595,6 @@
       </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="src/getLog.cpp" ex="false" tool="1" flavor2="9">
-      </item>
       <item path="src/main.cpp" ex="false" tool="1" flavor2="9">
       </item>
     </conf>
@@ -3583,7 +3609,6 @@
           <developmentMode>0</developmentMode>
           <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <incDir>
-            <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
             <pElem>include</pElem>
@@ -3658,7 +3683,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2</commandLine>
+          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -3696,6 +3721,18 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -4718,8 +4755,6 @@
       </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="src/getLog.cpp" ex="false" tool="1" flavor2="9">
-      </item>
       <item path="src/main.cpp" ex="false" tool="1" flavor2="9">
       </item>
     </conf>
@@ -4734,7 +4769,6 @@
           <developmentMode>0</developmentMode>
           <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <incDir>
-            <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
             <pElem>include</pElem>
@@ -4808,7 +4842,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2</commandLine>
+          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -4846,6 +4880,18 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -5868,8 +5914,6 @@
       </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="src/getLog.cpp" ex="false" tool="1" flavor2="9">
-      </item>
       <item path="src/main.cpp" ex="false" tool="1" flavor2="9">
       </item>
     </conf>
@@ -5884,7 +5928,6 @@
           <developmentMode>0</developmentMode>
           <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <incDir>
-            <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
             <pElem>include</pElem>
@@ -5959,7 +6002,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2</commandLine>
+          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -5997,6 +6040,18 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -7019,8 +7074,6 @@
       </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="src/getLog.cpp" ex="false" tool="1" flavor2="9">
-      </item>
       <item path="src/main.cpp" ex="false" tool="1" flavor2="9">
       </item>
     </conf>
@@ -7035,7 +7088,6 @@
           <developmentMode>0</developmentMode>
           <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <incDir>
-            <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
             <pElem>include</pElem>
@@ -7109,7 +7161,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2</commandLine>
+          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -8023,6 +8075,18 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -8169,8 +8233,6 @@
       </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="src/getLog.cpp" ex="false" tool="1" flavor2="9">
-      </item>
       <item path="src/main.cpp" ex="false" tool="1" flavor2="9">
       </item>
     </conf>
@@ -8185,7 +8247,6 @@
           <developmentMode>0</developmentMode>
           <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <incDir>
-            <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
             <pElem>include</pElem>
@@ -8259,7 +8320,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2</commandLine>
+          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -9173,6 +9234,18 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
         <packInfoList>
           <packInfoListElem name="Package" value="lapps" mandatory="true"/>
@@ -9319,8 +9392,6 @@
       </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="src/getLog.cpp" ex="false" tool="1" flavor2="9">
-      </item>
       <item path="src/main.cpp" ex="false" tool="1" flavor2="9">
       </item>
     </conf>
@@ -9335,7 +9406,6 @@
           <developmentMode>0</developmentMode>
           <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <incDir>
-            <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
             <pElem>include</pElem>
@@ -9411,7 +9481,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2</commandLine>
+          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -9449,6 +9519,18 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -10471,8 +10553,6 @@
       </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="src/getLog.cpp" ex="false" tool="1" flavor2="9">
-      </item>
       <item path="src/main.cpp" ex="false" tool="1" flavor2="9">
       </item>
     </conf>
@@ -10487,7 +10567,6 @@
           <developmentMode>0</developmentMode>
           <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <incDir>
-            <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
             <pElem>include</pElem>
@@ -10562,7 +10641,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2</commandLine>
+          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -10600,6 +10679,18 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -11622,8 +11713,6 @@
       </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="src/getLog.cpp" ex="false" tool="1" flavor2="9">
-      </item>
       <item path="src/main.cpp" ex="false" tool="1" flavor2="9">
       </item>
     </conf>
@@ -11638,7 +11727,6 @@
           <developmentMode>0</developmentMode>
           <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <incDir>
-            <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
             <pElem>include</pElem>
@@ -11712,7 +11800,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2</commandLine>
+          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -11750,6 +11838,18 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -12772,8 +12872,6 @@
       </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="src/getLog.cpp" ex="false" tool="1" flavor2="9">
-      </item>
       <item path="src/main.cpp" ex="false" tool="1" flavor2="9">
       </item>
     </conf>
@@ -12788,7 +12886,6 @@
           <developmentMode>0</developmentMode>
           <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <incDir>
-            <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
             <pElem>include</pElem>
@@ -12864,7 +12961,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2</commandLine>
+          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -12902,6 +12999,18 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -13924,8 +14033,6 @@
       </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="src/getLog.cpp" ex="false" tool="1" flavor2="9">
-      </item>
       <item path="src/main.cpp" ex="false" tool="1" flavor2="9">
       </item>
     </conf>
@@ -13940,7 +14047,6 @@
           <developmentMode>0</developmentMode>
           <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <incDir>
-            <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
             <pElem>include</pElem>
@@ -14015,7 +14121,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2</commandLine>
+          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -14053,6 +14159,18 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -15075,8 +15193,6 @@
       </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="src/getLog.cpp" ex="false" tool="1" flavor2="9">
-      </item>
       <item path="src/main.cpp" ex="false" tool="1" flavor2="9">
       </item>
     </conf>
@@ -15091,7 +15207,6 @@
           <developmentMode>0</developmentMode>
           <commandlineTool>g++ -std=c++17 -pthread</commandlineTool>
           <incDir>
-            <pElem>../ITCFramework/include</pElem>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
             <pElem>include</pElem>
@@ -15165,7 +15280,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2</commandLine>
+          <commandLine>-flto -lwolfssl -lpam -lmimalloc -lluajit-5.1 -lstdc++fs -lbz2 -lfmt</commandLine>
         </linkerTool>
         <requiredProjects>
           <makeArtifact PL="../utils"
@@ -15203,6 +15318,18 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -16224,8 +16351,6 @@
       <item path="include/wolfSSLLib.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="src/getLog.cpp" ex="false" tool="1" flavor2="9">
       </item>
       <item path="src/main.cpp" ex="false" tool="1" flavor2="9">
       </item>

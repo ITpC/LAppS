@@ -296,7 +296,7 @@ namespace LAppS
     
     const bool onMessage(const AppInEvent& event, const itc::utils::Int2Type<ServiceProtocol::INTERNAL>& protocol_is_internal)
     {
-      itc::getLog()->error(__FILE__,__LINE__,"Internal protocol is not allowed for Reactive Services");
+      ITC_ERROR(__FILE__,__LINE__,"Internal protocol is not allowed for Reactive Services",nullptr);
       return false;
     }
     void init()
@@ -308,21 +308,21 @@ namespace LAppS
       
       if(require(this->getName()))
       {
-        itc::getLog()->info(__FILE__,__LINE__,"Lua service [%s] is registered",this->getName().c_str());
+        ITC_INFO(__FILE__,__LINE__,"Lua service [{}] is registered",this->getName().c_str());
         if(isServiceModuleValid())
         {
-          itc::getLog()->info(
+          ITC_INFO(
             __FILE__,__LINE__,
-            "Lua service [%s] is a valid application (e.a. provides required methods, though there is no warranty it works properly)",
+            "Lua service [{}] is a valid application (e.a. provides required methods, though there is no warranty it works properly)",
             this->getName().c_str()
           );
           try {
             this->startService();
           }catch(const std::exception& e)
           {
-            itc::getLog()->error(
+            ITC_ERROR(
               __FILE__,__LINE__,
-              "Unable to start application %s, because of an exception: %s",
+              "Unable to start application {}, because of an exception: {}",
               this->getName().c_str(),e.what()
             );
             throw;
@@ -330,7 +330,7 @@ namespace LAppS
         }
         else
         {
-          itc::getLog()->error(__FILE__,__LINE__,"Lua service [%s] is not a valid LAppS application",this->getName().c_str());
+          ITC_ERROR(__FILE__,__LINE__,"Lua service [{}] is not a valid LAppS application",this->getName().c_str());
           throw std::logic_error("Invalid application "+this->getName());
         }
       }
@@ -344,9 +344,9 @@ namespace LAppS
       {
         try{
           shutdownService();
-          itc::getLog()->info(__FILE__,__LINE__,"Service-module [%s] is down",this->getName().c_str());
+          ITC_INFO(__FILE__,__LINE__,"Service-module [{}] is down",this->getName().c_str());
         }catch(const std::exception& e){
-          itc::getLog()->error(__FILE__,__LINE__,"Can't stop Service-module [%s], exception: %s",this->getName().c_str(),e.what());
+          ITC_ERROR(__FILE__,__LINE__,"Can't stop Service-module [{}], exception: {}",this->getName().c_str(),e.what());
         }
       }
     }

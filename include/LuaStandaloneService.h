@@ -50,11 +50,11 @@ namespace LAppS
           mContext.run();
         }catch(const std::exception& e)
         {
-          itc::getLog()->error(__FILE__,__LINE__,"Runtime error in service %s: %s",mContext.getName().c_str(),e.what());
+          ITC_ERROR(__FILE__,__LINE__,"Runtime error in service {}: {}",mContext.getName().c_str(),e.what());
         }
       }catch(const std::exception& e)
       {
-        itc::getLog()->error(__FILE__,__LINE__,"Exception on initialization of service %s: %s",mContext.getName().c_str(),e.what());
+        ITC_ERROR(__FILE__,__LINE__,"Exception on initialization of service {}: {}",mContext.getName().c_str(),e.what());
       }
       
     }
@@ -81,9 +81,9 @@ namespace LAppS
     
     void shutdown()
     {
-      itc::getLog()->info(__FILE__,__LINE__,"Shutdown is requested for the instance %zu of the service %s",this->getInstanceId(), mContext.getName().c_str());
+      ITC_INFO(__FILE__,__LINE__,"Shutdown is requested for the instance {} of the service {}",this->getInstanceId(), mContext.getName().c_str());
       mContext.stop();
-      itc::getLog()->info(__FILE__,__LINE__,"Instance %zu of the service %s is down",this->getInstanceId(), mContext.getName().c_str());
+      ITC_INFO(__FILE__,__LINE__,"Instance {} of the service {} is down",this->getInstanceId(), mContext.getName().c_str());
     }
     
     const ::LAppS::ServiceLanguage getLanguage() const

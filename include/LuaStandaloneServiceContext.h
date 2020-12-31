@@ -44,7 +44,7 @@ extern "C" {
       lua_getglobal(L,"instance_id");
       const char *instance_id_str=lua_tostring(L,-1);
       size_t instance_id=0;
-      sscanf(instance_id_str, "%zu", &instance_id);
+      sscanf(instance_id_str, "{}", &instance_id);
       try
       {
         mustStopAddr=LAppS::SServiceRegistry::getInstance()->findById(instance_id)->get_stop_flag_address();
@@ -114,9 +114,9 @@ namespace LAppS
       
       if(require(this->getName()))
       {
-        itc::getLog()->info(
+        ITC_INFO(
           __FILE__,__LINE__,
-          "Lua standalone Service-Module %s is registered",
+          "Lua standalone Service-Module {} is registered",
           this->getName().c_str()
         );
         
@@ -130,16 +130,16 @@ namespace LAppS
         }
         else
         {
-          itc::getLog()->info(
+          ITC_INFO(
             __FILE__,__LINE__,
-            "%s is a valid standalone Service (e.a. provides required methods, though there is no warranty it works properly).",
+            "{} is a valid standalone Service (e.a. provides required methods, though there is no warranty it works properly).",
             this->getName().c_str()
           );
         }
       }
       else
       {
-        itc::getLog()->error(__FILE__,__LINE__,"Can't load Service %s, it is either does not exist or invalid",this->getName().c_str());
+        ITC_ERROR(__FILE__,__LINE__,"Can't load Service {}, it is either does not exist or invalid",this->getName().c_str());
         throw std::logic_error("Invalid Service "+this->getName());
       }
       
@@ -159,7 +159,7 @@ namespace LAppS
       int ret = lua_pcall(mLState, 0, 0, 0);
       checkForLuaErrorsOnPcall(ret,"init");
       cleanLuaStack();
-      itc::getLog()->info(__FILE__,__LINE__,"Application instance [%s] is initialized",this->getName().c_str());
+      ITC_INFO(__FILE__,__LINE__,"Application instance [{}] is initialized",this->getName().c_str());
     }
     
     void stop()
@@ -176,11 +176,10 @@ namespace LAppS
         checkForLuaErrorsOnPcall(ret,"run");
       } catch (const std::exception& e)
       {
-        itc::getLog()->error(__FILE__,__LINE__,"Runtime exception in service [%s] in context::run(): %s",this->getName().c_str(),e.what());
+        ITC_ERROR(__FILE__,__LINE__,"Runtime exception in service [{}] in context::run(): {}",this->getName().c_str(),e.what());
       }
       cleanLuaStack();
-      itc::getLog()->info(__FILE__,__LINE__,"Service context [%s] is down",this->getName().c_str());
-      itc::getLog()->flush();
+      ITC_INFO(__FILE__,__LINE__,"Service context [{}] is down",this->getName().c_str());
       mCanStop.store(true);
     }
     

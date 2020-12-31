@@ -39,9 +39,8 @@
 #include <TCPListener.h>
 #include <abstract/IView.h>
 #include <sys/CancelableThread.h>
-#include <ThreadPoolManager.h>
 #include <sys/Nanosleep.h>
-#include <TSLog.h>
+#include <itc_log_defs.h>
 
 // Extra external headers
 #include <ext/json.hpp>
@@ -115,7 +114,7 @@ namespace LAppS
         for(size_t i=0;i<max_listeners;++i)
         {
 
-          itc::getLog()->trace(__FILE__,__LINE__,"wsServer creating a listener %zu",i);
+          ITC_TRACE(__FILE__,__LINE__,"wsServer creating a listener {}",i);
 
           auto balancer=std::make_shared<LAppS::Balancer<TLSEnable,StatsEnable>>(LAppSConfig::getInstance()->getWSConfig()["connection_weight"]);
           mBalancersPool.push_back(balancer);
@@ -149,8 +148,7 @@ namespace LAppS
         }
       }catch(const std::exception& e)
       {
-        itc::getLog()->fatal(__FILE__,__LINE__,"Caught an exception: %s. Abort.",e.what());
-        itc::getLog()->flush();
+        ITC_FATAL(__FILE__,__LINE__,"Caught an exception: {}. Abort.",e.what());
         exit(1);
       }
     }
@@ -162,7 +160,7 @@ namespace LAppS
         LAppSConfig::getInstance()->getWSConfig()["connection_weight"]
       ), mWorkers(1), mDeployer{std::make_shared<DeployerType>()}
     {
-        itc::getLog()->info(__FILE__,__LINE__,"Starting WS Server");
+        ITC_INFO(__FILE__,__LINE__,"Starting WS Server",nullptr);
                 
         const bool is_tls_enabled=LAppSConfig::getInstance()->getWSConfig()["tls"];
 
@@ -200,7 +198,7 @@ namespace LAppS
           }
           else
           {
-            itc::getLog()->error(__FILE__,__LINE__,"workers.max_connections option is not set or of inappropriate type, using default value: %zu",max_connections);
+            ITC_ERROR(__FILE__,__LINE__,"workers.max_connections option is not set or of inappropriate type, using default value: {}",max_connections);
           }
           auto auto_fragment_found=found.value().find("auto_fragment");
           if((auto_fragment_found!=found.value().end())&&(auto_fragment_found.value().is_boolean()))
@@ -209,7 +207,7 @@ namespace LAppS
           }
           else
           {
-            itc::getLog()->error(__FILE__,__LINE__,"workers.auto_fragment option is not set or of inappropriate type, using default value: false");
+            ITC_ERROR(__FILE__,__LINE__,"workers.auto_fragment option is not set or of inappropriate type, using default value: false",nullptr);
           }
         }
         
@@ -223,8 +221,7 @@ namespace LAppS
 
     ~wsServer()
     {
-      itc::getLog()->info(__FILE__,__LINE__,"wsServer is down");
-      itc::getLog()->flush();
+      ITC_INFO(__FILE__,__LINE__,"wsServer is down",nullptr);
     }
   };
 }

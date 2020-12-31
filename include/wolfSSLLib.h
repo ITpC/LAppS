@@ -36,7 +36,7 @@
  #define logWOLFSSLError(x,y)\
       char buffer[80];\
       auto err=wolfSSL_get_error(TLSSocket,x);\
-      itc::getLog()->error(__FILE__,__LINE__,y" %d - %s", err, wolfSSL_ERR_error_string(err,buffer));
+      ITC_ERROR(__FILE__,__LINE__,y" %d - {}", err, wolfSSL_ERR_error_string(err,buffer));
       
 
 enum TLSContextType : bool { TLS_SERVER, TLS_CLIENT };
@@ -135,7 +135,7 @@ public:
            break;
        }
        
-       itc::getLog()->error(__FILE__,__LINE__,"%s",errmsg.c_str());
+       ITC_ERROR(__FILE__,__LINE__,"{}",errmsg.c_str());
        
        throw std::system_error(EINVAL,std::system_category(),errmsg);
      }

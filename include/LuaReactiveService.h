@@ -168,7 +168,7 @@ namespace LAppS
       }
       catch (const std::exception& e)
       {
-        itc::getLog()->error(__FILE__,__LINE__,"Can't enqueue request to application %s, exception: %s",this->getName().c_str(),e.what());
+        ITC_ERROR(__FILE__,__LINE__,"Can't enqueue request to application {}, exception: {}",this->getName().c_str(),e.what());
       }
     }
     
@@ -188,7 +188,7 @@ namespace LAppS
         }catch(const std::exception& e)
         {
           mMayRun.store(false);
-          itc::getLog()->info(__FILE__,__LINE__,"Instance [%zu] of the service [%s] is going down",this->getInstanceId(),this->getName().c_str());
+          ITC_INFO(__FILE__,__LINE__,"Instance [{}] of the service [{}] is going down",this->getInstanceId(),this->getName().c_str());
           break;
         }
         try
@@ -222,7 +222,7 @@ namespace LAppS
                 const bool exec_result=mContext.onMessage(event);
                 if(!exec_result)
                 {
-                  itc::getLog()->info(__FILE__,__LINE__,"The context for instance [%zu] of service [%s] is down.",getInstanceId(), this->getName().c_str());
+                  ITC_INFO(__FILE__,__LINE__,"The context for instance [{}] of service [{}] is down.",getInstanceId(), this->getName().c_str());
                   mMayRun.store(false);
                 }
               }
@@ -231,11 +231,10 @@ namespace LAppS
         }catch(const std::exception& e)
         {
           mMayRun.store(false);
-          itc::getLog()->error(__FILE__,__LINE__,"Exception in the instance [%zu] of service [%s]::execute(): %s",getInstanceId(), this->getName().c_str(),e.what());
-          itc::getLog()->flush();
+          ITC_ERROR(__FILE__,__LINE__,"Exception in the instance [{}] of service [{}]::execute(): {}",getInstanceId(), this->getName().c_str(),e.what());
         }
       }
-      itc::getLog()->info(__FILE__,__LINE__,"Instance [%zu] of the service [%s]: execution finished",getInstanceId(), this->getName().c_str());
+      ITC_INFO(__FILE__,__LINE__,"Instance [{}] of the service [{}]: execution finished",getInstanceId(), this->getName().c_str());
       mCanStop.store(true);
     }
   };

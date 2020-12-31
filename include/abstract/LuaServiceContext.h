@@ -141,10 +141,10 @@ namespace LAppS
         try{
           checkForLuaErrorsOnRequire(ret,module_name.c_str());
           lua_setfield(mLState, LUA_GLOBALSINDEX, module_name.c_str());
-          itc::getLog()->info(__FILE__,__LINE__,"Service-module [%s] is initialized",this->getName().c_str());
+          ITC_INFO(__FILE__,__LINE__,"Service-module [{}] is initialized",this->getName().c_str());
         }catch(const std::exception& e)
         {
-          itc::getLog()->error(__FILE__,__LINE__,"Can't load Service-module [%s], exception: %s",this->getName().c_str(), e.what());
+          ITC_ERROR(__FILE__,__LINE__,"Can't load Service-module [{}], exception: {}",this->getName().c_str(), e.what());
           cleanLuaStack();
           return false;
         }
@@ -169,18 +169,14 @@ namespace LAppS
           switch(ret)
           {
             case LUA_ERRRUN:
-              itc::getLog()->flush();
               throw std::runtime_error(std::string("Lua runtime error on "+on+" "+module_or_method+": ")+std::string(lua_tostring(mLState,lua_gettop(mLState))));
               break;
             case LUA_ERRMEM:
-              itc::getLog()->flush();
               throw std::system_error(ENOMEM,std::system_category(),"Not enough memory to "+on+" "+module_or_method+": "+std::string(lua_tostring(mLState,lua_gettop(mLState))));
             case LUA_ERRERR:
-              itc::getLog()->flush();
               throw std::logic_error("Error in lua error handler on "+on+" "+module_or_method+": "+std::string(lua_tostring(mLState,lua_gettop(mLState))));
               break;
             default:
-              itc::getLog()->flush();
               throw std::system_error(EINVAL,std::system_category(),"Unknown error on lua_pcall()");
           }
         }
@@ -206,7 +202,7 @@ namespace LAppS
           }
         }catch(const std::exception& e)
         {
-          itc::getLog()->error(__FILE__,__LINE__,"An exception %s is risen on modules preload for service %s", e.what(), this->getName().c_str());
+          ITC_ERROR(__FILE__,__LINE__,"An exception {} is risen on modules preload for service {}", e.what(), this->getName().c_str());
         }
       }
       

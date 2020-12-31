@@ -91,11 +91,11 @@ namespace LAppS
               {
                 if(app->filterIP(wssocket->getPeerIP()))
                 {
-                  itc::getLog()->info(
+                  ITC_INFO(
                     __FILE__,
                     __LINE__,
-                    "Connection from %s to %s has been filtered according to ACL",
-                    wssocket->getPeerAddress().c_str(),app->getName().c_str()
+                    "Connection from {} to {} has been filtered according to ACL",
+                    wssocket->getPeerAddress().c_str(),app->getName()
                   );
                   wssocket->send(forbidden);
                   wssocket->close();
@@ -107,9 +107,9 @@ namespace LAppS
               }
               else
               {
-                itc::getLog()->error(
+                ITC_ERROR(
                   __FILE__,__LINE__,
-                  "Can't send OK response for the protocol upgrade after handshake to peer %s. Closing this WebSocket",
+                  "Can't send OK response for the protocol upgrade after handshake to peer {}. Closing this WebSocket",
                   wssocket->getPeerAddress().c_str()
                 );
 
@@ -118,18 +118,18 @@ namespace LAppS
               }
             }catch(const std::exception& e)
             {
-              itc::getLog()->error(
+              ITC_ERROR(
                 __FILE__,__LINE__,
-                "Exception on handshake with peer %s: %s",
+                "Exception on handshake with peer {}: {}",
                 wssocket->getPeerAddress().c_str(),e.what()
               );
               wssocket->close();
               return;
             }
           }else{
-            itc::getLog()->error(
+            ITC_ERROR(
               __FILE__,__LINE__,
-              "Shakespeer::handshake() was unsuccessful for peer %s. Received %u bytes. Header Content: %s.",
+              "Shakespeer::handshake() was unsuccessful for peer {}. Received %u bytes. Header Content: {}.",
               wssocket->getPeerAddress().c_str(), received, headerBuffer.data()
             );
             wssocket->send(forbidden);
@@ -140,7 +140,7 @@ namespace LAppS
         else
         {
           wssocket->close();
-          itc::getLog()->info(
+          ITC_INFO(
             __FILE__,__LINE__,
             "Communication error on handshake with peer on fd %d. Closing this WebSocket",
             wssocket->getfd()
@@ -178,7 +178,7 @@ namespace LAppS
           }
        }catch(const std::exception& e)
        {
-         itc::getLog()->error(__FILE__,__LINE__,"Worker %p: an exception %s, in %s()",this, e.what(),__FUNCTION__);
+         ITC_ERROR(__FILE__,__LINE__,"Worker %p: an exception {}, in {}()",(void*)this, e.what(),__FUNCTION__);
          return false;
        }
       }
@@ -216,7 +216,7 @@ namespace LAppS
             allow_protocols.append("LAppS");
             break;
           default:
-            itc::getLog()->error(__FILE__,__LINE__,"Shakespeer::prepareOKResponse(proto), - proto is invalid. Must be one or two: RAW, LAPPS");
+            ITC_ERROR(__FILE__,__LINE__,"Shakespeer::prepareOKResponse(proto), - proto is invalid. Must be one or two: RAW, LAPPS",nullptr);
             break;
         }
 

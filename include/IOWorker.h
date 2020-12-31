@@ -164,7 +164,7 @@ namespace LAppS
             }
           }catch(const std::exception& e)
           {
-            itc::getLog()->error(__FILE__,__LINE__,"Exception: %s", e.what());
+            ITC_ERROR(__FILE__,__LINE__,"Exception: {}", e.what());
             mMayRun.store(false);
           }
         }
@@ -202,9 +202,9 @@ namespace LAppS
 
       if(mConnections.size()<mMaxConnections)
       {
-          itc::getLog()->info(
+          ITC_INFO(
           __FILE__,__LINE__,
-          "New inbound connection from %s with fd %d will be added to connection pool of worker %u ",
+          "New inbound connection from {} with fd {} will be added to connection pool of worker {} ",
           current->getPeerAddress().c_str(),fd,ID
         );
         mConnections.emplace(fd,std::move(current));
@@ -213,9 +213,9 @@ namespace LAppS
       else
       {
         mShakespeer.sendForbidden(current);
-        itc::getLog()->error(
+        ITC_ERROR(
           __FILE__,__LINE__,
-          "Too many connections, new connection from %s on fd %d is rejected",
+          "Too many connections, new connection from {} on fd %d is rejected",
           current->getPeerAddress().c_str(),fd
         );
       }
@@ -254,7 +254,7 @@ namespace LAppS
           }
         }catch(const std::exception& e)
         {
-          itc::getLog()->error(__FILE__,__LINE__,"Connection became invalid before handshake. Exception: %s",e.what());
+          ITC_ERROR(__FILE__,__LINE__,"Connection became invalid before handshake. Exception: {}",e.what());
         }
       }
       
@@ -271,13 +271,13 @@ namespace LAppS
                 int ret=current->handleInput();
                 if(ret == -1)
                 {
-                  itc::getLog()->info(__FILE__,__LINE__,"Disconnected: %s",current->getPeerAddress().c_str());
+                  ITC_INFO(__FILE__,__LINE__,"Disconnected: {}",current->getPeerAddress().c_str());
                   deleteConnection(fd);
                 }
               }
               catch(const std::exception& e)
               {
-                itc::getLog()->info(__FILE__,__LINE__,"Application is going down [Exception: %s], socket with fd %d must be disconnected ", e.what(),current->getfd());
+                ITC_INFO(__FILE__,__LINE__,"Application is going down [Exception: {}], socket with fd %d must be disconnected ", e.what(),current->getfd());
                 deleteConnection(fd);
               }
             break;
@@ -288,7 +288,7 @@ namespace LAppS
                 mShakespeer.handshake(current,*LAppS::SServiceRegistry::getInstance());
                 if(current->getState() !=WSType::MESSAGING)
                 {
-                  itc::getLog()->error(__FILE__,__LINE__,"Handshake with the peer %s has been failed. Disconnecting.", current->getPeerAddress().c_str());
+                  ITC_ERROR(__FILE__,__LINE__,"Handshake with the peer {} has been failed. Disconnecting.", current->getPeerAddress());
                   deleteConnection(fd);
                 }
             break;

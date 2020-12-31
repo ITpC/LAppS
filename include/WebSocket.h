@@ -384,7 +384,7 @@ private:
   {
     if(mState!=State::MESSAGING)
     {
-      itc::getLog()->error(__FILE__,__LINE__,"WebSocket::processInput(), not in messaging state");
+      ITC_ERROR(__FILE__,__LINE__,"WebSocket::processInput(), not in messaging state",nullptr);
       return;
     }
     
@@ -430,7 +430,7 @@ private:
     if(sz == 0) return; // exclude 0-size messages;
 
     mStats.mBytesIn+=sz;
-    auto InCMASize=mStats.mBytesIn/mStats.mInMessageCount;
+    //auto InCMASize=mStats.mBytesIn/mStats.mInMessageCount;
     //streamProcessor.setMessageBufferSize(InCMASize);
   }
   
@@ -519,10 +519,10 @@ private:
     }
     catch(const std::exception& e)
     {
-      itc::getLog()->info(
+      ITC_INFO(
         __FILE__,
         __LINE__,
-        "Can not send close frame to %s, due to exception [%s]. Probable causes are the peer disconnect or a service going down.",
+        "Can not send close frame to {}, due to exception [{}]. Probable causes are the peer disconnect or a service going down.",
         mPeerAddress.c_str(),e.what()
       );
     }
