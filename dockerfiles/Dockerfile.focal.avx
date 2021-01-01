@@ -4,6 +4,10 @@ LABEL "localhost" "Pavel Kraynyukhov" version 1.0  maintainer "pavel.kraynyukhov
 
 ARG DEBIAN_FRONTEND=noninteractive
 
+RUN add-apt-repository universe \
+  && sudo apt update \
+  && sudo apt install libfmt-dev
+
 RUN apt-get update \
 	&& apt-get dist-upgrade -y 
 
@@ -28,8 +32,6 @@ RUN apt-get install -y autotools-dev
 RUN apt-get install -y libpam0g-dev
 
 RUN apt-get install -y libbz2-dev
-
-RUN apt-get install -y libfmt-dev
 
 RUN apt-get install -y autoconf
 
