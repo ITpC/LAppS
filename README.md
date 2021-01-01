@@ -1,4 +1,9 @@
 
+<a href="https://scan.coverity.com/projects/itpc-lapps">
+  <img alt="Coverity Scan Build Status"
+       src="https://scan.coverity.com/projects/14982/badge.svg"/>
+</a>
+
 # LAppS - Lua Application Server
 
 This is an attempt to provide very easy to use Lua Application Server working over WebSockets protocol (RFC 6455). LAppS is an application server for micro-services architecture. It is build to be highly scalable vertically. The docker cloud infrastructure (kubernetes or swarm) shall be used for horizontal scaling. LAppS has [most scallable WebSockets server](https://habr.com/ru/post/460847/) out there.
