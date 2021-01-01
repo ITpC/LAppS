@@ -59,6 +59,7 @@ Roadmap will be ready soon. Next releases will include:
 # Dependencies
   * wolfSSL-4.5.0-stable
   * luajit-2.0.5 or higher
+  * libfmt (for log-formatting)
 
 Optional
 
@@ -68,5 +69,5 @@ Optional
 
 
 # Prerequisites
-  * GCC Version greater then 7
+  * GCC or Clang with C++17 support
 
