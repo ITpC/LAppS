@@ -62,9 +62,9 @@ Roadmap will be ready soon. Next releases will include:
   * Support for services written in Python, PHP and JavaScript
 
 # Dependencies
-  * wolfSSL-4.5.0-stable
-  * luajit-2.0.5 or higher
-  * libfmt (for log-formatting)
+  * wolfSSL-4.5.0-stable (or later version)
+  * luajit-2.0.5 or latere version
+  * libfmt-7.1.3 or later version for log-formatting
 
 Optional
 
