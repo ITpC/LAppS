@@ -48,6 +48,7 @@ extern "C" {
     return (events & EPOLLIN);
   }
   
+/* unused functions. prevent worning
   static const bool is_out_event(const uint32_t events)
   {
     return (events & EPOLLOUT);
@@ -57,7 +58,7 @@ extern "C" {
   {
     return (events & (EPOLLIN|EPOLLOUT));
   }
-  
+*/    
   static void clearStack(lua_State *L)
   {
     lua_pop(L,lua_gettop(L));
