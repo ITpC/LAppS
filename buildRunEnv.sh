@@ -36,7 +36,7 @@ then
 
   export VERSION=$(cat ./VERSION)
 
-  sed -e "s/XX_VERSION_XX/$VERSION/g;s/MTUNE/$BUILD/g;s/XX_UBUNTU__XX/$UBUNTU/g" dockerfiles/Dockerfile.lapps-runenv.template > dockerfiles/Dockerfiles.lapps-runenv.${VERSION}.${UBUNTU}.${BUILD}
+  sed -e "s/XX_VERSION_XX/$VERSION/g;s/MTUNE/$BUILD/g;s/XX_UBUNTU__XX/$UBUNTU/g" dockerfiles/Dockerfile.lapps-runenv.template > dockerfiles/Dockerfile.lapps-runenv.${VERSION}.${UBUNTU}.${BUILD}
 
   docker build -t lapps:runenv.${VERSION}.${UBUNTU}.${BUILD} -f dockerfiles/Dockerfile.lapps-runenv.${VERSION}.${UBUNTU}.${BUILD} --force-rm  .
 

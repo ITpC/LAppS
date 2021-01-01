@@ -24,3 +24,4 @@ dockerfiles/Dockerfile.lapps-runenv.template.focal.avx2
 dockerfiles/Dockerfile.lapps-runenv.template.focal.sse2
 dockerfiles/Dockerfile.lapps-runenv.template.focal.ssse3
 cov-int*
+dockerfiles/Dockerfiles.lapps-runenv.[^t]*
