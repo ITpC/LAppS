@@ -83,7 +83,7 @@ RUN tar xzvf 7.1.3.tar.gz
 
 WORKDIR ${WORKSPACE}/fmt-7.1.3
 
-RUN cmake && make && make install
+RUN cmake . && make && make install
 
 WORKDIR ${WORKSPACE}
 
