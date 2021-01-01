@@ -61,7 +61,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
 : public abstract::WebSocket
 {
  public:
-  std::shared_ptr<abstract::WebSocket> get_shared()
+  std::shared_ptr<abstract::WebSocket> get_shared() final
   {
     return this->shared_from_this();
   }

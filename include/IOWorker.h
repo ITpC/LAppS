@@ -177,7 +177,7 @@ namespace LAppS
       mCanStop.store(true);
     }
 
-    void shutdown()
+    void shutdown() final
     {
       mMayRun.store(false);
       bool expected=true;

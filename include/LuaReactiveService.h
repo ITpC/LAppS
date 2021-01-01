@@ -121,7 +121,7 @@ namespace LAppS
       return mMayRun.load()&&(!mCanStop.load());
     }
     
-    const bool isDown() const
+    const bool isDown() const final
     {
       return mCanStop.load();
     }
@@ -156,7 +156,7 @@ namespace LAppS
       this->shutdown();
     }
     
-    void shutdown()
+    void shutdown() final
     {
        mMayRun.store(false);
     }

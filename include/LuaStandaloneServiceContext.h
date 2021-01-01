@@ -44,7 +44,7 @@ extern "C" {
       lua_getglobal(L,"instance_id");
       const char *instance_id_str=lua_tostring(L,-1);
       size_t instance_id=0;
-      sscanf(instance_id_str, "%z", &instance_id);
+      sscanf(instance_id_str, "%zu", &instance_id);
       try
       {
         mustStopAddr=LAppS::SServiceRegistry::getInstance()->findById(instance_id)->get_stop_flag_address();
@@ -71,7 +71,7 @@ namespace LAppS
     std::atomic<bool> mMustStop;
     
     
-    const bool isServiceModuleValid()
+    const bool isServiceModuleValid() final
     {
       bool ret=false;
 
@@ -150,7 +150,7 @@ namespace LAppS
       return &mMustStop;
     }
     
-    void init()
+    void init() final
     {
       mMustStop.store(false);
       mCanStop.store(false);
@@ -193,7 +193,7 @@ namespace LAppS
       return !mCanStop.load();
     }
     
-    void shutdown()
+    void shutdown() final
     {
       if(isRunning())
       {

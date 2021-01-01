@@ -454,7 +454,7 @@ namespace LAppS
     ~Deployer(){shutdown();}
     
     void onCancel() {}
-    void shutdown() {mMayRun.store(false);}
+    void shutdown() final {mMayRun.store(false);} 
     void execute()
     {
       size_t buffer_size=sizeof(struct inotify_event) + NAME_MAX + 1;

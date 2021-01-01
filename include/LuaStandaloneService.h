@@ -79,7 +79,7 @@ namespace LAppS
       this->shutdown();
     }
     
-    void shutdown()
+    void shutdown() final
     {
       ITC_INFO(__FILE__,__LINE__,"Shutdown is requested for the instance {} of the service {}",this->getInstanceId(), mContext.getName().c_str());
       mContext.stop();

@@ -59,7 +59,7 @@ namespace LAppS
       checkForLuaErrorsOnPcall(ret,"onMessage");
     }
 
-    const bool isServiceModuleValid()
+    const bool isServiceModuleValid() final
     {
       bool ret=false;
       // validate presence of required methods: onStart,onMessage,onShutdown
@@ -299,7 +299,7 @@ namespace LAppS
       ITC_ERROR(__FILE__,__LINE__,"Internal protocol is not allowed for Reactive Services",nullptr);
       return false;
     }
-    void init()
+    void init() final
     {
        init_ws_module(mLState);
       
@@ -337,7 +337,7 @@ namespace LAppS
       cleanLuaStack();
     }
     
-    void shutdown()
+    void shutdown() final
     {
       mustStop.store(true);
       if(mLState)
@@ -361,7 +361,7 @@ namespace LAppS
     ) : abstract::LuaServiceContext(name), mustStop{false}
     {
       static_assert(Tproto != ServiceProtocol::INTERNAL, "LuaReactiveServiceContext does not supports INTERNAL protocol");
-      this->init();
+      init();
     }
     
     const bool onMessage(const AppInEvent& event)

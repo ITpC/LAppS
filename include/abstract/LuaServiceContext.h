@@ -217,7 +217,7 @@ namespace LAppS
       
       virtual const bool isServiceModuleValid()  = 0;
       
-      ~LuaServiceContext()
+      virtual ~LuaServiceContext()
       {
         if(mLState)
         {
