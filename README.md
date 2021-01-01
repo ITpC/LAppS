@@ -1,7 +1,3 @@
-<a href="https://scan.coverity.com/projects/itpc-lapps">
-  <img alt="Coverity Scan Build Status"
-       src="https://scan.coverity.com/projects/14982/badge.svg"/>
-</a>
 
 # LAppS - Lua Application Server
 
