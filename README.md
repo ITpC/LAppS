@@ -18,9 +18,9 @@ LAppS is an easy way to develop low-latency web applications. Please see [LAppS 
 
 Please see [LAppS wiki](https://github.com/ITpC/LAppS/wiki) on how to build and run LAppS from sources. 
 
-# Latest release
+# Latest stable release
 
-0.9.3 19.12.2020 
+0.9.4 01.01.2021
 
 ## Binaries
 
@@ -65,6 +65,7 @@ Roadmap will be ready soon. Next releases will include:
   * wolfSSL-4.5.0-stable (or later version)
   * luajit-2.0.5 or latere version
   * libfmt-7.1.3 or later version for log-formatting
+  * mimalloc-1.6
 
 Optional
 
