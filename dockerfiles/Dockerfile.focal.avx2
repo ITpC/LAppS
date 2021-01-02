@@ -63,13 +63,13 @@ RUN env LD_LIBRARY_PATH=/usr/local/lib/mimalloc-1.6/ CFLAGS="-pipe -Wall -pthrea
 
 WORKDIR ${WORKSPACE}
 
-ADD https://github.com/wolfSSL/wolfssl/archive/v4.5.0-stable.tar.gz ${WORKSPACE}
+ADD https://github.com/wolfSSL/wolfssl/archive/v4.6.0-stable.tar.gz ${WORKSPACE}
 
 RUN ls -la
 
-RUN tar xzvf v4.5.0-stable.tar.gz
+RUN tar xzvf v4.6.0-stable.tar.gz
 
-WORKDIR ${WORKSPACE}/wolfssl-4.5.0-stable
+WORKDIR ${WORKSPACE}/wolfssl-4.6.0-stable
 
 RUN ./autogen.sh
 

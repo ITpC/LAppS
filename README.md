@@ -65,13 +65,7 @@ Roadmap will be ready soon. Next releases will include:
   * wolfSSL-4.5.0-stable (or later version)
   * luajit-2.0.5 or latere version
   * libfmt-7.1.3 or later version for log-formatting
-  * mimalloc-1.6
-
-Optional
-
   * [mimalloc library](https://github.com/microsoft/mimalloc)
-
-
 
 
 # Prerequisites
