@@ -20,7 +20,8 @@ Please see [LAppS wiki](https://github.com/ITpC/LAppS/wiki) on how to build and 
 
 # Latest stable release
 
-0.9.4 01.01.2021
+0.9.5 04.01.2021 (with wolfssl-4.6.0)
+0.9.4 01.01.2021 (with wolfssl-4.5.0)
 
 ## Binaries
 
@@ -62,10 +63,12 @@ Roadmap will be ready soon. Next releases will include:
   * Support for services written in Python, PHP and JavaScript
 
 # Dependencies
-  * wolfSSL-4.5.0-stable (or later version)
-  * luajit-2.0.5 or latere version
+  * [ITCLib](git@github.com:ITpC/ITCLib.git) - LAppS suplimentary library (boost licensed)
+  * [lar](git@github.com:ITpC/lar.git) - LAppS/Lazy archiver (boost licensed)
+  * wolfSSL-4.6.0-stable (or later version)
+  * luajit-2.0.5 or later version
   * libfmt-7.1.3 or later version for log-formatting
-  * [mimalloc library](https://github.com/microsoft/mimalloc)
+  * [mimalloc library 1.6](https://github.com/microsoft/mimalloc)
 
 
 # Prerequisites
