@@ -16,6 +16,7 @@
             <sourceRootList>
                 <sourceRootElem>src</sourceRootElem>
                 <sourceRootElem>src</sourceRootElem>
+                <sourceRootElem>llhttp</sourceRootElem>
             </sourceRootList>
             <confList>
                 <confElem>
