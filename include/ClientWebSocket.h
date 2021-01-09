@@ -31,8 +31,7 @@
 #include <chrono>
 #include <random>
 
-#include <net/NSocket.h>
-#include <TCPSocketDef.h>
+#include <net/Socket.h>
 #include <missing.h>
 #include <sys/mutex.h>
 #include <sys/synclock.h>
@@ -53,15 +52,12 @@
 // wolfSSL
 #include <wolfSSLLib.h>
 
+#include <URIView.h>
 
 namespace LAppS
 {
   
   static thread_local std::vector<uint8_t> recvBuffer(8192,0);
-  
-  static const std::regex WSURI{"^ws{1,2}[:][/][/](([[:alnum:]]+([-][[:alnum:]]+)*)+[.]?)+([[:alpha:]]{2,})?([:][[:digit:]]{1,5}){0,1}(([/][[:graph:]]+[^/])+|[/])$"};
-  
-  
   
   namespace WSClient
   {
@@ -72,7 +68,7 @@ namespace LAppS
     typedef WSStreamProcessing::State MessageState;
   }
   
-  class ClientWebSocket: public itc::ClientSocket
+  class ClientWebSocket: public itc::net::Socket
   {
    private:
     using TLSClientContext=std::shared_ptr<wolfSSLLib<TLS_CLIENT>::wolfSSLContext>;
@@ -88,11 +84,10 @@ namespace LAppS
     MSGBufferTypeSPtr       mCurrentMessage;
     
     std::string             mSecWebSocketKey;
+    std::string             request_target;
+    std::string             hostname;
     
     WSStreamProcessing::WSStreamClientParser  streamProcessor;
-    
-    std::string request_target;
-    std::string hostname;
     
     void terminate()
     {
@@ -369,91 +364,63 @@ namespace LAppS
     
    public:
     
-    explicit ClientWebSocket(const std::string& uri, const bool _noverifycert=false, const bool _noverifyname=false)
-    : itc::ClientSocket(), cursor{0}, TLSContext(wolfSSLClient::getInstance()->getContext()), TLSSocket{nullptr}, 
+    explicit ClientWebSocket(const std::string_view& uri, const bool _noverifycert=false, const bool _noverifyname=false)
+    : ::itc::net::Socket(), cursor{0}, TLSContext(wolfSSLClient::getInstance()->getContext()), TLSSocket{nullptr}, 
       mMutex(),mState{WSClient::State::INIT},streamProcessor(512)
     {
-      if(std::regex_match(uri,WSURI))
+      URIView uri_view;
+      auto parsed=uri_view.parse(uri);
+      
+      if((parsed>0)&&uri_view.valid)
       {
-        WSClient::URISearchDirective sstate=WSClient::URISearchDirective::LOOK_FOR_HOSTNAME;
-        size_t     search_start_idx=0;
         
-        if(uri[2] == ':') // NON-TLS
+        uint16_t port=0;
+        
+        if(!uri_view.port.empty())
+          port=static_cast<uint16_t>(std::strtol(uri_view.port.data(), nullptr, 10));
+        
+        if(!uri_view.schema.empty())
         {
-          search_start_idx=5;
-          tls=false;
-          
-        }else{ // TLS wss://
-          tls=true;
-          search_start_idx=6;
-        }
-        
-        size_t hostname_length=uri.find(':',search_start_idx);
-        
-        if(hostname_length == std::string::npos)  // no port is specified
-        {
-          hostname_length=uri.find('/',search_start_idx);
-          if(hostname_length == std::string::npos)  // no request target is specified
+          if((uri_view.schema[0] == 'w')&&(uri_view.schema[1] == 's')) // already valid
           {
-            hostname_length=uri.length();
-            sstate=WSClient::URISearchDirective::STOP_LOOKING;
+            if(uri_view.schema[2] == 's')
+              tls=true;
           }else{
-            sstate=WSClient::URISearchDirective::LOOK_FOR_RTARGET;
+            throw std::system_error(EINVAL,std::system_category(),fmt::format("Invalid schema `{}' in URI {}",uri_view.schema,uri));
           }
-        }else{
-          sstate=WSClient::URISearchDirective::LOOK_FOR_PORT;
-        }
-        
-        hostname_length=hostname_length-search_start_idx;
-        
-        
-        hostname=std::move(std::string(uri,search_start_idx,hostname_length));
-        
-        search_start_idx+=hostname_length;
-        
-        uint32_t    port=0;
-        size_t      port_length=0;
-        size_t      port_end_idx=0;
-        
-        
-        switch(sstate)
-        {
-          case WSClient::URISearchDirective::LOOK_FOR_PORT:
-          {    
-            search_start_idx++;
-            port_end_idx=uri.find('/',search_start_idx);
-            
-            if(port_end_idx == std::string::npos)
-            {
-              port_end_idx=uri.length();
-            }else{
-              sstate=WSClient::URISearchDirective::LOOK_FOR_RTARGET;
-            }
-            
-            port_length=port_end_idx-search_start_idx;
-            
-            std::string str_port(uri,search_start_idx,port_length);
-            
-            port=atoi(str_port.c_str());
-            
-            search_start_idx=port_end_idx;            
-          }
-          case WSClient::URISearchDirective::LOOK_FOR_RTARGET:
-            if(sstate==WSClient::URISearchDirective::LOOK_FOR_RTARGET)
-            {
-              request_target=uri.substr(search_start_idx,uri.length()-port_end_idx);
-              sstate=WSClient::URISearchDirective::STOP_LOOKING;
-            }
-          default:
-            break;
         }
         
         if(tls)
         {
           if(port==0) port=443;
+        }
+        else
+        {
+          if(port==0) port=80;
+        }
         
-          this->open(hostname,port);
-          
+        if(uri_view.host.length()>0)
+        {
+          if(uri_view.host[0]=='[') //IPv6 address
+          {
+            hostname=std::string(uri_view.host.data()+1,uri_view.host.length()-2);
+            this->open<itc::net::Transport::TCP,itc::net::Side::CLIENT>(hostname.data(),port);
+          }
+          else{
+            hostname=std::string(uri_view.host.data(),uri_view.host.length());
+            this->open<itc::net::Transport::TCP,itc::net::Side::CLIENT>(hostname.data(),port);
+          }
+        }
+        else throw std::system_error(EINVAL,std::system_category(),fmt::format("Invalid hostname `{}' in URI {}",uri_view.host,uri));
+        
+        if(uri_view.path.empty())
+        
+          request_target="/";
+        else
+          request_target=std::string(uri_view.path.data(),uri_view.path.length());
+        
+        if(tls)
+        {
           TLSSocket=wolfSSL_new(TLSContext->raw_context());
           
           if( TLSSocket == nullptr)
@@ -465,22 +432,21 @@ namespace LAppS
           auto opts = fcntl(this->getfd(),F_GETFL);
 
           if(opts == -1)
-            throw std::system_error(errno,std::system_category(),"socket become invalid");
+            throw std::system_error(errno,std::system_category(),"socket became invalid");
 
           opts = opts | O_NONBLOCK;
           opts=fcntl(this->getfd(), F_SETFL, opts);
 
           if(opts == -1)
-            throw std::system_error(errno,std::system_category(),"socket become invalid");
+            throw std::system_error(errno,std::system_category(),"socket became invalid");
 
           mState=WSClient::State::CONNECT;
         }else{
-          if(port==0) port=80;
-          this->open(hostname,port);
           mState=WSClient::State::UPGRADE;
         }        
+      }else{
+        throw std::system_error(EINVAL,std::system_category(),fmt::format("The URI ´{}' is invalid",uri));
       }
-      else throw std::system_error(EINVAL,std::system_category(),"Error: "+uri+" is not a WebSockets URI");
     }
       
     const WSClient::OnConnectDirective wsConnect()
@@ -498,7 +464,6 @@ namespace LAppS
         {
           goto repeat;
         }
-        
         
         logWOLFSSLError(result, "ClientWebSocket::wsConnect(): ");
         

@@ -89,17 +89,27 @@ namespace LAppS
             try {
               if(sent > 0)
               {
-                if(app->filterIP(wssocket->getPeerIP()))
+                // filter only IPv4 addresses for now. TODO: add IPv6 filtering
+                if(wssocket->getFamily() == AF_INET)
                 {
-                  ITC_INFO(
-                    __FILE__,
-                    __LINE__,
-                    "Connection from {} to {} has been filtered according to ACL",
-                    wssocket->getPeerAddress().c_str(),app->getName()
-                  );
-                  wssocket->send(forbidden);
-                  wssocket->close();
-                  return;
+                  auto ipvec=wssocket->getpeerip();
+                  if(ipvec.size()==4)
+                  {
+                    uint32_t ipv4addr=0;
+                    memcpy(&ipv4addr,ipvec.data(),4);
+                    if(app->filterIP(ipv4addr))
+                    {
+                      ITC_INFO(
+                        __FILE__,
+                        __LINE__,
+                        "Connection from {} to {} has been filtered according to ACL",
+                        wssocket->getPeerAddress().c_str(),app->getName()
+                      );
+                      wssocket->send(forbidden);
+                      wssocket->close();
+                      return;
+                    }
+                  }
                 }
                 wssocket->setState(WSType::MESSAGING);
                 wssocket->setApplication(app);

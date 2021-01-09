@@ -56,11 +56,15 @@
 
 static thread_local std::vector<uint8_t> anInBuffer(static_cast<size_t>(LAppSConfig::getInstance()->getWSConfig()["workers"]["input_buffer_size"]));
 
+typedef std::shared_ptr<itc::net::Socket> CSocketSPtr;
 
 template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
 : public abstract::WebSocket
 {
  public:
+  
+  
+  
   std::shared_ptr<abstract::WebSocket> get_shared() final
   {
     return this->shared_from_this();
@@ -89,8 +93,7 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   bool                                mAutoFragment;
   
   ::abstract::Worker*                 mParent;  
-  itc::CSocketSPtr                    mSocketSPtr;
-  uint32_t                            mPeerIP;
+  CSocketSPtr                         mSocketSPtr;
   std::string                         mPeerAddress;
   
   const auto getParentId() const
@@ -156,8 +159,17 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   WebSocket(const WebSocket&) = delete;
   WebSocket(WebSocket&) = delete;
   
+  const auto getFamily() const
+  {
+    return mSocketSPtr->getFamily();
+  }
+  
+  const auto getpeerip() const
+  {
+    return mSocketSPtr->getpeerip();
+  }
   explicit WebSocket(
-    const itc::CSocketSPtr&  socksptr, 
+    const CSocketSPtr&  socksptr, 
     const SharedEPollType&   ep,
     ::abstract::Worker*      _parent,
     const bool               auto_fragment,
@@ -171,8 +183,9 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
     mSocketSPtr(std::move(socksptr))
   {
     init(fd, enableTLS);
-    mSocketSPtr->getpeeraddr(mPeerIP);
-    mSocketSPtr->getpeeraddr(mPeerAddress);
+    auto peerep{mSocketSPtr->getpeerendpoint()};
+    
+    mPeerAddress=peerep.first;
     
     if(TLSEnable)
     {
@@ -267,11 +280,6 @@ template <bool TLSEnable=false, bool StatsEnable=false> class WebSocket
   const WOLFSSL* getTLSSocket() const
   {
     return TLSSocket;
-  }
-  
-  const uint32_t getPeerIP() const
-  {
-    return mPeerIP;
   }
   
   const std::string& getPeerAddress() const
@@ -390,7 +398,7 @@ private:
     
     size_t cursor=0;
     again:
-    auto state=std::move(streamProcessor.parse(input.data(),input_size,cursor));
+    auto state{streamProcessor.parse(input.data(),input_size,cursor)};
     directive=state.directive;
     
     switch(state.directive)
@@ -400,7 +408,7 @@ private:
         return;
       case WSStreamProcessing::Directive::TAKE_READY_MESSAGE:
       {
-        WSEvent message=std::move(streamProcessor.getMessage());
+        WSEvent message=streamProcessor.getMessage();
 
         if(onMessage(message)&&((state.cursor > 0)&&(state.cursor < input_size)))
         {
@@ -504,16 +512,15 @@ private:
   {
     try
     {
-      auto outBuffer=std::make_shared<MSGBufferType>();
+      auto outBuffer{std::make_shared<MSGBufferType>()};
       WebSocketProtocol::ServerCloseMessage(*outBuffer,ccode);
       
-      getApplication()->enqueue(std::move(
-          LAppS::AppInEvent{
-            WebSocketProtocol::OpCode::CLOSE,
-            this->get_shared(),
-            outBuffer
-          }
-        )
+      getApplication()->enqueue(
+        LAppS::AppInEvent{
+          WebSocketProtocol::OpCode::CLOSE,
+          this->get_shared(),
+          outBuffer
+        }
       );
       mNoInput.store(true);
     }

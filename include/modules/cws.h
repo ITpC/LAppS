@@ -185,7 +185,7 @@ extern "C" {
         }
         else
         {
-          std::cerr << "onclode is nil" << std::endl;
+          std::cerr << "onclose is nil" << std::endl;
         }
         cws_remove_handler(L,ws->getfd());
         WSCPool.remove(ws->getfd());
@@ -279,9 +279,9 @@ extern "C" {
     
     try
     {
-      std::string uri{lua_tostring(L,argc-1)};
+      std::string_view uri{lua_tostring(L,argc-1)};
       
-      auto wscs{WSCPool.create(std::move(uri))};
+      auto wscs{WSCPool.create(uri)};
       auto sock{WSCPool.find(wscs)};
       switch(sock->second->getState())
       {
@@ -295,7 +295,7 @@ extern "C" {
             lua_pushnil(L);
             lua_pushnil(L);
             std::string message{"Can't create socket, - fail on connect"};
-            lua_pushlstring(L,message.c_str(),message.size());
+            lua_pushlstring(L,message.data(),message.length());
             return 2;
           }
         break;
@@ -309,7 +309,7 @@ extern "C" {
             lua_pushnil(L);
             lua_pushnil(L);
             std::string message{"Can't create socket, - fail on connection upgrade"};
-            lua_pushlstring(L,message.c_str(),message.size());
+            lua_pushlstring(L,message.data(),message.size());
             return 2;
           }
         break;
@@ -337,9 +337,8 @@ extern "C" {
     {
       lua_pushnil(L);
       lua_pushnil(L);
-      std::string message("Can't create socket: ");
-      message.append(e.what());
-      lua_pushlstring(L,message.c_str(),message.size());
+      std::string message{fmt::format("Can't create socket: {}",e.what())};
+      lua_pushlstring(L,message.data(),message.length());
       return 2;
     }
     return 0; // relax compiler
