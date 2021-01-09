@@ -205,7 +205,7 @@ namespace LAppS
       this->shutdown();
       while(isRunning())
       {
-        itc::sys::sched_yield(5000);
+        itc::sys::sched_yield(10000);
       }
     }
   };

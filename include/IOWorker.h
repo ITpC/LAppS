@@ -321,17 +321,17 @@ namespace LAppS
         }
       }
       
-      const std::shared_ptr<WSType> mkWebSocket(const itc::CSocketSPtr& inbound)
+      const std::shared_ptr<WSType> mkWebSocket(const CSocketSPtr& inbound)
       {
         return mkWebSocket(inbound, enableTLS);
       }
       
-      const std::shared_ptr<WSType> mkWebSocket(const itc::CSocketSPtr& inbound,const itc::utils::Bool2Type<false> tls_is_disabled)
+      const std::shared_ptr<WSType> mkWebSocket(const CSocketSPtr& inbound,const itc::utils::Bool2Type<false> tls_is_disabled)
       {
         return std::make_shared<WSType>(std::move(inbound),mEPoll,this,mustAutoFragment());
       }
       
-      const std::shared_ptr<WSType> mkWebSocket(const itc::CSocketSPtr& inbound,const itc::utils::Bool2Type<true> tls_is_enabled)
+      const std::shared_ptr<WSType> mkWebSocket(const CSocketSPtr& inbound,const itc::utils::Bool2Type<true> tls_is_enabled)
       {
         //auto tls_server_context=TLS::SharedServerContext::getInstance()->getContext();
         

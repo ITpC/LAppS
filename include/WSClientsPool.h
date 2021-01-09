@@ -49,7 +49,7 @@ namespace LAppS
       mPool.clear();
     }
     
-    const int32_t create(const std::string& uri)
+    const int32_t create(const std::string_view& uri)
     {
       auto tmp=std::make_shared<ClientWebSocket>(uri,true,true);
       mPool.emplace(tmp->getfd(),tmp);

@@ -50,18 +50,22 @@ CP=cp
 CCADMIN=CCadmin
 
 
+LLHTTP=llhttp/build/out/Default/obj.target/libllhttp.a
+
 # build
-build: .build-post
+build: $(LLHHTP) .build-post
 
 .build-pre:
-# Add your pre 'build' code here...
+	/usr/bin/re2c --input-encoding utf8 -o include/URIView.h src/uri_parser.re2c
 
 .build-post: .build-impl
 # Add your post 'build' code here...
 
+llhttp-clean:
+	(cd llhttp/build && make clean)
 
 # clean
-clean: .clean-post
+clean: llhttp-clean .clean-post
 
 .clean-pre:
 # Add your pre 'clean' code here...
@@ -144,6 +148,12 @@ build-deb: install-examples clone-usr-local
 	cp 			demo/certgen.sh /opt/distrib/lapps-${VERSION}-amd64/opt/lapps/bin/
 	cd /opt/distrib && dpkg-deb --build lapps-${VERSION}-amd64
 	
+# build llhttp
+
+$(LLHTTP):
+	echo Building llhttp
+	(cd llhttp/build && make)
+
 # run tests
 test: .test-post
 

@@ -106,12 +106,12 @@ namespace LAppS
     void subscribe(::abstract::WebSocket* handler)
     {
       ITCSyncLock sync(sMutex);
-      mSubscribers.push_front(std::move(handler->get_shared()));
+      mSubscribers.push_front(handler->get_shared());
     }
     void unsubscribe(::abstract::WebSocket* handler)
     {
       ITCSyncLock sync(uMutex);
-      mUnsubscribers.push_front(std::move(handler->get_shared()));
+      mUnsubscribers.push_front(handler->get_shared());
     }
     
     void bcast(const MSGBufferTypeSPtr& msg)

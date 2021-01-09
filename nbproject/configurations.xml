@@ -56,6 +56,7 @@
       <itemPath>include/ServiceFactory.h</itemPath>
       <itemPath>include/ServiceRegistry.h</itemPath>
       <itemPath>include/Shakespeer.h</itemPath>
+      <itemPath>include/URIView.h</itemPath>
       <itemPath>include/WSClientsPool.h</itemPath>
       <itemPath>include/WSConnectionStats.h</itemPath>
       <itemPath>include/WSEvent.h</itemPath>
@@ -68,6 +69,7 @@
       <itemPath>include/WSWorkersPool.h</itemPath>
       <itemPath>include/WebSocket.h</itemPath>
       <itemPath>include/WorkerStats.h</itemPath>
+      <itemPath>include/connection.h</itemPath>
       <itemPath>include/ePoll.h</itemPath>
       <itemPath>include/ipcalc.h</itemPath>
       <itemPath>include/wolfSSLLib.h</itemPath>
@@ -81,11 +83,20 @@
                    displayName="Source Files"
                    projectFiles="true">
       <itemPath>src/main.cpp</itemPath>
+      <itemPath>src/uri_parser.re2c</itemPath>
+    </logicalFolder>
+    <logicalFolder name="tests" displayName="tests" projectFiles="true">
+      <logicalFolder name="data" displayName="data" projectFiles="true">
+        <itemPath>tests/data/uris</itemPath>
+      </logicalFolder>
     </logicalFolder>
     <logicalFolder name="TestFiles"
                    displayName="Test Files"
                    projectFiles="false"
                    kind="TEST_LOGICAL_FOLDER">
+      <logicalFolder name="f1" displayName="uriview" projectFiles="true" kind="TEST">
+        <itemPath>tests/uriview.cpp</itemPath>
+      </logicalFolder>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -112,6 +123,8 @@
   <sourceRootList>
     <Elem>src</Elem>
     <Elem>src</Elem>
+    <Elem>llhttp</Elem>
+    <Elem>tests</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -123,7 +136,8 @@
       </toolsSet>
       <compileType>
         <ccTool>
-          <commandlineTool>g++</commandlineTool>
+          <developmentMode>0</developmentMode>
+          <commandlineTool>g++  -fstack-clash-protection</commandlineTool>
           <incDir>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -134,8 +148,9 @@
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
             <pElem>../lar</pElem>
+            <pElem>llhttp/include</pElem>
           </incDir>
-          <commandLine>-pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
+          <commandLine>-gdwarf-4 -pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>DTFM_TIMING_RESISTANT</Elem>
@@ -146,10 +161,8 @@
             <Elem>MAX_BUFF_SIZE=512</Elem>
             <Elem>MIMALLOC</Elem>
             <Elem>STATS_ENABLE</Elem>
-            <Elem>TSAFE_LOG=1</Elem>
             <Elem>WC_RSA_BLINDING</Elem>
             <Elem>WOLFSSL_TLS13</Elem>
-            <Elem>XTRACE</Elem>
           </preprocessorList>
           <warningLevel>2</warningLevel>
         </ccTool>
@@ -157,10 +170,12 @@
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
+            <pElem>llhttp/build/out/Default/obj.target</pElem>
           </linkerAddLib>
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
+          <additionalDep>llhttp/build/out/Default/obj.target/libllhttp.a</additionalDep>
           <commandlineTool>g++</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
@@ -193,29 +208,29 @@
         <requiredProjects>
           <makeArtifact PL="../utils"
                         CT="3"
-                        CN="Debug"
-                        AC="true"
-                        BL="false"
+                        CN="Release"
+                        AC="false"
+                        BL="true"
                         WD="../utils"
-                        BC="${MAKE}  -f utils-Makefile.mk CONF=Debug"
-                        CC="${MAKE}  -f utils-Makefile.mk CONF=Debug clean"
+                        BC="${MAKE}  -f utils-Makefile.mk CONF=Release"
+                        CC="${MAKE}  -f utils-Makefile.mk CONF=Release clean"
                         OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libutils.a">
           </makeArtifact>
           <makeArtifact PL="../ITCLib"
                         CT="3"
-                        CN="Debug"
-                        AC="true"
+                        CN="Release"
+                        AC="false"
                         BL="true"
                         WD="../ITCLib"
-                        BC="${MAKE}  -f Makefile CONF=Debug"
-                        CC="${MAKE}  -f Makefile CONF=Debug clean"
+                        BC="${MAKE}  -f Makefile CONF=Release"
+                        CC="${MAKE}  -f Makefile CONF=Release clean"
                         OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
           </makeArtifact>
           <makeArtifact PL="../lar"
                         CT="1"
                         CN="Release"
                         AC="true"
-                        BL="false"
+                        BL="true"
                         WD="../lar"
                         BC="${MAKE}  -f Makefile CONF=Release"
                         CC="${MAKE}  -f Makefile CONF=Release clean"
@@ -226,6 +241,48 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -1125,6 +1182,23 @@
       </packaging>
       <item path="LAppS_Protocol_Specification.md" ex="false" tool="3" flavor2="0">
       </item>
+      <folder path="TestFiles/f1">
+        <cTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>.</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-protector-strong -ftree-vectorize -funroll-loops -Wall -lfmt</commandLine>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles</output>
+        </linkerTool>
+      </folder>
       <item path="include/AppInEvent.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Balancer.h" ex="false" tool="3" flavor2="0">
@@ -1175,6 +1249,8 @@
       </item>
       <item path="include/Shakespeer.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/URIView.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/WSClientsPool.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WSConnectionStats.h" ex="false" tool="3" flavor2="0">
@@ -1218,6 +1294,8 @@
       <item path="include/abstract/WebSocket.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/abstract/Worker.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/connection.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ePoll.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -1262,6 +1340,12 @@
       </item>
       <item path="src/main.cpp" ex="false" tool="1" flavor2="0">
       </item>
+      <item path="src/uri_parser.re2c" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/data/uris" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/uriview.cpp" ex="false" tool="1" flavor2="0">
+      </item>
     </conf>
     <conf name="Release.SSSE3" type="1">
       <toolsSet>
@@ -1272,7 +1356,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++</commandlineTool>
+          <commandlineTool>g++  -fstack-clash-protection</commandlineTool>
           <incDir>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -1283,8 +1367,9 @@
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
             <pElem>../lar</pElem>
+            <pElem>llhttp/include</pElem>
           </incDir>
-          <commandLine>-pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -mssse3 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -mssse3 -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>DTFM_TIMING_RESISTANT</Elem>
@@ -1295,7 +1380,6 @@
             <Elem>MAX_BUFF_SIZE=512</Elem>
             <Elem>MIMALLOC</Elem>
             <Elem>STATS_ENABLE</Elem>
-            <Elem>TSAFE_LOG=1</Elem>
             <Elem>WC_RSA_BLINDING</Elem>
             <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
@@ -1305,10 +1389,12 @@
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
+            <pElem>llhttp/build/out/Default/obj.target</pElem>
           </linkerAddLib>
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
+          <additionalDep>llhttp/build/out/Default/obj.target/libllhttp.a</additionalDep>
           <commandlineTool>g++</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
@@ -1341,29 +1427,29 @@
         <requiredProjects>
           <makeArtifact PL="../utils"
                         CT="3"
-                        CN="Debug"
-                        AC="true"
-                        BL="false"
+                        CN="Release"
+                        AC="false"
+                        BL="true"
                         WD="../utils"
-                        BC="${MAKE}  -f utils-Makefile.mk CONF=Debug"
-                        CC="${MAKE}  -f utils-Makefile.mk CONF=Debug clean"
+                        BC="${MAKE}  -f utils-Makefile.mk CONF=Release"
+                        CC="${MAKE}  -f utils-Makefile.mk CONF=Release clean"
                         OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libutils.a">
           </makeArtifact>
           <makeArtifact PL="../ITCLib"
                         CT="3"
-                        CN="Debug"
-                        AC="true"
+                        CN="Release"
+                        AC="false"
                         BL="true"
                         WD="../ITCLib"
-                        BC="${MAKE}  -f Makefile CONF=Debug"
-                        CC="${MAKE}  -f Makefile CONF=Debug clean"
+                        BC="${MAKE}  -f Makefile CONF=Release"
+                        CC="${MAKE}  -f Makefile CONF=Release clean"
                         OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
           </makeArtifact>
           <makeArtifact PL="../lar"
                         CT="1"
                         CN="Release"
                         AC="true"
-                        BL="false"
+                        BL="true"
                         WD="../lar"
                         BC="${MAKE}  -f Makefile CONF=Release"
                         CC="${MAKE}  -f Makefile CONF=Release clean"
@@ -1374,6 +1460,48 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -2273,6 +2401,23 @@
       </packaging>
       <item path="LAppS_Protocol_Specification.md" ex="false" tool="3" flavor2="0">
       </item>
+      <folder path="TestFiles/f1">
+        <cTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>.</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-protector-strong -ftree-vectorize -funroll-loops -Wall -lfmt</commandLine>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles</output>
+        </linkerTool>
+      </folder>
       <item path="include/AppInEvent.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Balancer.h" ex="false" tool="3" flavor2="0">
@@ -2323,6 +2468,8 @@
       </item>
       <item path="include/Shakespeer.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/URIView.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/WSClientsPool.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WSConnectionStats.h" ex="false" tool="3" flavor2="0">
@@ -2367,6 +2514,8 @@
       </item>
       <item path="include/abstract/Worker.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/connection.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/ePoll.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ext/json.hpp" ex="false" tool="3" flavor2="0">
@@ -2409,6 +2558,12 @@
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/main.cpp" ex="false" tool="1" flavor2="9">
+      </item>
+      <item path="src/uri_parser.re2c" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/data/uris" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/uriview.cpp" ex="false" tool="1" flavor2="0">
       </item>
     </conf>
     <conf name="Release.AVX2" type="1">
@@ -2420,7 +2575,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++</commandlineTool>
+          <commandlineTool>g++  -fstack-clash-protection</commandlineTool>
           <incDir>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -2431,8 +2586,9 @@
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
             <pElem>../lar</pElem>
+            <pElem>llhttp/include</pElem>
           </incDir>
-          <commandLine>-pipe -std=c++17 -pthread -O2 -march=skylake -mtune=generic -mfpmath=sse -msse2avx -mavx2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=skylake -mtune=generic -mfpmath=sse -msse2avx -mavx2 -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>DTFM_TIMING_RESISTANT</Elem>
@@ -2443,7 +2599,6 @@
             <Elem>MAX_BUFF_SIZE=512</Elem>
             <Elem>MIMALLOC</Elem>
             <Elem>STATS_ENABLE</Elem>
-            <Elem>TSAFE_LOG=1</Elem>
             <Elem>WC_RSA_BLINDING</Elem>
             <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
@@ -2453,10 +2608,12 @@
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
+            <pElem>llhttp/build/out/Default/obj.target</pElem>
           </linkerAddLib>
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
+          <additionalDep>llhttp/build/out/Default/obj.target/libllhttp.a</additionalDep>
           <commandlineTool>g++</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
@@ -2489,29 +2646,29 @@
         <requiredProjects>
           <makeArtifact PL="../utils"
                         CT="3"
-                        CN="Debug"
-                        AC="true"
-                        BL="false"
+                        CN="Release"
+                        AC="false"
+                        BL="true"
                         WD="../utils"
-                        BC="${MAKE}  -f utils-Makefile.mk CONF=Debug"
-                        CC="${MAKE}  -f utils-Makefile.mk CONF=Debug clean"
+                        BC="${MAKE}  -f utils-Makefile.mk CONF=Release"
+                        CC="${MAKE}  -f utils-Makefile.mk CONF=Release clean"
                         OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libutils.a">
           </makeArtifact>
           <makeArtifact PL="../ITCLib"
                         CT="3"
-                        CN="Debug"
-                        AC="true"
+                        CN="Release"
+                        AC="false"
                         BL="true"
                         WD="../ITCLib"
-                        BC="${MAKE}  -f Makefile CONF=Debug"
-                        CC="${MAKE}  -f Makefile CONF=Debug clean"
+                        BC="${MAKE}  -f Makefile CONF=Release"
+                        CC="${MAKE}  -f Makefile CONF=Release clean"
                         OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
           </makeArtifact>
           <makeArtifact PL="../lar"
                         CT="1"
                         CN="Release"
                         AC="true"
-                        BL="false"
+                        BL="true"
                         WD="../lar"
                         BC="${MAKE}  -f Makefile CONF=Release"
                         CC="${MAKE}  -f Makefile CONF=Release clean"
@@ -2522,6 +2679,48 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -3421,6 +3620,23 @@
       </packaging>
       <item path="LAppS_Protocol_Specification.md" ex="false" tool="3" flavor2="0">
       </item>
+      <folder path="TestFiles/f1">
+        <cTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>.</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-protector-strong -ftree-vectorize -funroll-loops -Wall -lfmt</commandLine>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles</output>
+        </linkerTool>
+      </folder>
       <item path="include/AppInEvent.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Balancer.h" ex="false" tool="3" flavor2="0">
@@ -3471,6 +3687,8 @@
       </item>
       <item path="include/Shakespeer.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/URIView.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/WSClientsPool.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WSConnectionStats.h" ex="false" tool="3" flavor2="0">
@@ -3515,6 +3733,8 @@
       </item>
       <item path="include/abstract/Worker.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/connection.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/ePoll.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ext/json.hpp" ex="false" tool="3" flavor2="0">
@@ -3557,6 +3777,12 @@
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/main.cpp" ex="false" tool="1" flavor2="9">
+      </item>
+      <item path="src/uri_parser.re2c" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/data/uris" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/uriview.cpp" ex="false" tool="1" flavor2="0">
       </item>
     </conf>
     <conf name="Release.SSSE3.NO_STATS" type="1">
@@ -3568,7 +3794,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++</commandlineTool>
+          <commandlineTool>g++  -fstack-clash-protection</commandlineTool>
           <incDir>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -3579,8 +3805,9 @@
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
             <pElem>../lar</pElem>
+            <pElem>llhttp/include</pElem>
           </incDir>
-          <commandLine>-pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -mssse3 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -mssse3 -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>DTFM_TIMING_RESISTANT</Elem>
@@ -3590,7 +3817,6 @@
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
             <Elem>MIMALLOC</Elem>
-            <Elem>TSAFE_LOG=1</Elem>
             <Elem>WC_RSA_BLINDING</Elem>
             <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
@@ -3600,10 +3826,12 @@
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
+            <pElem>llhttp/build/out/Default/obj.target</pElem>
           </linkerAddLib>
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
+          <additionalDep>llhttp/build/out/Default/obj.target/libllhttp.a</additionalDep>
           <commandlineTool>g++</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
@@ -3636,29 +3864,29 @@
         <requiredProjects>
           <makeArtifact PL="../utils"
                         CT="3"
-                        CN="Debug"
-                        AC="true"
-                        BL="false"
+                        CN="Release"
+                        AC="false"
+                        BL="true"
                         WD="../utils"
-                        BC="${MAKE}  -f utils-Makefile.mk CONF=Debug"
-                        CC="${MAKE}  -f utils-Makefile.mk CONF=Debug clean"
+                        BC="${MAKE}  -f utils-Makefile.mk CONF=Release"
+                        CC="${MAKE}  -f utils-Makefile.mk CONF=Release clean"
                         OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libutils.a">
           </makeArtifact>
           <makeArtifact PL="../ITCLib"
                         CT="3"
-                        CN="Debug"
-                        AC="true"
+                        CN="Release"
+                        AC="false"
                         BL="true"
                         WD="../ITCLib"
-                        BC="${MAKE}  -f Makefile CONF=Debug"
-                        CC="${MAKE}  -f Makefile CONF=Debug clean"
+                        BC="${MAKE}  -f Makefile CONF=Release"
+                        CC="${MAKE}  -f Makefile CONF=Release clean"
                         OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
           </makeArtifact>
           <makeArtifact PL="../lar"
                         CT="1"
                         CN="Release"
                         AC="true"
-                        BL="false"
+                        BL="true"
                         WD="../lar"
                         BC="${MAKE}  -f Makefile CONF=Release"
                         CC="${MAKE}  -f Makefile CONF=Release clean"
@@ -3669,6 +3897,48 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -4568,6 +4838,23 @@
       </packaging>
       <item path="LAppS_Protocol_Specification.md" ex="false" tool="3" flavor2="0">
       </item>
+      <folder path="TestFiles/f1">
+        <cTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>.</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-protector-strong -ftree-vectorize -funroll-loops -Wall -lfmt</commandLine>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles</output>
+        </linkerTool>
+      </folder>
       <item path="include/AppInEvent.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Balancer.h" ex="false" tool="3" flavor2="0">
@@ -4618,6 +4905,8 @@
       </item>
       <item path="include/Shakespeer.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/URIView.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/WSClientsPool.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WSConnectionStats.h" ex="false" tool="3" flavor2="0">
@@ -4662,6 +4951,8 @@
       </item>
       <item path="include/abstract/Worker.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/connection.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/ePoll.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ext/json.hpp" ex="false" tool="3" flavor2="0">
@@ -4704,6 +4995,12 @@
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/main.cpp" ex="false" tool="1" flavor2="9">
+      </item>
+      <item path="src/uri_parser.re2c" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/data/uris" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/uriview.cpp" ex="false" tool="1" flavor2="0">
       </item>
     </conf>
     <conf name="Release.SSSE3.NO_STATS.NO_TLS" type="1">
@@ -4715,7 +5012,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++</commandlineTool>
+          <commandlineTool>g++  -fstack-clash-protection</commandlineTool>
           <incDir>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -4726,8 +5023,9 @@
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
             <pElem>../lar</pElem>
+            <pElem>llhttp/include</pElem>
           </incDir>
-          <commandLine>-pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -mssse3 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -mssse3 -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>DTFM_TIMING_RESISTANT</Elem>
@@ -4736,7 +5034,6 @@
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
             <Elem>MIMALLOC</Elem>
-            <Elem>TSAFE_LOG=1</Elem>
             <Elem>WC_RSA_BLINDING</Elem>
             <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
@@ -4746,10 +5043,12 @@
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
+            <pElem>llhttp/build/out/Default/obj.target</pElem>
           </linkerAddLib>
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
+          <additionalDep>llhttp/build/out/Default/obj.target/libllhttp.a</additionalDep>
           <commandlineTool>g++</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
@@ -4782,29 +5081,29 @@
         <requiredProjects>
           <makeArtifact PL="../utils"
                         CT="3"
-                        CN="Debug"
-                        AC="true"
-                        BL="false"
+                        CN="Release"
+                        AC="false"
+                        BL="true"
                         WD="../utils"
-                        BC="${MAKE}  -f utils-Makefile.mk CONF=Debug"
-                        CC="${MAKE}  -f utils-Makefile.mk CONF=Debug clean"
+                        BC="${MAKE}  -f utils-Makefile.mk CONF=Release"
+                        CC="${MAKE}  -f utils-Makefile.mk CONF=Release clean"
                         OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libutils.a">
           </makeArtifact>
           <makeArtifact PL="../ITCLib"
                         CT="3"
-                        CN="Debug"
-                        AC="true"
+                        CN="Release"
+                        AC="false"
                         BL="true"
                         WD="../ITCLib"
-                        BC="${MAKE}  -f Makefile CONF=Debug"
-                        CC="${MAKE}  -f Makefile CONF=Debug clean"
+                        BC="${MAKE}  -f Makefile CONF=Release"
+                        CC="${MAKE}  -f Makefile CONF=Release clean"
                         OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
           </makeArtifact>
           <makeArtifact PL="../lar"
                         CT="1"
                         CN="Release"
                         AC="true"
-                        BL="false"
+                        BL="true"
                         WD="../lar"
                         BC="${MAKE}  -f Makefile CONF=Release"
                         CC="${MAKE}  -f Makefile CONF=Release clean"
@@ -4815,6 +5114,48 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -5714,6 +6055,23 @@
       </packaging>
       <item path="LAppS_Protocol_Specification.md" ex="false" tool="3" flavor2="0">
       </item>
+      <folder path="TestFiles/f1">
+        <cTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>.</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-protector-strong -ftree-vectorize -funroll-loops -Wall -lfmt</commandLine>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles</output>
+        </linkerTool>
+      </folder>
       <item path="include/AppInEvent.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Balancer.h" ex="false" tool="3" flavor2="0">
@@ -5764,6 +6122,8 @@
       </item>
       <item path="include/Shakespeer.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/URIView.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/WSClientsPool.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WSConnectionStats.h" ex="false" tool="3" flavor2="0">
@@ -5808,6 +6168,8 @@
       </item>
       <item path="include/abstract/Worker.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/connection.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/ePoll.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ext/json.hpp" ex="false" tool="3" flavor2="0">
@@ -5850,6 +6212,12 @@
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/main.cpp" ex="false" tool="1" flavor2="9">
+      </item>
+      <item path="src/uri_parser.re2c" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/data/uris" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/uriview.cpp" ex="false" tool="1" flavor2="0">
       </item>
     </conf>
     <conf name="Release.AVX2.NO_STATS" type="1">
@@ -5861,7 +6229,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++</commandlineTool>
+          <commandlineTool>g++  -fstack-clash-protection</commandlineTool>
           <incDir>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -5872,8 +6240,9 @@
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
             <pElem>../lar</pElem>
+            <pElem>llhttp/include</pElem>
           </incDir>
-          <commandLine>-pipe -std=c++17 -pthread -O2 -march=skylake -mtune=generic -mfpmath=sse -msse2avx -mavx2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=skylake -mtune=generic -mfpmath=sse -msse2avx -mavx2 -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>DTFM_TIMING_RESISTANT</Elem>
@@ -5883,7 +6252,6 @@
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
             <Elem>MIMALLOC</Elem>
-            <Elem>TSAFE_LOG=1</Elem>
             <Elem>WC_RSA_BLINDING</Elem>
             <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
@@ -5893,10 +6261,12 @@
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
+            <pElem>llhttp/build/out/Default/obj.target</pElem>
           </linkerAddLib>
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
+          <additionalDep>llhttp/build/out/Default/obj.target/libllhttp.a</additionalDep>
           <commandlineTool>g++</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
@@ -5929,29 +6299,29 @@
         <requiredProjects>
           <makeArtifact PL="../utils"
                         CT="3"
-                        CN="Debug"
-                        AC="true"
-                        BL="false"
+                        CN="Release"
+                        AC="false"
+                        BL="true"
                         WD="../utils"
-                        BC="${MAKE}  -f utils-Makefile.mk CONF=Debug"
-                        CC="${MAKE}  -f utils-Makefile.mk CONF=Debug clean"
+                        BC="${MAKE}  -f utils-Makefile.mk CONF=Release"
+                        CC="${MAKE}  -f utils-Makefile.mk CONF=Release clean"
                         OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libutils.a">
           </makeArtifact>
           <makeArtifact PL="../ITCLib"
                         CT="3"
-                        CN="Debug"
-                        AC="true"
+                        CN="Release"
+                        AC="false"
                         BL="true"
                         WD="../ITCLib"
-                        BC="${MAKE}  -f Makefile CONF=Debug"
-                        CC="${MAKE}  -f Makefile CONF=Debug clean"
+                        BC="${MAKE}  -f Makefile CONF=Release"
+                        CC="${MAKE}  -f Makefile CONF=Release clean"
                         OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
           </makeArtifact>
           <makeArtifact PL="../lar"
                         CT="1"
                         CN="Release"
                         AC="true"
-                        BL="false"
+                        BL="true"
                         WD="../lar"
                         BC="${MAKE}  -f Makefile CONF=Release"
                         CC="${MAKE}  -f Makefile CONF=Release clean"
@@ -5962,6 +6332,48 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -6861,6 +7273,23 @@
       </packaging>
       <item path="LAppS_Protocol_Specification.md" ex="false" tool="3" flavor2="0">
       </item>
+      <folder path="TestFiles/f1">
+        <cTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>.</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-protector-strong -ftree-vectorize -funroll-loops -Wall -lfmt</commandLine>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles</output>
+        </linkerTool>
+      </folder>
       <item path="include/AppInEvent.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Balancer.h" ex="false" tool="3" flavor2="0">
@@ -6911,6 +7340,8 @@
       </item>
       <item path="include/Shakespeer.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/URIView.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/WSClientsPool.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WSConnectionStats.h" ex="false" tool="3" flavor2="0">
@@ -6955,6 +7386,8 @@
       </item>
       <item path="include/abstract/Worker.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/connection.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/ePoll.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ext/json.hpp" ex="false" tool="3" flavor2="0">
@@ -6997,6 +7430,12 @@
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/main.cpp" ex="false" tool="1" flavor2="9">
+      </item>
+      <item path="src/uri_parser.re2c" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/data/uris" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/uriview.cpp" ex="false" tool="1" flavor2="0">
       </item>
     </conf>
     <conf name="Release.AVX2.NO_STATS.NO_TLS" type="1">
@@ -7008,7 +7447,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++</commandlineTool>
+          <commandlineTool>g++  -fstack-clash-protection</commandlineTool>
           <incDir>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -7019,8 +7458,9 @@
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
             <pElem>../lar</pElem>
+            <pElem>llhttp/include</pElem>
           </incDir>
-          <commandLine>-pipe -std=c++17 -pthread -O2 -march=skylake -mtune=generic -mfpmath=sse -msse2avx -mavx2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=skylake -mtune=generic -mfpmath=sse -msse2avx -mavx2 -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>DTFM_TIMING_RESISTANT</Elem>
@@ -7029,7 +7469,6 @@
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
             <Elem>MIMALLOC</Elem>
-            <Elem>TSAFE_LOG=1</Elem>
             <Elem>WC_RSA_BLINDING</Elem>
             <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
@@ -7039,10 +7478,12 @@
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
+            <pElem>llhttp/build/out/Default/obj.target</pElem>
           </linkerAddLib>
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
+          <additionalDep>llhttp/build/out/Default/obj.target/libllhttp.a</additionalDep>
           <commandlineTool>g++</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
@@ -7075,29 +7516,29 @@
         <requiredProjects>
           <makeArtifact PL="../utils"
                         CT="3"
-                        CN="Debug"
-                        AC="true"
-                        BL="false"
+                        CN="Release"
+                        AC="false"
+                        BL="true"
                         WD="../utils"
-                        BC="${MAKE}  -f utils-Makefile.mk CONF=Debug"
-                        CC="${MAKE}  -f utils-Makefile.mk CONF=Debug clean"
+                        BC="${MAKE}  -f utils-Makefile.mk CONF=Release"
+                        CC="${MAKE}  -f utils-Makefile.mk CONF=Release clean"
                         OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libutils.a">
           </makeArtifact>
           <makeArtifact PL="../ITCLib"
                         CT="3"
-                        CN="Debug"
-                        AC="true"
+                        CN="Release"
+                        AC="false"
                         BL="true"
                         WD="../ITCLib"
-                        BC="${MAKE}  -f Makefile CONF=Debug"
-                        CC="${MAKE}  -f Makefile CONF=Debug clean"
+                        BC="${MAKE}  -f Makefile CONF=Release"
+                        CC="${MAKE}  -f Makefile CONF=Release clean"
                         OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
           </makeArtifact>
           <makeArtifact PL="../lar"
                         CT="1"
                         CN="Release"
                         AC="true"
-                        BL="false"
+                        BL="true"
                         WD="../lar"
                         BC="${MAKE}  -f Makefile CONF=Release"
                         CC="${MAKE}  -f Makefile CONF=Release clean"
@@ -7108,6 +7549,48 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -8007,6 +8490,23 @@
       </packaging>
       <item path="LAppS_Protocol_Specification.md" ex="false" tool="3" flavor2="0">
       </item>
+      <folder path="TestFiles/f1">
+        <cTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>.</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-protector-strong -ftree-vectorize -funroll-loops -Wall -lfmt</commandLine>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles</output>
+        </linkerTool>
+      </folder>
       <item path="include/AppInEvent.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Balancer.h" ex="false" tool="3" flavor2="0">
@@ -8057,6 +8557,8 @@
       </item>
       <item path="include/Shakespeer.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/URIView.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/WSClientsPool.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WSConnectionStats.h" ex="false" tool="3" flavor2="0">
@@ -8101,6 +8603,8 @@
       </item>
       <item path="include/abstract/Worker.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/connection.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/ePoll.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ext/json.hpp" ex="false" tool="3" flavor2="0">
@@ -8143,6 +8647,12 @@
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/main.cpp" ex="false" tool="1" flavor2="9">
+      </item>
+      <item path="src/uri_parser.re2c" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/data/uris" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/uriview.cpp" ex="false" tool="1" flavor2="0">
       </item>
     </conf>
     <conf name="Debug.AVX2.NO_STATS.NO_TLS" type="1">
@@ -8154,7 +8664,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++</commandlineTool>
+          <commandlineTool>g++  -fstack-clash-protection</commandlineTool>
           <incDir>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -8165,8 +8675,9 @@
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
             <pElem>../lar</pElem>
+            <pElem>llhttp/include</pElem>
           </incDir>
-          <commandLine>-pipe -std=c++17 -pthread -O2 -march=skylake -mtune=generic -mfpmath=sse -msse2avx -mavx2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=skylake -mtune=generic -mfpmath=sse -msse2avx -mavx2 -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>DTFM_TIMING_RESISTANT</Elem>
@@ -8175,7 +8686,6 @@
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
             <Elem>MIMALLOC</Elem>
-            <Elem>TSAFE_LOG=1</Elem>
             <Elem>WC_RSA_BLINDING</Elem>
             <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
@@ -8185,10 +8695,12 @@
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
+            <pElem>llhttp/build/out/Default/obj.target</pElem>
           </linkerAddLib>
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
+          <additionalDep>llhttp/build/out/Default/obj.target/libllhttp.a</additionalDep>
           <commandlineTool>g++</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
@@ -8221,29 +8733,29 @@
         <requiredProjects>
           <makeArtifact PL="../utils"
                         CT="3"
-                        CN="Debug"
-                        AC="true"
-                        BL="false"
+                        CN="Release"
+                        AC="false"
+                        BL="true"
                         WD="../utils"
-                        BC="${MAKE}  -f utils-Makefile.mk CONF=Debug"
-                        CC="${MAKE}  -f utils-Makefile.mk CONF=Debug clean"
+                        BC="${MAKE}  -f utils-Makefile.mk CONF=Release"
+                        CC="${MAKE}  -f utils-Makefile.mk CONF=Release clean"
                         OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libutils.a">
           </makeArtifact>
           <makeArtifact PL="../ITCLib"
                         CT="3"
-                        CN="Debug"
-                        AC="true"
+                        CN="Release"
+                        AC="false"
                         BL="true"
                         WD="../ITCLib"
-                        BC="${MAKE}  -f Makefile CONF=Debug"
-                        CC="${MAKE}  -f Makefile CONF=Debug clean"
+                        BC="${MAKE}  -f Makefile CONF=Release"
+                        CC="${MAKE}  -f Makefile CONF=Release clean"
                         OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
           </makeArtifact>
           <makeArtifact PL="../lar"
                         CT="1"
                         CN="Release"
                         AC="true"
-                        BL="false"
+                        BL="true"
                         WD="../lar"
                         BC="${MAKE}  -f Makefile CONF=Release"
                         CC="${MAKE}  -f Makefile CONF=Release clean"
@@ -8254,6 +8766,48 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -9153,6 +9707,23 @@
       </packaging>
       <item path="LAppS_Protocol_Specification.md" ex="false" tool="3" flavor2="0">
       </item>
+      <folder path="TestFiles/f1">
+        <cTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>.</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-protector-strong -ftree-vectorize -funroll-loops -Wall -lfmt</commandLine>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles</output>
+        </linkerTool>
+      </folder>
       <item path="include/AppInEvent.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Balancer.h" ex="false" tool="3" flavor2="0">
@@ -9203,6 +9774,8 @@
       </item>
       <item path="include/Shakespeer.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/URIView.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/WSClientsPool.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WSConnectionStats.h" ex="false" tool="3" flavor2="0">
@@ -9247,6 +9820,8 @@
       </item>
       <item path="include/abstract/Worker.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/connection.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/ePoll.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ext/json.hpp" ex="false" tool="3" flavor2="0">
@@ -9289,6 +9864,12 @@
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/main.cpp" ex="false" tool="1" flavor2="9">
+      </item>
+      <item path="src/uri_parser.re2c" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/data/uris" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/uriview.cpp" ex="false" tool="1" flavor2="0">
       </item>
     </conf>
     <conf name="Release.SSE2" type="1">
@@ -9300,7 +9881,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++</commandlineTool>
+          <commandlineTool>g++  -fstack-clash-protection</commandlineTool>
           <incDir>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -9311,8 +9892,9 @@
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
             <pElem>../lar</pElem>
+            <pElem>llhttp/include</pElem>
           </incDir>
-          <commandLine>-pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>DTFM_TIMING_RESISTANT</Elem>
@@ -9323,7 +9905,6 @@
             <Elem>MAX_BUFF_SIZE=512</Elem>
             <Elem>MIMALLOC</Elem>
             <Elem>STATS_ENABLE</Elem>
-            <Elem>TSAFE_LOG=1</Elem>
             <Elem>WC_RSA_BLINDING</Elem>
             <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
@@ -9333,10 +9914,12 @@
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
+            <pElem>llhttp/build/out/Default/obj.target</pElem>
           </linkerAddLib>
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
+          <additionalDep>llhttp/build/out/Default/obj.target/libllhttp.a</additionalDep>
           <commandlineTool>g++</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
@@ -9369,29 +9952,29 @@
         <requiredProjects>
           <makeArtifact PL="../utils"
                         CT="3"
-                        CN="Debug"
-                        AC="true"
-                        BL="false"
+                        CN="Release"
+                        AC="false"
+                        BL="true"
                         WD="../utils"
-                        BC="${MAKE}  -f utils-Makefile.mk CONF=Debug"
-                        CC="${MAKE}  -f utils-Makefile.mk CONF=Debug clean"
+                        BC="${MAKE}  -f utils-Makefile.mk CONF=Release"
+                        CC="${MAKE}  -f utils-Makefile.mk CONF=Release clean"
                         OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libutils.a">
           </makeArtifact>
           <makeArtifact PL="../ITCLib"
                         CT="3"
-                        CN="Debug"
-                        AC="true"
+                        CN="Release"
+                        AC="false"
                         BL="true"
                         WD="../ITCLib"
-                        BC="${MAKE}  -f Makefile CONF=Debug"
-                        CC="${MAKE}  -f Makefile CONF=Debug clean"
+                        BC="${MAKE}  -f Makefile CONF=Release"
+                        CC="${MAKE}  -f Makefile CONF=Release clean"
                         OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
           </makeArtifact>
           <makeArtifact PL="../lar"
                         CT="1"
                         CN="Release"
                         AC="true"
-                        BL="false"
+                        BL="true"
                         WD="../lar"
                         BC="${MAKE}  -f Makefile CONF=Release"
                         CC="${MAKE}  -f Makefile CONF=Release clean"
@@ -9402,6 +9985,48 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -10301,6 +10926,23 @@
       </packaging>
       <item path="LAppS_Protocol_Specification.md" ex="false" tool="3" flavor2="0">
       </item>
+      <folder path="TestFiles/f1">
+        <cTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>.</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-protector-strong -ftree-vectorize -funroll-loops -Wall -lfmt</commandLine>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles</output>
+        </linkerTool>
+      </folder>
       <item path="include/AppInEvent.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Balancer.h" ex="false" tool="3" flavor2="0">
@@ -10351,6 +10993,8 @@
       </item>
       <item path="include/Shakespeer.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/URIView.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/WSClientsPool.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WSConnectionStats.h" ex="false" tool="3" flavor2="0">
@@ -10395,6 +11039,8 @@
       </item>
       <item path="include/abstract/Worker.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/connection.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/ePoll.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ext/json.hpp" ex="false" tool="3" flavor2="0">
@@ -10437,6 +11083,12 @@
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/main.cpp" ex="false" tool="1" flavor2="9">
+      </item>
+      <item path="src/uri_parser.re2c" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/data/uris" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/uriview.cpp" ex="false" tool="1" flavor2="0">
       </item>
     </conf>
     <conf name="Release.SSE2.NO_STATS" type="1">
@@ -10448,7 +11100,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++</commandlineTool>
+          <commandlineTool>g++  -fstack-clash-protection</commandlineTool>
           <incDir>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -10459,8 +11111,9 @@
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
             <pElem>../lar</pElem>
+            <pElem>llhttp/include</pElem>
           </incDir>
-          <commandLine>-pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>DTFM_TIMING_RESISTANT</Elem>
@@ -10470,7 +11123,6 @@
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
             <Elem>MIMALLOC</Elem>
-            <Elem>TSAFE_LOG=1</Elem>
             <Elem>WC_RSA_BLINDING</Elem>
             <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
@@ -10480,10 +11132,12 @@
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
+            <pElem>llhttp/build/out/Default/obj.target</pElem>
           </linkerAddLib>
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
+          <additionalDep>llhttp/build/out/Default/obj.target/libllhttp.a</additionalDep>
           <commandlineTool>g++</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
@@ -10516,29 +11170,29 @@
         <requiredProjects>
           <makeArtifact PL="../utils"
                         CT="3"
-                        CN="Debug"
-                        AC="true"
-                        BL="false"
+                        CN="Release"
+                        AC="false"
+                        BL="true"
                         WD="../utils"
-                        BC="${MAKE}  -f utils-Makefile.mk CONF=Debug"
-                        CC="${MAKE}  -f utils-Makefile.mk CONF=Debug clean"
+                        BC="${MAKE}  -f utils-Makefile.mk CONF=Release"
+                        CC="${MAKE}  -f utils-Makefile.mk CONF=Release clean"
                         OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libutils.a">
           </makeArtifact>
           <makeArtifact PL="../ITCLib"
                         CT="3"
-                        CN="Debug"
-                        AC="true"
+                        CN="Release"
+                        AC="false"
                         BL="true"
                         WD="../ITCLib"
-                        BC="${MAKE}  -f Makefile CONF=Debug"
-                        CC="${MAKE}  -f Makefile CONF=Debug clean"
+                        BC="${MAKE}  -f Makefile CONF=Release"
+                        CC="${MAKE}  -f Makefile CONF=Release clean"
                         OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
           </makeArtifact>
           <makeArtifact PL="../lar"
                         CT="1"
                         CN="Release"
                         AC="true"
-                        BL="false"
+                        BL="true"
                         WD="../lar"
                         BC="${MAKE}  -f Makefile CONF=Release"
                         CC="${MAKE}  -f Makefile CONF=Release clean"
@@ -10549,6 +11203,48 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -11448,6 +12144,23 @@
       </packaging>
       <item path="LAppS_Protocol_Specification.md" ex="false" tool="3" flavor2="0">
       </item>
+      <folder path="TestFiles/f1">
+        <cTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>.</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-protector-strong -ftree-vectorize -funroll-loops -Wall -lfmt</commandLine>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles</output>
+        </linkerTool>
+      </folder>
       <item path="include/AppInEvent.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Balancer.h" ex="false" tool="3" flavor2="0">
@@ -11498,6 +12211,8 @@
       </item>
       <item path="include/Shakespeer.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/URIView.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/WSClientsPool.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WSConnectionStats.h" ex="false" tool="3" flavor2="0">
@@ -11542,6 +12257,8 @@
       </item>
       <item path="include/abstract/Worker.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/connection.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/ePoll.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ext/json.hpp" ex="false" tool="3" flavor2="0">
@@ -11584,6 +12301,12 @@
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/main.cpp" ex="false" tool="1" flavor2="9">
+      </item>
+      <item path="src/uri_parser.re2c" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/data/uris" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/uriview.cpp" ex="false" tool="1" flavor2="0">
       </item>
     </conf>
     <conf name="Release.SSE2.NO_STATS.NO_TLS" type="1">
@@ -11595,7 +12318,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++</commandlineTool>
+          <commandlineTool>g++  -fstack-clash-protection</commandlineTool>
           <incDir>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -11606,8 +12329,9 @@
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
             <pElem>../lar</pElem>
+            <pElem>llhttp/include</pElem>
           </incDir>
-          <commandLine>-pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>DTFM_TIMING_RESISTANT</Elem>
@@ -11616,7 +12340,6 @@
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
             <Elem>MIMALLOC</Elem>
-            <Elem>TSAFE_LOG=1</Elem>
             <Elem>WC_RSA_BLINDING</Elem>
             <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
@@ -11626,10 +12349,12 @@
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
+            <pElem>llhttp/build/out/Default/obj.target</pElem>
           </linkerAddLib>
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
+          <additionalDep>llhttp/build/out/Default/obj.target/libllhttp.a</additionalDep>
           <commandlineTool>g++</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
@@ -11662,29 +12387,29 @@
         <requiredProjects>
           <makeArtifact PL="../utils"
                         CT="3"
-                        CN="Debug"
-                        AC="true"
-                        BL="false"
+                        CN="Release"
+                        AC="false"
+                        BL="true"
                         WD="../utils"
-                        BC="${MAKE}  -f utils-Makefile.mk CONF=Debug"
-                        CC="${MAKE}  -f utils-Makefile.mk CONF=Debug clean"
+                        BC="${MAKE}  -f utils-Makefile.mk CONF=Release"
+                        CC="${MAKE}  -f utils-Makefile.mk CONF=Release clean"
                         OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libutils.a">
           </makeArtifact>
           <makeArtifact PL="../ITCLib"
                         CT="3"
-                        CN="Debug"
-                        AC="true"
+                        CN="Release"
+                        AC="false"
                         BL="true"
                         WD="../ITCLib"
-                        BC="${MAKE}  -f Makefile CONF=Debug"
-                        CC="${MAKE}  -f Makefile CONF=Debug clean"
+                        BC="${MAKE}  -f Makefile CONF=Release"
+                        CC="${MAKE}  -f Makefile CONF=Release clean"
                         OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
           </makeArtifact>
           <makeArtifact PL="../lar"
                         CT="1"
                         CN="Release"
                         AC="true"
-                        BL="false"
+                        BL="true"
                         WD="../lar"
                         BC="${MAKE}  -f Makefile CONF=Release"
                         CC="${MAKE}  -f Makefile CONF=Release clean"
@@ -11695,6 +12420,48 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -12594,6 +13361,23 @@
       </packaging>
       <item path="LAppS_Protocol_Specification.md" ex="false" tool="3" flavor2="0">
       </item>
+      <folder path="TestFiles/f1">
+        <cTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>.</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-protector-strong -ftree-vectorize -funroll-loops -Wall -lfmt</commandLine>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles</output>
+        </linkerTool>
+      </folder>
       <item path="include/AppInEvent.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Balancer.h" ex="false" tool="3" flavor2="0">
@@ -12644,6 +13428,8 @@
       </item>
       <item path="include/Shakespeer.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/URIView.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/WSClientsPool.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WSConnectionStats.h" ex="false" tool="3" flavor2="0">
@@ -12688,6 +13474,8 @@
       </item>
       <item path="include/abstract/Worker.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/connection.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/ePoll.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ext/json.hpp" ex="false" tool="3" flavor2="0">
@@ -12730,6 +13518,12 @@
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/main.cpp" ex="false" tool="1" flavor2="9">
+      </item>
+      <item path="src/uri_parser.re2c" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/data/uris" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/uriview.cpp" ex="false" tool="1" flavor2="0">
       </item>
     </conf>
     <conf name="Release.AVX" type="1">
@@ -12741,7 +13535,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++</commandlineTool>
+          <commandlineTool>g++  -fstack-clash-protection</commandlineTool>
           <incDir>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -12752,8 +13546,9 @@
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
             <pElem>../lar</pElem>
+            <pElem>llhttp/include</pElem>
           </incDir>
-          <commandLine>-pipe -std=c++17 -pthread -O2 -march=sandybridge -mtune=generic -mfpmath=sse -msse2avx -mavx -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=sandybridge -mtune=generic -mfpmath=sse -msse2avx -mavx -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>DTFM_TIMING_RESISTANT</Elem>
@@ -12764,7 +13559,6 @@
             <Elem>MAX_BUFF_SIZE=512</Elem>
             <Elem>MIMALLOC</Elem>
             <Elem>STATS_ENABLE</Elem>
-            <Elem>TSAFE_LOG=1</Elem>
             <Elem>WC_RSA_BLINDING</Elem>
             <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
@@ -12774,10 +13568,12 @@
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
+            <pElem>llhttp/build/out/Default/obj.target</pElem>
           </linkerAddLib>
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
+          <additionalDep>llhttp/build/out/Default/obj.target/libllhttp.a</additionalDep>
           <commandlineTool>g++</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
@@ -12810,29 +13606,29 @@
         <requiredProjects>
           <makeArtifact PL="../utils"
                         CT="3"
-                        CN="Debug"
-                        AC="true"
-                        BL="false"
+                        CN="Release"
+                        AC="false"
+                        BL="true"
                         WD="../utils"
-                        BC="${MAKE}  -f utils-Makefile.mk CONF=Debug"
-                        CC="${MAKE}  -f utils-Makefile.mk CONF=Debug clean"
+                        BC="${MAKE}  -f utils-Makefile.mk CONF=Release"
+                        CC="${MAKE}  -f utils-Makefile.mk CONF=Release clean"
                         OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libutils.a">
           </makeArtifact>
           <makeArtifact PL="../ITCLib"
                         CT="3"
-                        CN="Debug"
-                        AC="true"
+                        CN="Release"
+                        AC="false"
                         BL="true"
                         WD="../ITCLib"
-                        BC="${MAKE}  -f Makefile CONF=Debug"
-                        CC="${MAKE}  -f Makefile CONF=Debug clean"
+                        BC="${MAKE}  -f Makefile CONF=Release"
+                        CC="${MAKE}  -f Makefile CONF=Release clean"
                         OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
           </makeArtifact>
           <makeArtifact PL="../lar"
                         CT="1"
                         CN="Release"
                         AC="true"
-                        BL="false"
+                        BL="true"
                         WD="../lar"
                         BC="${MAKE}  -f Makefile CONF=Release"
                         CC="${MAKE}  -f Makefile CONF=Release clean"
@@ -12843,6 +13639,48 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -13742,6 +14580,23 @@
       </packaging>
       <item path="LAppS_Protocol_Specification.md" ex="false" tool="3" flavor2="0">
       </item>
+      <folder path="TestFiles/f1">
+        <cTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>.</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-protector-strong -ftree-vectorize -funroll-loops -Wall -lfmt</commandLine>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles</output>
+        </linkerTool>
+      </folder>
       <item path="include/AppInEvent.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Balancer.h" ex="false" tool="3" flavor2="0">
@@ -13792,6 +14647,8 @@
       </item>
       <item path="include/Shakespeer.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/URIView.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/WSClientsPool.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WSConnectionStats.h" ex="false" tool="3" flavor2="0">
@@ -13836,6 +14693,8 @@
       </item>
       <item path="include/abstract/Worker.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/connection.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/ePoll.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ext/json.hpp" ex="false" tool="3" flavor2="0">
@@ -13878,6 +14737,12 @@
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/main.cpp" ex="false" tool="1" flavor2="9">
+      </item>
+      <item path="src/uri_parser.re2c" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/data/uris" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/uriview.cpp" ex="false" tool="1" flavor2="0">
       </item>
     </conf>
     <conf name="Release.AVX.NO_STATS" type="1">
@@ -13889,7 +14754,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++</commandlineTool>
+          <commandlineTool>g++  -fstack-clash-protection</commandlineTool>
           <incDir>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -13900,8 +14765,9 @@
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
             <pElem>../lar</pElem>
+            <pElem>llhttp/include</pElem>
           </incDir>
-          <commandLine>-pipe -std=c++17 -pthread -O2 -march=sandybridge -mtune=generic -mfpmath=sse -msse2avx -mavx -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=sandybridge -mtune=generic -mfpmath=sse -msse2avx -mavx -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>DTFM_TIMING_RESISTANT</Elem>
@@ -13911,7 +14777,6 @@
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
             <Elem>MIMALLOC</Elem>
-            <Elem>TSAFE_LOG=1</Elem>
             <Elem>WC_RSA_BLINDING</Elem>
             <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
@@ -13921,10 +14786,12 @@
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
+            <pElem>llhttp/build/out/Default/obj.target</pElem>
           </linkerAddLib>
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
+          <additionalDep>llhttp/build/out/Default/obj.target/libllhttp.a</additionalDep>
           <commandlineTool>g++</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
@@ -13957,29 +14824,29 @@
         <requiredProjects>
           <makeArtifact PL="../utils"
                         CT="3"
-                        CN="Debug"
-                        AC="true"
-                        BL="false"
+                        CN="Release"
+                        AC="false"
+                        BL="true"
                         WD="../utils"
-                        BC="${MAKE}  -f utils-Makefile.mk CONF=Debug"
-                        CC="${MAKE}  -f utils-Makefile.mk CONF=Debug clean"
+                        BC="${MAKE}  -f utils-Makefile.mk CONF=Release"
+                        CC="${MAKE}  -f utils-Makefile.mk CONF=Release clean"
                         OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libutils.a">
           </makeArtifact>
           <makeArtifact PL="../ITCLib"
                         CT="3"
-                        CN="Debug"
-                        AC="true"
+                        CN="Release"
+                        AC="false"
                         BL="true"
                         WD="../ITCLib"
-                        BC="${MAKE}  -f Makefile CONF=Debug"
-                        CC="${MAKE}  -f Makefile CONF=Debug clean"
+                        BC="${MAKE}  -f Makefile CONF=Release"
+                        CC="${MAKE}  -f Makefile CONF=Release clean"
                         OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
           </makeArtifact>
           <makeArtifact PL="../lar"
                         CT="1"
                         CN="Release"
                         AC="true"
-                        BL="false"
+                        BL="true"
                         WD="../lar"
                         BC="${MAKE}  -f Makefile CONF=Release"
                         CC="${MAKE}  -f Makefile CONF=Release clean"
@@ -13990,6 +14857,48 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -14889,6 +15798,23 @@
       </packaging>
       <item path="LAppS_Protocol_Specification.md" ex="false" tool="3" flavor2="0">
       </item>
+      <folder path="TestFiles/f1">
+        <cTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>.</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-protector-strong -ftree-vectorize -funroll-loops -Wall -lfmt</commandLine>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles</output>
+        </linkerTool>
+      </folder>
       <item path="include/AppInEvent.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Balancer.h" ex="false" tool="3" flavor2="0">
@@ -14939,6 +15865,8 @@
       </item>
       <item path="include/Shakespeer.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/URIView.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/WSClientsPool.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WSConnectionStats.h" ex="false" tool="3" flavor2="0">
@@ -14983,6 +15911,8 @@
       </item>
       <item path="include/abstract/Worker.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/connection.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/ePoll.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ext/json.hpp" ex="false" tool="3" flavor2="0">
@@ -15025,6 +15955,12 @@
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/main.cpp" ex="false" tool="1" flavor2="9">
+      </item>
+      <item path="src/uri_parser.re2c" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/data/uris" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/uriview.cpp" ex="false" tool="1" flavor2="0">
       </item>
     </conf>
     <conf name="Release.AVX.NO_STATS.NO_TLS" type="1">
@@ -15036,7 +15972,7 @@
       <compileType>
         <ccTool>
           <developmentMode>0</developmentMode>
-          <commandlineTool>g++</commandlineTool>
+          <commandlineTool>g++  -fstack-clash-protection</commandlineTool>
           <incDir>
             <pElem>../ITCLib/include</pElem>
             <pElem>../utils/include</pElem>
@@ -15047,8 +15983,9 @@
             <pElem>/usr/local/include/luajit-2.0</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6/include</pElem>
             <pElem>../lar</pElem>
+            <pElem>llhttp/include</pElem>
           </incDir>
-          <commandLine>-pipe -std=c++17 -pthread -O2 -march=sandybridge -mtune=generic -mfpmath=sse -msse2avx -mavx -fstack-check -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=sandybridge -mtune=generic -mfpmath=sse -msse2avx -mavx -fstack-protector-strong -ftree-vectorize -funroll-loops</commandLine>
           <preprocessorList>
             <Elem>APP_NAME="LAppS"</Elem>
             <Elem>DTFM_TIMING_RESISTANT</Elem>
@@ -15057,7 +15994,6 @@
             <Elem>LOG_INFO</Elem>
             <Elem>MAX_BUFF_SIZE=512</Elem>
             <Elem>MIMALLOC</Elem>
-            <Elem>TSAFE_LOG=1</Elem>
             <Elem>WC_RSA_BLINDING</Elem>
             <Elem>WOLFSSL_TLS13</Elem>
           </preprocessorList>
@@ -15067,10 +16003,12 @@
           <linkerAddLib>
             <pElem>/usr/local/lib</pElem>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
+            <pElem>llhttp/build/out/Default/obj.target</pElem>
           </linkerAddLib>
           <linkerDynSerch>
             <pElem>/usr/local/lib/mimalloc-1.6</pElem>
           </linkerDynSerch>
+          <additionalDep>llhttp/build/out/Default/obj.target/libllhttp.a</additionalDep>
           <commandlineTool>g++</commandlineTool>
           <linkerLibItems>
             <linkerLibProjectItem>
@@ -15103,29 +16041,29 @@
         <requiredProjects>
           <makeArtifact PL="../utils"
                         CT="3"
-                        CN="Debug"
-                        AC="true"
-                        BL="false"
+                        CN="Release"
+                        AC="false"
+                        BL="true"
                         WD="../utils"
-                        BC="${MAKE}  -f utils-Makefile.mk CONF=Debug"
-                        CC="${MAKE}  -f utils-Makefile.mk CONF=Debug clean"
+                        BC="${MAKE}  -f utils-Makefile.mk CONF=Release"
+                        CC="${MAKE}  -f utils-Makefile.mk CONF=Release clean"
                         OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libutils.a">
           </makeArtifact>
           <makeArtifact PL="../ITCLib"
                         CT="3"
-                        CN="Debug"
-                        AC="true"
+                        CN="Release"
+                        AC="false"
                         BL="true"
                         WD="../ITCLib"
-                        BC="${MAKE}  -f Makefile CONF=Debug"
-                        CC="${MAKE}  -f Makefile CONF=Debug clean"
+                        BC="${MAKE}  -f Makefile CONF=Release"
+                        CC="${MAKE}  -f Makefile CONF=Release clean"
                         OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libitclib.a">
           </makeArtifact>
           <makeArtifact PL="../lar"
                         CT="1"
                         CN="Release"
                         AC="true"
-                        BL="false"
+                        BL="true"
                         WD="../lar"
                         BC="${MAKE}  -f Makefile CONF=Release"
                         CC="${MAKE}  -f Makefile CONF=Release clean"
@@ -15136,6 +16074,48 @@
       <packaging>
         <packType>Debian</packType>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"
@@ -16035,6 +17015,23 @@
       </packaging>
       <item path="LAppS_Protocol_Specification.md" ex="false" tool="3" flavor2="0">
       </item>
+      <folder path="TestFiles/f1">
+        <cTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>.</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <commandLine>-pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-protector-strong -ftree-vectorize -funroll-loops -Wall -lfmt</commandLine>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles</output>
+        </linkerTool>
+      </folder>
       <item path="include/AppInEvent.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/Balancer.h" ex="false" tool="3" flavor2="0">
@@ -16085,6 +17082,8 @@
       </item>
       <item path="include/Shakespeer.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/URIView.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/WSClientsPool.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/WSConnectionStats.h" ex="false" tool="3" flavor2="0">
@@ -16129,6 +17128,8 @@
       </item>
       <item path="include/abstract/Worker.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/connection.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/ePoll.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/ext/json.hpp" ex="false" tool="3" flavor2="0">
@@ -16171,6 +17172,12 @@
       <item path="include/wsServer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/main.cpp" ex="false" tool="1" flavor2="9">
+      </item>
+      <item path="src/uri_parser.re2c" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/data/uris" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/uriview.cpp" ex="false" tool="1" flavor2="0">
       </item>
     </conf>
   </confs>

@@ -1,0 +1,497 @@
+/**
+ * The MIT License
+ *
+ * Copyright 2020 Pavel Kraynyukhov.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ * 
+ *  $Id: uri_parser.h April 17, 2020 11:27 AM $
+ * 
+ **/
+
+#include <string_view>
+#include <string>
+#include <cstdint>
+#include <iostream>
+
+enum class URIType : uint8_t { INVALID=0, ABSOLUTE=39, AUTHORITY=40, ORIGIN=41, STAR=42 };
+
+/*
+  utf8_tail   = [\x80-\xbf];
+  utf8_1      = [\x00-\x7f];
+  utf8_2      = [\xc2-\xdf] utf8_tail;
+  utf8_3      = ([\xe0][\xa0-\xbf] utf8_tail) | ( [\xe1-\xec] ( utf8_tail ){2} ) | ( [\xed] [\x80-\x9f] utf8_tail ) | ([\xee-\xef] ( utf8_tail ){2});
+  utf8_4      = ([\xf0][\x90-\xbf] ( utf8_tail ){2}) | ([\xf1-\xf3] ( utf8_tail ){3}) | ([\xf4] [\x80-\x8f] ( utf8_tail ){2});
+  utf8_char   = utf8_1 | utf8_2 | utf8_3 | utf8_4;
+  utf8        = utf8_char+;
+
+ 
+  path_utf8_char = utf8_2 | utf8_3 | utf8_4 | [\x24-\x29] | [\x2b-\x2e] | [\x30-\x3e] | [\x40-\x5b] | [\x5d-\x7e];
+
+  query_utf8_char = utf8_2 | utf8_3 | utf8_4 | [\x21-\x22\x24-\x2e] | [\x30-\x5b] | [\x61-\x7e];
+
+  domain_name_utf8_char = utf8_2 | utf8_3 | utf8_4 | [\x30-\x39\x41-\x5a\x61-\x7a];
+
+  password_character = utf8_2 | utf8_3 | utf8_4 | [\x21-39\x41-\xff];
+ 
+  
+ 
+ */
+
+/** uri syntax
+  absolute_uri   = schema ":" 
+      ( "//" (userinfo "@")? host (":" port )? path_abempty
+      | (path_absolute | path_rootless | path_empty)
+      ) ( ("?" query ) | ("#: fragment) )?;
+  authority      = (userinfo "@")? host (":" port )?;
+  userinfo       = username ([:] password_character+)?;
+  username       = (ALNUM (ALNUM | [.]))+;
+  origin_form    = path_abempty ("?" query)?;
+**/
+
+/*!re2c
+  
+  re2c:define:YYCTYPE = uint8_t;
+  re2c:yyfill:enable  = 0;
+  re2c:eof = 0;
+ 
+  ALPHA       = [a-zA-Z];
+  CHAR        = [\x01-\x7f]; //  any 7-bit US-ASCII character, excluding NUL
+  hexdigit    = [0-9a-fA-F];
+  digit       = [0-9];
+  DIGIT       = digit;
+  alpha       = ALPHA;
+  PCTHEX      = "%" hexdigit{2};
+  VCHAR       = [\x21-\x7e];
+  ALNUM       = alpha | digit;
+
+  utf8_tail   = [\x80-\xbf];
+  utf8_1      = [\x00-\х7f];
+  utf8_2      = [\xc2-\xdf] utf8_tail;
+  utf8_3      = ([\xe0][\xa0-\xbf] utf8_tail) | ( [\xe1-\xec] ( utf8_tail ){2} ) | ( [\xed] [\x80-\x9f] utf8_tail ) | ([\xee-\xef] ( utf8_tail ){2});
+  utf8_4      = ([\xf0][\x90-\xbf] ( utf8_tail ){2}) | ([\xf1-\xf3] ( utf8_tail ){3}) | ([\xf4] [\x80-\x8f] ( utf8_tail ){2});
+  utf8_char   = utf8_1 | utf8_2 | utf8_3 | utf8_4;
+  utf8_octets =  utf8_char+;
+
+  donain_name_utf8_charset = utf8_2 | utf8_3 | utf8_4 | [\x30-\x39\x41-\x5a\x61-\x7a];
+
+  domain_name_utf8 = (donain_name_utf8_charset+ | (donain_name_utf8_charset+ ([.]|[-]) donain_name_utf8_charset+))+;
+
+  path_utf8_charset = utf8_2 | utf8_3 | utf8_4 | [\x24-\x29] | [\x2b-\x2e] | [\x30-\x3e] | [\x40-\x5b] | [\x5d-\x7e] | PCTHEX;
+
+  query_utf8_charset = utf8_2 | utf8_3 | utf8_4 | [\x21-\x22\x24-\x2e] | [\x30-\x5b] | [\x61-\x7e] | PCTHEX;
+
+  password_character = utf8_2 | utf8_3 | utf8_4 | [\x21-\x39\x41-\xff];
+
+  unreserved  = ALPHA | DIGIT | [-._~];
+  
+  sub_delims  = [!$&'()*+,;=];
+  
+  dec_octet = digit
+  | [\x31-\x39] digit
+  | "1" digit{2}
+  | "2" [\x30-\x34] digit
+  | "25" [\x30-\x35];
+ 
+  ipv4address    = dec_octet "." dec_octet "." dec_octet "." dec_octet;
+  h16            = hexdigit{1,4};
+  ls32           = h16 ":" h16 | ipv4address;
+  ipv6address    
+  =                            (h16 ":"){6} ls32
+  |                       "::" (h16 ":"){5} ls32
+  | (               h16)? "::" (h16 ":"){4} ls32
+  | ((h16 ":"){0,1} h16)? "::" (h16 ":"){3} ls32
+  | ((h16 ":"){0,2} h16)? "::" (h16 ":"){2} ls32
+  | ((h16 ":"){0,3} h16)? "::"  h16 ":"     ls32
+  | ((h16 ":"){0,4} h16)? "::"              ls32
+  | ((h16 ":"){0,5} h16)? "::"              h16
+  | ((h16 ":"){0,6} h16)? "::";
+ 
+  ipvfuture      = "v" hexdigit+ "." (unreserved | sub_delims | ":" )+;
+  ip_literal     = "[" ( ipv6address | ipvfuture ) "]";
+ 
+  path_charset   = path_utf8_charset | [\x21-\x2e\x30-\x7e];
+ 
+  path_abempty   = [/] | ([/] path_charset+)* [/]?;
+  
+  punycode       = ([x][n][-][-])([a-z0-9]+([-][a-z0-9]+)*)[.]([x][n][-][-])?([a-z0-9]+([-][a-z0-9]+)*)+;
+ 
+  host           = ip_literal | ipv4address | domain_name_utf8 | punycode;
+ 
+  port           = [1-9] digit{0,4};
+  query          = [?] (query_utf8_charset+ | [/?] )*;
+  fragment       = [#] (query_utf8_charset+ | [/?] )*;
+
+  scheme         = ALPHA ( ALPHA| DIGIT| [+-.] )*;
+
+  username       = alpha (alpha | digit | [.])*;
+  userinfo       = username ([:] password_character+)? [@];
+
+*/
+
+#include <cstdint>
+#include <vector>
+#include <string>
+#include <string_view>
+#include <system_error>
+#include <memory>
+#include <algorithm>
+#include <fmt/core.h>
+
+
+struct URIView
+{
+  struct parsing_result {
+    uint32_t  length;
+    bool      value;
+  };
+
+  bool              valid;
+  URIType           type;
+  std::string_view  schema;
+  std::string_view  userinfo;
+  std::string_view  host;
+  std::string_view  port;
+  std::string_view  path;
+  std::string_view  query;
+  std::string_view  fragment;
+
+
+  URIView() : valid{false},type{URIType::INVALID}
+  {
+  }
+  
+  uint32_t parse(std::string_view _uri)
+  {
+    schema=std::string_view("");
+    userinfo=std::string_view("");
+    host=std::string_view("");
+    port=std::string_view("");
+    path=std::string_view("");
+    query=std::string_view("");
+    fragment=std::string_view("");
+    valid=false;
+    type=URIType::INVALID;
+    
+    auto result{parse_uri(_uri)};
+    valid=result.value;
+    return result.length;
+  }
+ private:
+  
+  static parsing_result parse_path_abempty(const uint8_t* YYCURSOR, const uint32_t length)
+  {
+    const uint8_t* YYSTART=YYCURSOR;
+    const uint8_t* YYLIMIT=YYCURSOR+length;
+    const uint8_t* YYMARKER=YYCURSOR; 
+
+    /** ==> re2c:eof probably will never take place because 
+     *  one of successful patterns is empty string. 
+     *  Thus making it impossible to report INCOMPELTE state.
+     **/
+
+    /*!re2c
+      re2c:define:YYCTYPE = uint8_t;
+      re2c:yyfill:enable  = 0;
+
+      $ { return  { (uint32_t)(YYCURSOR-YYSTART), true }; }
+      path_abempty { return  { (uint32_t)(YYCURSOR-YYSTART), true }; }
+      .   { return { (uint32_t)(YYCURSOR-YYSTART), false }; }
+    */
+  }
+    
+  static parsing_result parse_query(const uint8_t* YYCURSOR, const size_t length)
+  {
+    const uint8_t* YYSTART=YYCURSOR;
+    const uint8_t* YYLIMIT=YYCURSOR+length;
+    const uint8_t* YYMARKER=YYCURSOR; 
+
+    /** ==> re2c:eof probably will never take place because 
+     *  one of successful patterns is empty string. 
+     *  Thus making it impossible to report INCOMPELTE or EMPTY state.
+     **/
+
+    /*!re2c
+      re2c:define:YYCTYPE = uint8_t;
+      re2c:yyfill:enable  = 0;
+      re2c:eof = 0;
+
+
+      $ { return { (uint32_t)(YYCURSOR-YYSTART), false }; }
+      query { return  { (uint32_t)(YYCURSOR-YYSTART), true }; }
+      .   { return { (uint32_t)(YYCURSOR-YYSTART), false }; }
+    */
+  }
+
+  static parsing_result parse_fragment(const uint8_t* YYCURSOR, const size_t length)
+  {
+    const uint8_t* YYSTART=YYCURSOR;
+    const uint8_t* YYLIMIT=YYCURSOR+length;
+    const uint8_t* YYMARKER=YYCURSOR; 
+
+    /** ==> re2c:eof probably will never take place because 
+     *  one of successful patterns is empty string. 
+     *  Thus making it impossible to report INCOMPELTE or EMPTY state.
+     **/
+
+    /*!re2c
+      re2c:define:YYCTYPE = uint8_t;
+      re2c:yyfill:enable  = 0;
+      re2c:eof = 0;
+
+
+      $ { return { (uint32_t)(YYCURSOR-YYSTART), false }; }
+      fragment { return  { (uint32_t)(YYCURSOR-YYSTART), true }; }
+      .   { return { (uint32_t)(YYCURSOR-YYSTART), false }; }
+    */
+  }
+
+  static parsing_result parse_schema(const uint8_t* YYCURSOR, const size_t length)
+  {
+    const uint8_t* YYSTART=YYCURSOR;
+    const uint8_t* YYLIMIT=YYCURSOR+length;
+    const uint8_t* YYMARKER=YYCURSOR;
+
+    /** ==> re2c:eof probably will never take place because 
+     *  one of successful patterns is empty string. 
+     *  Thus making it impossible to report INCOMPELTE or EMPTY state.
+     **/
+
+    /*!re2c
+      re2c:define:YYCTYPE = uint8_t;
+      re2c:yyfill:enable  = 0;
+      re2c:eof = 0;
+
+      schema = scheme "://";
+
+      $ { return { (uint32_t)(YYCURSOR-YYSTART), false }; }
+      schema { return  { (uint32_t)(YYCURSOR-YYSTART-3), true }; }
+      .   { return { (uint32_t)(YYCURSOR-YYSTART), false }; }
+    */
+  }
+    
+  static parsing_result parse_userinfo(const uint8_t* YYCURSOR, const size_t length)
+  {
+    const uint8_t* YYSTART=YYCURSOR;
+    const uint8_t* YYLIMIT=YYCURSOR+length;
+    const uint8_t* YYMARKER=YYCURSOR; 
+
+    /** ==> re2c:eof probably will never take place because 
+     *  one of successful patterns is empty string. 
+     *  Thus making it impossible to report INCOMPELTE or EMPTY state.
+     **/
+
+    /*!re2c
+      re2c:define:YYCTYPE = uint8_t;
+      re2c:yyfill:enable  = 0;
+      re2c:eof = 0;
+
+      $ { return { (uint32_t)(YYCURSOR-YYSTART), false }; }
+      userinfo { return  { (uint32_t)(YYCURSOR-YYSTART-1), true}; }
+      .   { return { 0, false }; }
+    */
+  }
+    
+  static parsing_result parse_host(const uint8_t* YYCURSOR, const size_t length)
+  {
+    const uint8_t* YYSTART=YYCURSOR;
+    const uint8_t* YYLIMIT=YYCURSOR+length;
+    const uint8_t* YYMARKER=YYCURSOR; 
+
+    /** ==> re2c:eof probably will never take place because 
+     *  one of successful patterns is empty string. 
+     *  Thus making it impossible to report INCOMPELTE or EMPTY state.
+     **/
+
+    /*!re2c
+      re2c:define:YYCTYPE = uint8_t;
+      re2c:yyfill:enable  = 0;
+      re2c:eof = 0;
+
+
+      $ { return { (uint32_t)(YYCURSOR-YYSTART), true }; }
+      host { 
+              return  { (uint32_t)(YYCURSOR-YYSTART), true };
+           }
+      .    { 
+              return { (uint32_t)(YYCURSOR-YYSTART), false }; 
+           }
+    */
+  }
+
+  static parsing_result parse_port(const uint8_t* YYCURSOR, const size_t length)
+  {
+    const uint8_t* YYSTART=YYCURSOR;
+    const uint8_t* YYLIMIT=YYCURSOR+length;
+
+    /** ==> re2c:eof probably will never take place because 
+     *  one of successful patterns is empty string. 
+     *  Thus making it impossible to report INCOMPELTE or EMPTY state.
+     **/
+
+    /*!re2c
+      re2c:define:YYCTYPE = uint8_t;
+      re2c:yyfill:enable  = 0;
+      re2c:eof = 0;
+
+      $ { return { (uint32_t)(YYCURSOR-YYSTART), false }; }
+      ":" port  { return  { (uint32_t)(YYCURSOR-YYSTART), true }; }
+      .   { return { (uint32_t)(YYCURSOR-YYSTART), false}; }
+    */
+  }
+    
+    
+  const parsing_result parse_uri(const std::string_view _uri)
+  {
+    const uint8_t *YYCURSOR=(const uint8_t*)(_uri.data());
+
+    if(_uri.length() > 8192)
+      throw std::system_error(EINVAL,std::system_category(),fmt::format("uri length exceed practically usable length 8192 8-bit symbols"));
+      
+    const uint32_t length{static_cast<uint32_t>(_uri.length())};
+    parsing_result result{0,false};
+    uint32_t offset=0;
+
+    if(length > 0)
+    {
+      switch(YYCURSOR[0])
+      {
+        case '*':
+          type=URIType::STAR;
+          return {0,true};
+        case '/':
+          type=URIType::ORIGIN;
+          goto at_abempty_path_parsing;
+        case '?':
+          type=URIType::ORIGIN;
+          goto at_query_parsing;
+        default:
+          goto at_absolute_form_parsing;
+      }
+
+    at_abempty_path_parsing:
+      result=parse_path_abempty(YYCURSOR+offset,length - offset);
+
+      if(!result.value)
+      {
+        return {(offset+result.length),false};
+      }
+
+      path=std::string_view((const char*)(YYCURSOR+offset),result.length);
+      offset+=result.length;
+
+    at_query_parsing:
+      if(type!=URIType::AUTHORITY) // not authority uri
+      {
+        result=parse_query(YYCURSOR+offset,length-offset);
+
+        if(result.value)
+        {
+            query=std::string_view((const char*)(YYCURSOR+offset+1),result.length-1);
+            offset+=result.length;
+        }
+        else if(result.length != 0) // may be empty but not invalid
+        {
+            return {result.length+offset,false};
+        }
+
+        result=parse_fragment(YYCURSOR+offset,length-offset);
+
+        if(result.value)
+        {
+            fragment=std::string_view((const char*)(YYCURSOR+offset),result.length);
+            offset+=result.length;
+            return {offset,true};
+        }
+        else if(result.length == 0) // may be empty but not invalid
+        {
+          return { offset, true };
+        } else { // may be empty but not invalid
+          return {result.length+offset,false};
+        }
+      }
+      // try absolute form
+    at_absolute_form_parsing:
+      result=parse_schema(YYCURSOR,length-offset);
+
+      if(result.value)
+      {
+          type=URIType::ABSOLUTE;
+          schema=std::string_view((const char*)(YYCURSOR+offset),result.length);
+          offset=(offset + result.length+3);
+      }
+      else if(result.length == 0)
+      {
+          goto at_userinfo_parsing; // authority form
+      } else {
+          return {offset,false};
+      }
+
+    at_userinfo_parsing:
+      result=parse_userinfo(YYCURSOR+offset,length-offset);
+      
+      if(!result.value)
+      {
+        if(result.length!=0)
+        {
+          return {result.length+offset,false};
+        }
+      }else{ // userinfo is found
+        userinfo=std::string_view((const char*)(YYCURSOR+offset),result.length);
+        offset+=(result.length+1);
+      }
+
+      //at_host_parsing:
+        result=parse_host(YYCURSOR+offset,length-offset);
+        
+        if(!result.value) 
+        {
+          if((result.length != 0)||((type==URIType::ABSOLUTE)&&(result.length == 0)))
+            return {result.length+offset,false};
+        }
+        else
+        {
+          host=std::string_view((const char*)(YYCURSOR+offset),result.length);
+          offset+=result.length;
+        }
+
+        result=parse_port(YYCURSOR+offset,length-offset);
+
+        if(result.value)
+        {
+          port=std::string_view((const char*)(YYCURSOR+offset+1),result.length-1);
+          offset+=result.length;
+          
+          if((offset == _uri.length())&&(host.length()>0))
+            return {offset,true};
+        } 
+        else
+        {
+          if((result.length == 1)&&(*(const char*)(YYCURSOR+offset) == '/'))
+            goto at_abempty_path_parsing;
+          else if((offset == _uri.length())&&(host.length()>0))
+            return {result.length+offset,true};
+          else
+            return {result.length+offset,false};
+        }
+        goto at_abempty_path_parsing;
+    }
+    return {offset,false};
+  }
+};

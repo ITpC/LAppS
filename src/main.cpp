@@ -64,7 +64,7 @@ void startWSServer()
   {
     if(sigwait(&sigset, &signo) == 0)
     {
-      ITC_INFO(__FILE__,__LINE__,"Shutdown is initiated by signal %d, - server is going down",signo);
+      ITC_INFO(__FILE__,__LINE__,"Shutdown is initiated by signal {}, - server is going down",signo);
       LAppS::SServiceRegistry::getInstance()->clear();
 #ifdef LAPPS_TLS_ENABLE
   #ifdef STATS_ENABLE
