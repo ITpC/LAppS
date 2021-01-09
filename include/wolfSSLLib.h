@@ -36,7 +36,7 @@
  #define logWOLFSSLError(x,y)\
       char buffer[80];\
       auto err=wolfSSL_get_error(TLSSocket,x);\
-      ITC_ERROR(__FILE__,__LINE__,y" %d - {}", err, wolfSSL_ERR_error_string(err,buffer));
+      ITC_ERROR(__FILE__,__LINE__,y" {} - {}", err, wolfSSL_ERR_error_string(err,buffer));
       
 
 enum TLSContextType : bool { TLS_SERVER, TLS_CLIENT };
