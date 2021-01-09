@@ -38,6 +38,7 @@
 #include <abstract/Service.h>
 
 #include <ext/json.hpp>
+#include <fmt/core.h>
 
 using json=nlohmann::json;
 
@@ -104,7 +105,7 @@ namespace LAppS
           return instance->getRunnable();
         }
       }
-      throw std::system_error(EINVAL,std::system_category(),"Instance with Id "+std::to_string(_id)+" is not available");
+      throw std::system_error(EINVAL,std::system_category(),fmt::format("Instance with Id {} is not available",_id));
     }
     
     const auto list() const noexcept
@@ -158,12 +159,14 @@ namespace LAppS
     }
   };
   
-  class ServiceRegistry
+  class ServiceRegistry // TODO: replace by bidirectional map
   {
    private:
     mutable ::itc::sys::mutex                       mMutex;
+    mutable ::itc::sys::mutex                       mCleanMutex;
     std::map<std::string,ServicesInstanceHolder>    mServices;
     std::map<std::string,std::string>               mTargets2Names;
+    
     
    public:
     explicit ServiceRegistry()=default;
@@ -172,7 +175,12 @@ namespace LAppS
     
     void clear()
     {
+      while(!mCleanMutex.try_lock())
+      {
+        itc::sys::sched_yield();
+      }
       ITCSyncLock sync(mMutex);
+      mCleanMutex.unlock();
       mTargets2Names.clear();
       mServices.clear();
     }
@@ -220,7 +228,7 @@ namespace LAppS
       {
         return it->second.next();
       }
-      throw std::system_error(EINVAL,std::system_category(),std::string("ServiceRegistry::findByName(")+name+"), - no such service");
+      throw std::system_error(EINVAL,std::system_category(),fmt::format("ServiceRegistry::findByName({}), - no such service",name));
     }
     
     const auto& findByTarget(const std::string& target) const
@@ -234,13 +242,15 @@ namespace LAppS
         {
           return it->second.next();
         }
-        throw std::system_error(EINVAL,std::system_category(),std::string("ServiceRegistry::findByTarget(")+tit->second+"), - no such service");
+        throw std::system_error(EINVAL,std::system_category(),fmt::format("ServiceRegistry::findByTarget({}), - no such service",tit->second));
       }
-      throw std::system_error(EINVAL,std::system_category(),std::string("ServiceRegistry::findByTarget(")+target+"), - no such target");
+      throw std::system_error(EINVAL,std::system_category(),fmt::format("ServiceRegistry::findByTarget({}), - no such target",target));
     }
     
     const auto& findById(const size_t& _id) const
     {
+      ITCSyncLock sync(mCleanMutex);
+      ITCSyncLock sync1(mMutex);
       for(const auto& instances: mServices)
       {
         try{
@@ -248,9 +258,10 @@ namespace LAppS
         }
         catch(const std::exception& e)
         {
+          //not found
         }
       }
-      throw std::system_error(EINVAL,std::system_category(),std::string("ServiceRegistry::findById(")+std::to_string(_id)+"), - no such instance");
+      throw std::system_error(EINVAL,std::system_category(),fmt::format("ServiceRegistry::findById({}), - no such instance",_id));
     }
     
     const auto list() const noexcept
