@@ -6,7 +6,7 @@
             <name>LAppS</name>
             <c-extensions/>
             <cpp-extensions>cpp</cpp-extensions>
-            <header-extensions>h,hpp</header-extensions>
+            <header-extensions>h,hpp,re2c</header-extensions>
             <sourceEncoding>UTF-8</sourceEncoding>
             <make-dep-projects>
                 <make-dep-project>../lar</make-dep-project>
@@ -17,6 +17,7 @@
                 <sourceRootElem>src</sourceRootElem>
                 <sourceRootElem>src</sourceRootElem>
                 <sourceRootElem>llhttp</sourceRootElem>
+                <sourceRootElem>tests</sourceRootElem>
             </sourceRootList>
             <confList>
                 <confElem>

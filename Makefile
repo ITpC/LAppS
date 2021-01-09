@@ -56,7 +56,7 @@ LLHTTP=llhttp/build/out/Default/obj.target/libllhttp.a
 build: $(LLHHTP) .build-post
 
 .build-pre:
-# Add your pre 'build' code here...
+	/usr/bin/re2c --input-encoding utf8 -o include/URIView.h src/uri_parser.re2c
 
 .build-post: .build-impl
 # Add your post 'build' code here...
