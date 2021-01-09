@@ -192,12 +192,12 @@ namespace LAppS
         try{
           json& modules=LAppSConfig::getInstance()->getLAppSConfig()["services"][this->getName()]["preload"];
           
-          for(const std::string& module: modules)
+          for(auto it=modules.begin();it!=modules.end();++it)
           {
-            auto it=modules_map.find(module);
-            if(it!=modules_map.end())
+            auto it1=modules_map.find(*it);
+            if(it1!=modules_map.end())
             {
-              it->second(mLState);
+              it1->second(mLState);
             }
           }
         }catch(const std::exception& e)
