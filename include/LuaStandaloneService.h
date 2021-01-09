@@ -71,7 +71,7 @@ namespace LAppS
     ~LuaStandaloneService()
     {
       this->shutdown();
-      while(mContext.isRunning()) itc::sys::sched_yield(5000);
+      while(mContext.isRunning()) itc::sys::sched_yield(10000);
     }
     
     void onCancel()
