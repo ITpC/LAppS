@@ -32,27 +32,6 @@
 
 enum class URIType : uint8_t { INVALID=0, ABSOLUTE=39, AUTHORITY=40, ORIGIN=41, STAR=42 };
 
-/*
-  utf8_tail   = [\x80-\xbf];
-  utf8_1      = [\x00-\x7f];
-  utf8_2      = [\xc2-\xdf] utf8_tail;
-  utf8_3      = ([\xe0][\xa0-\xbf] utf8_tail) | ( [\xe1-\xec] ( utf8_tail ){2} ) | ( [\xed] [\x80-\x9f] utf8_tail ) | ([\xee-\xef] ( utf8_tail ){2});
-  utf8_4      = ([\xf0][\x90-\xbf] ( utf8_tail ){2}) | ([\xf1-\xf3] ( utf8_tail ){3}) | ([\xf4] [\x80-\x8f] ( utf8_tail ){2});
-  utf8_char   = utf8_1 | utf8_2 | utf8_3 | utf8_4;
-  utf8        = utf8_char+;
-
- 
-  path_utf8_char = utf8_2 | utf8_3 | utf8_4 | [\x24-\x29] | [\x2b-\x2e] | [\x30-\x3e] | [\x40-\x5b] | [\x5d-\x7e];
-
-  query_utf8_char = utf8_2 | utf8_3 | utf8_4 | [\x21-\x22\x24-\x2e] | [\x30-\x5b] | [\x61-\x7e];
-
-  domain_name_utf8_char = utf8_2 | utf8_3 | utf8_4 | [\x30-\x39\x41-\x5a\x61-\x7a];
-
-  password_character = utf8_2 | utf8_3 | utf8_4 | [\x21-39\x41-\xff];
- 
-  
- 
- */
 
 /** uri syntax
   absolute_uri   = schema ":" 
@@ -195,6 +174,8 @@ struct URIView
   }
  private:
   
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-label"  
   static parsing_result parse_path_abempty(const uint8_t* YYCURSOR, const uint32_t length)
   {
     const uint8_t* YYSTART=YYCURSOR;
@@ -215,7 +196,8 @@ struct URIView
       .   { return { (uint32_t)(YYCURSOR-YYSTART), false }; }
     */
   }
-    
+#pragma GCC diagnostic pop
+  
   static parsing_result parse_query(const uint8_t* YYCURSOR, const size_t length)
   {
     const uint8_t* YYSTART=YYCURSOR;
