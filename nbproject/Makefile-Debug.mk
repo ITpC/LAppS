@@ -52,8 +52,8 @@ TESTOBJECTFILES= \
 CFLAGS=
 
 # CC Compiler Flags
-CCFLAGS=-gdwarf-4 -pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-protector-strong -ftree-vectorize -funroll-loops
-CXXFLAGS=-gdwarf-4 -pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-protector-strong -ftree-vectorize -funroll-loops
+CCFLAGS=-ggdb -pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-protector-strong -ftree-vectorize -funroll-loops
+CXXFLAGS=-ggdb -pipe -std=c++17 -pthread -O2 -march=nocona -mtune=generic -mfpmath=sse -msse2 -fstack-protector-strong -ftree-vectorize -funroll-loops
 
 # Fortran Compiler Flags
 FFLAGS=
