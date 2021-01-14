@@ -97,10 +97,9 @@ public:
      
      auto ret=wolfSSL_CTX_load_verify_locations(this->raw_context(),ca.c_str(),nullptr);
      
-     std::string errmsg("Error on verification of the CA file ["+ca+"]: ");
-     
      if( ret != SSL_SUCCESS)
      {
+       std::string errmsg("Error on verification of the CA file ["+ca+"]: ");
        switch(ret)
        {
          case SSL_FAILURE:
@@ -133,11 +132,8 @@ public:
          default:
            errmsg.append("unknown error");
            break;
+        throw std::system_error(EINVAL,std::system_category(),errmsg);
        }
-       
-       ITC_ERROR(__FILE__,__LINE__,"{}",errmsg.c_str());
-       
-       throw std::system_error(EINVAL,std::system_category(),errmsg);
      }
      
      if(wolfSSL_CTX_use_PrivateKey_file(this->raw_context(),kfile.c_str(), SSL_FILETYPE_PEM) == SSL_SUCCESS)
