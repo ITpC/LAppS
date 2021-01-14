@@ -150,19 +150,18 @@ public:
   int poll(std::vector<epoll_event>& out, const int timeout=10)
   {
     int ret=0;
-    while(1)
+    while(true)
     {
       ret=epoll_wait(mPollFD,out.data(),out.size(),timeout);
-      if((ret == -1) && (errno != EINTR))
+      if(ret == -1)
       {
+        if(errno != EINTR)
         throw std::system_error(
           errno,std::system_category(),"Exception in epoll_wait() in ePoll::poll(): "
         );
+        ret=0;
       }
-      else{
-        if(ret >= 0)
-          return ret;
-      }
+      return ret;
     }
   }
 };
